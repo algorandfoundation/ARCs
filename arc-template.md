@@ -6,7 +6,7 @@ author: <a comma separated list of the author's or authors' name + GitHub userna
 discussions-to: <URL>
 status: Draft
 type: <Standards Track, Meta, or Informational>
-category (*only required for Standards Track): <Interface, or ERC>
+category (*only required for Standards Track): <Interface, or ARC>
 created: <date created on, in ISO 8601 (yyyy-mm-dd) format>
 requires (*optional): <ARC number(s)>
 ---
