@@ -6,7 +6,7 @@ author: Ben Guidarelli<@barnjamin>
 discussions-to: TODO 
 status: Draft
 type: Standards Track
-category:  ARC>
+category:  ARC
 created: December 13, 2021
 requires (*optional): ARC-0004 
 ---
@@ -104,7 +104,7 @@ populate(uint64,address)byte[]:
     offset = 0
 
     for x in range(len(positions)/8):
-        encoded = encode_bytes(arg[x])
+        encoded = encode(arg[x], arg_type[x])
 
         bytecode = concat(
             extract(bytecode, 0, position[x]+offset),
