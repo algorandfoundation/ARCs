@@ -32,24 +32,27 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
 - Smart Signature Template - A Smart Signature source file that contains template variables to be populated for a specific instance
 - Template Variable - A variable to be substituted later, specifying the name of the variable. The Template Variable must start with `TMPL_` and the type is inferred from the op used (e.g. `pushbytes TMPL_ASSET_NAME` => `bytes` )
 - Blanked Template - An assembled Smart Signature Template with the Template Variables set to their 0 value
+- Assembler - The software that converts a TEAL source file to a binary file representing the bytecode of the contract.
+
 
 ### Description 
 
-In order for a Smart Contract to perform this validation on a Template, two pieces of information should be known ahead of time:
+In order for a Smart Contract to perform validation on a Template, two pieces of information should be known ahead of time:
 
 1. The positions of the Template Variables within the compiled contract
 2. The bytecode of the compiled SmartSig with all Template Variables set to the 0 value (0 for uint64, "" for bytes)
+
+> Note: Integers in the assembled contract are encoded as [`uvarint`](https://www.sqlite.org/src4/doc/trunk/www/varint.wiki)
 
 With this information, the Smart Contract performing the validation may accept a number of arguments corressponding to the order and type of the Template Variables in the SmartSig. It may then encode the variables properly (uint64=>varuint) and insert them in the bytecode at its start position.
 
 ### Preparation 
 
-During assembly of a SmartSig Template, the assembler should note the bytecode position and type of any Template Variables (strings with the prefix `TMPL_`). These Template Variables should be set to the zero value for their type. 
+During assembly of a SmartSig Template, the assembler should note the bytecode position and type of any Template Variables. These value of these Template Variables should be set to the zero value for it's type. 
 
-The output of the assembly step should be 2 artifacts:
+The output of the assembly step should include 2 artifacts:
 
 1. A JSON file containing the list of template variables 
-
 ex:
 ```js
 {
@@ -68,21 +71,21 @@ ex:
     ...
 }
 ```
+2. A binary file containing the bytecode of the SmartSig Template
 
-2. A binary file consisting of the bytecode of the SmartSig Template
-
-These two artifact should contain enough information to produce an ABI style method that accepts as arguments all the template variables specified in the contract and produce the address of the expected SmartSig.
+These two artifact contain enough information to produce an ABI style method, accepting as arguments all the template variables specified in the Template. It can use this information to produce the address of the expected SmartSig.
 
 The ABI method signature **MUST** specify the types corresponding to those in the `template_variables` array. They **MAY** use type aliases as specified in [ARC-0004](TODO) but the encoding should use the two stack types (uint64/bytes).
 `populate(tmpl_var_1_type, tmpl_var_2_type, ...)byte[]`
 
 ### Populate
 
+This section contains some pseudocode to be implemented by a contract author or provided as part of this ARC
+
 > Note: For each variable inserted, the position in the bytcode will need to be offset by the length of the variable added in bytes.
 
-pseudocode:
+#### pseudocode:
 ```
-
 encode(val, typ):
     if typ == int:
         return encode_uint64(val)
@@ -117,19 +120,11 @@ populate(uint64,address)byte[]:
 
 ### Validate
 
-With the Populated bytecode, the contract may call Sha512_265("Program"||populated_bytecode) to produce the expected Address. 
-
-If the Address in the transaction matches the address produced, the contract is considered valid we know it is an instance of the Template. 
-
+With the Populated bytecode, the contract may call Sha512_265("Program"||populated_bytecode) to produce the expected Address.  If the Address in the transaction matches the address produced, the contract is considered valid we know it is an instance of the Template. 
 
 ## Rationale
 
-The design for this ARC was inspired by the need to allow additional storage for a smart contract or compute ops offloaded to a Smart Signature that requires no state to execute.
-
-
-// TODO
-
-The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made. It should describe alternate designs that were considered and related work, e.g. how the feature is supported in other languages.
+The design for this ARC was inspired by the need to safely allow additional storage for a smart contract or offload compute from a Smart Contract to a Smart Signature.
 
 ## Backwards Compatibility
 
