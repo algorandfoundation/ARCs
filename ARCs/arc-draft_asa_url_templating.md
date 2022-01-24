@@ -69,6 +69,22 @@ ASA URL: template-ipfs://{ipfscid:1:raw:reserve:sha2-256}
 ASA URL: template-ipfs://{ipfscid:1:dag-pb:reserve:sha2-256}/metadata.json
 ```
 
+#### Deployed Testnet Example
+
+An example was pushed to Testnet, converting from an existing ARC3 mainnet ASA:  
+https://algoexplorer.io/asset/560421434  
+With IPFS URL: ```ipfs://QmQZyq4b89RfaUw8GESPd2re4hJqB8bnm4kVHNtyQrHnnK```
+
+The Testnet ASA was minted with the URL: ```template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}``` as this CID is a V0 / dag-pb CID.
+
+A helpful link to 'visualize' CIDs and for this specific id, is: https://cid.ipfs.io/#QmQZyq4b89RfaUw8GESPd2re4hJqB8bnm4kVHNtyQrHnnK
+
+Using the using the example encoding implementation, results in virtual 'reserve address' of **EEQYWGGBHRDAMTEVDPVOSDVX3HJQIG6K6IVNR3RXHYOHV64ZWAEISS4CTI**
+
+As can be seen here: https://testnet.algoexplorer.io/asset/66753108
+
+Using the forked https://github.com/TxnLab/arc3.xyz repo, with testnet selected, and the /nft/66753108 url - the browser will display the original content as-is, using only the Reserve address as the source of the content hash.
+
 ## Rationale
 The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made. It should describe alternate designs that were considered and related work, e.g. how the feature is supported in other languages.
 
