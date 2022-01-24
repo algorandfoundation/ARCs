@@ -6,9 +6,8 @@ author: Patrick Bennett / TxnLab Inc. (@pbennett)
 discussions-to: #arcs in Algorand Discord
 status: Draft
 type: Standards Track
-category ARC
+category: ARC
 created: 2021-01-23
-requires 
 ---
 
 ## Abstract
