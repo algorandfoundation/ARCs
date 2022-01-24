@@ -1,0 +1,181 @@
+---
+arc: <to be assigned>
+title: Templating of NFT ASA URLs for mutability
+description: A proposal to allow a templating mechanism of the URL so that changeable data in an asset can be substituted by a client, proving a mutable URL.
+author: Patrick Bennett / TxnLab Inc. (@pbennett)
+discussions-to: #arcs in Algorand Discord
+status: Draft
+type: Standards Track
+category ARC
+created: 2021-01-23
+requires 
+---
+
+## Abstract
+This ARC describes a template substitution for URLS in ASAs, initially for ipfs:// scheme URLS allowing mutable CID replacement in rendered URLs.
+
+The proposed template-XXX scheme has substitions like: 
+```
+template-ipfs://{ipfscid:(version):(multicodec):(field name containing 32-byte digest, ie reserve):(hash type)}[/...]
+```
+
+This will allow modifying the 32-byte 'Reserve address' in an ASA to represent a new IPFS content-id hash.  Changing of the reserve address via an asset-config transaction will be all that is needed to point an ASA URL to new IPFS content.  The client reading this URL, will compose a fully formed IPFS Content-ID based on the version, multicodec, and hash arguments provided in the ipfscid substitition.
+
+## Motivation
+
+While it is appropriate for many NFTs to be completely immutable, like ARC3 NFTs, there are cases where some type of mutability is desired for NFT metadata and/or images.  The data referenced should itself be immutable, but the ability to change what data is pointed to should be mutable. The data should also be able to be of significant size if necessary.
+
+Algorand ASAs support mutation on-chain of a few parameters - the Manager, Clawback, Freeze, and Reserve addresses [unless previously cleared].  These are changed via an asset-config transaction.  An asset-config transaction may include a note, but it is limited to 1KB and accessing this value requires clients to use an indexer to iterate/retrieve the values.
+
+Of the changeable properties, the Reserve address is somewhat distinct in that it is not used for anything directly on-chain.  It is used solely for determining what is in/out of circulation (by subtracting supply from that held by the reserve address).  With an NFT, the Reserve address is irrelevant as it is a 1 of 1 unit.  Thus, the Reserve address is usable as a 32-byte 'bitbucket'.
+
+These 32-bytes can thus be repurposed as efficient storage for a SHA2-256 hash uniquely referencing the desired content for the ASA (ARC3-like metadata for example)
+
+Using the reserve address in this way means that what an ASA 'points to' for metadata can be changed with a single asset config transaction, changing only the 32-bytes of the reserve address, and being able to reference any size of content in IPFS.  The new data is also accessible via even non-archival nodes with a single call to /v2/assets/xxx API to fetch the ASA data that, for something wanting to fetch/display NFTS much be fetched anyway.  No expensive or slow indexer calls are required.  Asset fetches are always near instant as all nodes maintain current state of the asset definition. 
+
+## Specification
+
+An indication that this ARC is in use is defined by an ASA URL's "scheme" having the prefix "template-".   This proposal is putting forth a simple solution for a specific problem, namely mutability for IPFS hosted content-ids.  The intention is that FUTURE ARCs could define additional template substitutions, but this is not meant to be a kitchen sink of templates, only to establish a possible baseline of syntax.
+
+An Asset meeting this specification **MUST** have:
+
+1. **URL Scheme of "template-ipfs"**
+
+```template-ipfs://(...)```
+
+The ifps:// scheme is already somewhat of a meta scheme in that clients interpret the ipfs scheme as referencing an IPFS CID (version 0/base58 or 1/base32 currently) followed by optional path within certain types of IPFS DAG content (IPLD CAR content for example).  The clients take the CID and use to fetch directly from the IPFS network directly via IFPS nodes, or via various IPFS gateways (https://ipfs.io/ipfs/CID[/...], pinata, etc.)).  
+
+2. **An "ipfscid" _template_ argument in place of the normal CID.**
+
+Where the format of templates are {*template type* [':' delimited parameters...])
+
+The ipfscid template definitions is based on properties within the IPFS CID spec: https://github.com/multiformats/cid  
+```	ipfscid:{version}:{multicodec content-type name}:[field name containing 32-byte digest, ie reserve]:{hash type}```
+
+The intent is to recompose a complete CID based on the content-hash contained within the 32-byte reserve address, but using the correct multicodec content type, ipfs content-id version, and hash type to match how the asset creator will seed the IPFS content.  If a single file is added using the 'ipfs' CLI via 'ipfs add --cid-version=1 metadata.json' then the resulting content will be encoded using the 'raw' multicodec type.  If a directory is added containing one or more files, then it will be encoded using the dag-pb multicodec.  CAR content will also be dag-pb.  Thus based on the method used to post content to IPFS, the ipfscid template should match. 
+
+The parameters to the template ipfscid are:
+2. IPFS _version_, **MUST** be '0' or '1' representing the IPFS CID version.
+3. _Multicodec content-type name_, **MUST** be an IPFS multicodec name of 'raw' or 'dag-pb'.  Other codecs SHOULD be supported but are beyond the scope of this proposal.
+4. _Field name_ **MUST** be 'reserve' to represent the reserve address is used for the 32-byte hash but is specified here so future iterations of the specification may allow other fields or syntaxes to reference other mutable field types.
+5. _Hash type_ **MUST** be 'sha2-256' but is explicitly specified so as to allow future versions the option of using other hashes. 
+
+IPFS may add future versions of the cid spec, and add additional multicodec types or other supported hashes.  Implementations SHOULD use IFPS libraries where possible that accept multicodec and hash types as named values and allow a CID to be composed generically.
+
+### Examples
+
+```
+ASA URL: template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}/arc3.json
+ASA URL: template-ipfs://{ipfscid:1:raw:reserve:sha2-256}
+ASA URL: template-ipfs://{ipfscid:1:dag-pb:reserve:sha2-256}/metadata.json
+```
+
+## Rationale
+The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made. It should describe alternate designs that were considered and related work, e.g. how the feature is supported in other languages.
+
+## Backwards Compatibility
+The 'template-' prefix of the scheme is intended to break clients reading these ASA URLS outright.  Clients interpreting these URLS as-is would likely yield unusual errors.  Code checking for an explicit 'ipfs' scheme for example will not see this as compatible with any of the default processing and SHOULD treat the URL as if it were simply unknown/empty.
+
+## Reference Implementation
+
+### Encoding
+#### Go[lang] implementation
+
+```go
+import (
+    "github.com/algorand/go-algorand-sdk/types"
+	"github.com/ipfs/go-cid"
+	"github.com/multiformats/go-multihash"
+)
+// ...
+func ReserveAddressFromCID(cidToEncode cid.Cid) (string, error) {
+    decodedMultiHash, err := multihash.Decode(cidToEncode.Hash())
+    if err != nil {
+        return "", fmt.Errorf("failed to decode ipfs cid: %w", err))
+    }
+    return types.EncodeAddress(decodedMultiHash.Digest)
+}
+// ....
+```
+### Decoding
+#### Go[lang] implementation
+```go
+import (
+	"errors"
+	"fmt"
+	"regexp"
+	"strings"
+
+	"github.com/algorand/go-algorand-sdk/types"
+	"github.com/ipfs/go-cid"
+	"github.com/multiformats/go-multicodec"
+	"github.com/multiformats/go-multihash"
+)
+
+var (
+	ErrUnknownSpec      = errors.New("unsupported template-ipfs spec")
+	ErrUnsupportedField = errors.New("unsupported ipfscid field, only reserve is currently supported")
+	ErrUnsupportedCodec = errors.New("unknown multicodec type in ipfscid spec")
+	ErrUnsupportedHash  = errors.New("unknown hash type in ipfscid spec")
+	ErrInvalidV0        = errors.New("cid v0 must always be dag-pb and sha2-256 codec/hash type")
+	ErrHashEncoding     = errors.New("error encoding new hash")
+	templateIPFSRegexp  = regexp.MustCompile(`template-ipfs://{ipfscid:(?P<version>[01]):(?P<codec>[a-z0-9\-]+):(?P<field>[a-z0-9\-]+):(?P<hash>[a-z0-9\-]+)}`)
+)
+
+func ParseASAUrl(asaUrl string, reserveAddress types.Address) (string, error) {
+	matches := templateIPFSRegexp.FindStringSubmatch(asaUrl)
+	if matches == nil {
+		if strings.HasPrefix(asaUrl, "template-ipfs://") {
+			return "", ErrUnknownSpec
+		}
+		return asaUrl, nil
+	}
+	if matches[templateIPFSRegexp.SubexpIndex("field")] != "reserve" {
+		return "", ErrUnsupportedField
+	}
+	var (
+		codec         multicodec.Code
+		multihashType uint64
+		hash          []byte
+		err           error
+		cidResult     cid.Cid
+	)
+	if err = codec.Set(matches[templateIPFSRegexp.SubexpIndex("codec")]); err != nil {
+		return "", ErrUnsupportedCodec
+	}
+	multihashType = multihash.Names[matches[templateIPFSRegexp.SubexpIndex("hash")]]
+	if multihashType == 0 {
+		return "", ErrUnsupportedHash
+	}
+
+	hash, err = multihash.Encode(reserveAddress[:], multihashType)
+	if err != nil {
+		return "", ErrHashEncoding
+	}
+	if matches[templateIPFSRegexp.SubexpIndex("version")] == "0" {
+		if codec != multicodec.DagPb {
+			return "", ErrInvalidV0
+		}
+		if multihashType != multihash.SHA2_256 {
+			return "", ErrInvalidV0
+		}
+		cidResult = cid.NewCidV0(hash)
+	} else {
+		cidResult = cid.NewCidV1(uint64(codec), hash)
+	}
+	return fmt.Sprintf("ipfs://%s", strings.ReplaceAll(asaUrl, matches[0], cidResult.String())), nil
+}
+```
+
+#### Typescript Implementation
+
+A modified version of a simple ARC3 viewer can be found at https://github.com/TxnLab/arc3.xyz specifically the code segment at https://github.com/TxnLab/arc3.xyz/blob/main/src/lib/nft.ts#L41
+This is a fork of https://github.com/barnjamin/arc3.xyz
+
+
+## Security Considerations
+
+There should be no specific security issues beyond those of any client accessing any remote content.  URLs within ASAs could point to malicious content, whether that is an http[s] link or whether fetched through ipfs protocols or ipfs gateways.  As the template changes nothing other than the resulting URL and also defines nothing more than the generation of an IPFS CID hash value, no security concerns derived from this specific proposal are known.
+
+## Copyright
+Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
