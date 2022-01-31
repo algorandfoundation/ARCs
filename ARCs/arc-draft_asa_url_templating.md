@@ -36,7 +36,7 @@ Using the reserve address in this way means that what an ASA 'points to' for met
 
 This proposal specifies a method to provide mutability for IPFS hosted content-ids.  The intention is that FUTURE ARCs could define additional template substitutions, but this is not meant to be a kitchen sink of templates, only to establish a possible baseline of syntax. 
 
-An indication that this ARC is in use is defined by an ASA URL's "scheme" having the prefix "template-".  
+An indication that this ARC is in use is defined by an ASA URL's "scheme" having the prefix "**template-**".  
 
 An Asset conforming this specification **MUST** have:
 
@@ -44,16 +44,17 @@ An Asset conforming this specification **MUST** have:
 
 ```template-ipfs://(...)```
 
-The ifps:// scheme is already somewhat of a meta scheme in that clients interpret the ipfs scheme as referencing an IPFS CID (version 0/base58 or 1/base32 currently) followed by optional path within certain types of IPFS DAG content (IPLD CAR content for example).  The clients take the CID and use to fetch directly from the IPFS network directly via IFPS nodes, or via various IPFS gateways (https://ipfs.io/ipfs/CID[/...], pinata, etc.)).  
+> The ifps:// scheme is already somewhat of a meta scheme in that clients interpret the ipfs scheme as referencing an IPFS CID (version 0/base58 or 1/base32 currently) followed by optional path within certain types of IPFS DAG content (IPLD CAR content for example).  The clients take the CID and use to fetch directly from the IPFS network directly via IFPS nodes, or via various IPFS gateways (https://ipfs.io/ipfs/CID[/...], pinata, etc.)).  
 
 2. **An "ipfscid" _template_ argument in place of the normal CID.**
 
 Where the format of templates are {*template type* [':' delimited parameters...])
 
 The ipfscid template definitions is based on properties within the IPFS CID spec: https://github.com/multiformats/cid  
-```	ipfscid:{version}:{multicodec content-type name}:[field name containing 32-byte digest, ie reserve]:{hash type}```
 
-The intent is to recompose a complete CID based on the content-hash contained within the 32-byte reserve address, but using the correct multicodec content type, ipfs content-id version, and hash type to match how the asset creator will seed the IPFS content.  If a single file is added using the 'ipfs' CLI via 'ipfs add --cid-version=1 metadata.json' then the resulting content will be encoded using the 'raw' multicodec type.  If a directory is added containing one or more files, then it will be encoded using the dag-pb multicodec.  CAR content will also be dag-pb.  Thus based on the method used to post content to IPFS, the ipfscid template should match. 
+```ipfscid:{version}:{multicodec content-type name}:[field name containing 32-byte digest, ie reserve]:{hash type}```
+
+> The intent is to recompose a complete CID based on the content-hash contained within the 32-byte reserve address, but using the correct multicodec content type, ipfs content-id version, and hash type to match how the asset creator will seed the IPFS content.  If a single file is added using the 'ipfs' CLI via 'ipfs add --cid-version=1 metadata.json' then the resulting content will be encoded using the 'raw' multicodec type.  If a directory is added containing one or more files, then it will be encoded using the dag-pb multicodec.  CAR content will also be dag-pb.  Thus based on the method used to post content to IPFS, the ipfscid template should match. 
 
 The parameters to the template ipfscid are:
 2. IPFS _version_, **MUST** be '0' or '1' representing the IPFS CID version.
@@ -61,15 +62,13 @@ The parameters to the template ipfscid are:
 4. _Field name_ **MUST** be 'reserve' to represent the reserve address is used for the 32-byte hash but is specified here so future iterations of the specification may allow other fields or syntaxes to reference other mutable field types.
 5. _Hash type_ **MUST** be 'sha2-256' but is explicitly specified so as to allow future versions the option of using other hashes. 
 
-IPFS may add future versions of the cid spec, and add additional multicodec types or other supported hashes.  Implementations SHOULD use IFPS libraries where possible that accept multicodec and hash types as named values and allow a CID to be composed generically.
+> IPFS may add future versions of the cid spec, and add additional multicodec types or other supported hashes.  Implementations SHOULD use IFPS libraries where possible that accept multicodec and hash types as named values and allow a CID to be composed generically.
 
 ### Examples
 
-```
-ASA URL: template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}/arc3.json
-ASA URL: template-ipfs://{ipfscid:1:raw:reserve:sha2-256}
-ASA URL: template-ipfs://{ipfscid:1:dag-pb:reserve:sha2-256}/metadata.json
-```
+> ASA URL: template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}/arc3.json  
+> ASA URL: template-ipfs://{ipfscid:1:raw:reserve:sha2-256}  
+> ASA URL: template-ipfs://{ipfscid:1:dag-pb:reserve:sha2-256}/metadata.json  
 
 #### Deployed Testnet Example
 
