@@ -22,21 +22,23 @@ This will allow modifying the 32-byte 'Reserve address' in an ASA to represent a
 
 ## Motivation
 
-While it is appropriate for many NFTs to be completely immutable, like ARC3 NFTs, there are cases where some type of mutability is desired for NFT metadata and/or images.  The data referenced should itself be immutable, but the ability to change what data is pointed to should be mutable. The data should also be able to be of significant size if necessary.
+While immutability for many NFTs is appropriate (see ARC3 link), there are cases where some type of mutability is desired for NFT metadata and/or digital media.  The data being referenced by the pointer should be immutable but the pointer may be updated to provide a kind of mutability. The data being referenced may be of any size.
 
-Algorand ASAs support mutation on-chain of a few parameters - the Manager, Clawback, Freeze, and Reserve addresses [unless previously cleared].  These are changed via an asset-config transaction.  An asset-config transaction may include a note, but it is limited to 1KB and accessing this value requires clients to use an indexer to iterate/retrieve the values.
+Algorand ASAs support mutation of several parameters, namely the role address fields (Manager, Clawback, Freeze, and Reserve addresses) , unless previously cleared.  These are changed via an asset-config transaction.  An asset-config transaction may include a note, but it is limited to 1KB and accessing this value requires clients to use an indexer to iterate/retrieve the values.
 
-Of the changeable properties, the Reserve address is somewhat distinct in that it is not used for anything directly on-chain.  It is used solely for determining what is in/out of circulation (by subtracting supply from that held by the reserve address).  With an NFT, the Reserve address is irrelevant as it is a 1 of 1 unit.  Thus, the Reserve address is usable as a 32-byte 'bitbucket'.
+Of the parameters that are mutable, the Reserve address is somewhat distinct in that it is not used for anything directly as part of the protocol.  It is used solely for determining what is in/out of circulation (by subtracting supply from that held by the reserve address).  With an NFT, the Reserve address is irrelevant as it is a 1 of 1 unit.  Thus, the Reserve address may be repurposed as a 32-byte 'bitbucket'.
 
-These 32-bytes can thus be repurposed as efficient storage for a SHA2-256 hash uniquely referencing the desired content for the ASA (ARC3-like metadata for example)
+These 32-bytes can, for example, hold a SHA2-256 hash uniquely referencing the desired content for the ASA (ARC3-like metadata for example)
 
-Using the reserve address in this way means that what an ASA 'points to' for metadata can be changed with a single asset config transaction, changing only the 32-bytes of the reserve address, and being able to reference any size of content in IPFS.  The new data is also accessible via even non-archival nodes with a single call to /v2/assets/xxx API to fetch the ASA data that, for something wanting to fetch/display NFTS much be fetched anyway.  No expensive or slow indexer calls are required.  Asset fetches are always near instant as all nodes maintain current state of the asset definition. 
+Using the reserve address in this way means that what an ASA 'points to' for metadata can be changed with a single asset config transaction, changing only the 32-bytes of the reserve address.  The new value is accessible via even non-archival nodes with a single call to the `/v2/assets/xxx` REST endpoint.  
 
 ## Specification
 
-An indication that this ARC is in use is defined by an ASA URL's "scheme" having the prefix "template-".   This proposal is putting forth a simple solution for a specific problem, namely mutability for IPFS hosted content-ids.  The intention is that FUTURE ARCs could define additional template substitutions, but this is not meant to be a kitchen sink of templates, only to establish a possible baseline of syntax.
+This proposal specifies a method to provide mutability for IPFS hosted content-ids.  The intention is that FUTURE ARCs could define additional template substitutions, but this is not meant to be a kitchen sink of templates, only to establish a possible baseline of syntax. 
 
-An Asset meeting this specification **MUST** have:
+An indication that this ARC is in use is defined by an ASA URL's "scheme" having the prefix "template-".  
+
+An Asset conforming this specification **MUST** have:
 
 1. **URL Scheme of "template-ipfs"**
 
