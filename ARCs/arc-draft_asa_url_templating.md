@@ -1,7 +1,7 @@
 ---
 arc: <to be assigned>
 title: Templating of NFT ASA URLs for mutability
-description: A proposal to allow a templating mechanism of the URL so that changeable data in an asset can be substituted by a client, proving a mutable URL.
+description: A proposal to allow a templating mechanism of the URL so that changeable data in an asset can be substituted by a client, providing a mutable URL.
 author: Patrick Bennett / TxnLab Inc. (@pbennett)
 discussions-to: #arcs in Algorand Discord
 status: Draft
@@ -11,7 +11,7 @@ created: 2021-01-23
 ---
 
 ## Abstract
-This ARC describes a template substitution for URLS in ASAs, initially for ipfs:// scheme URLS allowing mutable CID replacement in rendered URLs.
+This ARC describes a template substitution for URLs in ASAs, initially for ipfs:// scheme URLs allowing mutable CID replacement in rendered URLs.
 
 The proposed template-XXX scheme has substitions like: 
 ```
@@ -44,7 +44,7 @@ An Asset conforming this specification **MUST** have:
 
 ```template-ipfs://(...)```
 
-> The ifps:// scheme is already somewhat of a meta scheme in that clients interpret the ipfs scheme as referencing an IPFS CID (version 0/base58 or 1/base32 currently) followed by optional path within certain types of IPFS DAG content (IPLD CAR content for example).  The clients take the CID and use to fetch directly from the IPFS network directly via IFPS nodes, or via various IPFS gateways (https://ipfs.io/ipfs/CID[/...], pinata, etc.)).  
+> The ipfs:// scheme is already somewhat of a meta scheme in that clients interpret the ipfs scheme as referencing an IPFS CID (version 0/base58 or 1/base32 currently) followed by optional path within certain types of IPFS DAG content (IPLD CAR content for example).  The clients take the CID and use to fetch directly from the IPFS network directly via IPFS nodes, or via various IPFS gateways (https://ipfs.io/ipfs/CID[/...], pinata, etc.)).  
 
 2. **An "ipfscid" _template_ argument in place of the normal CID.**
 
@@ -62,7 +62,7 @@ The parameters to the template ipfscid are:
 4. _Field name_ **MUST** be 'reserve' to represent the reserve address is used for the 32-byte hash but is specified here so future iterations of the specification may allow other fields or syntaxes to reference other mutable field types.
 5. _Hash type_ **MUST** be 'sha2-256' but is explicitly specified so as to allow future versions the option of using other hashes. 
 
-> IPFS may add future versions of the cid spec, and add additional multicodec types or other supported hashes.  Implementations SHOULD use IFPS libraries where possible that accept multicodec and hash types as named values and allow a CID to be composed generically.
+> IPFS may add future versions of the cid spec, and add additional multicodec types or other supported hashes.  Implementations SHOULD use IPFS libraries where possible that accept multicodec and hash types as named values and allow a CID to be composed generically.
 
 ### Examples
 
@@ -80,7 +80,7 @@ The Testnet ASA was minted with the URL: ```template-ipfs://{ipfscid:0:dag-pb:re
 
 A helpful link to 'visualize' CIDs and for this specific id, is: https://cid.ipfs.io/#QmQZyq4b89RfaUw8GESPd2re4hJqB8bnm4kVHNtyQrHnnK
 
-Using the using the example encoding implementation, results in virtual 'reserve address' of **EEQYWGGBHRDAMTEVDPVOSDVX3HJQIG6K6IVNR3RXHYOHV64ZWAEISS4CTI**
+Using the example encoding implementation, results in virtual 'reserve address' of **EEQYWGGBHRDAMTEVDPVOSDVX3HJQIG6K6IVNR3RXHYOHV64ZWAEISS4CTI**
 
 As can be seen here: https://testnet.algoexplorer.io/asset/66753108
 
@@ -90,7 +90,7 @@ Using the forked https://github.com/TxnLab/arc3.xyz repo, with testnet selected,
 The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made. It should describe alternate designs that were considered and related work, e.g. how the feature is supported in other languages.
 
 ## Backwards Compatibility
-The 'template-' prefix of the scheme is intended to break clients reading these ASA URLS outright.  Clients interpreting these URLS as-is would likely yield unusual errors.  Code checking for an explicit 'ipfs' scheme for example will not see this as compatible with any of the default processing and SHOULD treat the URL as if it were simply unknown/empty.
+The 'template-' prefix of the scheme is intended to break clients reading these ASA URLs outright.  Clients interpreting these URLs as-is would likely yield unusual errors.  Code checking for an explicit 'ipfs' scheme for example will not see this as compatible with any of the default processing and SHOULD treat the URL as if it were simply unknown/empty.
 
 ## Reference Implementation
 
