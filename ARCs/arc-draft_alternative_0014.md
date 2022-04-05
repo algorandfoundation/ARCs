@@ -62,13 +62,16 @@ The solution proposed works under the following assumptions:
 
 ### Overview
 
-The mechanism uses blockchain addresses as unique identifiers. Users login into an application on a server/backend by proving they own a blockchain address. The proof is a digital signature that can be validated server-side. If the proof is valid, the server creates a new session (release of a cookie/JWT).
+General idea: The mechanism uses blockchain addresses as unique identifiers. Users login into an application on a server/backend by proving they own a blockchain address. The proof is a digital signature that can be validated server-side. If the proof is valid, the server creates a new session (release of a cookie/JWT).
+
 The mechanism works as follows: a user attempts to login into an application with its blockchain address. The backend requests the user to prove her identity by signing a random message with the secret key in control of the blockchain address. The message MUST be unpredictable and only valid for one authentication request. Reproducible messages could be used by an attacker in a replay-attack. Thus, after signing the message the user forwards the result to the backend which validates the signature and eventually instantiates a new authenticated session with the user. The established session is characterized by a session id (i.e. a cookie or JWT).
 
 GRAPH HERE
 
 The previous section introduced a general mechanism to authenticate users with blockchain identities. This section provides an implementation of such a mechanism using the Algorand blockchain. It considers a User and a Verifier. The User owns an Algorand account which is identified with an Algorand key pair <PKa, SKa>. Algorand transforms traditional 32-bytes cryptographic keys into more readable and user-friendly objects. The public key is represented as Algorand address PKa, whereas the secret key is transformed into a base64 private key SKa. The User accesses her Algorand account via a wallet. The Verifier is any kind of system (i.e. application, dApp, entity) that wants to authenticate the User with her Algorand account. A wallet is any type of Algorand wallet, such as hot wallets like AlgoSigner, MyAlgo Wallet for browser and mobile wallets used through WalletConnect, and cold wallets like the Ledger Nano.
+
 The User presents to the Verifier her Algorand address (PKa) for authentication. The Verifier authenticates the User by asking her to sign an Authentication Message. The digital signature MUST be created with the secret key (SKa) of the Algorand account used for authentication. An Authentication Message is nothing but a sequence of bytes. Users connected to a wallet with an Algorand account can sign the Authentication Message with their SKs, and forge brand new digital signatures.
+
 To sum up, the solution use Algorand cryptographic primitives to achieve the following operations:
 
 - given an Algorand account and an Authentication Message, the user MUST be able to generate a digital signature using the SKa;
@@ -105,37 +108,40 @@ For example:
  "service": "www.servicedomain.com",
  "desc": "Domain offers important services to users",
  "authAcc": "KTGP47G64KCXWJS64W7SGJNKTHE37TYDCI64USXI3XOYE6ZSH4LCI7NIDA",
- nonce: "1234abcde!%",
+ "nonce": "1234abcde!%",
 }
 ```
 
 The nonce field MUST be unique for each authentication and MUST not be used more than once to avoid replay attacks.
+
 Users can sign Authentication Messages using their secret key SKa stored into a wallet.
-Problem: Most of the Algorand wallets can only sign Algorand Transaction objects, and do not offer the possibility to sign arbitrary bytes. To overcome such a limitation, the Authentication Message can be extended to two distinguished objects, namely the Simple Authentication Message, and the Transaction Authentication Message. The former SHOULD be used by any signing mechanisms provided with the functionality of signing random bytes, whereas the latter can be used today with most of the Algorand wallets.
+
+**Problem**: Most of the Algorand wallets can only sign Algorand Transaction objects, and do not offer the possibility to sign arbitrary bytes. To overcome such a limitation, the Authentication Message can be extended to two distinguished objects, namely the Simple Authentication Message, and the Transaction Authentication Message. The former SHOULD be used by any signing mechanisms provided with the functionality of signing random bytes, whereas the latter can be used today with most of the Algorand wallets.
 
 #### Simple Authentication Message
 
-The Simple Authentication Message is a sequence of bytes representing an ARC-0014 basic Authentication Message. It SHOULD be used in contexts that support signatures of random bytes. A Simple Authentication Message is an Authentication Message prepended with the prefix “ARC-0014-authentication” for domain separation. It MUST be represented as the hash SHA-512/256 of the prefix together with an msgpack encoded Authentication Message. For example, given an Authentication Message object aut_message, its Simple Authentication Message representation would be: SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message).
+The *Simple Authentication Message* is a sequence of bytes representing an ARC-0014 basic Authentication Message. It SHOULD be used in contexts that support signatures of random bytes. A *Simple Authentication Message* is an Authentication Message prepended with the prefix `ARC-0014-authentication` for domain separation. It **MUST** be represented as the hash SHA-512/256 of the prefix together with an msgpack encoded *Authentication Message*. For example, given an Authentication Message object aut_message, its *Simple Authentication Message* representation would be: `SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message)`.
 
 #### Transaction Authentication Message
 
-A Transaction Authentication Message is an Authentication Message represented as an Algorand Transaction object. Such a transaction must have the following characteristics:
+A *Transaction Authentication Message* is an *Authentication Message* represented as an Algorand Transaction object. Such a transaction must have the following characteristics:
 
 - it SHOULD be an Algorand Payment Transaction;
-- it MUST have a Simple Authentication Message into the note field;
+- it MUST have a *Simple Authentication Message* into the note field;
 - it MUST be invalidated i.e. not executable on any official Algorand network. Malicious users could intercept and execute it causing unexpected consequences. For instance, in case of a MainNet transaction, it could be intercepted by a malicious user and executed, burning some Algos from the sender’s wallet due to the payment of fees.
 
 The fields of a Payment Transaction object which represents a Transaction Authentication Message MUST be initialized as follows
 
-- amount = 0;
-- sender/receiver set with the user’s Algorand account;
-- firstValid/lastValid = 0;
-- fee = 0;
-- genesisId = “ARC-0014-authentication”;
-- genesisHash = SHA-512/256 of the string “ARC-0014-authentication”;
-- note = SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message);
+- `amount` = 0;
+- `sender/receiver` set with the user’s Algorand account;
+- `firstValid/lastValid` = 0;
+- `fee` = 0;
+- `genesisId` = “ARC-0014-authentication”;
+- `genesisHash` = SHA-512/256 of the string “ARC-0014-authentication”;
+- `note` = SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message);
 
 The fields genesisId and genesisHash specify respectively the id and hash of the genesis block of the network, and they MUST be initialized to the ARC-0014 values (not conventional for MainNet/TestNet/BetaNet). The note field MUST include a Simple Authentication Message object. Finally, the sender field SHOULD be set to the Algorand account of the user. A detailed description of the transitions fields of Algorand Transactions is available in the transaction reference documentation.
+
 For example:
 
 ```json
@@ -167,6 +173,7 @@ A Simple Authentication Message is a random sequence of bytes. It can be obtaine
 #### Digital Signature of a Transaction Authentication Message
 
 The signature of a Transaction Authentication Message is nothing more than a signed transaction object on Algorand. With the SDK method sign() and a secret key, it is possible to create a SignedTransaction object which wraps together the transaction and its  digital signature. For example, the SDK method  unsigned_txn.sign(secret_key) returns a SignedTransaction object with the digital signature of unsigned_transaction produced with secret_key.
+
 Almost any algorand wallet integrates the possibility of signing transactions. For instance, to programmatically sign a transaction with the AlgoSigner wallet, there is an SDK method AlgoSigner.signTxn([TxnObject, …]). This method returns a base64 encoded object which represents the digital signature of a transaction object.
 
 ## How to verify a digital signature generated with Algorand keys?
