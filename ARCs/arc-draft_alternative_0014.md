@@ -15,29 +15,31 @@ created: 2022-04-05
 
 ## Summary
 
-Summary here
+A standard approach to authenticate users via Algorand accounts.
 
 ## Abstract
 
-This solution introduces a novel SSO authentication mechanism based on blockchain identities. It relies on the public-secret key <PK, SK> encryption schema used by blockchain systems to represent users on-chain. This solution fosters the adoption of novel identity and session management systems for Web3 applications.
+This document introduces a standard SSO authentication mechanism based on Algorand accounts. It leverages the public-secret key <*PK, SK*> encryption schema used by Algorand to represent users on-chain. This approach fosters the adoption of novel identity and session management systems for Web3 applications.
 
 ## Definitions
 
-- Application
+- System
 - Session id
 - User
+- dApp
+- wallet
 - Verifier
 ...
 
 ## Motivation
 
-Traditional applications enforce SSO login by asking users to authenticate themselves using credentials, i.e. username and password. Users access applications via HTTP(s) which is a stateless protocol. However, sessions can be established between users and applications. This mechanisms take advantage of a `session id`, which is usually represented as a cookie or access token a.k.a. JSON Web Token (JWT).
+Traditional systems enforce SSO login leveraging on authentication of users with *credentials*, i.e. username and password. Once the identity of a user is verified, the system can establish an authenticated session. Sessions allows users to interact with a system without having to authenticate itsefl anytime. Sessions are represented with a `session-id` (typically a cookie or a JSON Web Token - JWT).
 
-In a blockchain context the concept of credentials is outdated. As a result, traditional authentication mechanisms are  impractical. In the Web3 users can be identified via their unique public addresses on-chain (accounts in Algorand. To interact with a dApp, a user just need to connect her wallet and sign transactions with the secret key associated to their respective public address on-chain. Using an authentication layer based on credentials on top of that mechanism might result in a redundant process.
+In a blockchain context, users are not identified with credentials. Therefore, traditional authentication mechanisms result impractical. In the Web3 users are identified through their unique blockchain public addresses (accounts for Algorand). To interact with a dApp, users must connect their wallet to the application. Using an authentication layer based on credentials on top of that mechanism might result a redundant and inefficient procedure.
 
-In Web3, dApps and traditional systems will be increasingly more interconnected. It is not difficult to imagine users consuming services both from a dApp and a traditional application simultaneously. In that case, a user should be authenticated once via traditional SSOs, and then via their blockchain wallet. A better approach should enforce a single SSO for both contexts.
+In Web3, dApps and traditional systems will be increasingly more interconnected. It is not difficult to imagine users consuming services both from a dApp and a traditional system simultaneously. In that case, a user should be authenticated first through traditional SSOs, and then connecting their blockchain wallet. A better approach should enforce a single SSO procedure.
 
-This ARC provides a solution to authenticate users only using their Algorand accounts, withour relying on credentials verification.
+This ARC provides the standard to authenticate users leversging on their Algorand accounts, and withour relying on credentials verification.
 
 ## Specification
 
@@ -45,9 +47,38 @@ The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL 
 
 > Comments like this are non-normative.
 
+### Overview
+
+#### General idea
+
+The mechanism uses blockchain addresses as unique identifiers. Users login into an application on a server/backend by proving they own a blockchain address. The proof is a digital signature that can be validated server-side. If the proof is valid, the server creates a new session (release of a cookie/JWT).
+
+The mechanism works as follows: a user attempts to login into an application with its blockchain address. The backend requests the user to prove her identity by signing a random message with the secret key in control of the blockchain address. The message MUST be unpredictable and only valid for one authentication request. Reproducible messages could be used by an attacker in a replay-attack. Thus, after signing the message the user forwards the result to the backend which validates the signature and eventually instantiates a new authenticated session with the user. The established session is characterized by a session id (i.e. a cookie or JWT).
+
+GRAPH HERE
+
+Diagram 1 summarizes the solution presented above. It illustrates the workflow and the message exchanges between parties. In particular, the user u, owner of the blockchain identity PKu, login into an application hosted by the backend b, thus the authentication mechanism proceeds as follows:
+
+1. u attempts to login to the application with its blockchain address PKu;
+2. b retrieves the challenge Cu associated with PKu;
+3. b requests u to digitally sign the challenge Cu to prove the ownership of that blockchain address;
+4. u signs the challenge and afterwards sends back the tuple <PKu, Sig(Cu)> to b;
+5. b retrieves and validates the digital signature Sig(Cu);
+6. If the signature is valid, b establishes a new session with u by forwarding a cookie or JWT; if the signature is not valid, b returns NULL (authentication rejected);
+7. b updates the challenge Cu associated with PKu for a future session.
+
+The previous section introduced a general mechanism to authenticate users with blockchain identities. This section provides an implementation of such a mechanism using the Algorand blockchain. It considers a User and a Verifier. The User owns an Algorand account which is identified with an Algorand key pair <PKa, SKa>. Algorand transforms traditional 32-bytes cryptographic keys into more readable and user-friendly objects. The public key is represented as Algorand address PKa, whereas the secret key is transformed into a base64 private key SKa. The User accesses her Algorand account via a wallet. The Verifier is any kind of system (i.e. application, dApp, entity) that wants to authenticate the User with her Algorand account. A wallet is any type of Algorand wallet, such as hot wallets like AlgoSigner, MyAlgo Wallet for browser and mobile wallets used through WalletConnect, and cold wallets like the Ledger Nano.
+
+The User presents to the Verifier her Algorand address (PKa) for authentication. The Verifier authenticates the User by asking her to sign an Authentication Message. The digital signature MUST be created with the secret key (SKa) of the Algorand account used for authentication. An Authentication Message is nothing but a sequence of bytes. Users connected to a wallet with an Algorand account can sign the Authentication Message with their SKs, and forge brand new digital signatures.
+
+To sum up, the solution use Algorand cryptographic primitives to achieve the following operations:
+
+- given an Algorand account and an Authentication Message, the user MUST be able to generate a digital signature using the SKa;
+- given an Algorand account and an Authentication Message, the verifier MUST be able to verify the digital signature of that message with the public key of the Algorand address (PKa).
+
 ### Assumptions
 
-The solution proposed works under the following assumptions:
+The standard proposed in this document works under the following assumptions:
 
 - Secure communication channels encrypted via SSL/TLS;
 - The backend knows the users’ PK;
@@ -59,23 +90,6 @@ The solution proposed works under the following assumptions:
 - Users MUST use only ed25519 keys to sign messages;
 - Multisig, LogicSig not supported;
 - Users MUST use non-rekeyed accounts.
-
-### Overview
-
-General idea: The mechanism uses blockchain addresses as unique identifiers. Users login into an application on a server/backend by proving they own a blockchain address. The proof is a digital signature that can be validated server-side. If the proof is valid, the server creates a new session (release of a cookie/JWT).
-
-The mechanism works as follows: a user attempts to login into an application with its blockchain address. The backend requests the user to prove her identity by signing a random message with the secret key in control of the blockchain address. The message MUST be unpredictable and only valid for one authentication request. Reproducible messages could be used by an attacker in a replay-attack. Thus, after signing the message the user forwards the result to the backend which validates the signature and eventually instantiates a new authenticated session with the user. The established session is characterized by a session id (i.e. a cookie or JWT).
-
-GRAPH HERE
-
-The previous section introduced a general mechanism to authenticate users with blockchain identities. This section provides an implementation of such a mechanism using the Algorand blockchain. It considers a User and a Verifier. The User owns an Algorand account which is identified with an Algorand key pair <PKa, SKa>. Algorand transforms traditional 32-bytes cryptographic keys into more readable and user-friendly objects. The public key is represented as Algorand address PKa, whereas the secret key is transformed into a base64 private key SKa. The User accesses her Algorand account via a wallet. The Verifier is any kind of system (i.e. application, dApp, entity) that wants to authenticate the User with her Algorand account. A wallet is any type of Algorand wallet, such as hot wallets like AlgoSigner, MyAlgo Wallet for browser and mobile wallets used through WalletConnect, and cold wallets like the Ledger Nano.
-
-The User presents to the Verifier her Algorand address (PKa) for authentication. The Verifier authenticates the User by asking her to sign an Authentication Message. The digital signature MUST be created with the secret key (SKa) of the Algorand account used for authentication. An Authentication Message is nothing but a sequence of bytes. Users connected to a wallet with an Algorand account can sign the Authentication Message with their SKs, and forge brand new digital signatures.
-
-To sum up, the solution use Algorand cryptographic primitives to achieve the following operations:
-
-- given an Algorand account and an Authentication Message, the user MUST be able to generate a digital signature using the SKa;
-- given an Algorand account and an Authentication Message, the verifier MUST be able to verify the digital signature of that message with the public key of the Algorand address (PKa).
 
 ### Authentication Message
 
