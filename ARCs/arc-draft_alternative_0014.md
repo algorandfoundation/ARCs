@@ -15,27 +15,28 @@ created: 2022-04-05
 
 ## Summary
 
-A standard approach to authenticate users via Algorand accounts.
+A standard approach to authenticate users with Algorand accounts.
 
 ## Abstract
 
-This document introduces a standard SSO authentication mechanism based on Algorand accounts. It leverages the public-secret key <*PK, SK*> encryption schema used by Algorand to represent users on-chain. This approach fosters the adoption of novel identity and session management systems for Web3 applications.
+This document introduces a standard SSO authentication mechanism based on Algorand accounts. It leverages the public-secret key <*PK, SK*> encryption schema to verify the identity of a user that owns and Algorand account. This approach fosters the adoption of novel identity and session management systems for Web3 applications.
 
 ## Definitions
 
-- System
-- Session id
-- User
-- dApp
-- wallet
-- Verifier
+- **Traditional system**: a frontend/backend application, a service provider, or in general any entity not based on blockchain;
+- **Session-Id**: HTTP(s) session typically represented with a cookie or JWT;
+- **User**: an Algorand account holder;  
+- **Verifier**: a *traditional system* that whants to verify the identity of a User;
+- **dApp**: a decentralized Algorand application that natively run on the Algorand blockchain, aka "smart contract",
+- **Wallet**: an off-chain application that stores the secret keys of Algorand accounts and can display and sign transactions for these accounts;
+
 ...
 
 ## Motivation
 
-Traditional systems enforce SSO login leveraging on authentication of users with *credentials*, i.e. username and password. Once the identity of a user is verified, the system can establish an authenticated session. Sessions allows users to interact with a system without having to authenticate itsefl anytime. Sessions are represented with a `session-id` (typically a cookie or a JSON Web Token - JWT).
+Traditional systems enforce SSO login leveraging on authentication of users with *credentials*, i.e. username and password. Once the identity of a user is verified, the system establishes an authenticated session. Sessions allows users to interact with the system without authenticate themselves anytime. Sessions are represented with the so called `session-id` (typically a cookie or a JSON Web Token - JWT).
 
-In a blockchain context, users are not identified with credentials. Therefore, traditional authentication mechanisms result impractical. In the Web3 users are identified through their unique blockchain public addresses (accounts for Algorand). To interact with a dApp, users must connect their wallet to the application. Using an authentication layer based on credentials on top of that mechanism might result a redundant and inefficient procedure.
+In a blockchain context, users do not have credentials. Conversely, in the Web3 users are identified through their unique blockchain public addresses (accounts for Algorand). Therefore, traditional authentication mechanisms result impractical. To interact with a dApp, users connect their wallet to the application. Using an authentication layer based on credentials on top of that mechanism might result redundant and inefficient.
 
 In Web3, dApps and traditional systems will be increasingly more interconnected. It is not difficult to imagine users consuming services both from a dApp and a traditional system simultaneously. In that case, a user should be authenticated first through traditional SSOs, and then connecting their blockchain wallet. A better approach should enforce a single SSO procedure.
 
