@@ -61,8 +61,8 @@ This document describes a standard approach to authenticate Users with their blo
 
 To sum up, given an Algorand account <*PKa, SKa*>, this ARC defines the standards for:
 
-- create an ARC-0014 compliant digital signature with **SKa**;
-- verify an ARC--014 compliant digital signature with **PKa**.
+- create an ARC-0014 compliant digital signature with *SKa*;
+- verify an ARC--014 compliant digital signature with *PKa*.
 
 ### Assumptions
 
