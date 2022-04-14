@@ -53,7 +53,7 @@ The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL 
 
 Interfaces are defined in TypeScript. All the objects that are defined are valid JSON objects, and all JSON string types are UTF-8 encoded.
 
-This ARC uses interchangeably the terms "*blockchain address*", "*public key*", and "*PK*" to indicate the on-chain address of a blockchain identity, and in particular an Algorand address.
+This ARC uses interchangeably the terms "*blockchain address*", "*public key*", and "*PK*" to indicate the on-chain address of a blockchain identity, and in particular of an Algorand account.
 
 ### Overview
 
