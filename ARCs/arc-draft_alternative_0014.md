@@ -19,18 +19,21 @@ A standard approach to authenticate users with Algorand accounts.
 
 ## Abstract
 
-This document introduces a standard SSO authentication mechanism based on Algorand accounts. It leverages the public-secret key <*PK, SK*> encryption schema to verify the identity of a user that owns and Algorand account. This approach fosters the adoption of novel identity and session management systems for Web3 applications.
+This document introduces a standard for SSO authentication based on Algorand accounts. It leverages the public-secret key <*PK, SK*> encryption schema to verify the identity of a user that owns and Algorand account. This approach fosters the adoption of novel identity and session management systems for Web3 applications.
 
 ## Definitions
 
-- **Traditional system**: a frontend/backend application, a service provider, or in general any entity not based on blockchain;
-- **Session-Id**: HTTP(s) session typically represented with a cookie or JWT;
-- **User**: an Algorand account holder;  
-- **Verifier**: a *traditional system* that whants to verify the identity of a User;
-- **dApp**: a decentralized Algorand application that natively run on the Algorand blockchain, aka "smart contract",
-- **Wallet**: an off-chain application that stores the secret keys of Algorand accounts and can display and sign transactions for these accounts;
-
-...
+- **System**: any frontend/backend application, service provider, or in general an entity not based on blockchain;
+- **Session-Id**: HTTP(s) session typically represented with a `cookie` or a `JWT`;
+- **Blockchain identity**: a public/secret key pair <*PK, SK*> representing a blockchain account;
+- **Algorand account**: a blockchain identity on Algorand identified with the key pair <*PKa, SKa*>;
+- **Algorand address**: the public key *PKa* of an Algorand account;
+- **User**: an Algorand account holder;
+- **Verifier**: a *system* that need to verify the identity of a User;
+- **dApp**: a decentralized Algorand application that natively runs on the Algorand blockchain, aka "*smart contract*",
+- **Wallet**: an off-chain application that stores the secret keys *SKa*s of Algorand accounts and can display and sign transactions for these accounts;
+- **message**: a generic string of bytes;
+- **digital signature**: a message signed with the private key of a blockchain identity, and specifically in this ARC with the *SKa*;
 
 ## Motivation
 
@@ -40,7 +43,7 @@ In a blockchain context, users do not have credentials. Conversely, in the Web3 
 
 In Web3, dApps and traditional systems will be increasingly more interconnected. It is not difficult to imagine users consuming services both from a dApp and a traditional system simultaneously. In that case, a user should be authenticated first through traditional SSOs, and then connecting their blockchain wallet. A better approach should enforce a single SSO procedure.
 
-This ARC provides the standard to authenticate users leversging on their Algorand accounts, and withour relying on credentials verification.
+This ARC provides the standard to authenticate users leveraging on their Algorand accounts, and without relying on credentials verification.
 
 ## Specification
 
@@ -48,58 +51,85 @@ The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL 
 
 > Comments like this are non-normative.
 
+Interfaces are defined in TypeScript. All the objects that are defined are valid JSON objects, and all JSON string types are UTF-8 encoded.
+
+This ARC uses interchangeably the terms "*blockchain address*", "*public key*", and "*PK*" to indicate the on-chain address of a blockchain identity, and in particular an Algorand address.
+
 ### Overview
 
-#### General idea
+This document describes a standard approach to authenticate Users with their blockchain identity. In particular, in this ARC Users' Algorand address are used as a *unique identifiers*, and the secret key of that address is used to digitally sign a *message* as a proof of identity for a  Verifier. Hence, upon signature verification, the Verifier initializes an authenticated session with the User by issuing a new `session-id`.
 
-The mechanism uses blockchain addresses as unique identifiers. Users login into an application on a server/backend by proving they own a blockchain address. The proof is a digital signature that can be validated server-side. If the proof is valid, the server creates a new session (release of a cookie/JWT).
+To sum up, given an Algorand account <*PKa, SKa*>, this ARC defines the standards for:
 
-The mechanism works as follows: a user attempts to login into an application with its blockchain address. The backend requests the user to prove her identity by signing a random message with the secret key in control of the blockchain address. The message MUST be unpredictable and only valid for one authentication request. Reproducible messages could be used by an attacker in a replay-attack. Thus, after signing the message the user forwards the result to the backend which validates the signature and eventually instantiates a new authenticated session with the user. The established session is characterized by a session id (i.e. a cookie or JWT).
-
-GRAPH HERE
-
-Diagram 1 summarizes the solution presented above. It illustrates the workflow and the message exchanges between parties. In particular, the user u, owner of the blockchain identity PKu, login into an application hosted by the backend b, thus the authentication mechanism proceeds as follows:
-
-1. u attempts to login to the application with its blockchain address PKu;
-2. b retrieves the challenge Cu associated with PKu;
-3. b requests u to digitally sign the challenge Cu to prove the ownership of that blockchain address;
-4. u signs the challenge and afterwards sends back the tuple <PKu, Sig(Cu)> to b;
-5. b retrieves and validates the digital signature Sig(Cu);
-6. If the signature is valid, b establishes a new session with u by forwarding a cookie or JWT; if the signature is not valid, b returns NULL (authentication rejected);
-7. b updates the challenge Cu associated with PKu for a future session.
-
-The previous section introduced a general mechanism to authenticate users with blockchain identities. This section provides an implementation of such a mechanism using the Algorand blockchain. It considers a User and a Verifier. The User owns an Algorand account which is identified with an Algorand key pair <PKa, SKa>. Algorand transforms traditional 32-bytes cryptographic keys into more readable and user-friendly objects. The public key is represented as Algorand address PKa, whereas the secret key is transformed into a base64 private key SKa. The User accesses her Algorand account via a wallet. The Verifier is any kind of system (i.e. application, dApp, entity) that wants to authenticate the User with her Algorand account. A wallet is any type of Algorand wallet, such as hot wallets like AlgoSigner, MyAlgo Wallet for browser and mobile wallets used through WalletConnect, and cold wallets like the Ledger Nano.
-
-The User presents to the Verifier her Algorand address (PKa) for authentication. The Verifier authenticates the User by asking her to sign an Authentication Message. The digital signature MUST be created with the secret key (SKa) of the Algorand account used for authentication. An Authentication Message is nothing but a sequence of bytes. Users connected to a wallet with an Algorand account can sign the Authentication Message with their SKs, and forge brand new digital signatures.
-
-To sum up, the solution use Algorand cryptographic primitives to achieve the following operations:
-
-- given an Algorand account and an Authentication Message, the user MUST be able to generate a digital signature using the SKa;
-- given an Algorand account and an Authentication Message, the verifier MUST be able to verify the digital signature of that message with the public key of the Algorand address (PKa).
+- create an ARC-0014 compliant digital signature with **SKa**;
+- verify an ARC--014 compliant digital signature with **PKa**.
 
 ### Assumptions
 
 The standard proposed in this document works under the following assumptions:
 
-- Secure communication channels encrypted via SSL/TLS;
-- The backend knows the users’ PK;
-- For each PK the backend generates a unique challenge;
-- Users are the only custodian of the SK;
-- Users won’t use multiple PK to login into an application;
-- Users won’t change their public address to login into the application;
-- The challenge must be changed in each session to avoid replay attack;
-- Users MUST use only ed25519 keys to sign messages;
-- Multisig, LogicSig not supported;
-- Users MUST use non-rekeyed accounts.
+- User and Verifier communicates over secure SSL/TLS encrypted channels;
+- The Verifier knows the Users’ *PKa*;
+- For each *PKa* the Verifier generates a unique message to be signed;
+- The message changes for each authentication request - avoid replay attack;
+- Users are the only custodians of the *SKa*;
+- The secret keys are stored into a wallet;
+- Users won’t use different *PKa* for authentication;
+- Users won’t change their public address for authentication;
+- Users **MUST** only use ed25519 Algorand keys to sign the messages;
+- Multisig and LogicSig are not supported;
+- Users **MUST NOT** use rekeyed accounts.
+
+### Authentication Mechanism
+
+The authentication mechanism defined in this ARC works as follows: a User communicates to the Verifier her intention to authenticate with her Algorand account <*PKa, SKa*>.
+
+> Algorand transforms traditional 32-bytes cryptographic keys into more readable and user-friendly objects. A detailed description of such a transformation can be found in the [developer portal](https://developer.algorand.org/docs/get-details/accounts/#keys-and-addresses).
+
+To prove the User's identity, the Verifier will ask the signature of a random message with the secret key *SKa* associated with the User's Algorand account. The User generates the digital signature and sends it back to the Verifier. Finally, the Verifier checks the signature and, if everything is good, creates a new authenticated session.
+
+```mermaid
+sequenceDiagram
+    actor A as Alice
+    participant W as Wallet
+    actor B as Bob
+    A-->>W: Connect to Bob with PKa
+    activate W
+    W->>B: GET message for PKa
+    B->>B: Create a new msg for PKa
+    B->>W: msg
+    Note right of A: Confirm signature
+    A-->>W: 
+    W->>B: <PKa, Sig(msg)>
+    deactivate W
+    B->>B: Verify Sig(msg) with PKa and msg
+    Note right of B: if Sig(msg) is valid<br/>then create session-id<br/>else session-id=NULL
+    B->>A: session-id
+    
+```
+
+The diagram above summarizes the mechanism. It consider a User, **Alice**, owner of an Algorand account <*PKa, SKa*> of which the secret key *SKa* is stored into a **wallet**.
+
+> A wallet is any type of Algorand wallet, such as hot wallets like [AlgoSigner](https://www.purestake.com/technology/algosigner/), [MyAlgo Wallet](https://wallet.myalgo.com/) for browser and mobile wallets used through [WalletConnect](https://developer.algorand.org/docs/get-details/walletconnect/), and cold wallets like the [Ledger Nano](https://www.ledger.com).
+
+Alice authenticates herself to a Validator, **Bob** providing the digital signature of a random message Sig(msg) provided by Bob. The mechanism proceeds as follows:
+
+1. Alice sends an authentication request to Bob via her Algorand wallet using *PKa*;
+2. Bob generates a message `msg` for *PKa* and request Alice to sign it;
+3. Alice signs `msg` using her wallet, and afterwards sends back the tuple <*PKa, Sig(msg)*> to Bob;
+4. Bob verifies the digital signature Sig(msg) with the *PKa* and `msg`;
+5. If the signature is valid, then Bob generates a new `session-id` for Alice; otherwise returns NULL (authentication rejected);
+
+An ARC-0014 compliant message is called *Authentication Message*. A User **MUST** sign the *Authentication Message* with her *SKa* stored into a wallet to create a digital signature.
 
 ### Authentication Message
 
-An Authentication Message is a sequence of bytes representing a message. The Verifier requests users to sign an Authentication Message with her secret key SKa in order to prove the ownership of the Algorand account they want to use for authentication. Such a message MUST include the following information:
+An Authentication Message is a sequence of bytes representing a message. The Verifier requests Users to sign an *Authentication Message* with their secret keys in order to prove the ownership of an Algorand account they want to use for authentication. Such a message **MUST** include the following information:
 
-- domain name of the service to authenticate;
-- description of the service to authenticate;
-- Algorand address (PKa) to be authenticated;
-- nonce representing a unique/random value generated by the verifier.
+- `domain name` of the service to authenticate;
+- `description` of the service to authenticate;
+- `Algorand address` (PKa) to be authenticated;
+- `nonce` representing a unique/random value generated by the verifier.
 
 The JSON structure for such an object is:
 
@@ -127,35 +157,39 @@ For example:
 }
 ```
 
-The nonce field MUST be unique for each authentication and MUST not be used more than once to avoid replay attacks.
+The `nonce` field **MUST** be unique for each authentication and **MUST NOT** be used more than once to avoid replay attacks.
 
-Users can sign Authentication Messages using their secret key SKa stored into a wallet.
+Users sign *Authentication Message*s using the secret keys stored into a wallet.
 
 **Problem**: Most of the Algorand wallets can only sign Algorand Transaction objects, and do not offer the possibility to sign arbitrary bytes. To overcome such a limitation, the Authentication Message can be extended to two distinguished objects, namely the Simple Authentication Message, and the Transaction Authentication Message. The former SHOULD be used by any signing mechanisms provided with the functionality of signing random bytes, whereas the latter can be used today with most of the Algorand wallets.
 
 #### Simple Authentication Message
 
-The *Simple Authentication Message* is a sequence of bytes representing an ARC-0014 basic Authentication Message. It SHOULD be used in contexts that support signatures of random bytes. A *Simple Authentication Message* is an Authentication Message prepended with the prefix `ARC-0014-authentication` for domain separation. It **MUST** be represented as the hash SHA-512/256 of the prefix together with an msgpack encoded *Authentication Message*. For example, given an Authentication Message object aut_message, its *Simple Authentication Message* representation would be: `SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message)`.
+The *Simple Authentication Message* is a sequence of bytes representing an ARC-0014 *Authentication Message*. It **SHOULD** be used in contexts that support signatures of random bytes. A *Simple Authentication Message* is an *Authentication Message* prepended with the prefix `ARC-0014-authentication` for domain separation. It **MUST** be represented as the hash SHA-512/256 of such prefix, together with a msgpack encoded *Authentication Message*. For example, given an *Authentication Message* object `aut_message`, its *Simple Authentication Message* representation would be something like: `SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message)`.
 
 #### Transaction Authentication Message
 
 A *Transaction Authentication Message* is an *Authentication Message* represented as an Algorand Transaction object. Such a transaction must have the following characteristics:
 
-- it SHOULD be an Algorand Payment Transaction;
-- it MUST have a *Simple Authentication Message* into the note field;
-- it MUST be invalidated i.e. not executable on any official Algorand network. Malicious users could intercept and execute it causing unexpected consequences. For instance, in case of a MainNet transaction, it could be intercepted by a malicious user and executed, burning some Algos from the sender’s wallet due to the payment of fees.
+- it **SHOULD** be an Algorand Payment Transaction;
+- it **MUST** include a *Simple Authentication Message* into the transaction's `note` field;
+- it **MUST** be *invalidated* i.e. not executable on any official Algorand network.
 
-The fields of a Payment Transaction object which represents a Transaction Authentication Message MUST be initialized as follows
+> Malicious users could intercept and execute it causing unexpected consequences. For instance, in case of a MainNet transaction, it could be intercepted by a malicious user and executed, burning some Algos from the sender’s wallet due to the payment of fees.
+
+The fields of a Payment Transaction object which represents a *Transaction Authentication Message* **MUST** be initialized as follows
 
 - `amount` = 0;
-- `sender/receiver` set with the user’s Algorand account;
+- `sender/receiver` = *PKa*;
 - `firstValid/lastValid` = 0;
 - `fee` = 0;
 - `genesisId` = “ARC-0014-authentication”;
 - `genesisHash` = SHA-512/256 of the string “ARC-0014-authentication”;
 - `note` = SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message);
 
-The fields genesisId and genesisHash specify respectively the id and hash of the genesis block of the network, and they MUST be initialized to the ARC-0014 values (not conventional for MainNet/TestNet/BetaNet). The note field MUST include a Simple Authentication Message object. Finally, the sender field SHOULD be set to the Algorand account of the user. A detailed description of the transitions fields of Algorand Transactions is available in the transaction reference documentation.
+The fields `genesisId` and `genesisHash` specify respectively the `id` and `hash` of the genesis block of the network, and they **MUST** be initialized to the ARC-0014 values (not conventional for MainNet/TestNet/BetaNet). The `note` field **MUST** include a *Simple Authentication Message* object. Finally, the `sender` field **SHOULD** be set to the Algorand address of the user. 
+
+> A detailed description of the transitions fields of Algorand Transactions is available in the transaction's reference [documentation](https://developer.algorand.org/docs/get-details/transactions/transactions/).
 
 For example:
 
@@ -180,39 +214,39 @@ For example:
 
 #### Digital Signature of a Simple Authentication Message
 
-A Simple Authentication Message is a random sequence of bytes. It can be obtained with any open-source cryptographic library (e.g. Python lib PyNaCl) using the secret key of an Algorand account. Algorand account’s secret key SKa represents a base64 concatenation of the traditional 32-bytes secret and public keys . To create a digital signature of a Simple Authentication Message the Algorand secret key MUST be decoded as a standard 32-bytes secret key as follows:
+A *Simple Authentication Message* can be signed with any open-source cryptographic library (e.g. Python lib PyNaCl) and the secret key of an Algorand account. Algorand account’s secret key *SKa* represents a base64 concatenation of the traditional 32-bytes secret and public keys. To create a digital signature of a *Simple Authentication Message* the Algorand secret key **MUST** be decoded as a standard 32-bytes secret key as follows:
 
-1. base64 decode the Algorand secret key SKa;
-2. extract the traditional secret key SK as the first 32 bytes of the decoded key.
+1. base64 decode the Algorand secret key *SKa*;
+2. extract the traditional secret key *SK* as the first 32 bytes of the decoded key.
 
 #### Digital Signature of a Transaction Authentication Message
 
-The signature of a Transaction Authentication Message is nothing more than a signed transaction object on Algorand. With the SDK method sign() and a secret key, it is possible to create a SignedTransaction object which wraps together the transaction and its  digital signature. For example, the SDK method  unsigned_txn.sign(secret_key) returns a SignedTransaction object with the digital signature of unsigned_transaction produced with secret_key.
+The signature of a *Transaction Authentication Message* is nothing more than a signed transaction object on Algorand. With the SDK method `sign()` and a secret key *SKa*, it is possible to create a `SignedTransaction` object which represents a digital signature. For example, the SDK method  `unsigned_txn.sign(secret_key)` returns a `SignedTransaction` object with the digital signature of `unsigned_transaction` produced with `secret_key`.
 
-Almost any algorand wallet integrates the possibility of signing transactions. For instance, to programmatically sign a transaction with the AlgoSigner wallet, there is an SDK method AlgoSigner.signTxn([TxnObject, …]). This method returns a base64 encoded object which represents the digital signature of a transaction object.
+Almost any algorand wallet integrates the possibility of signing transactions. For instance, to programmatically sign a transaction with the AlgoSigner wallet, there is an [SDK method](https://github.com/PureStake/algosigner/blob/develop/docs/dApp-integration.md#algosignersigntxntxnobjects) `AlgoSigner.signTxn([TxnObject, …])`. This method returns a base64 encoded object which represents the digital signature of a transaction object.
 
 ## How to verify a digital signature generated with Algorand keys?
 
-A digital signature generated with the secret key SKa of an Algorand account can be verified with its respective 32-byte public key PKa. The Verifier only needs to decode the public key PK from the Algorand address PKa, and it must know the original Authentication Message. For example, assuming the digital signature Sig(msg) of the Authentication Message msg, the Verifier can validate it using the Algorand SDK as follows:
+A digital signature generated with the secret key *SKa* of an Algorand account can be verified with its respective 32-byte public key *PKa*. The Verifier needs to decode the public key *PK* from the Algorand address, and it must know the original *Authentication Message*. For example, assuming the digital signature `Sig(msg)` of the *Authentication Message* `msg`, the Verifier can validate it using the Algorand SDK as follows:
 
-1. decode the Algorand address into a traditional 32-bytes public key PK;
-2. use an open-source cryptographic library to verify the signature Sig(msg) (e.g. Python lib PyNaCl); usually those libraries work with raw bytes and some encoding/decoding is needed:
-    - the message msg MUST be bytes encoded with msgpack. For example with the Algorand SDK for Python this is achieved with the method encoding.msgpack_encode(msg);
-    - if the message is a Simple Message Transaction, then it MUST be prefixed with the string “ARC-0014-authentication”, otherwise it is a Transaction object and MUST be prefixed with the string “TX” ;
-    - the digital signature Sig(msg) must be decoded from base64 with the base64 library of the SDK. For example with the Python SDK this is achieved with the method base64.b64decode(Sig(msg)).
+1. decode the Algorand address into a traditional 32-bytes public key *PK*;
+2. use an open-source cryptographic library to verify the signature `Sig(msg)` (e.g. Python lib PyNaCl); usually those libraries work with raw bytes and some encoding/decoding magic is needed:
+    - the message msg **MUST** be bytes encoded with msgpack. For example, with the Algorand SDK for Python this can achieved with `encoding.msgpack_encode(msg)`;
+    - if the message is a *Simple Message Transaction*, then it **MUST** be prefixed with the string `“ARC-0014-authentication”`, otherwise it is a `Transaction` object and **MUST** be prefixed with the string `“TX”`;
+    - the digital signature `Sig(msg)` **MUST** be decoded from base64 with the base64 library of the SDK. For example with the Python SDK this can be achieved with `base64.b64decode(Sig(msg))`.
 
-## Standard for Session Id creation
+## A Standard for Session Id creation
 
-Once the User is authenticated, the Verifier SHOULD exchange a session-id, for example a cookie or a JWT. The way session-ids are implemented is an ARC–0014 user choice. However, in a context of ARC-0014 authentication, it MUST include the following information:
+After authentication, the Verifier **SHOULD** exchange a `session-id` with the User, such as a cookie or a JWT. The way `session-id`s are implemented is an implementation choice. However, to comply with the ARC-0014, it **MUST** include the following information:
 
-- the Algorand address PKa of the authenticated user;
-- the Simple Authentication Message;
-the expiration time;
-- (optional) device id if the User authenticates via mobile device.
+- the Algorand address *PKa* of the authenticated user;
+- the *Simple Authentication Message*;
+- an `expiration` time;
+- (**OPTIONAL**) `device-id` if the User authenticates via mobile device.
 
 ### JWT implementation example
 
-A JWT should be constructed following the RFC 7519 standard. It is composed of three parts, namely the header, payload, and signature. The payload includes general information on the JWT and the signing scheme, the payload contains the claims of the token, and the signature is derived from the header and the payload. The JWT is the concatenation of each part followed by a “.”: JWT = header.payload.signature
+A JWT should be constructed following the RFC 7519 standard. It is composed of three parts, namely the `header`, `payload`, and `signature`. The `payload` includes general information on the JWT and the signing scheme, the `payload` contains the claims of the token, and the `signature` is derived from the `header` and the `payload`. The JWT is the concatenation of each part followed by a “.”: `JWT = header.payload.signature`
 
 For example, an ARC-0014 compliant JWT might be implemented as follows:
 
@@ -231,7 +265,7 @@ Payload:
 {
  "algo_addr":"PKa",
  "message":"SHA512_256(‘ARC-0014-authentication’+msgpacked_auth_message)",
- "exp":<timestamp>,
+ "exp":"<timestamp>",
  "device":"<device_id>"
 }
 ```
@@ -240,19 +274,11 @@ Signature:
 
 `SHA512_256(base64(Header) + “.” + base64(Payload), secret)`
 
-Where the secret is only known by the Verifier.
-
-## Rationale
-
-> The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made. It should describe alternate designs that were considered and related work, e.g. how the feature is supported in other languages.
-
-## Reference Implementation
-
-> An optional section that contains a reference/example implementation that people can use to assist in understanding or implementing this specification.  If the implementation is too large to reasonably be included inline, then consider adding it as one or more files in `../assets/arc-####/`.
+Where the `secret` is only known by the Verifier.
 
 ## Security Considerations
 
-> All ARCs must contain a section that discusses the security implications/considerations relevant to the proposed change. Include information that might be important for security discussions, surfaces risks and can be used throughout the life cycle of the proposal. E.g. include security-relevant design decisions, concerns, important discussions, implementation-specific guidance and pitfalls, an outline of threats and risks and how they are being addressed. ARC submissions missing the "Security Considerations" section will be rejected. An ARC cannot proceed to status "Final" without a Security Considerations discussion deemed sufficient by the reviewers.
+An attacker **MAY** attempt to cheat with the system by impersonating another User. This is possible if the attacker can intercept the digital signature and use the same signature in a replay-attack. To mitigate this scenario, the Verifier **MUST** generate a new message for each authentication request. In this way, the digital signature results valid for one session and cannot be spent in further authentication requests.
 
 ## Copyright
 
