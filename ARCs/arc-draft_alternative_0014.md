@@ -108,7 +108,7 @@ sequenceDiagram
     
 ```
 
-The diagram above summarizes the mechanism. It consider a User, **Alice**, owner of an Algorand account <*PKa, SKa*> of which the secret key *SKa* is stored into a **wallet**.
+The diagram above summarizes the mechanism. We consider a User, **Alice**, owner of an Algorand account <*PKa, SKa*> of which the secret key *SKa* is stored into a **wallet**.
 
 > A wallet is any type of Algorand wallet, such as hot wallets like [AlgoSigner](https://www.purestake.com/technology/algosigner/), [MyAlgo Wallet](https://wallet.myalgo.com/) for browser and mobile wallets used through [WalletConnect](https://developer.algorand.org/docs/get-details/walletconnect/), and cold wallets like the [Ledger Nano](https://www.ledger.com).
 
