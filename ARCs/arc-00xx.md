@@ -25,8 +25,8 @@ metadata, and suggests a reference implementation.
 ## Motivation
 
 The Algorand Standard Asset (ASA) is an excellent building block for on-chain
-applications. It is battle-tested and widely adopted and supported by SDKs,
-wallets, and dApps.
+applications. It is battle-tested and widely supported by SDKs, wallets, and
+dApps.
 
 However, the ASA lacks in flexibility and configurability. For instance, once
 issued it can't be re-configured (its unit name, decimals, maximum supply).
@@ -47,7 +47,8 @@ adjust their flows and user experiences accordingly.
 
 The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
-interpreted as described in RFC 2119.
+interpreted as described in [RFC
+2119](https://datatracker.ietf.org/doc/html/rfc2119).
 
 The following sections describe:
 
@@ -218,12 +219,11 @@ Calling `AssetFreeze` prevents an account from transferring a Smart ASA.
 > - Succeed iff the `Sender` of the transaction corresponds to the `FreezeAddr`,
 >   as persisted by the controlling smart contract.
 >
-> The controlling smart contract SHOULD persist the pair `FreezeAccount` and
-> `FreezeAccount` (for instance by setting `frozen` flag in the local storage of
-> the `FreezeAccount`). See the [security considerations
-> section](#security-considerations) for how to ensure that Smart ASA holders
-> cannot reset their `frozen` flag by clearing out their state at the controlling smart
-> contract.
+> The controlling smart contract SHOULD persist the pair `(FreezeAccount, AssetFrozen)`
+> (for instance by setting `frozen` flag in the local storage of the `FreezeAccount`).
+> See the [security considerations section](#security-considerations) for how to ensure
+> that Smart ASA holders cannot reset their `frozen` flag by clearing out their state
+> at the controlling smart contract.
 
 ### Asset Destroy
 
