@@ -53,8 +53,8 @@ The following sections describe:
 
 - The ABI interface for a controlling Smart Contract (the Smart Contract that
   controls a Smart ASA).
-- The metadata required by a Smart ASA and defining the association between an
-  ASA and its controlling Smart Contract.
+- The metadata required to denote a Smart ASA and define the association between
+  an ASA and its controlling Smart Contract.
 
 ### ABI Interface
 
@@ -91,6 +91,22 @@ types but left otherwise unchanged.
 Calling `AssetCreate` creates a new Smart ASA and returns the identifier of the
 ASA. The [metadata section](#metadata) describes its required properties.
 
+> Upon a call to `AssetCreate`, a reference implementation SHOULD:
+>
+> - Mint an Algorand Standard Asset (ASA) that MUST specify the properties defined
+>   in the [metadata section](#metadata). The `Manager`, `Reserve` and `Freeze`
+>   addresses SHOULD be set to the account of the controlling smart contract. The
+>   remaining fields are left to the implementation, which MAY set `Total` to `2 ** 64 - 1`
+>   to enable dynamically increasing the circulating supply of the
+>   asset. `AssetName` and `UnitName` MAY be set to `SMART-ASA` and `S-ASA`, to
+>   mark that this ASA is Smart and has a controlling application.
+> - Persist the `Total`, `Decimals`, `DefaultFrozen`, etc. fields for later
+>   use/retrieval.
+> - Return the ID of the created ASA.
+>
+> It is RECOMMENDED for calls to this method to be permissioned, e.g. to only
+> approve transactions issued by the controlling smart contract creator.
+
 #### Asset Configuration
 
 ```json
@@ -110,12 +126,33 @@ ASA. The [metadata section](#metadata) describes its required properties.
     { "type": "address", "name": "FreezeAddr" },
     { "type": "address", "name": "ClawbackAddr" }
   ],
-  "returns": { "type": "uint64" }
+  "returns": { "type": "void" }
 }
 ```
 
 Calling `AssetConfig` configures an existing Smart ASA and returns its
 identifier.
+
+> Upon a call to `AssetConfig`, a reference implementation SHOULD:
+>
+> - Fail if `ConfigAsset` does not correspond to an ASA controlled by this smart
+>   contract.
+> - Update the persisted `Total`, `Decimals`, `DefaultFrozen`, etc. fields for later
+>   use/retrieval.
+>
+> It is RECOMMENDED for calls to this method to be permissioned (see
+> `AssetCreate`).
+>
+> The business logic associated to the update of the other parameters is left to
+> the implementation. An implementation that maximizes similarities with ASAs,
+> SHOULD NOT allow modifying the `ClawbackAddr` or `FreezeAddr` after they
+> have been set to the special value `ZeroAddress`.
+>
+> The implementation MAY provide flexibility on the fields of an ASA that
+> cannot be updated after initial configuration. For instance, it MAY update the
+> `Total` parameter to enable minting of new units or restricting the maximum
+> supply; when doing so, the implementation SHOULD ensure that the updated
+> `Total` is not lower than the current circulating supply of the asset.
 
 ### Asset Transfer
 
@@ -134,8 +171,29 @@ identifier.
 
 Calling `AssetTransfer` transfers a Smart ASA.
 
-TODO: Note about `AssetCloseTo` missing.
-TODO: Note about clawback.
+> Upon a call to `AssetTransfer`, a reference implementation SHOULD:
+>
+> - Fail if `XferAsset` does not correspond to an ASA controlled by this smart
+>   contract.
+> - Succeed if the `Sender` of the transaction is the `AssetSender` and
+>   `AssetSender` and `AssetReceiver` are not in a frozen state (see
+>   [below](#asset-freeze)).
+> - Succeed if the `Sender` of the transaction corresponds to the `ClawbackAddr`,
+>   as persisted by the controlling smart contract. This enables clawback
+>   operations on the Smart ASA.
+>
+> Internally, the controlling smart contract SHOULD issue a clawback inner
+> transaction that transfers the `AssetAmount` from `AssetSender` to
+> `AssetReceiver`. The inner transaction will fail on the usual conditions (e.g.
+> not enough balance).
+>
+> Note that the method interface does not specify `AssetCloseTo`, because
+> holders of a Smart ASA will need two transactions (RECOMMENDED in an Atomic
+> Transfer) to close their position:
+>
+> - A call to this method to transfer their outstanding balance (possibly as a
+>   `CloseOut` operation if the controlling smart contract required opt in); and
+> - an additional transaction to opt out of the ASA.
 
 ### Asset Freeze
 
@@ -153,6 +211,20 @@ TODO: Note about clawback.
 
 Calling `AssetFreeze` prevents an account from transferring a Smart ASA.
 
+> Upon a call to `AssetFreeze`, a reference implementation SHOULD:
+>
+> - Fail if `FreezeAsset` does not correspond to an ASA controlled by this smart
+>   contract.
+> - Succeed iff the `Sender` of the transaction corresponds to the `FreezeAddr`,
+>   as persisted by the controlling smart contract.
+>
+> The controlling smart contract SHOULD persist the pair `FreezeAccount` and
+> `FreezeAccount` (for instance by setting `frozen` flag in the local storage of
+> the `FreezeAccount`). See the [security considerations
+> section](#security-considerations) for how to ensure that Smart ASA holders
+> cannot reset their `frozen` flag by clearing out their state at the controlling smart
+> contract.
+
 ### Asset Destroy
 
 ```json
@@ -164,6 +236,22 @@ Calling `AssetFreeze` prevents an account from transferring a Smart ASA.
 ```
 
 Calling `AssetDestroy` destroys a Smart ASA.
+
+> Upon a call to `AssetDestroy`, a reference implementation SHOULD:
+>
+> - Fail if `DestroyAsset` does not correspond to an ASA controlled by this smart
+>   contract.
+>
+> It is RECOMMENDED for calls to this method to be permissioned (see
+> `AssetCreate`).
+>
+> The controlling smart contract SHOULD perform an asset destroy operation on
+> the ASA with ID `DestroyAsset`. The operation will fail if the asset is still
+> in circulation.
+
+### Getters
+
+TODO.
 
 #### Full ABI Spec
 
@@ -209,6 +297,10 @@ Example:
 //...
 ```
 
+### OptIn and OptOut
+
+TODO.
+
 ## Rationale
 
 TODO.
@@ -231,6 +323,8 @@ place as long as:
 - The ASA remains frozen,
 - its `ClawbackAddr` is set as specified in the [metadata section](#metadata),
 - the controlling Smart Contract is not updatable, not deletable, not rekeyable.
+
+TODO: Opt-in, clear state and freeze.
 
 ## Copyright
 
