@@ -275,8 +275,8 @@ The ASA underlying a Smart ASA:
 
 A Smart ASA MUST specify the ID of its controlling Smart Contract as follows:
 
-- If conforming to any ARC that supports additional `properties` (ARC-3,
-  ARC-69), then it MUST specify a `arc-xx` key and set the corresponding value
+- If conforming to any ARC that supports additional `properties` ([ARC-3](./arc-0003.md),
+  [ARC-69](./arc-0069.md)), then it MUST specify a `arc-xx` key and set the corresponding value
   to a map, specifying as the value for `application-id` the ID of the
   controlling Smart Contract.
 - TODO: URL encoding.
