@@ -3,9 +3,9 @@ arc: 00XX
 title: Smart ASA
 description: An ARC for an ASA controlled by an Algorand Smart Contract
 author:
-  Cosimo Bassi (@cusma)
-  Adriano Di Luzio (@aldur)
-  John Jannotti (@jannotti)
+  - Cosimo Bassi (@cusma)
+  - Adriano Di Luzio (@aldur)
+  - John Jannotti (@jannotti)
 discussions-to: <URL>
 status: Draft
 type: Standards Track
@@ -188,8 +188,9 @@ The ASA underlying a Smart ASA:
 A Smart ASA MUST specify the ID of its controlling Smart Contract as follows:
 
 - If conforming to any ARC that supports additional `properties` (ARC-3,
-  ARC-69), then it MUST specify a `smart-asa-application-id` key and set the
-  corresponding value to the ID of the controlling Smart Contract.
+  ARC-69), then it MUST specify a `arc-xx` key and set the corresponding value
+  to a map, specifying as the value for `application-id` the ID of the
+  controlling Smart Contract.
 - TODO: URL encoding.
 - TODO: Reserve.
 
@@ -200,8 +201,10 @@ Example:
 ```javascript
 //...
 "properties":{
-    //...
-    "smart-asa-application-id": 123,
+  //...
+  "arc-xx":{
+    "application-id": 123,
+  }
 }
 //...
 ```
