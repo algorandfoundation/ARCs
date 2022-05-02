@@ -17,9 +17,10 @@ requires: ARC-4
 ## Abstract
 
 A "Smart ASA" is an Algorand Standard Asset (ASA) controlled by a Smart Contract
-that exposes methods to create, configure, transfer, freeze, and destroy it.
+that exposes methods to create, configure, transfer, freeze, and destroy the
+asset.
 
-This ARC defines the ABI interface of such smart contract, the required
+This ARC defines the ABI interface of such Smart Contract, the required
 metadata, and suggests a reference implementation.
 
 ## Motivation
@@ -97,7 +98,7 @@ ASA. The [metadata section](#metadata) describes its required properties.
 > - Mint an Algorand Standard Asset (ASA) that MUST specify the properties defined
 >   in the [metadata section](#metadata). In addition:
 >   - The `Manager`, `Reserve` and `Freeze` addresses SHOULD be set to the
->     account of the controlling smart contract.
+>     account of the controlling Smart Contract.
 >   - The remaining fields are left to the implementation, which MAY set `Total`
 >     to `2 ** 64 - 1` to enable dynamically increasing the circulating supply
 >     of the asset.
@@ -108,7 +109,7 @@ ASA. The [metadata section](#metadata) describes its required properties.
 > - Return the ID of the created ASA.
 >
 > It is RECOMMENDED for calls to this method to be permissioned, e.g. to only
-> approve transactions issued by the controlling smart contract creator.
+> approve transactions issued by the controlling Smart Contract creator.
 
 #### Asset Configuration
 
@@ -182,10 +183,10 @@ Calling `AssetTransfer` transfers a Smart ASA.
 >   `AssetSender` and `AssetReceiver` are not in a frozen state (see
 >   [below](#asset-freeze)).
 > - Succeed if the `Sender` of the transaction corresponds to the `ClawbackAddr`,
->   as persisted by the controlling smart contract. This enables clawback
+>   as persisted by the controlling Smart Contract. This enables clawback
 >   operations on the Smart ASA.
 >
-> Internally, the controlling smart contract SHOULD issue a clawback inner
+> Internally, the controlling Smart Contract SHOULD issue a clawback inner
 > transaction that transfers the `AssetAmount` from `AssetSender` to
 > `AssetReceiver`. The inner transaction will fail on the usual conditions (e.g.
 > not enough balance).
@@ -195,7 +196,7 @@ Calling `AssetTransfer` transfers a Smart ASA.
 > Transfer) to close their position:
 >
 > - A call to this method to transfer their outstanding balance (possibly as a
->   `CloseOut` operation if the controlling smart contract required opt in); and
+>   `CloseOut` operation if the controlling Smart Contract required opt in); and
 > - an additional transaction to opt out of the ASA.
 
 ### Asset Freeze
@@ -219,13 +220,13 @@ Calling `AssetFreeze` prevents an account from transferring a Smart ASA.
 > - Fail if `FreezeAsset` does not correspond to an ASA controlled by this smart
 >   contract.
 > - Succeed iff the `Sender` of the transaction corresponds to the `FreezeAddr`,
->   as persisted by the controlling smart contract.
+>   as persisted by the controlling Smart Contract.
 >
-> The controlling smart contract SHOULD persist the pair `(FreezeAccount, AssetFrozen)`
+> The controlling Smart Contract SHOULD persist the pair `(FreezeAccount, AssetFrozen)`
 > (for instance by setting `frozen` flag in the local storage of the `FreezeAccount`).
 > See the [security considerations section](#security-considerations) for how to ensure
 > that Smart ASA holders cannot reset their `frozen` flag by clearing out their state
-> at the controlling smart contract.
+> at the controlling Smart Contract.
 
 ### Asset Destroy
 
@@ -247,7 +248,7 @@ Calling `AssetDestroy` destroys a Smart ASA.
 > It is RECOMMENDED for calls to this method to be permissioned (see
 > `AssetCreate`).
 >
-> The controlling smart contract SHOULD perform an asset destroy operation on
+> The controlling Smart Contract SHOULD perform an asset destroy operation on
 > the ASA with ID `DestroyAsset`. The operation will fail if the asset is still
 > in circulation.
 
@@ -299,19 +300,51 @@ Example:
 //...
 ```
 
+> Note that to avoid ecosystem fragmentation this ARC does NOT propose any
+> additional metadata specification, but extends already existing standards.
+
 ### OptIn and OptOut
 
 TODO.
 
 ## Rationale
 
-TODO.
+This ARC builds on the strengths of the ASA to enable a Smart Contract to
+control its operations and flexibly re-configure its configuration.
+
+The rationale is to have a "Smart ASA" that is as widely adopted as the ASA both
+by the community and by the surrounding ecosystem. Wallets and dApps:
+
+- Will display a user's Smart ASA balance out-of-the-box (because of the
+  underlying ASA).
+- SHOULD recognize Smart ASAs and inform the users accordingly.
+- SHOULD enable users to transfer the Smart ASA by constructing the appropriate
+  transactions, which call the ABI methods of the controlling Smart Contract.
+
+With this in mind, this standard optimizes for:
+
+- Community adoption, by minimizing the [ASA metadata](#metadata) that need to
+  be set and the requirements of a conforming implementation.
+- Developer adoption, by re-using the familiar ASA transaction reference in the
+  methods' specification.
+- Ecosystem integration, by minimizing the amount of work that a wallet, dApp or
+  service should perform to support the Smart ASA.
 
 ## Backwards Compatibility
 
-TODO.
+Existing ASAs MAY adopt this standard if issued or re-configured to match the
+requirements in the [metadata section](#metadata).
 
-TODO: ARC-18.
+This requires:
+
+- The ASA to be `DefaultFrozen`.
+- Deploying a Smart Contract that will control the asset(s).
+- Re-configuring the ASA, by setting its `ClawbackAddr` to the account of the
+  controlling Smart Contract.
+- Associating the ID of the Smart Contract to the ASA (see [metadata](#metadata)).
+
+Assets implementing [ARC-18](./arc-0018.md) MAY also be compatible with this
+ARC.
 
 ## Reference Implementation
 
@@ -319,12 +352,13 @@ TODO: ARC-18.
 
 ## Security Considerations
 
-Non-normative: Keep in mind that the rules governing a Smart ASA are only in
-place as long as:
+The rules governing a Smart ASA are only in place as long as:
 
-- The ASA remains frozen,
-- its `ClawbackAddr` is set as specified in the [metadata section](#metadata),
-- the controlling Smart Contract is not updatable, not deletable, not rekeyable.
+- The ASA remains frozen;
+- the `ClawbackAddr` of the ASA is set as specified in the [metadata
+  section](#metadata);
+- the controlling Smart Contract is not updatable, nor deletable, nor
+  re-keyable.
 
 TODO: Opt-in, clear state and freeze.
 
