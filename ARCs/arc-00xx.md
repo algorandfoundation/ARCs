@@ -197,7 +197,7 @@ Calling `AssetTransfer` transfers a Smart ASA.
 >
 > - A call to this method to transfer their outstanding balance (possibly as a
 >   `CloseOut` operation if the controlling Smart Contract required opt in); and
-> - an additional transaction to opt out of the ASA.
+> - an additional transaction to close out of the ASA.
 
 ### Asset Freeze
 
@@ -254,7 +254,67 @@ Calling `AssetDestroy` destroys a Smart ASA.
 
 ### Getters
 
-TODO.
+TODO: Prose.
+
+```json
+[
+  {
+    "name": "getTotal",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "uint64" }
+  },
+  {
+    "name": "getDecimals",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "uint32" }
+  },
+  {
+    "name": "getDefaultFrozen",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "bool" }
+  },
+  {
+    "name": "getUnitName",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "string" }
+  },
+  {
+    "name": "getAssetName",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "string" }
+  },
+  {
+    "name": "getURL",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "string" }
+  },
+  {
+    "name": "getMetaDataHash",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "[]byte" }
+  },
+  {
+    "name": "getManagerAddr",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "address" }
+  },
+  {
+    "name": "getReserveAddr",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "address" }
+  },
+  {
+    "name": "getFreezeAddr",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "address" }
+  },
+  {
+    "name": "getClawbackAddr",
+    "args": [{ "type": "asset", "name": "Asset" }],
+    "returns": { "type": "address" }
+  }
+]
+```
 
 #### Full ABI Spec
 
@@ -338,13 +398,19 @@ requirements in the [metadata section](#metadata).
 This requires:
 
 - The ASA to be `DefaultFrozen`.
-- Deploying a Smart Contract that will control the asset(s).
+- Deploying a Smart Contract that will manage, control and operate on the
+  asset(s).
 - Re-configuring the ASA, by setting its `ClawbackAddr` to the account of the
   controlling Smart Contract.
-- Associating the ID of the Smart Contract to the ASA (see [metadata](#metadata)).
+- Associating the ID of the Smart Contract to the ASA (see
+  [metadata](#metadata)).
 
-Assets implementing [ARC-18](./arc-0018.md) MAY also be compatible with this
-ARC.
+### ARC-18
+
+Assets implementing [ARC-18](./arc-0018.md) MAY also be compatible with this ARC
+if the Smart Contract implementing royalties enforcement exposes the ABI methods
+specified here. The corresponding ASA and their metadata are compliant with this
+standard.
 
 ## Reference Implementation
 
@@ -352,15 +418,30 @@ ARC.
 
 ## Security Considerations
 
-The rules governing a Smart ASA are only in place as long as:
+Keep in mind that the rules governing a Smart ASA are only in place as long as:
 
 - The ASA remains frozen;
-- the `ClawbackAddr` of the ASA is set as specified in the [metadata
-  section](#metadata);
+- the `ClawbackAddr` of the ASA is set to a controlling Smart Contract, as
+  specified in the [metadata section](#metadata);
 - the controlling Smart Contract is not updatable, nor deletable, nor
   re-keyable.
 
-TODO: Opt-in, clear state and freeze.
+### Local State
+
+If your controlling Smart Contract implementation writes information to a user's
+local state, keep in mind that users can close out the application and (worse)
+clear their state at all times. This requires careful considerations.
+
+For instance, if you determine a user's [freeze](#asset-freeze) state by reading
+a flag into their local state, you should:
+
+- Set the flag to `frozen` at opt in;
+- explicitly verify that a user's `frozen` flag is `0` before approving
+  transfers.
+- If missing, the flag should be considered set and prevent transfers.
+
+This prevents users from removing their `frozen` flag by clearing their state
+and then opting into the controlling Smart Contract again.
 
 ## Copyright
 
