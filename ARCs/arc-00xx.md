@@ -95,12 +95,14 @@ ASA. The [metadata section](#metadata) describes its required properties.
 > Upon a call to `AssetCreate`, a reference implementation SHOULD:
 >
 > - Mint an Algorand Standard Asset (ASA) that MUST specify the properties defined
->   in the [metadata section](#metadata). The `Manager`, `Reserve` and `Freeze`
->   addresses SHOULD be set to the account of the controlling smart contract. The
->   remaining fields are left to the implementation, which MAY set `Total` to `2 ** 64 - 1`
->   to enable dynamically increasing the circulating supply of the
->   asset. `AssetName` and `UnitName` MAY be set to `SMART-ASA` and `S-ASA`, to
->   mark that this ASA is Smart and has a controlling application.
+>   in the [metadata section](#metadata). In addition:
+>   - The `Manager`, `Reserve` and `Freeze` addresses SHOULD be set to the
+>     account of the controlling smart contract.
+>   - The remaining fields are left to the implementation, which MAY set `Total`
+>     to `2 ** 64 - 1` to enable dynamically increasing the circulating supply
+>     of the asset.
+>   - `AssetName` and `UnitName` MAY be set to `SMART-ASA` and `S-ASA`, to denote
+>     that this ASA is Smart and has a controlling application.
 > - Persist the `Total`, `Decimals`, `DefaultFrozen`, etc. fields for later
 >   use/retrieval.
 > - Return the ID of the created ASA.
@@ -313,7 +315,7 @@ TODO: ARC-18.
 
 ## Reference Implementation
 
-https://github.com/aldur/tc-asa
+[https://github.com/aldur/tc-asa](https://github.com/aldur/tc-asa)
 
 ## Security Considerations
 
