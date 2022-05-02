@@ -360,12 +360,27 @@ Example:
 //...
 ```
 
-> Note that to avoid ecosystem fragmentation this ARC does NOT propose any
-> additional metadata specification, but extends already existing standards.
+> To avoid ecosystem fragmentation this ARC does NOT propose any
+> new method to specify the metadata of an ASA. Instead, it extends already
+> existing standards.
 
-### OptIn and OptOut
+### Handling opt in and close out
 
-TODO.
+A Smart ASA MUST require users to opt to the ASA and MAY require them to opt in
+to the controlling Smart Contract. This MAY be performed at two separate times.
+
+The reminder of this section is non-normative.
+
+> Smart ASAs SHOULD NOT require users to opt in to the controlling Smart
+> Contract, unless the implementation requires storing information into their
+> local schema (for instance, to implement [freezing](#asset-freeze); also see
+> [security considerations](#security-considerations)).
+>
+> Clients MAY inspect the local state schema of the controlling Smart Contract
+> to infer whether opt in is required.
+>
+> If a Smart ASA requires opt in, then clients SHOULD prevent users from closing
+> out the controlling Smart Contract unless they don't hold an ASA balance.
 
 ## Rationale
 
