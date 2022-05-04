@@ -1,0 +1,36 @@
+<style type="text/css">
+  .arctable .title {
+    width: 67%;
+  }
+
+  .arctable .author {
+    width: 33%;
+  }
+</style>
+{% for status in site.data.statuses %}
+  {% assign arcs = include.arcs|where:"status",status|sort:"arc" %}
+  {% assign count = arcs|size %}
+  {% if count > 0 %}
+    <h2 id="{{status|slugify}}">{{status}}</h2>
+    <table class="arctable">
+      <thead>
+        {% if status == "Last Call" %}
+          <tr>
+          <th class="arcnum">Number</th><th class="date">Review ends</th><th class="title">Title</th><th class="author">Author</th></tr>
+        {% else %}
+          <tr><th class="arcnum">Number</th><th class="title">Title</th><th class="author">Author</th></tr>
+        {% endif %}
+      </thead>
+      {% for page in arcs %}
+        <tr>
+          <td class="arcnum"><a href="{{page.url|relative_url}}">{{page.arc|xml_escape}}</a></td>
+          {% if status == "Last Call" and page.last-call-deadline != undefined %}
+            <td class="date">{{ page.last-call-deadline | xml_escape }}</td>
+          {% endif %}
+          <td class="title">{{page.title|xml_escape}}</td>
+          <td class="author">{% include authorlist.html authors=page.author %}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+{% endfor %}
