@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+    <title>ARC-8: Algorand Wallet Sign and Post API</title>
+    <meta property="og:title" content="ARC-8: Algorand Wallet Sign and Post API" />
+    <meta name="description" content="" />
+    <meta property="og:description" content="" />
+    <meta name="twitter:description" content="" />
+  
+  <meta name="generator" content="Jekyll" />
+  <meta property="og:locale" content="en_US" />
+  <link rel="canonical" href="http://localhost:4000/ARCs/arc-0008" />
+  <meta property="og:url" content="http://localhost:4000/ARCs/arc-0008" />
+  <meta property="og:site_name" content="Algorand Requests for Comments" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@" />
+  <script type="application/ld+json">
+    {
+      "@type": "WebSite",
+      "url": "http://localhost:4000",
+      "name": "Algorand Requests for Comments",
+      "description": "To discuss ARC drafts, use the corresponding issue in the issue tracker.",
+      "@context": "https://schema.org"
+    }
+  </script>
+  <link rel="stylesheet" href="/assets/css/style.css" /><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Algorand Requests for Comments" /><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-nlrDrBTHxJJlDDX22AS33xYI1OJHnGMDhiYMSe2U0e0=" crossorigin="anonymous"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Algorand Requests for Comments</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/all">All</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        
+  <div class="draft">
+    ⚠️ This ARC is not recommended for general use or implementation as it is likely to change.
+  </div>
+
+
+<div class="home">
+  <h1 class="page-heading">
+    ARC-8: Algorand Wallet Sign and Post API
+    <a href="https://github.com/lifecoder1988/ARCs/blob/master/ARCs/arc-0008.md"><svg role="img" aria-label="Source" xmlns="https://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16"><title>Source</title><path fill-rule="evenodd" d="M9.5 3L8 4.5 11.5 8 8 11.5 9.5 13 14 8 9.5 3zm-5 0L0 8l4.5 5L6 11.5 2.5 8 6 4.5 4.5 3z"/></svg></a>
+  </h1>
+  <h3></h3>
+  <table>
+    <tr><th>Author</th><td></td></tr>
+    
+    <tr><th>Status</th><td>Draft
+    
+    </td></tr>
+    <tr><th>Type</th><td></td></tr>
+    
+    <tr><th>Created</th><td></td></tr>
+    
+    
+    
+  </table>
+
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+  <li><a href="#algorand-wallet-sign-and-post-api">Algorand Wallet Sign and Post API</a>
+    <ul>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#specification">Specification</a>
+        <ul>
+          <li><a href="#interface-signandposttxnsfunction">Interface SignAndPostTxnsFunction</a></li>
+        </ul>
+      </li>
+      <li><a href="#rationale">Rationale</a></li>
+      <li><a href="#copyright">Copyright</a></li>
+    </ul>
+  </li>
+</ul>
+
+  </div>
+
+  <h1 id="algorand-wallet-sign-and-post-api">
+      
+      
+        <a href="#algorand-wallet-sign-and-post-api" class="anchor-link"></a> Algorand Wallet Sign and Post API
+      
+      
+    </h1>
+
+<blockquote>
+  <p>This API is a draft.
+Some elements may change.</p>
+</blockquote>
+  
+    <h2 id="summary">
+      
+      
+        <a href="#summary" class="anchor-link"></a> Summary
+      
+      
+    </h2>
+
+<p>An API for a function used to simultaneously sign and post transactions to the network.</p>
+  
+    <h2 id="abstract">
+      
+      
+        <a href="#abstract" class="anchor-link"></a> Abstract
+      
+      
+    </h2>
+
+<p>A function <code class="language-plaintext highlighter-rouge">signAndPostTxns</code>, which accepts an array of <code class="language-plaintext highlighter-rouge">WalletTransaction</code>s, and posts them to the network.</p>
+
+<p>Accepts the inputs to <a href="/ARCs/arc-0005">ARC-0005</a>’s <code class="language-plaintext highlighter-rouge">signTxns</code>, and produces the output of <a href="/ARCs/arc-0007">ARC-0007</a>’s <code class="language-plaintext highlighter-rouge">postTxns</code>.</p>
+  
+    <h2 id="specification">
+      
+      
+        <a href="#specification" class="anchor-link"></a> Specification
+      
+      
+    </h2>
+  
+    <h3 id="interface-signandposttxnsfunction">
+      
+      
+        <a href="#interface-signandposttxnsfunction" class="anchor-link"></a> Interface <code class="language-plaintext highlighter-rouge">SignAndPostTxnsFunction</code>
+      
+      
+    </h3>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="nx">type</span> <span class="nx">SignAndPostTxnsFunction</span> <span class="o">=</span> <span class="p">(</span>
+   <span class="nx">txns</span><span class="p">:</span> <span class="nx">WalletTransaction</span><span class="p">[],</span>
+   <span class="nx">opts</span><span class="p">?:</span> <span class="nx">any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">PostTxnsResult</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">WalletTransaction</code> is as specified by <a href="/ARCs/arc-0005">ARC-0005</a>.</li>
+  <li><code class="language-plaintext highlighter-rouge">PostTxnsResult</code> is as specified by <a href="/ARCs/arc-0007">ARC-0007</a>.</li>
+</ul>
+
+<p>Errors are handled exactly as specified by <a href="/ARCs/arc-0001">ARC-0001</a> / <a href="/ARCs/arc-0005">ARC-0005</a> and <a href="/ARCs/arc-0007">ARC-0007</a></p>
+  
+    <h2 id="rationale">
+      
+      
+        <a href="#rationale" class="anchor-link"></a> Rationale
+      
+      
+    </h2>
+
+<p>Allows the user to be sure that what they are signing is in fact all that is being sent. Doesn’t necessarily grant the DApp direct access to the signed txns, though they are posted to the network, so they should not be considered private.</p>
+
+<p>Exposing only this API instead of exposing <code class="language-plaintext highlighter-rouge">postTxns</code> directly is potentially safer for the wallet user, since it only allows the posting of transactions which the user has explicitly approved.</p>
+  
+    <h2 id="copyright">
+      
+      
+        <a href="#copyright" class="anchor-link"></a> Copyright
+      
+      
+    </h2>
+
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+
+  <h2>Citation</h2>
+  <p>Please cite this document as:</p>
+  
+  <p>, "ARC-8: Algorand Wallet Sign and Post API [DRAFT]," <em>Ethereum Improvement Proposals</em>, no. 8, . [Online serial]. Available: https://algorandfoundation.github.io/ARCS/arc-8.</p>
+</div>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "TechArticle",
+    "headline": "ARC-8: Algorand Wallet Sign and Post API [DRAFT]",
+    "author": "",
+    "name": "ARC-8: Algorand Wallet Sign and Post API [DRAFT]",
+    "dateCreated": "",
+    "datePublished": "",
+    
+    "inLanguage": "en-US",
+    "license": "#copyright",
+    "copyrightYear": ""
+  }
+</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Algorand Requests for Comments</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Algorand Requests for Comments</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/algorandfoundation/ARCs"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">algorandfoundation/ARCs</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>To discuss ARC drafts, use the corresponding issue in the issue tracker.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

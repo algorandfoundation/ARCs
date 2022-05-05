@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+    <title>ARC-1: Algorand Wallet Transaction Signing API</title>
+    <meta property="og:title" content="ARC-1: Algorand Wallet Transaction Signing API" />
+    <meta name="description" content="" />
+    <meta property="og:description" content="" />
+    <meta name="twitter:description" content="" />
+  
+  <meta name="generator" content="Jekyll" />
+  <meta property="og:locale" content="en_US" />
+  <link rel="canonical" href="http://localhost:4000/ARCs/arc-0001" />
+  <meta property="og:url" content="http://localhost:4000/ARCs/arc-0001" />
+  <meta property="og:site_name" content="Algorand Requests for Comments" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@" />
+  <script type="application/ld+json">
+    {
+      "@type": "WebSite",
+      "url": "http://localhost:4000",
+      "name": "Algorand Requests for Comments",
+      "description": "To discuss ARC drafts, use the corresponding issue in the issue tracker.",
+      "@context": "https://schema.org"
+    }
+  </script>
+  <link rel="stylesheet" href="/assets/css/style.css" /><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Algorand Requests for Comments" /><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-nlrDrBTHxJJlDDX22AS33xYI1OJHnGMDhiYMSe2U0e0=" crossorigin="anonymous"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Algorand Requests for Comments</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/all">All</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        
+  <div class="draft">
+    ⚠️ This ARC is not recommended for general use or implementation as it is likely to change.
+  </div>
+
+
+<div class="home">
+  <h1 class="page-heading">
+    ARC-1: Algorand Wallet Transaction Signing API
+    <a href="https://github.com/lifecoder1988/ARCs/blob/master/ARCs/arc-0001.md"><svg role="img" aria-label="Source" xmlns="https://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16"><title>Source</title><path fill-rule="evenodd" d="M9.5 3L8 4.5 11.5 8 8 11.5 9.5 13 14 8 9.5 3zm-5 0L0 8l4.5 5L6 11.5 2.5 8 6 4.5 4.5 3z"/></svg></a>
+  </h1>
+  <h3></h3>
+  <table>
+    <tr><th>Author</th><td></td></tr>
+    
+    <tr><th>Status</th><td>Draft
+    
+    </td></tr>
+    <tr><th>Type</th><td></td></tr>
+    
+    <tr><th>Created</th><td></td></tr>
+    
+    
+    
+  </table>
+
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+  <li><a href="#algorand-wallet-transaction-signing-api">Algorand Wallet Transaction Signing API</a>
+    <ul>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#specification">Specification</a>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#syntax-and-interfaces">Syntax and Interfaces</a></li>
+          <li><a href="#error-standards">Error Standards</a></li>
+          <li><a href="#wallet-specific-extensions">Wallet-specific extensions</a></li>
+          <li><a href="#semantic-and-security-requirements">Semantic and Security Requirements</a></li>
+        </ul>
+      </li>
+      <li><a href="#rational">Rational</a>
+        <ul>
+          <li><a href="#rational-for-group-validation">Rational for Group Validation</a></li>
+        </ul>
+      </li>
+      <li><a href="#copyright">Copyright</a></li>
+      <li><a href="#appendix-i-example">Appendix I: Example</a>
+        <ul>
+          <li><a href="#sign-a-group-of-two-transactions">Sign a Group of Two Transactions</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+  </div>
+
+  <h1 id="algorand-wallet-transaction-signing-api">
+      
+      
+        <a href="#algorand-wallet-transaction-signing-api" class="anchor-link"></a> Algorand Wallet Transaction Signing API
+      
+      
+    </h1>
+
+<blockquote>
+  <p>This API is a draft.
+Some elements may change. In particular, the error part may change drastically depending on feedback.</p>
+</blockquote>
+  
+    <h2 id="summary">
+      
+      
+        <a href="#summary" class="anchor-link"></a> Summary
+      
+      
+    </h2>
+
+<p>An API for a function used to sign a list of transactions on the Algorand blockchain.</p>
+  
+    <h2 id="abstract">
+      
+      
+        <a href="#abstract" class="anchor-link"></a> Abstract
+      
+      
+    </h2>
+
+<p>The goal of this API is to propose a standard way for a dApp to request the signature of a list of transactions to an Algorand wallet. This document also includes detailed security requirements to reduce the risks of users being tricked to sign dangerous transactions. As the Algorand blockchain adds new features, these requirements may change.</p>
+  
+    <h2 id="specification">
+      
+      
+        <a href="#specification" class="anchor-link"></a> Specification
+      
+      
+    </h2>
+
+<p>The key words “<strong>MUST</strong>”, “<strong>MUST NOT</strong>”, “<strong>REQUIRED</strong>”, “<strong>SHALL</strong>”, “<strong>SHALL NOT</strong>”, “<strong>SHOULD</strong>”, “<strong>SHOULD NOT</strong>”, “<strong>RECOMMENDED</strong>”, “<strong>MAY</strong>”, and “<strong>OPTIONAL</strong>” in this document are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.</p>
+
+<blockquote>
+  <p>Comments like this are non-normative.</p>
+</blockquote>
+  
+    <h3 id="overview">
+      
+      
+        <a href="#overview" class="anchor-link"></a> Overview
+      
+      
+    </h3>
+
+<blockquote>
+  <p>This overview section is non-normative.</p>
+</blockquote>
+
+<p>After this overview, the syntax of the interfaces are described followed by the semantics and the security requirements.</p>
+
+<p>At a high-level the API allows to sign:</p>
+
+<ul>
+  <li>A valid group of transaction (aka atomic transfers).</li>
+  <li>(<strong>OPTIONAL</strong>) A list of groups of transactions.</li>
+</ul>
+
+<p>Signatures are requested by calling a function <code class="language-plaintext highlighter-rouge">signTxns(txns)</code> on a list <code class="language-plaintext highlighter-rouge">txns</code> of transactions. The dApp may also provide an optional parameter <code class="language-plaintext highlighter-rouge">opts</code>.</p>
+
+<p>Each transaction is represented by a <code class="language-plaintext highlighter-rouge">WalletTransaction</code> object. The only required field of a <code class="language-plaintext highlighter-rouge">WalletTransaction</code> is <code class="language-plaintext highlighter-rouge">txn</code>, a base64 encoding of the canonical msgpack encoding of the unsigned transaction. There are three main use cases:</p>
+
+<ol>
+  <li>The transaction needs to be signed and the sender of the transaction is an account known by the wallet. This is the most common case. Example:
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w"> </span><span class="p">{</span><span class="w">
+     </span><span class="nl">"txn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"iaNhbXT..."</span><span class="w">
+ </span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+    <p>The wallet is free to generate the resulting signed transaction in any way it wants. In particular, the signature may be a multisig, may involve rekeying, or for very advanced wallets may use logicsigs.</p>
+    <blockquote>
+      <p>Remark: If the wallet uses a large logicsig to sign the transaction and there is congestion, the fee estimated by the dApp may be too low. A future standard may provide a wallet API allowing the dApp to compute correctly the estimated fee. Before such a standard, the dApp may need to retry with a higher fee when this issue arises.</p>
+    </blockquote>
+  </li>
+  <li>The transaction does not need to be signed. This happens when the transaction is part of a group of transaction and is signed by another party or by a logicsig. In that case, the field <code class="language-plaintext highlighter-rouge">signers</code> is set to an empty array. Example:
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w"> </span><span class="p">{</span><span class="w">
+     </span><span class="nl">"txn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"iaNhbXT..."</span><span class="p">,</span><span class="w">
+     </span><span class="nl">"signers"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+ </span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+  <li>(<strong>OPTIONAL</strong>) The transaction needs to be signed but the sender of the transaction is <em>not</em> an account known by the wallet. This happens when the dApp uses a sender account derived from one or more accounts of the wallet. For example, the sender account may be a mulisig account with public keys corresponding to some accounts of the wallet, or the sender account may be rekeyed to an account of the wallet. Example:
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w"> </span><span class="p">{</span><span class="w">
+     </span><span class="nl">"txn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"iaNhbXT..."</span><span class="p">,</span><span class="w">
+     </span><span class="nl">"authAddr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HOLQV2G65F6PFM36MEUKZVHK3XM7UEIFLG35UJGND77YDXHKXHKX4UXUQU"</span><span class="p">,</span><span class="w">
+     </span><span class="nl">"msig"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+         </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+         </span><span class="nl">"threshold"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+         </span><span class="nl">"addrs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+             </span><span class="s2">"5MF575NQUDMRWOTS27KIBL2MFPJHKQEEF4LZEN6H3CZDAYVUKESMGZPK3Q"</span><span class="p">,</span><span class="w">
+             </span><span class="s2">"FS7G3AHTDVMQNQQBHZYMGNWAX7NV2XAQSACQH3QDBDOW66DYTAQQW76RYA"</span><span class="p">,</span><span class="w">
+             </span><span class="s2">"DRSHY5ONWKVMWWASTB7HOELVF5HRUTRQGK53ZK3YNMESZJR6BBLMNH4BBY"</span><span class="w">
+         </span><span class="p">]</span><span class="w">
+     </span><span class="p">},</span><span class="w">
+     </span><span class="nl">"signers"</span><span class="p">:</span><span class="w"> </span><span class="err">...</span><span class="w">
+ </span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+    <p>Note that in both the first and the third use cases, the wallet may sign the transaction using a multisig and may use a different authorized address (<code class="language-plaintext highlighter-rouge">authAddr</code>) than the sender address (i.e., rekeying). The main difference is that in the first case, the wallet knows how to sign the transaction (i.e., whether the sender address is a multisig and/or rekeyed), while in the third case, the wallet may not know it.</p>
+  </li>
+</ol>
+  
+    <h3 id="syntax-and-interfaces">
+      
+      
+        <a href="#syntax-and-interfaces" class="anchor-link"></a> Syntax and Interfaces
+      
+      
+    </h3>
+
+<blockquote>
+  <p>Interfaces are defined in TypeScript. All the objects that are defined are valid JSON objects.</p>
+</blockquote>
+  
+    <h4 id="interface-signtxns">
+      
+      
+        <a href="#interface-signtxns" class="anchor-link"></a> Interface <code class="language-plaintext highlighter-rouge">signTxns</code>
+      
+      
+    </h4>
+
+<p>A wallet transaction signing function <code class="language-plaintext highlighter-rouge">signTxns</code> is defined by the following interface:</p>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="nx">type</span> <span class="nx">SignTxnsFunction</span> <span class="o">=</span> <span class="p">(</span>
+   <span class="nx">txns</span><span class="p">:</span> <span class="nx">WalletTransaction</span><span class="p">[],</span>
+   <span class="nx">opts</span><span class="p">?:</span> <span class="nx">SignTxnsOpts</span>
+<span class="p">)</span>
+   <span class="o">=&gt;</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="p">(</span><span class="nx">string</span> <span class="o">|</span> <span class="kc">null</span><span class="p">)[]</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div></div>
+<p>where:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">txns</code> is a non-empty list of <code class="language-plaintext highlighter-rouge">WalletTransaction</code> objects (defined below).</li>
+  <li><code class="language-plaintext highlighter-rouge">opts</code> is an optional parameter object <code class="language-plaintext highlighter-rouge">SignTxnsOpts</code> (defined below).</li>
+</ul>
+
+<p>In case of error, the wallet (i.e., the <code class="language-plaintext highlighter-rouge">signTxns</code> function in this document) <strong>MUST</strong> reject the promise with an error object <code class="language-plaintext highlighter-rouge">SignTxnsError</code> defined below.
+This ARC uses interchangeably the terms “throw an error” and “reject a promise with an error”.</p>
+  
+    <h4 id="interface-algorandaddress">
+      
+      
+        <a href="#interface-algorandaddress" class="anchor-link"></a> Interface <code class="language-plaintext highlighter-rouge">AlgorandAddress</code>
+      
+      
+    </h4>
+
+<p>An Algorand address is represented by a 58-character base32 string. It includes includes the checksum.</p>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="nx">type</span> <span class="nx">AlgorandAddress</span> <span class="o">=</span> <span class="nx">string</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>An Algorand address is <em>valid</em> is it is a valid base32 string without padding and if the checksum is valid.</p>
+
+<blockquote>
+  <p>Example: <code class="language-plaintext highlighter-rouge">"6BJ32SU3ABLWSBND7U5H2QICQ6GGXVD7AXSSMRYM2GO3RRNHCZIUT4ISAQ"</code> is a valid Algorand address.</p>
+</blockquote>
+  
+    <h4 id="interface-multisigmetadata">
+      
+      
+        <a href="#interface-multisigmetadata" class="anchor-link"></a> Interface <code class="language-plaintext highlighter-rouge">MultisigMetadata</code>
+      
+      
+    </h4>
+
+<p>A <code class="language-plaintext highlighter-rouge">MultisigMetadata</code> object specifies the parameters of an Algorand multisig address.</p>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kr">interface</span> <span class="nx">MultisigMetadata</span> <span class="p">{</span>
+   <span class="cm">/**
+    * Multisig version.
+    */</span>
+   <span class="nl">version</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+
+   <span class="cm">/**
+    * Multisig threshold value. Authorization requires a subset of signatures,
+    * equal to or greater than the threshold value.
+    */</span>
+   <span class="nl">threshold</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+
+   <span class="cm">/**
+    * List of Algorand addresses of possible signers for this
+    * multisig. Order is important.
+    */</span>
+   <span class="nl">addrs</span><span class="p">:</span> <span class="nx">AlgorandAddress</span><span class="p">[];</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">version</code> should always be 1.</li>
+  <li><code class="language-plaintext highlighter-rouge">threshold</code> should be between 1 and the length of <code class="language-plaintext highlighter-rouge">addrs</code>.</li>
+</ul>
+
+<blockquote>
+  <p>Interface originally from https://github.com/algorand/js-algorand-sdk/blob/e07d99a2b6bd91c4c19704f107cfca398aeb9619/src/types/multisig.ts, where <code class="language-plaintext highlighter-rouge">string</code> has been replaced by <code class="language-plaintext highlighter-rouge">AlgorandAddress</code>.</p>
+</blockquote>
+  
+    <h4 id="interface-wallettransaction">
+      
+      
+        <a href="#interface-wallettransaction" class="anchor-link"></a> Interface <code class="language-plaintext highlighter-rouge">WalletTransaction</code>
+      
+      
+    </h4>
+
+<p>A <code class="language-plaintext highlighter-rouge">WalletTransaction</code> object represents a transaction to be signed by a wallet.</p>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kr">interface</span> <span class="nx">WalletTransaction</span> <span class="p">{</span>
+   <span class="cm">/**
+    * Base64 encoding of the canonical msgpack encoding of a Transaction.
+    */</span>
+   <span class="nl">txn</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+
+   <span class="cm">/**
+    * Optional authorized address used to sign the transaction when the account
+    * is rekeyed. Also called the signor/sgnr.
+    */</span>
+   <span class="nl">authAddr</span><span class="p">?:</span> <span class="nx">AlgorandAddress</span><span class="p">;</span>
+
+   <span class="cm">/**
+    * Multisig metadata used to sign the transaction
+    */</span>
+   <span class="nl">msig</span><span class="p">?:</span> <span class="nx">MultisigMetadata</span><span class="p">;</span>
+
+   <span class="cm">/**
+    * Optional list of addresses that must sign the transactions
+    */</span>
+   <span class="nl">signers</span><span class="p">?:</span> <span class="nx">AlgorandAddress</span><span class="p">[];</span>
+
+   <span class="cm">/**
+    * Optional base64 encoding of the canonical msgpack encoding of a 
+    * SignedTxn corresponding to txn, when signers=[]
+    */</span>
+   <span class="nl">stxn</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+
+   <span class="cm">/**
+    * Optional message explaining the reason of the transaction
+    */</span>
+   <span class="nl">message</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+
+   <span class="cm">/**
+    * Optional message explaining the reason of this group of transaction
+    * Field only allowed in the first transaction of a group
+    */</span>
+   <span class="nl">groupMessage</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+  
+    <h4 id="interface-signtxnsopts">
+      
+      
+        <a href="#interface-signtxnsopts" class="anchor-link"></a> Interface <code class="language-plaintext highlighter-rouge">SignTxnsOpts</code>
+      
+      
+    </h4>
+
+<p>A <code class="language-plaintext highlighter-rouge">SignTxnsOps</code> specifies optional parameters of the <code class="language-plaintext highlighter-rouge">signTxns</code> function:</p>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="nx">type</span> <span class="nx">SignTxnsOpts</span> <span class="o">=</span> <span class="p">{</span>
+   <span class="cm">/**
+    * Optional message explaining the reason of the group of transactions
+    */</span>
+   <span class="nx">message</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+  
+    <h4 id="error-interface-signtxnserror">
+      
+      
+        <a href="#error-interface-signtxnserror" class="anchor-link"></a> Error Interface <code class="language-plaintext highlighter-rouge">SignTxnsError</code>
+      
+      
+    </h4>
+
+<p>In case of error, the <code class="language-plaintext highlighter-rouge">signTxns</code> function <strong>MUST</strong> return a <code class="language-plaintext highlighter-rouge">SignTxnsError</code> object</p>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">SignTxnsError</span> <span class="kd">extends</span> <span class="nb">Error</span> <span class="p">{</span>
+  <span class="nl">code</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+  <span class="nl">data</span><span class="p">?:</span> <span class="nx">any</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>where:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">message</code>:
+    <ul>
+      <li><strong>MUST</strong> be a human-readable string</li>
+      <li><strong>SHOULD</strong> adhere to the specifications in the Error Standards section below</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">code</code>:
+    <ul>
+      <li><strong>MUST</strong> be an integer number</li>
+      <li><strong>MUST</strong> adhere to the specifications in the Error Standards section below</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">data</code>:
+    <ul>
+      <li><strong>SHOULD</strong> contain any other useful information about the error</li>
+    </ul>
+  </li>
+</ul>
+
+<blockquote>
+  <p>Inspired from https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md</p>
+</blockquote>
+  
+    <h3 id="error-standards">
+      
+      
+        <a href="#error-standards" class="anchor-link"></a> Error Standards
+      
+      
+    </h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Status Code</th>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>4001</td>
+      <td>User Rejected Request</td>
+      <td>The user rejected the request.</td>
+    </tr>
+    <tr>
+      <td>4100</td>
+      <td>Unauthorized</td>
+      <td>The requested operation and/or account has not been authorized by the user.</td>
+    </tr>
+    <tr>
+      <td>4200</td>
+      <td>Unsupported Operation</td>
+      <td>The wallet does not support the requested operation.</td>
+    </tr>
+    <tr>
+      <td>4201</td>
+      <td>Too Many Transactions</td>
+      <td>The wallet does not support signing that many transactions at a time.</td>
+    </tr>
+    <tr>
+      <td>4202</td>
+      <td>Unintialized Wallet</td>
+      <td>The wallet was not initialized properly beforehand.</td>
+    </tr>
+    <tr>
+      <td>4300</td>
+      <td>Invalid Input</td>
+      <td>The input provided is invalid.</td>
+    </tr>
+  </tbody>
+</table>
+  
+    <h3 id="wallet-specific-extensions">
+      
+      
+        <a href="#wallet-specific-extensions" class="anchor-link"></a> Wallet-specific extensions
+      
+      
+    </h3>
+
+<p>Wallets <strong>MAY</strong> use specific extension fields in <code class="language-plaintext highlighter-rouge">WalletTransaction</code> and in <code class="language-plaintext highlighter-rouge">SignTxnsOpts</code>. These fields must start with: <code class="language-plaintext highlighter-rouge">_walletName</code>, where <code class="language-plaintext highlighter-rouge">walletName</code> is the name of the wallet. Wallet designers <strong>SHOULD</strong> ensure that their wallet name is not already used.</p>
+
+<blockquote>
+  <p>Example of a wallet-specific fields in <code class="language-plaintext highlighter-rouge">opts</code> (for the wallet <code class="language-plaintext highlighter-rouge">theBestAlgorandWallet</code>): <code class="language-plaintext highlighter-rouge">_theBestAlgorandWalletIcon</code> for displaying an icon related to the transactions.</p>
+</blockquote>
+
+<p>Wallet-specific extensions <strong>MUST</strong> be designed such that a wallet not understanding them would not provide a lower security level.</p>
+
+<blockquote>
+  <p>Example of a forbidden wallet-specific field in <code class="language-plaintext highlighter-rouge">WalletTransaction</code>: <code class="language-plaintext highlighter-rouge">_theWorstAlgorandWalletDisable</code> requires this transaction not to be signed. This is dangerous for security as any signed transaction may leak and be committed by an attacker. Therefore, the dApp should never submit transactions that should  not be signed, and that some wallets (not supporting this extension) may still sign.</p>
+</blockquote>
+  
+    <h3 id="semantic-and-security-requirements">
+      
+      
+        <a href="#semantic-and-security-requirements" class="anchor-link"></a> Semantic and Security Requirements
+      
+      
+    </h3>
+
+<p>The call <code class="language-plaintext highlighter-rouge">signTxns(txns, opts)</code> <strong>MUST</strong> either throws an error or return an array <code class="language-plaintext highlighter-rouge">ret</code> of the same length of the <code class="language-plaintext highlighter-rouge">txns</code> array:</p>
+
+<ol>
+  <li>If <code class="language-plaintext highlighter-rouge">txns[i].signers</code> is an empty array, the wallet <strong>MUST NOT</strong> sign the transaction <code class="language-plaintext highlighter-rouge">txns[i]</code>, and:
+    <ul>
+      <li>if <code class="language-plaintext highlighter-rouge">txns[i].stxn</code> is not present, <code class="language-plaintext highlighter-rouge">ret[i]</code> <strong>MUST</strong> be set to <code class="language-plaintext highlighter-rouge">null</code>.</li>
+      <li>if <code class="language-plaintext highlighter-rouge">txns[i].stxn</code> is present and is a valid <code class="language-plaintext highlighter-rouge">SignedTxn</code> with the underlying transaction exactly matching <code class="language-plaintext highlighter-rouge">txns[i].txn</code>, <code class="language-plaintext highlighter-rouge">ret[i]</code> <strong>MUST</strong>  be set to <code class="language-plaintext highlighter-rouge">txns[i].stxn</code>. (See section on the semantic of <code class="language-plaintext highlighter-rouge">WalletTransaction</code> for the exact requirements on <code class="language-plaintext highlighter-rouge">txns[i].stxn</code>.)</li>
+      <li>otherwise, the wallet <strong>MUST</strong> throw a <code class="language-plaintext highlighter-rouge">4300</code> error.</li>
+    </ul>
+  </li>
+  <li>Otherwise, the wallet <strong>MUST</strong> sign the transaction <code class="language-plaintext highlighter-rouge">txns[i].txn</code> and <code class="language-plaintext highlighter-rouge">ret[i]</code> <strong>MUST</strong> be set to the base64 encoding of the canonical msgpack encoding of the <code class="language-plaintext highlighter-rouge">SignedTxn</code> corresponding object, as defined in the <a href="https://github.com/algorandfoundation/specs">Algorand specs</a>. For Algorand version 2.5.5, see the <a href="https://github.com/algorandfoundation/specs/blob/d050b3cade6d5c664df8bd729bf219f179812595/dev/ledger.md#authorization-and-signatures">authorization and signatures Section</a> of the specs or the <a href="https://github.com/algorand/go-algorand/blob/304815d00b9512cf9f91dbb987fead35894676f4/data/transactions/signedtxn.go#L31">Go structure</a>.</li>
+</ol>
+
+<p>Note that if any transaction <code class="language-plaintext highlighter-rouge">txns[i]</code> that should be signed (i.e., where <code class="language-plaintext highlighter-rouge">txns[i].signers</code> is not an empty array) cannot be signed for any reason, the wallet <strong>MUST</strong> throw an error.</p>
+  
+    <h4 id="terminology-validation-warnings-fields">
+      
+      
+        <a href="#terminology-validation-warnings-fields" class="anchor-link"></a> Terminology: Validation, Warnings, Fields
+      
+      
+    </h4>
+
+<p>All the field names below are the ones in the <a href="https://github.com/algorand/go-algorand/blob/304815d00b9512cf9f91dbb987fead35894676f4/data/transactions/signedtxn.go#L31">Go <code class="language-plaintext highlighter-rouge">SignedTxn</code> structure</a> and <a href="https://github.com/algorand/go-algorand/blob/304815d00b9512cf9f91dbb987fead35894676f4/data/transactions/transaction.go#L81">Go <code class="language-plaintext highlighter-rouge">Transaction</code> structure</a>. Field of the actual transaction are prefixed with <code class="language-plaintext highlighter-rouge">txn.</code> (as opposed to fields of the <code class="language-plaintext highlighter-rouge">WalletTransaction</code> such as <code class="language-plaintext highlighter-rouge">signers</code>). For example, the sender of a transaction is <code class="language-plaintext highlighter-rouge">txn.Sender</code>.</p>
+
+<p><strong>Rejecting</strong> means throwing a <code class="language-plaintext highlighter-rouge">4300</code> error.</p>
+
+<p>Strong warning / warning / weak warning / informational messages are different level of alerts. Strong warnings <strong>MUST</strong> be displayed in such a way that the user cannot miss the importance of them.</p>
+  
+    <h4 id="semantic-of-wallettransaction">
+      
+      
+        <a href="#semantic-of-wallettransaction" class="anchor-link"></a> Semantic of <code class="language-plaintext highlighter-rouge">WalletTransaction</code>
+      
+      
+    </h4>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">txn</code>:
+    <ul>
+      <li>Must a base64 encoding of the canonical msgpack encoding of a <code class="language-plaintext highlighter-rouge">Transaction</code> object as defined in the <a href="https://github.com/algorandfoundation/specs">Algorand specs</a>. For Algorand version 2.5.5, see the <a href="https://github.com/algorandfoundation/specs/blob/d050b3cade6d5c664df8bd729bf219f179812595/dev/ledger.md#authorization-and-signatures">authorization and signatures Section</a> of the specs or the <a href="https://github.com/algorand/go-algorand/blob/304815d00b9512cf9f91dbb987fead35894676f4/data/transactions/transaction.go#L81">Go structure</a>.</li>
+      <li>If <code class="language-plaintext highlighter-rouge">txn</code> is not a base64 string or cannot be decoded into a <code class="language-plaintext highlighter-rouge">Transaction</code> object, the wallet <strong>MUST</strong> reject.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">authAddr</code>:
+    <ul>
+      <li>The wallet <strong>MAY</strong> not support this field. In that case, it <strong>MUST</strong> throw a <code class="language-plaintext highlighter-rouge">4200</code> error.</li>
+      <li>If specified, it must be a valid Algorand address. If this is not the case, the wallet <strong>MUST</strong> reject.</li>
+      <li>If specified and supported, the wallet <strong>MUST</strong> sign the transaction using this authorized address <em>even if it sees the sender address <code class="language-plaintext highlighter-rouge">txn.Sender</code> was not rekeyed to <code class="language-plaintext highlighter-rouge">authAddr</code></em>. This is because the sender may be rekeyed before the transaction is committed. The wallet <strong>SHOULD</strong> display an informational message.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">msig</code>:
+    <ul>
+      <li>The wallet <strong>MAY</strong> not support this field. In that case, it <strong>MUST</strong> throw a <code class="language-plaintext highlighter-rouge">4200</code> error.</li>
+      <li>If specified, it must be a valid <code class="language-plaintext highlighter-rouge">MultisigMetadata</code> object. If this is not the case, the wallet <strong>MUST</strong> reject.</li>
+      <li>If specified and supported, the wallet <strong>MUST</strong> verify <code class="language-plaintext highlighter-rouge">msig</code> matches <code class="language-plaintext highlighter-rouge">authAddr</code> (if <code class="language-plaintext highlighter-rouge">authAddr</code> is specified and supported) or the sender address <code class="language-plaintext highlighter-rouge">txn.Sender</code> (otherwise). The wallet <strong>MUST</strong> reject if this is not the case.</li>
+      <li>If specified and supported and if <code class="language-plaintext highlighter-rouge">signers</code> is not specified, the wallet <strong>MUST</strong> return a <code class="language-plaintext highlighter-rouge">SignedTxn</code> with all the subsigs that it can provide and that the wallet user agrees to provide. If the wallet can sign more subsigs than the requested threshold (<code class="language-plaintext highlighter-rouge">msig.threshold</code>), it <strong>MAY</strong> only provide <code class="language-plaintext highlighter-rouge">msig.threshold</code> subsigs. It is also possible that the wallet cannot provide at least <code class="language-plaintext highlighter-rouge">msig.threshold</code> subsigs (either because the user prevented signing with some keys or because the wallet does not know enough keys). In that case, the wallet just provide the subsigs it can provide. However, the wallet <strong>MUST</strong> provide at least one subsig or throw an error.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">signers</code>:
+    <ul>
+      <li>If specified and if not a list of valid Algorand addresses, the wallet <strong>MUST</strong> reject.</li>
+      <li>If <code class="language-plaintext highlighter-rouge">signers</code> is an empty array, the transaction is for information purpose only and the wallet <strong>SHALL NOT</strong> sign it, even if it can (e.g., know the secret key of the sender address).</li>
+      <li>If <code class="language-plaintext highlighter-rouge">signers</code> is an array with more than 1 Algorand addresses:
+        <ul>
+          <li>The wallet <strong>MUST</strong> reject if <code class="language-plaintext highlighter-rouge">msig</code> is not specified.</li>
+          <li>The wallet <strong>MUST</strong> reject if <code class="language-plaintext highlighter-rouge">signers</code> is not a subset of <code class="language-plaintext highlighter-rouge">msig.addrs</code>.</li>
+          <li>The wallet <strong>MUST</strong> try to return a <code class="language-plaintext highlighter-rouge">SignedTxn</code> with all the subsigs corresponding to <code class="language-plaintext highlighter-rouge">signers</code> signed. If it cannot, it <strong>SHOULD</strong> throw a <code class="language-plaintext highlighter-rouge">4001</code> error. Note that this is different than when <code class="language-plaintext highlighter-rouge">signers</code> is not provided, where the signing is only “best effort”.</li>
+        </ul>
+      </li>
+      <li>If <code class="language-plaintext highlighter-rouge">signers</code> is an array with a single Algorand address:
+        <ul>
+          <li>If <code class="language-plaintext highlighter-rouge">msig</code> is specified, the rules as when <code class="language-plaintext highlighter-rouge">signers</code> is an array with more than 1 Algorand addresses apply.</li>
+          <li>If <code class="language-plaintext highlighter-rouge">authAddr</code> is specified but <code class="language-plaintext highlighter-rouge">msig</code> is not, the wallet <strong>MUST</strong> reject if <code class="language-plaintext highlighter-rouge">signers[0]</code> is not equal to <code class="language-plaintext highlighter-rouge">authAddr</code>.</li>
+          <li>If neither <code class="language-plaintext highlighter-rouge">authAddr</code> nor <code class="language-plaintext highlighter-rouge">msig</code> are specified, the wallet <strong>MUST</strong> reject if <code class="language-plaintext highlighter-rouge">signers[0]</code> is not the sender address <code class="language-plaintext highlighter-rouge">txn.Sender</code>.</li>
+          <li>In all cases, the wallet <strong>MUST</strong> only try to provide signatures for <code class="language-plaintext highlighter-rouge">signers[0]</code>. In particular, if the sender address <code class="language-plaintext highlighter-rouge">txn.Sender</code> was rekeyed or is a multisig and if <code class="language-plaintext highlighter-rouge">authAddr</code> and <code class="language-plaintext highlighter-rouge">msig</code> are not specified, then the wallet <strong>MUST</strong> reject.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">stxn</code> if specified:
+    <ul>
+      <li>If specified and if <code class="language-plaintext highlighter-rouge">signers</code> is not the empty array, the wallet <strong>MUST</strong> reject.</li>
+      <li>If specified:
+        <ul>
+          <li>It must be a base64 encoding of the canonical msgpack encoding of a <code class="language-plaintext highlighter-rouge">SignedTxn</code> object as defined in the <a href="https://github.com/algorandfoundation/specs">Algorand specs</a>. For Algorand version 2.5.5, see the <a href="https://github.com/algorandfoundation/specs/blob/d050b3cade6d5c664df8bd729bf219f179812595/dev/ledger.md#authorization-and-signatures">authorization and signatures Section</a> of the specs or the <a href="https://github.com/algorand/go-algorand/blob/304815d00b9512cf9f91dbb987fead35894676f4/data/transactions/signedtxn.go#L31">Go structure</a>. The wallet <strong>MUST</strong> reject if this is not the case.</li>
+          <li>The wallet <strong>MUST</strong> reject if the field <code class="language-plaintext highlighter-rouge">txn</code> inside the <code class="language-plaintext highlighter-rouge">SignedTxn</code> object does not match exactly the <code class="language-plaintext highlighter-rouge">Transaction</code> object in <code class="language-plaintext highlighter-rouge">txn</code>.</li>
+          <li>The wallet <strong>MAY NOT</strong> check whether the other fields of the <code class="language-plaintext highlighter-rouge">SignedTxn</code> are valid. In particular, it <strong>MAY</strong> accept <code class="language-plaintext highlighter-rouge">stxn</code> even in the following cases: it contains an invalid signature <code class="language-plaintext highlighter-rouge">sig</code>, it contains both a signature <code class="language-plaintext highlighter-rouge">sig</code> and a logicsig <code class="language-plaintext highlighter-rouge">lsig</code>, it contains a logicsig <code class="language-plaintext highlighter-rouge">lsig</code> that always reject.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">message</code>:
+    <ul>
+      <li>The wallet <strong>MAY</strong> decide to never print the message, to only print the first characters, or to make any changes to the messages that may be used to ensure a higher level of security. The wallet <strong>MUST</strong> be designed to ensure that the message cannot be easily used to trick the user to do an incorrect action. In particular, if displayed, the message must appear in an area that is easily and clearly identifiable as not trusted by the wallet.</li>
+      <li>The wallet <strong>MUST</strong> prevent HTML/JS injection and must only display plaintext messages.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">groupMessage</code> obeys the same rules as <code class="language-plaintext highlighter-rouge">message</code>, except it is a message common to all the transactions of the group containing the current transaction. In addition, the wallet <strong>MUST</strong> reject if <code class="language-plaintext highlighter-rouge">groupMessage</code> is provided for a transaction that is not the first transaction of the group. Note that <code class="language-plaintext highlighter-rouge">txns</code> may contain contain multiple groups of transactions, one after the other (see the Group Validation section for details).</li>
+</ul>
+  
+    <h5 id="particular-case-without-signers-nor-msig-nor-senders">
+      
+      
+        <a href="#particular-case-without-signers-nor-msig-nor-senders" class="anchor-link"></a> Particular Case without <code class="language-plaintext highlighter-rouge">signers</code>, nor <code class="language-plaintext highlighter-rouge">msig</code>, nor <code class="language-plaintext highlighter-rouge">senders</code>
+      
+      
+    </h5>
+
+<p>When neither <code class="language-plaintext highlighter-rouge">signers</code>, nor <code class="language-plaintext highlighter-rouge">msig</code>, nor <code class="language-plaintext highlighter-rouge">authAddr</code> are specified, the wallet <strong>MAY</strong> still sign the transaction using a multisig or a different authorized address than the sender address <code class="language-plaintext highlighter-rouge">txn.Sender</code>. It may also sign the transaction using a logicsig.</p>
+
+<p>However, in all these cases, the resulting <code class="language-plaintext highlighter-rouge">SignedTxn</code> <strong>MUST</strong> be such that it can be committed to the blockchain (assuming the transaction itself can be executed and that the account is not rekeyed in the meantime).</p>
+
+<p>In particular, if a multisig is used, the numbers of subsigs provided must be at least equal to the multisig threshold. This is different from the case where <code class="language-plaintext highlighter-rouge">msig</code> is provided, where the wallet <strong>MAY</strong> provide fewer subsigs than the threshold.</p>
+  
+    <h4 id="semantic-of-signtxnsopts">
+      
+      
+        <a href="#semantic-of-signtxnsopts" class="anchor-link"></a> Semantic of <code class="language-plaintext highlighter-rouge">SignTxnsOpts</code>
+      
+      
+    </h4>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">message</code> obeys the rules as <code class="language-plaintext highlighter-rouge">WalletTransaction.message</code> except it is a message common to all transactions.</li>
+</ul>
+  
+    <h4 id="general-validation">
+      
+      
+        <a href="#general-validation" class="anchor-link"></a> General Validation
+      
+      
+    </h4>
+
+<p>The goal is to ensure the highest level of security for the end-user, even when the transaction is generated by a malicious dApp. Every input must be validated.</p>
+
+<p>Validation:</p>
+
+<ul>
+  <li><strong>SHALL NOT</strong> rely on TypeScript typing as this can be bypassed. Types <strong>MUST</strong> be manually verified.</li>
+  <li><strong>SHALL NOT</strong> assume the Algorand SDK does any validation, as the Algorand SDK is not meant to receive maliciously generated inputs. Furthermore, the SDK allows for dangerous transactions (such as rekeying). The only exception for the above rule is for de-serialization of transactions. Once de-serialized, every field of the transaction must be manually validated.</li>
+</ul>
+
+<blockquote>
+  <p>Note: We will be working with the algosdk team to provide helper functions for validation in some cases and to ensure the security of the de-serialization of potentially malicious transactions.</p>
+</blockquote>
+
+<p>If there is any unexpected field at any level (both in the transaction itself or in the object WalletTransaction), the wallet <strong>MUST</strong> immediately reject. The only exception is for the “wallet-specific extension” fields (see above).</p>
+  
+    <h4 id="group-validation">
+      
+      
+        <a href="#group-validation" class="anchor-link"></a> Group Validation
+      
+      
+    </h4>
+
+<p>The wallet should support the following two use cases:</p>
+
+<ol>
+  <li>(<strong>REQUIRED</strong>) <code class="language-plaintext highlighter-rouge">txns</code> is a non-empty array of transactions that belong to the same group of transactions. In other words, either <code class="language-plaintext highlighter-rouge">txns</code> is an array of a single transaction with a zero group ID (<code class="language-plaintext highlighter-rouge">txn.Group</code>), or <code class="language-plaintext highlighter-rouge">txns</code> is an array of one or more transactions with the <em>same</em> non-zero group ID. The wallet <strong>MUST</strong> reject if the transactions do not match their group ID. (The dApp must provide the transactions in the order defined by the group ID.)
+    <blockquote>
+      <p>An early draft of this ARC required that the size of a group of transactions must be greater than 1 but, since the Algorand protocol supports groups of size 1, this requirement had been changed so dApps don’t have to have special cases for single transactions and can always send a group to the wallet.</p>
+    </blockquote>
+  </li>
+  <li>(<strong>OPTIONAL</strong>) <code class="language-plaintext highlighter-rouge">txns</code> is a concatenation of <code class="language-plaintext highlighter-rouge">txns</code> arrays of transactions of type 1:
+    <ul>
+      <li>All transactions with the <em>same</em> non-zero group ID must be consecutive and must match their group ID. The wallet <strong>MUST</strong> reject if the above is not satisfied.</li>
+      <li>The wallet UI <strong>MUST</strong> be designed so that it is clear to the user when transactions are grouped (aka form an atomic transfers) and when they are not. It <strong>SHOULD</strong> provide very clear explanations that are understandable by beginner users, so that they cannot easily be tricked to sign what they believe is an atomic exchange while it is in actuality a one-sided payment.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>If <code class="language-plaintext highlighter-rouge">txns</code> does not match any of the formats above, the wallet <strong>MUST</strong> reject.</p>
+
+<p>The wallet <strong>MAY</strong> choose to restrict the maximum size of the array <code class="language-plaintext highlighter-rouge">txns</code>. The maximum size allowed by a wallet <strong>MUST</strong> be at least the maximum size of a group of transactions in the current Algorand protocol on MainNet. (When this ARC was published, this maximum size was 16.) If the wallet rejects <code class="language-plaintext highlighter-rouge">txns</code> because of its size, it <strong>MUST</strong> throw a 4201 error.</p>
+
+<p>An early draft of this API allowed to sign single transactions in a group without providing the other transactions in the group. For security reasons, this use case is now deprecated and <strong>SHALL</strong> not be allowed in new implementations. Existing implementations may continue allowing for single transactions to be signed if a very clear warning is displayed to the user. The warning <strong>MUST</strong> stress that signing the transaction may incur losses that are much higher than the amount of tokens indicated in the transaction. That is because potential future features of Algorand may later have such consequences (e.g., a signature of a transaction may actually authorize the full group under some circumstances).</p>
+  
+    <h4 id="transaction-validation">
+      
+      
+        <a href="#transaction-validation" class="anchor-link"></a> Transaction Validation
+      
+      
+    </h4>
+  
+    <h5 id="inputs-that-must-be-systematically-rejected">
+      
+      
+        <a href="#inputs-that-must-be-systematically-rejected" class="anchor-link"></a> Inputs that Must Be Systematically Rejected
+      
+      
+    </h5>
+
+<ul>
+  <li>Transactions <code class="language-plaintext highlighter-rouge">WalletTransaction.txn</code> with fields that are not known by the wallet <strong>MUST</strong> be systematically rejected. In particular:
+    <ul>
+      <li>Every field <strong>MUST</strong> be validated.</li>
+      <li>Any extra field <strong>MUST</strong> systematically make the wallet reject.</li>
+      <li>This is to prevent any security issue in case of the introduction of new dangerous fields (such as <code class="language-plaintext highlighter-rouge">txn.RekeyTo</code> or <code class="language-plaintext highlighter-rouge">txn.CloseRemainderTo</code>).</li>
+    </ul>
+  </li>
+  <li>Transactions of an unknown type (field <code class="language-plaintext highlighter-rouge">txn.Type</code>) <strong>MUST</strong> be rejected.</li>
+  <li>Transactions containing fields of a different transaction type (e.g., <code class="language-plaintext highlighter-rouge">txn.Receiver</code> in an asset transfer transaction) <strong>MUST</strong> be rejected.</li>
+</ul>
+  
+    <h5 id="inputs-that-warrant-display-of-warnings">
+      
+      
+        <a href="#inputs-that-warrant-display-of-warnings" class="anchor-link"></a> Inputs that Warrant Display of Warnings
+      
+      
+    </h5>
+
+<p>The wallet <strong>MUST</strong>:</p>
+
+<ul>
+  <li>Display a strong warning message when signing a transaction with one of the following fields: <code class="language-plaintext highlighter-rouge">txn.RekeyTo</code>, <code class="language-plaintext highlighter-rouge">txn.CloseRemainderTo</code>, <code class="language-plaintext highlighter-rouge">txn.AssetCloseTo</code>. The warning message <strong>MUST</strong> clearly explain the risks. No warning message is necessary for transactions that are provided for informational purposes in a group and are not signed (i.e., transactions with <code class="language-plaintext highlighter-rouge">signers=[]</code>).</li>
+  <li>Display a strong warning message in case the transaction is signed in the future (first valid round is after current round plus some number, e.g. 500). This is to prevent surprises in the future where a user forgot that they signed a transaction and the dApp maliciously play it later.</li>
+  <li>Display a warning message when the fee is too high. The threshold <strong>MAY</strong> depend on the load of the Algorand network.</li>
+  <li>Display a weak warning message when signing a transaction that can increase the minimum balance in a way that may be hard or impossible to undo (asset creation or application creation)</li>
+  <li>Display an informational message when signing a transaction that can increase the minimum balance in a way that can be undone (opt-in to asset or transaction)</li>
+</ul>
+
+<p>The above is for version 2.5.6 of the Algorand software. Future consensus versions may require additional checks.</p>
+
+<p>Before supporting any new transaction field or type (for a new version of the Algorand blockchain), the wallet authors <strong>MUST</strong> be perform a careful security analysis.</p>
+  
+    <h4 id="genesis-validation">
+      
+      
+        <a href="#genesis-validation" class="anchor-link"></a> Genesis Validation
+      
+      
+    </h4>
+
+<p>The wallet <strong>MUST</strong> check that the genesis hash (field <code class="language-plaintext highlighter-rouge">txn.GenesisHash</code>) and the geneis ID (field <code class="language-plaintext highlighter-rouge">txn.GenesisID</code>, if provided) match the network used by the wallet. If the wallet supports multiple networks, it <strong>MUST</strong> make clear to the user which network is used.</p>
+  
+    <h4 id="ui">
+      
+      
+        <a href="#ui" class="anchor-link"></a> UI
+      
+      
+    </h4>
+
+<p>In general, the UI <strong>MUST</strong> ensure that the user cannot be confused by the dApp to perform dangerous operations. In particular, the wallet <strong>MUST</strong> make clear to the user what is part of the wallet UI from what is part of what the dApp provided.</p>
+
+<p>Special care <strong>MUST</strong> be taken of when:</p>
+<ul>
+  <li>Displaying the <code class="language-plaintext highlighter-rouge">message</code> field of <code class="language-plaintext highlighter-rouge">WalletTransaction</code> and of <code class="language-plaintext highlighter-rouge">SignTxnsOpts</code>.</li>
+  <li>Displaying any arbitrary field of transactions including note field (<code class="language-plaintext highlighter-rouge">txn.Note</code>), genesis ID (<code class="language-plaintext highlighter-rouge">txn.genesisID</code>), asset configuration fields (<code class="language-plaintext highlighter-rouge">txn.AssetName</code>, <code class="language-plaintext highlighter-rouge">txn.UnitName</code>, <code class="language-plaintext highlighter-rouge">txn.URL</code>, …)</li>
+  <li>Displaying message hidden in fields that are expected to be base32/base64-strings or addresses. Using a different font for those fields <strong>MAY</strong> be an option to prevent such confusion.</li>
+</ul>
+
+<p>Usual precautions <strong>MUST</strong> be taken regarding the fact that the inputs are provided by an untrusted dApp (e.g., preventing code injection and so on).</p>
+  
+    <h2 id="rational">
+      
+      
+        <a href="#rational" class="anchor-link"></a> Rational
+      
+      
+    </h2>
+
+<p>The API was designed to:</p>
+
+<ul>
+  <li>Be easily implementable by all Algorand wallets</li>
+  <li>Rely on the official specs (https://github.com/algorandfoundation/specs/blob/master/dev/ledger.md) and the <a href="https://github.com/algorand/go-algorand/blob/304815d00b9512cf9f91dbb987fead35894676f4/data/transactions/signedtxn.go#L31">official source code</a>.</li>
+  <li>Only use types supported by JSON to simplify interoperability (avoid Uint8Array for example) and to allow easy serialization / deserialization</li>
+  <li>Be easy to extend to support future features of Algorand</li>
+  <li>Be secure by design: making it hard for malicious dApps to cause the wallet to sign a transaction without the user understanding the implications of their signature.</li>
+</ul>
+
+<p>The API was not designed to:</p>
+<ul>
+  <li>Directly support of the SDK objects. SDK objects must first be serialized.</li>
+  <li>Support any listing accounts, connecting to the wallet, sending transactions, …</li>
+  <li>Support of signing logic signatures.</li>
+</ul>
+
+<p>The last two items are expected to be defined in other documents.</p>
+  
+    <h3 id="rational-for-group-validation">
+      
+      
+        <a href="#rational-for-group-validation" class="anchor-link"></a> Rational for Group Validation
+      
+      
+    </h3>
+
+<p>The requirements around group validation have been designed to prevent the following attack.</p>
+
+<p>The dApp pretends to buy 1 Algo for 10 USDC, but instead creates an atomic transfer with the user sending 1 Algo to the dApp and the dApp sending 0.01 USDC to the user. However, it sends to the wallet a 1 Algo and 10 USDC transactions. 
+If the wallet does not verify that this is a valid group, it will make the user believe that they are signing for the correct atomic transfer.</p>
+  
+    <h2 id="copyright">
+      
+      
+        <a href="#copyright" class="anchor-link"></a> Copyright
+      
+      
+    </h2>
+
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+  
+    <h2 id="appendix-i-example">
+      
+      
+        <a href="#appendix-i-example" class="anchor-link"></a> Appendix I: Example
+      
+      
+    </h2>
+
+<blockquote>
+  <p>This section is non-normative.</p>
+</blockquote>
+  
+    <h3 id="sign-a-group-of-two-transactions">
+      
+      
+        <a href="#sign-a-group-of-two-transactions" class="anchor-link"></a> Sign a Group of Two Transactions
+      
+      
+    </h3>
+
+<p>Here is an example in node.js how to use the wallet interface to sign a group of two transactions and send them to the network. The function <code class="language-plaintext highlighter-rouge">signTxns</code> is assumed to be a method of <code class="language-plaintext highlighter-rouge">algorandWallet</code>.</p>
+
+<blockquote>
+  <p>Note: We will be working with the algosdk development to add two helper functions to facilitate the use of the wallet. Current idea is to add:
+<code class="language-plaintext highlighter-rouge">Transaction.toBase64</code> that does the same as <code class="language-plaintext highlighter-rouge">Transaction.toByte</code> except it outputs a base64 string
+<code class="language-plaintext highlighter-rouge">Algodv2.sendBase64RawTransactions</code> that does the same as <code class="language-plaintext highlighter-rouge">Algodv2.sendRawTransactions</code> except it takes an array of base64 string instead of an array of Uint8array</p>
+</blockquote>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">algosdk</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">algosdk</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">algorandWallet</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">./wallet</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span><span class="nx">Buffer</span><span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">buffer</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">firstRound</span> <span class="o">=</span> <span class="mi">13809129</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">suggestedParams</span> <span class="o">=</span> <span class="p">{</span>
+   <span class="na">flatFee</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+   <span class="na">fee</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+   <span class="na">firstRound</span><span class="p">:</span> <span class="nx">firstRound</span><span class="p">,</span>
+   <span class="na">lastRound</span><span class="p">:</span> <span class="nx">firstRound</span> <span class="o">+</span> <span class="mi">1000</span><span class="p">,</span>
+   <span class="na">genesisID</span><span class="p">:</span> <span class="dl">'</span><span class="s1">testnet-v1.0</span><span class="dl">'</span><span class="p">,</span>
+   <span class="na">genesisHash</span><span class="p">:</span> <span class="dl">'</span><span class="s1">SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=</span><span class="dl">'</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">txn1</span> <span class="o">=</span> <span class="nx">algosdk</span><span class="p">.</span><span class="nx">makePaymentTxnWithSuggestedParamsFromObject</span><span class="p">({</span>
+   <span class="na">from</span><span class="p">:</span> <span class="dl">"</span><span class="s2">37MSZIPXHGNCKTDJTJDSYIOF4C57JAL2FTKESD2HBVELXYHEIXVZ4JVGFU</span><span class="dl">"</span><span class="p">,</span>
+   <span class="na">to</span><span class="p">:</span> <span class="dl">"</span><span class="s2">PKSE2TARC645D4O2IO6QNWVW6PLJDTR6IOKNKMGSHQL7JIJHNGNFVISUHI</span><span class="dl">"</span><span class="p">,</span>
+   <span class="na">amount</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+   <span class="nx">suggestedParams</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="kd">const</span> <span class="nx">txn2</span> <span class="o">=</span> <span class="nx">algosdk</span><span class="p">.</span><span class="nx">makePaymentTxnWithSuggestedParamsFromObject</span><span class="p">({</span>
+   <span class="na">from</span><span class="p">:</span> <span class="dl">"</span><span class="s2">37MSZIPXHGNCKTDJTJDSYIOF4C57JAL2FTKESD2HBVELXYHEIXVZ4JVGFU</span><span class="dl">"</span><span class="p">,</span>
+   <span class="na">to</span><span class="p">:</span> <span class="dl">"</span><span class="s2">PKSE2TARC645D4O2IO6QNWVW6PLJDTR6IOKNKMGSHQL7JIJHNGNFVISUHI</span><span class="dl">"</span><span class="p">,</span>
+   <span class="na">amount</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+   <span class="nx">suggestedParams</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="kd">const</span> <span class="nx">txs</span> <span class="o">=</span> <span class="p">[</span><span class="nx">txn1</span><span class="p">,</span> <span class="nx">txn2</span><span class="p">];</span>
+<span class="nx">algosdk</span><span class="p">.</span><span class="nx">assignGroupID</span><span class="p">(</span><span class="nx">txs</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">txn1B64</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="k">from</span><span class="p">(</span><span class="nx">txn1</span><span class="p">.</span><span class="nx">toByte</span><span class="p">()).</span><span class="nx">toString</span><span class="p">(</span><span class="dl">"</span><span class="s2">base64</span><span class="dl">"</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">txn2B64</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="k">from</span><span class="p">(</span><span class="nx">txn2</span><span class="p">.</span><span class="nx">toByte</span><span class="p">()).</span><span class="nx">toString</span><span class="p">(</span><span class="dl">"</span><span class="s2">base64</span><span class="dl">"</span><span class="p">);</span>
+
+<span class="p">(</span><span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+   <span class="kd">const</span> <span class="nx">signedTxs</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">algorandWallet</span><span class="p">.</span><span class="nx">signTxns</span><span class="p">([</span>
+       <span class="p">{</span><span class="na">txn</span><span class="p">:</span> <span class="nx">txn1B64</span><span class="p">},</span>
+       <span class="p">{</span><span class="na">txn</span><span class="p">:</span> <span class="nx">txn2B64</span><span class="p">,</span> <span class="na">signers</span><span class="p">:</span> <span class="p">[]}</span>
+   <span class="p">]);</span>
+
+   <span class="kd">const</span> <span class="nx">algodClient</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">algosdk</span><span class="p">.</span><span class="nx">Algodv2</span><span class="p">(</span><span class="dl">""</span><span class="p">,</span> <span class="dl">"</span><span class="s2">...</span><span class="dl">"</span><span class="p">,</span> <span class="dl">""</span><span class="p">);</span>
+
+   <span class="nx">algodClient</span><span class="p">.</span><span class="nx">sendRawTransaction</span><span class="p">(</span>
+       <span class="nx">signedTxs</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">stxB64</span> <span class="o">=&gt;</span> <span class="nx">Buffer</span><span class="p">.</span><span class="k">from</span><span class="p">(</span><span class="nx">stxB64</span><span class="p">,</span> <span class="dl">"</span><span class="s2">base64</span><span class="dl">"</span><span class="p">))</span>
+   <span class="p">)</span>
+<span class="p">})();</span>
+</code></pre></div></div>
+
+  <h2>Citation</h2>
+  <p>Please cite this document as:</p>
+  
+  <p>, "ARC-1: Algorand Wallet Transaction Signing API [DRAFT]," <em>Ethereum Improvement Proposals</em>, no. 1, . [Online serial]. Available: https://algorandfoundation.github.io/ARCS/arc-1.</p>
+</div>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "TechArticle",
+    "headline": "ARC-1: Algorand Wallet Transaction Signing API [DRAFT]",
+    "author": "",
+    "name": "ARC-1: Algorand Wallet Transaction Signing API [DRAFT]",
+    "dateCreated": "",
+    "datePublished": "",
+    
+    "inLanguage": "en-US",
+    "license": "#copyright",
+    "copyrightYear": ""
+  }
+</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Algorand Requests for Comments</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Algorand Requests for Comments</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/algorandfoundation/ARCs"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">algorandfoundation/ARCs</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>To discuss ARC drafts, use the corresponding issue in the issue tracker.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

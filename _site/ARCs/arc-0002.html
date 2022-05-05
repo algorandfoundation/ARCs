@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+    <title>ARC-2: Algorand Transaction Note Field Conventions</title>
+    <meta property="og:title" content="ARC-2: Algorand Transaction Note Field Conventions" />
+    <meta name="description" content="" />
+    <meta property="og:description" content="" />
+    <meta name="twitter:description" content="" />
+  
+  <meta name="generator" content="Jekyll" />
+  <meta property="og:locale" content="en_US" />
+  <link rel="canonical" href="http://localhost:4000/ARCs/arc-0002" />
+  <meta property="og:url" content="http://localhost:4000/ARCs/arc-0002" />
+  <meta property="og:site_name" content="Algorand Requests for Comments" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@" />
+  <script type="application/ld+json">
+    {
+      "@type": "WebSite",
+      "url": "http://localhost:4000",
+      "name": "Algorand Requests for Comments",
+      "description": "To discuss ARC drafts, use the corresponding issue in the issue tracker.",
+      "@context": "https://schema.org"
+    }
+  </script>
+  <link rel="stylesheet" href="/assets/css/style.css" /><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Algorand Requests for Comments" /><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-nlrDrBTHxJJlDDX22AS33xYI1OJHnGMDhiYMSe2U0e0=" crossorigin="anonymous"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Algorand Requests for Comments</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/all">All</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        
+  <div class="draft">
+    ⚠️ This ARC is not recommended for general use or implementation as it is likely to change.
+  </div>
+
+
+<div class="home">
+  <h1 class="page-heading">
+    ARC-2: Algorand Transaction Note Field Conventions
+    <a href="https://github.com/lifecoder1988/ARCs/blob/master/ARCs/arc-0002.md"><svg role="img" aria-label="Source" xmlns="https://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16"><title>Source</title><path fill-rule="evenodd" d="M9.5 3L8 4.5 11.5 8 8 11.5 9.5 13 14 8 9.5 3zm-5 0L0 8l4.5 5L6 11.5 2.5 8 6 4.5 4.5 3z"/></svg></a>
+  </h1>
+  <h3></h3>
+  <table>
+    <tr><th>Author</th><td></td></tr>
+    
+    <tr><th>Status</th><td>Draft
+    
+    </td></tr>
+    <tr><th>Type</th><td></td></tr>
+    
+    <tr><th>Created</th><td></td></tr>
+    
+    
+    
+  </table>
+
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+  <li><a href="#algorand-transaction-note-field-conventions">Algorand Transaction Note Field Conventions</a>
+    <ul>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#specification">Specification</a>
+        <ul>
+          <li><a href="#versioning">Versioning</a></li>
+        </ul>
+      </li>
+      <li><a href="#rational">Rational</a></li>
+      <li><a href="#copyright">Copyright</a></li>
+      <li><a href="#appendix-examples">Appendix: Examples</a></li>
+    </ul>
+  </li>
+</ul>
+
+  </div>
+
+  <h1 id="algorand-transaction-note-field-conventions">
+      
+      
+        <a href="#algorand-transaction-note-field-conventions" class="anchor-link"></a> Algorand Transaction Note Field Conventions
+      
+      
+    </h1>
+  
+    <h2 id="summary">
+      
+      
+        <a href="#summary" class="anchor-link"></a> Summary
+      
+      
+    </h2>
+
+<p>This document introduces conventions on how to encode application-level data in the note field of transactions on the Algorand blockchain.</p>
+  
+    <h2 id="abstract">
+      
+      
+        <a href="#abstract" class="anchor-link"></a> Abstract
+      
+      
+    </h2>
+
+<p>The goal of these conventions is to make it simpler for block explorers and indexers to parse the data in the note fields and filter transactions of certain dApps.</p>
+  
+    <h2 id="specification">
+      
+      
+        <a href="#specification" class="anchor-link"></a> Specification
+      
+      
+    </h2>
+
+<p>Note fields should be formatted as follows:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;dapp-name&gt;:&lt;data-format&gt;&lt;data&gt;
+</code></pre></div></div>
+
+<p>where:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">&lt;dapp-name&gt;</code> is the name of the dApp:
+    <ul>
+      <li>Regexp to satisfy: <code class="language-plaintext highlighter-rouge">[a-zA-Z0-9][a-zA-Z0-9_/@.-]{4-31}</code>
+In other words, a name should:
+        <ul>
+          <li>only contain alphanumerical characters or <code class="language-plaintext highlighter-rouge">_</code>, <code class="language-plaintext highlighter-rouge">/</code>, <code class="language-plaintext highlighter-rouge">-</code>, <code class="language-plaintext highlighter-rouge">@</code>, <code class="language-plaintext highlighter-rouge">.</code></li>
+          <li>start with an alphanumerical character</li>
+          <li>be at least 5 characters long</li>
+          <li>be at most 32 characters long</li>
+        </ul>
+      </li>
+      <li>Names starting with <code class="language-plaintext highlighter-rouge">a/</code> and <code class="language-plaintext highlighter-rouge">af/</code> are reserved for the Algorand protocol and the Algorand Foundation uses.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;data-format&gt;</code> is one of the following:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">m</code>: <a href="https://msgpack.org">MsgPack</a></li>
+      <li><code class="language-plaintext highlighter-rouge">j</code>: <a href="https://json.org">JSON</a></li>
+      <li><code class="language-plaintext highlighter-rouge">b</code>: arbitrary bytes</li>
+      <li><code class="language-plaintext highlighter-rouge">u</code>: utf-8 string</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;data&gt;</code> is the actual data in the format specified by <code class="language-plaintext highlighter-rouge">&lt;data-format&gt;</code></li>
+</ul>
+
+<p><strong>WARNING</strong>: Any user can create transactions with arbitrary data and may impersonate other dApps. In particular, the fact that a note field start with <code class="language-plaintext highlighter-rouge">&lt;dapp-name&gt;</code> does not guarantee that it indeed comes from this dApp. The value <code class="language-plaintext highlighter-rouge">&lt;dapp-name&gt;</code> cannot be relied upon to ensure provenance and validity of the <code class="language-plaintext highlighter-rouge">&lt;data&gt;</code>.</p>
+  
+    <h3 id="versioning">
+      
+      
+        <a href="#versioning" class="anchor-link"></a> Versioning
+      
+      
+    </h3>
+
+<p>This document suggests the following convention for the names of dApp with multiple versions: <code class="language-plaintext highlighter-rouge">mydapp/v1</code>, <code class="language-plaintext highlighter-rouge">mydapp/v2</code>, … However, dApps are free to use any other convention and may include the version inside the <code class="language-plaintext highlighter-rouge">&lt;data&gt;</code> part instead of the <code class="language-plaintext highlighter-rouge">&lt;dapp-name&gt;</code> part.</p>
+  
+    <h2 id="rational">
+      
+      
+        <a href="#rational" class="anchor-link"></a> Rational
+      
+      
+    </h2>
+
+<p>The goal of these conventions is to facilitate displaying notes by block explorers and filtering of transactions by notes. However, the note field <strong>cannot be trusted</strong>, as any user can create transactions with arbitrary note fields. An external mechanism needs to be used to ensure the validity and provenance of the data. For example:</p>
+
+<ul>
+  <li>Some dApps may only send transactions from a small set of accounts controlled by the dApps. In that case, the sender of the transaction should be checked.</li>
+  <li>Some dApps may fund escrow accounts created from some template TEAL script. In that case, the note field may contain the template parameters and the escrow account address should be checked to correspond to the resulting TEAL script.</li>
+  <li>Some dApps may include a signature in the <code class="language-plaintext highlighter-rouge">&lt;data&gt;</code> part of the note field. The <code class="language-plaintext highlighter-rouge">&lt;data&gt;</code> may be an MsgPack encoding of a structure of the form:
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w">  </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"d"</span><span class="p">:</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">actual</span><span class="w"> </span><span class="err">data</span><span class="w">
+      </span><span class="nl">"sig"</span><span class="p">:</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">signature</span><span class="w"> </span><span class="err">of</span><span class="w"> </span><span class="err">the</span><span class="w"> </span><span class="err">actual</span><span class="w"> </span><span class="err">data</span><span class="w"> </span><span class="err">(encoded</span><span class="w"> </span><span class="err">using</span><span class="w"> </span><span class="err">MsgPack)</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+    <p>In that case, the signature should be checked.</p>
+  </li>
+</ul>
+
+<p>The conventions were designed to support multiple use cases of the notes. Some dApps may just record data on the blockchain without using any smart contracts. Such dApps typically would use JSON or MsgPack encoding.</p>
+
+<p>On the other hands, dApps that need reading note fields from smart contracts most likely would require easier-to-parse formats of data, which would most likely consist in application-specific byte strings.</p>
+
+<p>Since <code class="language-plaintext highlighter-rouge">&lt;dapp-name&gt;:</code> is a prefix of the note, transactions for a given dApp can easily be filtered by the <a href="https://github.com/algorand/indexer">indexer</a>.</p>
+
+<p>The restrictions on dApp names were chosen to allow most usual names while avoiding any encoding or displaying issues. The maximum length (32) matches the maximum length of ASA on Algorand, while the minimum length (5) has been chosen to limit collisions.</p>
+  
+    <h2 id="copyright">
+      
+      
+        <a href="#copyright" class="anchor-link"></a> Copyright
+      
+      
+    </h2>
+
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+  
+    <h2 id="appendix-examples">
+      
+      
+        <a href="#appendix-examples" class="anchor-link"></a> Appendix: Examples
+      
+      
+    </h2>
+
+<p>Consider a dApp named <code class="language-plaintext highlighter-rouge">algoCityTemp</code> that stores temperatures from cities on the blockchain.</p>
+
+<p>Here are some potential notes indicating that Singapore’s temperature is 35 degree Celsius:</p>
+<ul>
+  <li>JSON without version:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  algoCityTemp:j{"city":"Singapore","temp":35}
+</code></pre></div>    </div>
+  </li>
+  <li>JSON with version in the name:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  algoCityTemp/v1:j{"city":"Singapore","temp":35}
+</code></pre></div>    </div>
+  </li>
+  <li>JSON with version in the data:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  algoCityTemp:j{"city":"Singapore","temp":35,"ver":1}
+</code></pre></div>    </div>
+  </li>
+  <li>UTF-8 string without version:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  algoCityTemp:uSingapore|35
+</code></pre></div>    </div>
+  </li>
+  <li>Bytes where the temperature is encoded as a signed 1-byte integer in the first position:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  algoCityTemp:b#Singapore
+</code></pre></div>    </div>
+    <p>(<code class="language-plaintext highlighter-rouge">#</code> is the ASCII character for 35.)</p>
+  </li>
+  <li>MsgPack corresponding to the JSON example with version in the name. The string is encoded in base64 as it contains characters that cannot be printed in this document. But the note should contain the actual bytes and not the base64 encoding of them:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  YWxnb0NpdHlUZW1wL3YxOoKkY2l0ealTaW5nYXBvcmWkdGVtcBg=
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+  <h2>Citation</h2>
+  <p>Please cite this document as:</p>
+  
+  <p>, "ARC-2: Algorand Transaction Note Field Conventions [DRAFT]," <em>Ethereum Improvement Proposals</em>, no. 2, . [Online serial]. Available: https://algorandfoundation.github.io/ARCS/arc-2.</p>
+</div>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "TechArticle",
+    "headline": "ARC-2: Algorand Transaction Note Field Conventions [DRAFT]",
+    "author": "",
+    "name": "ARC-2: Algorand Transaction Note Field Conventions [DRAFT]",
+    "dateCreated": "",
+    "datePublished": "",
+    
+    "inLanguage": "en-US",
+    "license": "#copyright",
+    "copyrightYear": ""
+  }
+</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Algorand Requests for Comments</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Algorand Requests for Comments</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/algorandfoundation/ARCs"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">algorandfoundation/ARCs</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>To discuss ARC drafts, use the corresponding issue in the issue tracker.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+    <title>ARC-69: Community Algorand Standard Asset Parameters Conventions for Digital Media Tokens</title>
+    <meta property="og:title" content="ARC-69: Community Algorand Standard Asset Parameters Conventions for Digital Media Tokens" />
+    <meta name="description" content="" />
+    <meta property="og:description" content="" />
+    <meta name="twitter:description" content="" />
+  
+  <meta name="generator" content="Jekyll" />
+  <meta property="og:locale" content="en_US" />
+  <link rel="canonical" href="http://localhost:4000/ARCs/arc-0069" />
+  <meta property="og:url" content="http://localhost:4000/ARCs/arc-0069" />
+  <meta property="og:site_name" content="Algorand Requests for Comments" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@" />
+  <script type="application/ld+json">
+    {
+      "@type": "WebSite",
+      "url": "http://localhost:4000",
+      "name": "Algorand Requests for Comments",
+      "description": "To discuss ARC drafts, use the corresponding issue in the issue tracker.",
+      "@context": "https://schema.org"
+    }
+  </script>
+  <link rel="stylesheet" href="/assets/css/style.css" /><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Algorand Requests for Comments" /><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-nlrDrBTHxJJlDDX22AS33xYI1OJHnGMDhiYMSe2U0e0=" crossorigin="anonymous"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Algorand Requests for Comments</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/all">All</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        
+
+<div class="home">
+  <h1 class="page-heading">
+    ARC-69: Community Algorand Standard Asset Parameters Conventions for Digital Media Tokens
+    <a href="https://github.com/lifecoder1988/ARCs/blob/master/ARCs/arc-0069.md"><svg role="img" aria-label="Source" xmlns="https://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16"><title>Source</title><path fill-rule="evenodd" d="M9.5 3L8 4.5 11.5 8 8 11.5 9.5 13 14 8 9.5 3zm-5 0L0 8l4.5 5L6 11.5 2.5 8 6 4.5 4.5 3z"/></svg></a>
+  </h1>
+  <h3></h3>
+  <table>
+    <tr><th>Author</th><td></td></tr>
+    
+    <tr><th>Status</th><td>Living
+    
+    </td></tr>
+    <tr><th>Type</th><td></td></tr>
+    
+    <tr><th>Created</th><td></td></tr>
+    
+    
+    
+  </table>
+
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+  <li><a href="#community-algorand-standard-asset-parameters-conventions-for-digital-media-tokens">Community Algorand Standard Asset Parameters Conventions for Digital Media Tokens</a>
+    <ul>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#specification">Specification</a>
+        <ul>
+          <li><a href="#asa-parameters-conventions">ASA Parameters Conventions</a></li>
+          <li><a href="#json-metadata-file-schema">JSON Metadata File Schema</a></li>
+        </ul>
+      </li>
+      <li><a href="#rationale">Rationale</a></li>
+      <li><a href="#copyright">Copyright</a></li>
+    </ul>
+  </li>
+</ul>
+
+  </div>
+
+  <h1 id="community-algorand-standard-asset-parameters-conventions-for-digital-media-tokens">
+      
+      
+        <a href="#community-algorand-standard-asset-parameters-conventions-for-digital-media-tokens" class="anchor-link"></a> Community Algorand Standard Asset Parameters Conventions for Digital Media Tokens
+      
+      
+    </h1>
+  
+    <h2 id="summary">
+      
+      
+        <a href="#summary" class="anchor-link"></a> Summary
+      
+      
+    </h2>
+
+<p>We introduce community conventions for the parameters of Algorand Standard Assets (ASAs) containing digital media.</p>
+  
+    <h2 id="abstract">
+      
+      
+        <a href="#abstract" class="anchor-link"></a> Abstract
+      
+      
+    </h2>
+
+<p>The goal of these conventions is to make it simpler to display the properties of a given ASA. This ARC differs from <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0003.md">ARC3</a> by focusing on optimization for fetching of digital media, as well as the use of onchain metadata. Furthermore, since asset configuration transactions are used to store the metadata, this ARC can be applied to existing ASAs.</p>
+
+<p>While mutability helps with backwards compatibility and other use cases, like leveling up an RPG character, some use cases call for immutability. In these cases, the ASA manager MAY remove the manager address, after which point the Algorand network won’t allow anyone to send asset configuration transactions for the ASA. This effectively makes the latest valid ARC-69 metadata immutable.</p>
+  
+    <h2 id="specification">
+      
+      
+        <a href="#specification" class="anchor-link"></a> Specification
+      
+      
+    </h2>
+
+<p>The key words “<strong>MUST</strong>”, “<strong>MUST NOT</strong>”, “<strong>REQUIRED</strong>”, “<strong>SHALL</strong>”, “<strong>SHALL NOT</strong>”, “<strong>SHOULD</strong>”, “<strong>SHOULD NOT</strong>”, “<strong>RECOMMENDED</strong>”, “<strong>MAY</strong>”, and “<strong>OPTIONAL</strong>” in this document are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.</p>
+
+<p>An ARC-69 ASA has an associated JSON Metadata file, formatted as specified below, that is stored on-chain in the note field of the most recent asset configuration transaction (that contains a note field with a valid ARC-69 JSON metadata).</p>
+  
+    <h3 id="asa-parameters-conventions">
+      
+      
+        <a href="#asa-parameters-conventions" class="anchor-link"></a> ASA Parameters Conventions
+      
+      
+    </h3>
+
+<p>The ASA parameters should follow the following conventions:</p>
+
+<ul>
+  <li><em>Unit Name</em> (<code class="language-plaintext highlighter-rouge">un</code>): no restriction.</li>
+  <li><em>Asset Name</em> (<code class="language-plaintext highlighter-rouge">an</code>): no restriction.</li>
+  <li><em>Asset URL</em> (<code class="language-plaintext highlighter-rouge">au</code>): a URI pointing to digital media file. This URI:
+    <ul>
+      <li><strong>SHOULD</strong> be persistent.</li>
+      <li><strong>SHOULD</strong> link to a file small enough to fetch quickly in a gallery view.</li>
+      <li><strong>MUST</strong> follow <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC-3986</a> and <strong>MUST NOT</strong> contain any whitespace character.</li>
+      <li><strong>SHOULD</strong> specify media type with <code class="language-plaintext highlighter-rouge">#</code> fragment identifier at end of URL. This format <strong>MUST</strong> follow: <code class="language-plaintext highlighter-rouge">#i</code> for images, <code class="language-plaintext highlighter-rouge">#v</code> for videos, <code class="language-plaintext highlighter-rouge">#a</code> for audio, <code class="language-plaintext highlighter-rouge">#p</code> for PDF, or <code class="language-plaintext highlighter-rouge">#h</code> for HTML/interactive digital media.  If unspecified, assume Image.</li>
+      <li><strong>SHOULD</strong> use one of the following URI schemes (for compatibility and security): <em>https</em> and <em>ipfs</em>:
+        <ul>
+          <li>When the file is stored on IPFS, the <code class="language-plaintext highlighter-rouge">ipfs://...</code> URI <strong>SHOULD</strong> be used. IPFS Gateway URI (such as <code class="language-plaintext highlighter-rouge">https://ipfs.io/ipfs/...</code>) <strong>SHOULD NOT</strong> be used.</li>
+        </ul>
+      </li>
+      <li><strong>SHOULD NOT</strong> use the following URI scheme: <em>http</em> (due to security concerns).</li>
+    </ul>
+  </li>
+  <li><em>Asset Metadata Hash</em> (<code class="language-plaintext highlighter-rouge">am</code>): the SHA-256 digest of the full resolution media file as a 32-byte string (as defined in <a href="https://doi.org/10.6028/NIST.FIPS.180-4">NIST FIPS 180-4</a>)
+    <ul>
+      <li><strong>OPTIONAL</strong></li>
+    </ul>
+  </li>
+  <li><em>Freeze Address</em> (<code class="language-plaintext highlighter-rouge">f</code>):
+    <ul>
+      <li><strong>SHOULD</strong> be empty, unless needed for royalties or other use cases</li>
+    </ul>
+  </li>
+  <li><em>Clawback Address</em> (<code class="language-plaintext highlighter-rouge">c</code>):
+    <ul>
+      <li><strong>SHOULD</strong> be empty, unless needed for royalties or other use cases</li>
+    </ul>
+  </li>
+</ul>
+
+<p>There are no requirements regarding the manager account of the ASA, or the reserve account. However, if immutability is required the manager address <strong>MUST</strong> be removed.</p>
+
+<p>Furthermore, the manager address, if present, <strong>SHOULD</strong> be under the control of the ASA creator, as the manager address can unilaterally change the metadata. Some advanced use cases <strong>MAY</strong> use a logicsig as ASA manager, if the logicsig only allows to set the note fields by the ASA creator.</p>
+  
+    <h3 id="json-metadata-file-schema">
+      
+      
+        <a href="#json-metadata-file-schema" class="anchor-link"></a> JSON Metadata File Schema
+      
+      
+    </h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token Metadata"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"standard"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"arc69"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"(Required) Describes the standard used."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Describes the asset to which this token represents."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"external_url"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A URI pointing to an external website. Borrowed from Open Sea's metadata format (https://docs.opensea.io/docs/metadata-standards)."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"media_url"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A URI pointing to a high resolution version of the asset's media."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span><span class="w"> 
+            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Properties following the EIP-1155 'simple properties' format. (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md#erc-1155-metadata-uri-json-schema)"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"mime_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Describes the MIME type of the ASA's URL (`au` field)."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nl">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"(Deprecated. New NFTs should define attributes with the simple `properties` object. Marketplaces should support both the `properties` object and the `attributes` array). The `attributes` array follows Open Sea's format: https://docs.opensea.io/docs/metadata-standards#attributes"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<p>The <code class="language-plaintext highlighter-rouge">standard</code> field is <strong>REQUIRED</strong> and <strong>MUST</strong> equal “arc69”. All other fields are <strong>OPTIONAL</strong>. If provided, the other fields <strong>MUST</strong> match the description in the JSON schema.</p>
+
+<p>The URI field (<code class="language-plaintext highlighter-rouge">external_url</code>) is defined similarly to the Asset URL parameter <code class="language-plaintext highlighter-rouge">au</code>.
+However, contrary to the Asset URL, the <code class="language-plaintext highlighter-rouge">external_url</code> does not need to link to the digital media file.</p>
+  
+    <h4 id="mime-type">
+      
+      
+        <a href="#mime-type" class="anchor-link"></a> MIME Type
+      
+      
+    </h4>
+
+<p>In addition to specifying a data type in the ASA’s URL (<code class="language-plaintext highlighter-rouge">au</code> field) with a URI fragment (ex: <code class="language-plaintext highlighter-rouge">#v</code> for video), the JSON Metadata schema also allows indication of the URL’s MIME type (ex: <code class="language-plaintext highlighter-rouge">video/mp4</code>) via the <code class="language-plaintext highlighter-rouge">mime_type</code> field.</p>
+  
+    <h4 id="examples">
+      
+      
+        <a href="#examples" class="anchor-link"></a> Examples
+      
+      
+    </h4>
+  
+    <h5 id="basic-example">
+      
+      
+        <a href="#basic-example" class="anchor-link"></a> Basic Example
+      
+      
+    </h5>
+
+<p>An example of an ARC-69 JSON Metadata file for a song follows. The properties array proposes some <strong>SUGGESTED</strong> formatting for token-specific display properties and metadata.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"standard"</span><span class="p">:</span><span class="w"> </span><span class="s2">"arc69"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"arc69 theme song"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"external_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.youtube.com/watch?v=dQw4w9WgXcQ"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"mime_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"video/mp4"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"Bass"</span><span class="p">:</span><span class="s2">"Groovy"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nl">"Vibes"</span><span class="p">:</span><span class="s2">"Funky"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nl">"Overall"</span><span class="p">:</span><span class="s2">"Good stuff"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>An example of possible ASA parameters would be:</p>
+
+<ul>
+  <li><em>Asset Name</em>: <code class="language-plaintext highlighter-rouge">ARC69 theme song</code> for example.</li>
+  <li><em>Unit Name</em>: <code class="language-plaintext highlighter-rouge">69TS</code> for example.</li>
+  <li><em>Asset URL</em>: <code class="language-plaintext highlighter-rouge">ipfs://QmWS1VAdMD353A6SDk9wNyvkT14kyCiZrNDYAad4w1tKqT#v</code></li>
+  <li><em>Metadata Hash</em>: the 32 bytes of the SHA-256 digest of the high resolution media file.</li>
+  <li><em>Total Number of Units</em>: 1</li>
+  <li><em>Number of Digits after the Decimal Point</em>: 0</li>
+</ul>
+  
+    <h4 id="mutability">
+      
+      
+        <a href="#mutability" class="anchor-link"></a> Mutability
+      
+      
+    </h4>
+  
+    <h5 id="rendering">
+      
+      
+        <a href="#rendering" class="anchor-link"></a> Rendering
+      
+      
+    </h5>
+
+<p>Clients <strong>SHOULD</strong> render an ASA’s latest ARC69 metadata. Clients <strong>MAY</strong> render an ASA’s previous ARC69 metadata for changelogs or other historical features.</p>
+  
+    <h5 id="updating-arc69-metadata">
+      
+      
+        <a href="#updating-arc69-metadata" class="anchor-link"></a> Updating ARC69 metadata
+      
+      
+    </h5>
+
+<p>If an ASA has a manager address, then the manager <strong>MAY</strong> update an ASA’s ARC69 metadata. To do so, the manager sends a new <code class="language-plaintext highlighter-rouge">acfg</code> transaction with the entire metadata represented as JSON in the transaction’s <code class="language-plaintext highlighter-rouge">note</code> field.</p>
+  
+    <h5 id="making-arc69-metadata-immutable">
+      
+      
+        <a href="#making-arc69-metadata-immutable" class="anchor-link"></a> Making ARC69 metadata immutable
+      
+      
+    </h5>
+
+<p>Managers MAY make an ASA’s ARC69 immutable. To do so, they MUST remove the ASA’s manager address with an <code class="language-plaintext highlighter-rouge">acfg</code> transaction.</p>
+  
+    <h5 id="arc69-attribute-deprecation">
+      
+      
+        <a href="#arc69-attribute-deprecation" class="anchor-link"></a> ARC69 attribute deprecation
+      
+      
+    </h5>
+
+<p>The initial version of ARC69 followed the <a href="https://docs.opensea.io/docs/metadata-standards#attributes">Open Sea attributes format</a>. As illustrated below:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"attributes": {
+"type": "array",
+"description": "Attributes following Open Sea's attributes format (https://docs.opensea.io/docs/metadata-standards#attributes)."
+}
+</code></pre></div></div>
+<p>This format is now deprecated. New NFTs <strong>SHOULD</strong> use the simple <code class="language-plaintext highlighter-rouge">properties</code> format, since it significantly reduces the metadata size.</p>
+
+<p>To be fully compliant with the ARC69 standard, both the <code class="language-plaintext highlighter-rouge">properties</code> object and the <code class="language-plaintext highlighter-rouge">attributes</code> array <strong>SHOULD</strong> be supported.</p>
+  
+    <h2 id="rationale">
+      
+      
+        <a href="#rationale" class="anchor-link"></a> Rationale
+      
+      
+    </h2>
+
+<p>These conventions take inspiration from <a href="https://docs.opensea.io/docs/metadata-standards">Open Sea’s metadata standards</a> and <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md#erc-1155-metadata-uri-json-schema">EIP-1155</a> to facilitate interoperobility.</p>
+
+<p>The main differences are highlighted below:</p>
+
+<ul>
+  <li>Asset Name, Unit Name, and URL are specified in the ASA parameters. This allows applications to efficienty display meaningful information, even if they aren’t aware of ARC-69 metadata.</li>
+  <li>MIME types help clients more effectively fetch and render media.</li>
+  <li>All asset metadata is stored onchain.</li>
+  <li>Metadata can be either mutable or immutable.</li>
+</ul>
+  
+    <h2 id="copyright">
+      
+      
+        <a href="#copyright" class="anchor-link"></a> Copyright
+      
+      
+    </h2>
+
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+
+  <h2>Citation</h2>
+  <p>Please cite this document as:</p>
+  
+  <p>, "ARC-69: Community Algorand Standard Asset Parameters Conventions for Digital Media Tokens," <em>Ethereum Improvement Proposals</em>, no. 69, . [Online serial]. Available: https://algorandfoundation.github.io/ARCS/arc-69.</p>
+</div>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "TechArticle",
+    "headline": "ARC-69: Community Algorand Standard Asset Parameters Conventions for Digital Media Tokens",
+    "author": "",
+    "name": "ARC-69: Community Algorand Standard Asset Parameters Conventions for Digital Media Tokens",
+    "dateCreated": "",
+    "datePublished": "",
+    
+    "inLanguage": "en-US",
+    "license": "#copyright",
+    "copyrightYear": ""
+  }
+</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Algorand Requests for Comments</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Algorand Requests for Comments</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/algorandfoundation/ARCs"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">algorandfoundation/ARCs</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>To discuss ARC drafts, use the corresponding issue in the issue tracker.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

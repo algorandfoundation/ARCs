@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+    <title>ARC-4: Algorand Application Binary Interface (ABI)</title>
+    <meta property="og:title" content="ARC-4: Algorand Application Binary Interface (ABI)" />
+    <meta name="description" content="" />
+    <meta property="og:description" content="" />
+    <meta name="twitter:description" content="" />
+  
+  <meta name="generator" content="Jekyll" />
+  <meta property="og:locale" content="en_US" />
+  <link rel="canonical" href="http://localhost:4000/ARCs/arc-0004" />
+  <meta property="og:url" content="http://localhost:4000/ARCs/arc-0004" />
+  <meta property="og:site_name" content="Algorand Requests for Comments" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@" />
+  <script type="application/ld+json">
+    {
+      "@type": "WebSite",
+      "url": "http://localhost:4000",
+      "name": "Algorand Requests for Comments",
+      "description": "To discuss ARC drafts, use the corresponding issue in the issue tracker.",
+      "@context": "https://schema.org"
+    }
+  </script>
+  <link rel="stylesheet" href="/assets/css/style.css" /><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Algorand Requests for Comments" /><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha256-nlrDrBTHxJJlDDX22AS33xYI1OJHnGMDhiYMSe2U0e0=" crossorigin="anonymous"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Algorand Requests for Comments</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/all">All</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        
+  <div class="lastcall">
+    📢 This ARC is in the last call for review stage. The authors wish to finalize the ARC and appreciate feedback.
+  </div>
+
+
+<div class="home">
+  <h1 class="page-heading">
+    ARC-4: Algorand Application Binary Interface (ABI)
+    <a href="https://github.com/lifecoder1988/ARCs/blob/master/ARCs/arc-0004.md"><svg role="img" aria-label="Source" xmlns="https://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16"><title>Source</title><path fill-rule="evenodd" d="M9.5 3L8 4.5 11.5 8 8 11.5 9.5 13 14 8 9.5 3zm-5 0L0 8l4.5 5L6 11.5 2.5 8 6 4.5 4.5 3z"/></svg></a>
+  </h1>
+  <h3></h3>
+  <table>
+    <tr><th>Author</th><td></td></tr>
+    
+    <tr><th>Status</th><td>Last Call
+    
+    </td></tr>
+    <tr><th>Type</th><td></td></tr>
+    
+    <tr><th>Created</th><td></td></tr>
+    
+    
+    
+  </table>
+
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+  <li><a href="#algorand-transaction-calling-conventions">Algorand Transaction Calling Conventions</a>
+    <ul>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#definitions">Definitions</a></li>
+      <li><a href="#specification">Specification</a>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#methods">Methods</a></li>
+          <li><a href="#interfaces">Interfaces</a></li>
+          <li><a href="#contracts">Contracts</a></li>
+        </ul>
+      </li>
+      <li><a href="#method-invocation">Method Invocation</a>
+        <ul>
+          <li><a href="#standard-format">Standard Format</a></li>
+          <li><a href="#implementing-a-method">Implementing a Method</a></li>
+          <li><a href="#calling-a-method-from-off-chain">Calling a Method from Off-Chain</a></li>
+        </ul>
+      </li>
+      <li><a href="#encoding">Encoding</a>
+        <ul>
+          <li><a href="#types">Types</a></li>
+          <li><a href="#static-vs-dynamic-types">Static vs Dynamic Types</a></li>
+          <li><a href="#encoding-rules">Encoding Rules</a></li>
+          <li><a href="#reference-types">Reference Types</a></li>
+          <li><a href="#transaction-types">Transaction Types</a></li>
+        </ul>
+      </li>
+      <li><a href="#copyright">Copyright</a></li>
+    </ul>
+  </li>
+</ul>
+
+  </div>
+
+  <h1 id="algorand-transaction-calling-conventions">
+      
+      
+        <a href="#algorand-transaction-calling-conventions" class="anchor-link"></a> Algorand Transaction Calling Conventions
+      
+      
+    </h1>
+
+<blockquote>
+  <p>This API is a draft.  Some elements may change.</p>
+</blockquote>
+  
+    <h2 id="summary">
+      
+      
+        <a href="#summary" class="anchor-link"></a> Summary
+      
+      
+    </h2>
+
+<p>A standard for encoding contract call transactions to invoke methods
+on an Algorand <em>Applications</em> (aka “smart contracts”).</p>
+  
+    <h2 id="abstract">
+      
+      
+        <a href="#abstract" class="anchor-link"></a> Abstract
+      
+      
+    </h2>
+
+<p>This document introduces conventions for encoding method calls,
+including argument and return value encoding, in Algorand Application
+call transactions. The goal is to allow clients, such as wallets and
+dapp frontends, to properly encode call transactions based on a description 
+of the interface. Further, explorers will be able to show details of
+these method invocations.</p>
+  
+    <h2 id="definitions">
+      
+      
+        <a href="#definitions" class="anchor-link"></a> Definitions
+      
+      
+    </h2>
+
+<ul>
+  <li><strong>Application:</strong> an Algorand Application, aka “smart contract”, 
+“stateful contract”, “contract”, or “app”.</li>
+  <li><strong>HLL:</strong> a higher level language that compiles to TEAL bytecode.</li>
+  <li><strong>dapp (frontend)</strong>: a decentralized application frontend, interpreted here to
+mean an off-chain frontend (a webapp, native app, etc.) that interacts with
+Applications on the blockchain.</li>
+  <li><strong>wallet</strong>: an off-chain application that stores secret keys for on-chain
+accounts and can display and sign transactions for these accounts.</li>
+  <li><strong>explorer</strong>: an off-chain application that allows browsing the blockchain,
+showing details of transactions.</li>
+</ul>
+  
+    <h2 id="specification">
+      
+      
+        <a href="#specification" class="anchor-link"></a> Specification
+      
+      
+    </h2>
+
+<p>The key words “<strong>MUST</strong>”, “<strong>MUST NOT</strong>”, “<strong>REQUIRED</strong>”, “<strong>SHALL</strong>”,
+“<strong>SHALL NOT</strong>”, “<strong>SHOULD</strong>”, “<strong>SHOULD NOT</strong>”, “<strong>RECOMMENDED</strong>”,
+“<strong>MAY</strong>”, and “<strong>OPTIONAL</strong>” in this document are to be interpreted
+as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.</p>
+
+<blockquote>
+  <p>Comments like this are non-normative.</p>
+</blockquote>
+
+<p>Interfaces are defined in TypeScript. All the objects that are defined 
+are valid JSON objects, and all JSON <code class="language-plaintext highlighter-rouge">string</code> types are UTF-8 encoded.</p>
+  
+    <h3 id="overview">
+      
+      
+        <a href="#overview" class="anchor-link"></a> Overview
+      
+      
+    </h3>
+
+<p>This document makes recommendations for encoding method invocations as
+Application call transactions, and for describing methods for
+access by higher-level entities.  Encoding recommendations are
+intended to be minimal, intended only to allow interoperability among
+Applications.  Higher level recommendations are intended to enhance
+user-facing interfaces, such as high-level language, dapps, and
+wallets.  Applications that follow the recommendations described here are 
+called <em>ARC-4 Applications</em>.</p>
+  
+    <h3 id="methods">
+      
+      
+        <a href="#methods" class="anchor-link"></a> Methods
+      
+      
+    </h3>
+
+<p>A method is a section of code intended to be invoked externally with
+an Application call transaction. A method must have a name, it may
+take a list of arguments as input when it is invoked, and it may
+return a single value (which may be a tuple) when it finishes
+running. The possible types for arguments and return values are
+described later in the <a href="#encoding">Encoding</a> section.</p>
+
+<p>Invoking a method involves creating an Application call transaction to
+specifically call that method. Methods are different from internal
+subroutines that may exist in a contract, but are not externally
+callable. Methods may be invoked by a top-level Application call
+transaction from an off-chain caller, or by an Application call inner
+transaction created by another smart contract.</p>
+  
+    <h4 id="method-signature">
+      
+      
+        <a href="#method-signature" class="anchor-link"></a> Method Signature
+      
+      
+    </h4>
+
+<p>A method signature is a unique identifier for a method. The signature
+is a string that consists of the method’s name, an open parenthesis, a
+comma-separated list of the types of its arguments, a closing
+parenthesis, and the method’s return type, or <code class="language-plaintext highlighter-rouge">void</code> if it does not
+return a value. The names of the arguments <strong>MUST NOT</strong> be included in a
+method’s signature, and <strong>MUST NOT</strong> contain any whitespace.</p>
+
+<p>For example, <code class="language-plaintext highlighter-rouge">add(uint64,uint64)uint128</code> is the method signature for a
+method named <code class="language-plaintext highlighter-rouge">add</code> which takes two uint64 parameters and returns a
+uint128. Signatures are encoded in ASCII.</p>
+
+<p>For the benefit of universal interoperability (especially in HLLs), 
+names <strong>MUST</strong> satisfy the regular expression <code class="language-plaintext highlighter-rouge">[_A-Za-z][A-Za-z0-9_]*</code>.
+Names starting with an underscore are reserved and <strong>MUST</strong> only
+be used as specified in this ARC or future ABI-related ARC.</p>
+  
+    <h4 id="method-selector">
+      
+      
+        <a href="#method-selector" class="anchor-link"></a> Method Selector
+      
+      
+    </h4>
+
+<p>Method signatures contain all the information needed to identify a
+method, however the length of a signature is unbounded. Rather than
+consume program space with such strings, a method selector is used to
+identify methods in calls. A method selector is the first four bytes of
+the SHA-512/256 hash of the method signature.</p>
+
+<p>For example, the method selector for a method named <code class="language-plaintext highlighter-rouge">add</code> which takes
+two uint64 parameters and returns a uint128 can be computed as
+follows:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Method signature: add(uint64,uint64)uint128
+SHA-512/256 hash (in hex): 8aa3b61f0f1965c3a1cbfa91d46b24e54c67270184ff89dc114e877b1753254a
+Method selector (in hex): 8aa3b61f
+</code></pre></div></div>
+  
+    <h4 id="method-description">
+      
+      
+        <a href="#method-description" class="anchor-link"></a> Method Description
+      
+      
+    </h4>
+
+<p>A method description provides further information about a method
+beyond its signature. This description is encoded in JSON and consists
+of a method’s name, description, arguments (their types, names, and
+descriptions), and return type (and possible description for the
+return type). From this structure, the method’s signature and selector
+can be calculated. The Algorand SDKs provide convenience functions
+to calculate signatures and selectors from such JSON files.</p>
+
+<p>These details will enable high-level languages and dapps/wallets to
+properly encode arguments, call methods, and decode return
+values. This description can populate UIs in dapps, wallets, and
+explorers with description of parameters, as well as populate
+information about methods in IDEs for HLLs.</p>
+
+<p>The JSON structure for such an object is:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Method</span> <span class="p">{</span>
+  <span class="cm">/** The name of the method */</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="cm">/** Optional, user-friendly description for the method */</span>
+  <span class="nl">desc</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="cm">/** The arguments of the method, in order */</span>
+  <span class="nl">args</span><span class="p">:</span> <span class="nb">Array</span><span class="o">&lt;</span><span class="p">{</span>
+    <span class="cm">/** The type of the argument */</span>
+    <span class="na">type</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="cm">/** Optional, user-friendly name for the argument */</span>
+    <span class="nl">name</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="cm">/** Optional, user-friendly description for the argument */</span>
+    <span class="nl">desc</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="p">}</span><span class="o">&gt;</span><span class="p">;</span>
+  <span class="cm">/** Information about the method's return value */</span>
+  <span class="nl">returns</span><span class="p">:</span> <span class="p">{</span>
+    <span class="cm">/** The type of the return value, or "void" to indicate no return value. */</span>
+    <span class="na">type</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="cm">/** Optional, user-friendly description for the return value */</span>
+    <span class="nl">desc</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>For example:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Calculate the sum of two 64-bit integers"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The first term to add"</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The second term to add"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"returns"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint128"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The sum of a and b"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+  
+    <h3 id="interfaces">
+      
+      
+        <a href="#interfaces" class="anchor-link"></a> Interfaces
+      
+      
+    </h3>
+
+<p>An Interface is a logically grouped set of methods. All method selectors in an
+Interface <strong>MUST</strong> be unique. Method names <strong>MAY</strong> not be unique, as long as
+the corresponding method selectors are different. Method names in Interfaces 
+<strong>MUST NOT</strong> begin with an underscore.</p>
+
+<p>An Algorand Application <em>implements</em> an Interface if it supports
+all of the methods from that Interface. An Application <strong>MAY</strong> implement
+zero, one, or multiple Interfaces.</p>
+
+<p>Interface designers <strong>SHOULD</strong> try to prevent collisions of method selectors 
+between Interfaces that are likely to be implemented together by the same 
+Application.</p>
+
+<blockquote>
+  <p>For example, an Interface <code class="language-plaintext highlighter-rouge">Calculator</code> providing addition and subtraction
+of integer methods and an Interface <code class="language-plaintext highlighter-rouge">NumberFormating</code> providing formatting
+methods for numbers into strings are likely to be used together.
+Interface designers should ensure that all the methods in <code class="language-plaintext highlighter-rouge">Calculator</code> and
+<code class="language-plaintext highlighter-rouge">NumberFormatting</code> have a distinct method selectors.</p>
+</blockquote>
+  
+    <h4 id="interface-description">
+      
+      
+        <a href="#interface-description" class="anchor-link"></a> Interface Description
+      
+      
+    </h4>
+
+<p>An Interface description is a JSON object containing the JSON
+descriptions for each of the methods in the Interface.</p>
+
+<p>The JSON structure for such an object is:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Interface</span> <span class="p">{</span>
+  <span class="cm">/** A user-friendly name for the interface */</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="cm">/** Optional, user-friendly description for the interface */</span>
+  <span class="nl">desc</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="cm">/** All of the methods that the interface contains */</span>
+  <span class="nl">methods</span><span class="p">:</span> <span class="nx">Method</span><span class="p">[];</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Interface names <strong>MUST</strong> satisfy the regular expression <code class="language-plaintext highlighter-rouge">[_A-Za-z][A-Za-z0-9_]*</code>.
+Interface names starting by <code class="language-plaintext highlighter-rouge">ARC</code> are reserved to interfaces defined in ARC.
+Interfaces defined in <code class="language-plaintext highlighter-rouge">ARC-XXXX</code> (where <code class="language-plaintext highlighter-rouge">XXXX</code> is a 0-padded number) <strong>SHOULD</strong>
+start with <code class="language-plaintext highlighter-rouge">ARC_XXXX</code>.</p>
+
+<p>For example:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Calculator"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Interface for a basic calculator supporting additions and multiplications"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"methods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Calculate the sum of two 64-bit integers"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The first term to add"</span><span class="w"> </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The second term to add"</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nl">"returns"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint128"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The sum of a and b"</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"multiply"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Calculate the product of two 64-bit integers"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The first factor to multiply"</span><span class="w"> </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The second factor to multiply"</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nl">"returns"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint128"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The product of a and b"</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+  
+    <h3 id="contracts">
+      
+      
+        <a href="#contracts" class="anchor-link"></a> Contracts
+      
+      
+    </h3>
+
+<p>A Contract is a declaration of what an Application implements. It includes
+the complete list of the methods implemented by the related Application.
+It is similar to an Interface, but it may include further details about the
+concrete implementation, as well as implementation-specific methods that
+do not belong to any Interface. All methods in a Contract <strong>MUST</strong> be
+unique; specifically, each method <strong>MUST</strong> have a unique method selector.</p>
+
+<p>Method names in Contracts <strong>MAY</strong> begin with underscore, but these
+names are reserved for use by this ARC and future extensions of this ARC.</p>
+  
+    <h4 id="oncompletion-actions-and-creation">
+      
+      
+        <a href="#oncompletion-actions-and-creation" class="anchor-link"></a> OnCompletion Actions and Creation
+      
+      
+    </h4>
+
+<p>In addition to the set of methods from the Contract’s definition,
+a Contract <strong>MAY</strong> allow Application calls with zero arguments, also
+known as bare Application calls. Since method invocations with zero
+arguments still encode the method selector as the first Application
+call arguments, bare Application calls are always distinguishable
+from method invocations.</p>
+
+<p>The primary purpose of bare Application calls is to allow the
+execution of an OnCompletion (<code class="language-plaintext highlighter-rouge">apan</code>) action which requires no
+inputs and has no return value. A Contract <strong>MAY</strong> allow this
+for all OnCompletion actions, for only a subset of them, or for
+none at all. Great care should be taken when allowing these
+operations.</p>
+
+<p>If a Contract elects to allow bare Application calls for some
+OnCompletion actions, then that Contract <strong>SHOULD</strong> also allow
+any of its methods to be called with those OnCompletion actions,
+as long as this would not cause undesirable or nonsensical behavior.</p>
+
+<blockquote>
+  <p>The reason for this is because if it’s acceptable to allow an
+OnCompletion action to take place in isolation inside of a bare
+Application call, then it’s most likely acceptable to allow
+the same action to take place at the same time as an ABI method
+call. And since the latter can be accomplished in just one
+transaction, it can be more efficient.</p>
+</blockquote>
+
+<p>If a Contract requires an OnCompletion action to take inputs or
+to return a value, then the <strong>RECOMMENDED</strong> behavior of the Contract
+should be to not allow bare Application calls for that OnCompletion
+action. Rather, the Contract should have one or more methods that
+are meant to be called with the appropriate OnCompletion action set
+in order to process that action.</p>
+
+<p>If an Application is called with greater than zero Application call
+arguments (<strong>NOT</strong> a bare Application call), the Application <strong>MUST</strong>
+always treat the first argument as a method selector and invoke
+the specified method, regardless of the OnCompletion action of
+the Application call. This applies to Application creation
+transactions as well, where the supplied Application ID is 0.</p>
+
+<p>Similar to OnCompletion actions, if a Contract requires its
+creation transaction to take inputs or to return a value, then
+the <strong>RECOMMENDED</strong> behavior of the Contract should be to not
+allow bare Application calls for creation. Rather, the Contract
+should have one or more methods that are meant to be called
+in order to create the Contract.</p>
+  
+    <h4 id="contract-description">
+      
+      
+        <a href="#contract-description" class="anchor-link"></a> Contract Description
+      
+      
+    </h4>
+
+<p>A Contract description is a JSON object containing the JSON
+descriptions for each of the methods in the Contract.</p>
+
+<p>The JSON structure for such an object is:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Contract</span> <span class="p">{</span>
+  <span class="cm">/** A user-friendly name for the contract */</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="cm">/** Optional, user-friendly description for the interface */</span>
+  <span class="nl">desc</span><span class="p">?:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="cm">/**
+   * Optional object listing the contract instances across different networks
+   */</span>
+  <span class="nl">networks</span><span class="p">?:</span> <span class="p">{</span>
+    <span class="cm">/**
+     * The key is the base64 genesis hash of the network, and the value contains
+     * information about the deployed contract in the network indicated by the
+     * key
+     */</span>
+    <span class="p">[</span><span class="na">network</span><span class="p">:</span> <span class="nx">string</span><span class="p">]:</span> <span class="p">{</span>
+      <span class="cm">/** The app ID of the deployed contract in this network */</span>
+      <span class="na">appID</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="cm">/** All of the methods that the contract implements */</span>
+  <span class="nl">methods</span><span class="p">:</span> <span class="nx">Method</span><span class="p">[];</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Contract names <strong>MUST</strong> satisfy the regular expression <code class="language-plaintext highlighter-rouge">[_A-Za-z][A-Za-z0-9_]*</code>.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">desc</code> fields of the Contract and the methods inside the Contract 
+<strong>SHOULD</strong> contain the informations that are not explicitly encoded in the other fields,
+such as support of bare Application calls, requirement of specific 
+OnCompletion action for specific methods, and methods to call for creation
+(if creation cannot be done via a bare Application call).</p>
+
+<p>For example:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Calculator"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Contract of a basic calculator supporting additions and multiplications. Implements the Calculator interface."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"networks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8="</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"appID"</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI="</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"appID"</span><span class="p">:</span><span class="w"> </span><span class="mi">5678</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"methods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"add"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Calculate the sum of two 64-bit integers"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The first term to add"</span><span class="w"> </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The second term to add"</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nl">"returns"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint128"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The sum of a and b"</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"multiply"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Calculate the product of two 64-bit integers"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The first factor to multiply"</span><span class="w"> </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint64"</span><span class="p">,</span><span class="w"> </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The second factor to multiply"</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nl">"returns"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uint128"</span><span class="p">,</span><span class="w"> </span><span class="nl">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The product of a and b"</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+  
+    <h2 id="method-invocation">
+      
+      
+        <a href="#method-invocation" class="anchor-link"></a> Method Invocation
+      
+      
+    </h2>
+
+<p>In order for a caller to invoke a method, the caller and the method
+implementation (callee) must agree on how information will be passed
+to and from the method. This ABI defines a standard for where this
+information should be stored and its format.</p>
+  
+    <h3 id="standard-format">
+      
+      
+        <a href="#standard-format" class="anchor-link"></a> Standard Format
+      
+      
+    </h3>
+
+<p>The method selector must be the first Application call argument (index 0),
+accessible as <code class="language-plaintext highlighter-rouge">txna ApplicationArgs 0</code> from TEAL (except for bare Application
+calls, which use zero application call arguments).</p>
+
+<p>If a method has 15 or fewer arguments, each arguments <strong>MUST</strong> be placed in
+order in the following Application call argument slots (indexes 1 through
+15). The arguments <strong>MUST</strong> be encoded as defined in the <a href="#encoding">Encoding</a>
+section.</p>
+
+<p>Otherwise, if a method has 16 or more arguments, the first 14 <strong>MUST</strong> be
+placed in order in the following Application call argument slots (indexes 1
+through 14), and the remaining arguments <strong>MUST</strong> be encoded as a tuple
+in the final Application call argument slot (index 15). The arguments must
+be encoded as defined in the <a href="#encoding">Encoding</a> section.</p>
+
+<p>If a method has a non-void return type, then the return value of the method
+<strong>MUST</strong> be located in the final logged value of the method’s execution,
+using the <code class="language-plaintext highlighter-rouge">log</code> opcode. The logged value <strong>MUST</strong> contain a specific 4 byte
+prefix, followed by the encoding of the return value as defined in the 
+<a href="#encoding">Encoding</a> section. The 4 byte prefix is defined as the first 4 
+bytes of the SHA-512/256 hash of the ASCII string <code class="language-plaintext highlighter-rouge">return</code>. In hex, this is
+<code class="language-plaintext highlighter-rouge">151f7c75</code>.</p>
+
+<blockquote>
+  <p>For example, if the method <code class="language-plaintext highlighter-rouge">add(uint64,uint64)uint128</code> wanted to return the
+value 4160, it would log the byte array <code class="language-plaintext highlighter-rouge">151f7c7500000000000000000000000000001040</code>
+(shown in hex).</p>
+</blockquote>
+  
+    <h3 id="implementing-a-method">
+      
+      
+        <a href="#implementing-a-method" class="anchor-link"></a> Implementing a Method
+      
+      
+    </h3>
+
+<p>An ARC-4 Application implementing a method:</p>
+
+<ol>
+  <li>
+    <p><strong>MUST</strong> check if <code class="language-plaintext highlighter-rouge">txn NumAppArgs</code> equals 0. If true, then this is a
+bare Application call. If the Contract supports bare Application calls
+for the current transaction parameters (it <strong>SHOULD</strong> check the OnCompletion
+action and whether the transaction is creating the application), it <strong>MUST</strong>
+handle the call appropriately and either approve or reject the transaction.
+The following steps <strong>MUST</strong> be ignored in this case. Otherwise, if
+the Contract does not support this bare application call, the Contract
+<strong>MUST</strong> reject the transaction.</p>
+  </li>
+  <li>
+    <p><strong>MUST</strong> examine <code class="language-plaintext highlighter-rouge">txna ApplicationArgs 0</code> to identify the selector
+of the method being invoked. If the contract does not implement a method with
+that selector, the Contract <strong>MUST</strong> reject the transaction.</p>
+  </li>
+  <li>
+    <p><strong>MUST</strong> execute the actions required to implement the method being
+invoked. In general, this works by branching to the body of the method
+indicated by the selector.</p>
+  </li>
+  <li>
+    <p>The code for that method <strong>MAY</strong> extract the arguments it needs, if
+any, from the application call arguments as described in the <a href="#encoding">Encoding</a>
+section. If the method has more than 15 arguments and the contract
+needs to extract an argument beyond the 14th, it <strong>MUST</strong> decode
+<code class="language-plaintext highlighter-rouge">txna ApplicationArgs 15</code> as a tuple to access the arguments contained in it.</p>
+  </li>
+  <li>
+    <p>If the method is non-void, the Application <strong>MUST</strong> encode the
+return value as described in the <a href="#encoding">Encoding</a> section and then
+<code class="language-plaintext highlighter-rouge">log</code> it with the prefix <code class="language-plaintext highlighter-rouge">151f7c75</code>. Other values <strong>MAY</strong> be logged
+before the return value, but other values <strong>MUST NOT</strong> be logged after
+the return value.</p>
+  </li>
+</ol>
+  
+    <h3 id="calling-a-method-from-off-chain">
+      
+      
+        <a href="#calling-a-method-from-off-chain" class="anchor-link"></a> Calling a Method from Off-Chain
+      
+      
+    </h3>
+
+<p>To invoke an ARC-4 Application, an off-chain system, such as a dapp or wallet,
+would first obtain the Interface or Contract description JSON object
+for the app. The client may now:</p>
+
+<ol>
+  <li>Create an Application call transaction with the following parameters:
+    <ol>
+      <li>Use the ID of the desired Application whose program code
+implements the method being invoked, or 0 if they wish to
+create the Application.</li>
+      <li>Use the selector of the method being invoked as the first
+Application call argument.</li>
+      <li>Encode all arguments for the method, if any, as described in
+the <a href="#encoding">Encoding</a> section. If the method has more than 15 arguments,
+encode all arguments beyond (but not including) the 14th
+as a tuple into the final Application call argument.</li>
+    </ol>
+  </li>
+  <li>Submit this transaction and wait until it successfully commits to
+the blockchain.</li>
+  <li>Decode the return value, if any, from the ApplyData’s log
+information.</li>
+</ol>
+
+<p>Clients <strong>MAY</strong> ignore the return value.</p>
+
+<p>An exception to the above instructions is if the app supports bare
+Application calls for some transaction parameters, and the client
+wishes to invoke this functionality. Then the client may simply create
+and submit to the network an Application call transaction with the ID of
+the Application (or 0 if they wish to create the application) and the
+desired OnCompletion value set. Application arguments <strong>MUST NOT</strong> be
+present.</p>
+  
+    <h2 id="encoding">
+      
+      
+        <a href="#encoding" class="anchor-link"></a> Encoding
+      
+      
+    </h2>
+
+<p>This section describes how ABI types can be represented as byte strings.</p>
+
+<p>Like the <a href="https://docs.soliditylang.org/en/v0.8.6/abi-spec.html">EthereumABI</a>, this
+encoding specification is designed to have the following two
+properties:</p>
+
+<ol>
+  <li>The number of non-sequential “reads” necessary to access a value is
+at most the depth of that value inside the encoded array
+structure. For example, at most 4 reads are needed to retrieve a
+value at <code class="language-plaintext highlighter-rouge">a[i][k][l][r]</code>.</li>
+  <li>The encoding of a value or array element is not interleaved with
+other data and it is relocatable, i.e. only relative “addresses”
+(indexes to other parts of the encoding) are used.</li>
+</ol>
+  
+    <h3 id="types">
+      
+      
+        <a href="#types" class="anchor-link"></a> Types
+      
+      
+    </h3>
+
+<p>The following types are supported in the Algorand ABI.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">uint&lt;N&gt;</code>: An <code class="language-plaintext highlighter-rouge">N</code>-bit unsigned integer, where <code class="language-plaintext highlighter-rouge">8 &lt;= N &lt;= 512</code> and <code class="language-plaintext highlighter-rouge">N % 8 = 0</code>. When this type is
+used as part of a method signature, <code class="language-plaintext highlighter-rouge">N</code> must be written as a base 10 number without any leading zeros.</li>
+  <li><code class="language-plaintext highlighter-rouge">byte</code>: An alias for <code class="language-plaintext highlighter-rouge">uint8</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">bool</code>: A boolean value that is restricted to either 0 or 1. When encoded, up to 8 consecutive
+<code class="language-plaintext highlighter-rouge">bool</code> values will be packed into a single byte.</li>
+  <li><code class="language-plaintext highlighter-rouge">ufixed&lt;N&gt;x&lt;M&gt;</code>: An <code class="language-plaintext highlighter-rouge">N</code>-bit unsigned fixed-point decimal number with precision <code class="language-plaintext highlighter-rouge">M</code>, where
+<code class="language-plaintext highlighter-rouge">8 &lt;= N &lt;= 512</code>, <code class="language-plaintext highlighter-rouge">N % 8 = 0</code>, and <code class="language-plaintext highlighter-rouge">0 &lt; M &lt;= 160</code>, which denotes a value <code class="language-plaintext highlighter-rouge">v</code> as <code class="language-plaintext highlighter-rouge">v / (10^M)</code>. When
+this type is used as part of a method signature, <code class="language-plaintext highlighter-rouge">N</code> and <code class="language-plaintext highlighter-rouge">M</code> must be written as base 10 numbers
+without any leading zeros.</li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;type&gt;[&lt;N&gt;]</code>: A fixed-length array of length <code class="language-plaintext highlighter-rouge">N</code>, where <code class="language-plaintext highlighter-rouge">N &gt;= 0</code>. <code class="language-plaintext highlighter-rouge">type</code> can be any other type.
+When this type is used as part of a method signature, <code class="language-plaintext highlighter-rouge">N</code> must be written as a base 10 number without
+any leading zeros, <em>unless</em> <code class="language-plaintext highlighter-rouge">N</code> is zero, in which case only a single 0 character should be used.</li>
+  <li><code class="language-plaintext highlighter-rouge">address</code>: Used to represent a 32-byte Algorand address. This is equivalent to <code class="language-plaintext highlighter-rouge">byte[32]</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;type&gt;[]</code>: A variable-length array. <code class="language-plaintext highlighter-rouge">type</code> can be any other type.</li>
+  <li><code class="language-plaintext highlighter-rouge">string</code>: A variable-length byte array (<code class="language-plaintext highlighter-rouge">byte[]</code>) assumed to contain UTF-8 encoded content.</li>
+  <li><code class="language-plaintext highlighter-rouge">(T1,T2,…,TN)</code>: A tuple of the types <code class="language-plaintext highlighter-rouge">T1</code>, <code class="language-plaintext highlighter-rouge">T2</code>, …, <code class="language-plaintext highlighter-rouge">TN</code>, <code class="language-plaintext highlighter-rouge">N &gt;= 0</code>.</li>
+  <li>reference types <code class="language-plaintext highlighter-rouge">account</code>, <code class="language-plaintext highlighter-rouge">asset</code>, <code class="language-plaintext highlighter-rouge">application</code>: <strong>MUST NOT</strong> be used as the return type.
+For encoding purposes they are an alias for <code class="language-plaintext highlighter-rouge">uint8</code>. See section “Reference Types” below.</li>
+</ul>
+
+<p>Additional special use types are defined in <a href="#reference-types">Reference Types</a>
+and <a href="#transaction-types">Transaction Types</a>.</p>
+  
+    <h3 id="static-vs-dynamic-types">
+      
+      
+        <a href="#static-vs-dynamic-types" class="anchor-link"></a> Static vs Dynamic Types
+      
+      
+    </h3>
+
+<p>For encoding purposes, the types are divided into two categories: static and dynamic.</p>
+
+<p>The dynamic types are:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">&lt;type&gt;[]</code> for any <code class="language-plaintext highlighter-rouge">type</code>
+    <ul>
+      <li>This includes <code class="language-plaintext highlighter-rouge">string</code> since it is an alias for <code class="language-plaintext highlighter-rouge">byte[]</code>.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;type&gt;[&lt;N&gt;]</code> for any dynamic <code class="language-plaintext highlighter-rouge">type</code></li>
+  <li><code class="language-plaintext highlighter-rouge">(T1,T2,...,TN)</code> if <code class="language-plaintext highlighter-rouge">Ti</code> is dynamic for some <code class="language-plaintext highlighter-rouge">1 &lt;= i &lt;= N</code></li>
+</ul>
+
+<p>All other types are static. For a static type, all encoded values of
+that type have the same length, irrespective of their actual value.</p>
+  
+    <h3 id="encoding-rules">
+      
+      
+        <a href="#encoding-rules" class="anchor-link"></a> Encoding Rules
+      
+      
+    </h3>
+
+<p>Let <code class="language-plaintext highlighter-rouge">len(a)</code> be the number of bytes in the binary string <code class="language-plaintext highlighter-rouge">a</code>. The
+returned value shall be considered to have the ABI type <code class="language-plaintext highlighter-rouge">uint16</code>.</p>
+
+<p>Let <code class="language-plaintext highlighter-rouge">enc</code> be a mapping from values of the ABI types to binary
+strings. This mapping defines the encoding of the ABI.</p>
+
+<p>For any ABI value <code class="language-plaintext highlighter-rouge">x</code>, we recursively define <code class="language-plaintext highlighter-rouge">enc(x)</code> to be as follows:</p>
+
+<ul>
+  <li>If <code class="language-plaintext highlighter-rouge">x</code> is a tuple of <code class="language-plaintext highlighter-rouge">N</code> types, <code class="language-plaintext highlighter-rouge">(T1,T2,...,TN)</code>, where <code class="language-plaintext highlighter-rouge">x[i]</code> is the value at index <code class="language-plaintext highlighter-rouge">i</code>, starting at 1:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">enc(x) = head(x[1]) ... head(x[N]) tail(x[1]) ... tail(x[N])</code></li>
+      <li>Let <code class="language-plaintext highlighter-rouge">head</code> and <code class="language-plaintext highlighter-rouge">tail</code> be mappings from values in this tuple to binary strings. For each <code class="language-plaintext highlighter-rouge">i</code> such that <code class="language-plaintext highlighter-rouge">1 &lt;= i &lt;= N</code>, these mappings are defined as:
+        <ul>
+          <li>If <code class="language-plaintext highlighter-rouge">Ti</code> (the type of <code class="language-plaintext highlighter-rouge">x[i]</code>) is static:
+            <ul>
+              <li>If <code class="language-plaintext highlighter-rouge">Ti</code> is <code class="language-plaintext highlighter-rouge">bool</code>:
+                <ul>
+                  <li>Let <code class="language-plaintext highlighter-rouge">after</code> be the largest integer such that all <code class="language-plaintext highlighter-rouge">T(i+j)</code> are <code class="language-plaintext highlighter-rouge">bool</code>, for <code class="language-plaintext highlighter-rouge">0 &lt;= j &lt;= after</code>.</li>
+                  <li>Let <code class="language-plaintext highlighter-rouge">before</code> be the largest integer such that all <code class="language-plaintext highlighter-rouge">T(i-j)</code> are <code class="language-plaintext highlighter-rouge">bool</code>, for <code class="language-plaintext highlighter-rouge">0 &lt;= j &lt;= before</code>.</li>
+                  <li>If <code class="language-plaintext highlighter-rouge">before % 8 == 0</code>:
+                    <ul>
+                      <li><code class="language-plaintext highlighter-rouge">head(x[i]) = enc(x[i]) | (enc(x[i+1]) &gt;&gt; 1) | ... | (enc(x[i + min(after,7)]) &gt;&gt; min(after,7))</code>, where <code class="language-plaintext highlighter-rouge">&gt;&gt;</code> is bitwise right shift which pads with 0, <code class="language-plaintext highlighter-rouge">|</code> is bitwise or, and <code class="language-plaintext highlighter-rouge">min(x,y)</code> returns the minimum value of the integers <code class="language-plaintext highlighter-rouge">x</code> and <code class="language-plaintext highlighter-rouge">y</code>.</li>
+                      <li><code class="language-plaintext highlighter-rouge">tail(x[i]) = ""</code> (the empty string)</li>
+                    </ul>
+                  </li>
+                  <li>Otherwise:
+                    <ul>
+                      <li><code class="language-plaintext highlighter-rouge">head(x[i]) = ""</code> (the empty string)</li>
+                      <li><code class="language-plaintext highlighter-rouge">tail(x[i]) = ""</code> (the empty string)</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li>Otherwise:
+                <ul>
+                  <li><code class="language-plaintext highlighter-rouge">head(x[i]) = enc(x[i])</code></li>
+                  <li><code class="language-plaintext highlighter-rouge">tail(x[i]) = ""</code> (the empty string)</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>Otherwise:
+            <ul>
+              <li><code class="language-plaintext highlighter-rouge">head(x[i]) = enc(len( head(x[1]) ... head(x[N]) tail(x[1]) ... tail(x[i-1]) ))</code></li>
+              <li><code class="language-plaintext highlighter-rouge">tail(x[i]) = enc(x[i])</code></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>If <code class="language-plaintext highlighter-rouge">x</code> is a fixed-length array <code class="language-plaintext highlighter-rouge">T[N]</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">enc(x) = enc((x[0], ..., x[N-1]))</code>, i.e. it’s encoded as if it were an <code class="language-plaintext highlighter-rouge">N</code> element tuple where every element is type <code class="language-plaintext highlighter-rouge">T</code>.</li>
+    </ul>
+  </li>
+  <li>If <code class="language-plaintext highlighter-rouge">x</code> is a variable-length array <code class="language-plaintext highlighter-rouge">T[]</code> with <code class="language-plaintext highlighter-rouge">k</code> elements:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">enc(x) = enc(k) enc([x[0], ..., x[k-1]])</code>, i.e. it’s encoded as if it were a fixed-length array of <code class="language-plaintext highlighter-rouge">k</code> elements, prefixed with its length, <code class="language-plaintext highlighter-rouge">k</code>.</li>
+    </ul>
+  </li>
+  <li>If <code class="language-plaintext highlighter-rouge">x</code> is an <code class="language-plaintext highlighter-rouge">N</code>-bit unsigned integer, <code class="language-plaintext highlighter-rouge">uint&lt;N&gt;</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">enc(x)</code> is the <code class="language-plaintext highlighter-rouge">N</code>-bit big-endian encoding of <code class="language-plaintext highlighter-rouge">x</code>.</li>
+    </ul>
+  </li>
+  <li>If <code class="language-plaintext highlighter-rouge">x</code> is an <code class="language-plaintext highlighter-rouge">N</code>-bit unsigned fixed-point decimal number with precision <code class="language-plaintext highlighter-rouge">M</code>, <code class="language-plaintext highlighter-rouge">ufixed&lt;N&gt;x&lt;M&gt;</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">enc(x) = enc(x * 10^M)</code>, where <code class="language-plaintext highlighter-rouge">x * 10^M</code> is interpreted as a <code class="language-plaintext highlighter-rouge">uint&lt;N&gt;</code>.</li>
+    </ul>
+  </li>
+  <li>If <code class="language-plaintext highlighter-rouge">x</code> is a boolean value <code class="language-plaintext highlighter-rouge">bool</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">enc(x)</code> is a single byte whose <strong>most significant bit</strong> is either 1 or 0, if <code class="language-plaintext highlighter-rouge">x</code> is true or false respectively. All other bits are 0. Note: this means that a value of true will be encoded as <code class="language-plaintext highlighter-rouge">0x80</code> (<code class="language-plaintext highlighter-rouge">10000000</code> in binary) and a value of false will be encoded as <code class="language-plaintext highlighter-rouge">0x00</code>. This is in contrast to most other encoding schemes, where a value of true is encoded as <code class="language-plaintext highlighter-rouge">0x01</code>.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Other aliased types’ encodings are already covered:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">string</code> and <code class="language-plaintext highlighter-rouge">address</code> are aliases for <code class="language-plaintext highlighter-rouge">byte[]</code> and <code class="language-plaintext highlighter-rouge">byte[32]</code> respectively</li>
+  <li><code class="language-plaintext highlighter-rouge">byte</code> is an alias for <code class="language-plaintext highlighter-rouge">uint8</code></li>
+  <li>each of the reference types is an alias for <code class="language-plaintext highlighter-rouge">uint8</code></li>
+</ul>
+  
+    <h3 id="reference-types">
+      
+      
+        <a href="#reference-types" class="anchor-link"></a> Reference Types
+      
+      
+    </h3>
+
+<p>Three special types are supported <em>only</em> as the type of an argument.
+They <em>can</em> be embedded in arrays and tuples.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">account</code> represents an Algorand account, stored in the Accounts (<code class="language-plaintext highlighter-rouge">apat</code>) array</li>
+  <li><code class="language-plaintext highlighter-rouge">asset</code> represents an Algorand Standard Asset (ASA), stored in the Foreign Assets (<code class="language-plaintext highlighter-rouge">apas</code>) array</li>
+  <li><code class="language-plaintext highlighter-rouge">application</code> represents an Algorand Smart Contract, stored in the Foreign Apps (<code class="language-plaintext highlighter-rouge">apfa</code>) array</li>
+</ul>
+
+<p>Some AVM opcodes require specific values to be placed in the “foreign
+arrays” of the Application call transaction. These three types allow
+methods to describe these requirements. To encode method calls that
+have these types as arguments, the value in question is placed in the
+Accounts (<code class="language-plaintext highlighter-rouge">apat</code>), Foreign Assets (<code class="language-plaintext highlighter-rouge">apas</code>), or Foreign Apps (<code class="language-plaintext highlighter-rouge">apfa</code>)
+arrays, respectively, and a <code class="language-plaintext highlighter-rouge">uint8</code> containing the index of the value
+in the appropriate array is encoded in the normal location for this
+argument.</p>
+
+<p>Note that the Accounts and Foreign Apps arrays have an implicit value
+at index 0, the Sender of the transaction or the called Application,
+respectively. Therefore, indexes of any additional values begin at 1.
+Additionally, for efficiency, callers of a method that wish to pass the
+transaction Sender as an <code class="language-plaintext highlighter-rouge">account</code> value or the called Application as
+an <code class="language-plaintext highlighter-rouge">application</code> value <strong>SHOULD</strong> use 0 as the index of these values
+and not explicitly add them to Accounts or Foreign Apps arrays.</p>
+
+<p>When passing addresses, ASAs, or apps that are <em>not</em> required to be
+accessed by such opcodes, ARC-4 Contracts <strong>SHOULD</strong> use the base
+types for passing these types: <code class="language-plaintext highlighter-rouge">address</code> for accounts and <code class="language-plaintext highlighter-rouge">uint64</code>
+for asset or Application IDs.</p>
+  
+    <h3 id="transaction-types">
+      
+      
+        <a href="#transaction-types" class="anchor-link"></a> Transaction Types
+      
+      
+    </h3>
+
+<p>Some apps require that they are invoked as part of a larger
+transaction group, containing specific additional transactions.  Seven
+additional special types are supported (only) as argument types to
+describe such requirements.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">txn</code> represents any Algorand transaction</li>
+  <li><code class="language-plaintext highlighter-rouge">pay</code> represents a PaymentTransaction (algo transfer)</li>
+  <li><code class="language-plaintext highlighter-rouge">keyreg</code> represents a KeyRegistration transaction (configure
+consensus participation)</li>
+  <li><code class="language-plaintext highlighter-rouge">acfg</code> represent a AssetConfig transaction (create, configure, or
+destroy ASAs)</li>
+  <li><code class="language-plaintext highlighter-rouge">axfer</code> represents an AssetTransfer transaction (ASA transfer)</li>
+  <li><code class="language-plaintext highlighter-rouge">afrz</code> represents an AssetFreezeTx transaction (freeze or unfreeze
+ASAs)</li>
+  <li><code class="language-plaintext highlighter-rouge">appl</code> represents an ApplicationCallTx transaction (create/invoke a Smart Contract)</li>
+</ul>
+
+<p>Arguments of these types are encoded as consecutive transactions in
+the same transaction group as the Application call, placed in the
+position immediately preceding the Application call. Unlike “foreign”
+references, these special types are not encoded in ApplicationArgs as
+small integers “pointing” to the associated object.  In fact, they
+occupy no space at all in the Application Call transaction
+itself. Allowing explicit references would create opportunities for
+multiple transaction “values” to point to the same transaction in the
+group, which is undesirable. Instead, the locations of the
+transactions are implied entirely by the placement of the transaction
+types in the argument list.</p>
+
+<p>For example, to invoke the method <code class="language-plaintext highlighter-rouge">deposit(string,axfer,pay,uint32)void</code>,
+a client would create a transaction group containing, in this order:</p>
+<ol>
+  <li>an asset transfer</li>
+  <li>a payment</li>
+  <li>the actual Application call</li>
+</ol>
+
+<p>When encoding the other (non-transaction) arguments, the client 
+<strong>MUST</strong> act as if the transaction arguments were completely absent 
+from the method signature. The Application call would contain the method 
+selector in ApplicationArgs[0], the first (string) argument in 
+ApplicationArgs[1], and the fourth (uint32) argument in ApplicationArgs[2].</p>
+
+<p>ARC-4 Applications <strong>SHOULD</strong> be constructed to allow their invocations to be
+combined with other contract invocations in a single atomic group if
+they can do so safely. For example, they <strong>SHOULD</strong> use <code class="language-plaintext highlighter-rouge">gtxns</code> to examine
+the previous index in the group for a required <code class="language-plaintext highlighter-rouge">pay</code> transaction,
+rather than hardcode an index with <code class="language-plaintext highlighter-rouge">gtxn</code>.</p>
+
+<p>In general, an ARC-4 Application method with <code class="language-plaintext highlighter-rouge">n</code> transactions as arguments <strong>SHOULD</strong> 
+only inspect the <code class="language-plaintext highlighter-rouge">n</code> previous transactions. In particular, it <strong>SHOULD NOT</strong>
+inspect transactions after and it <strong>SHOULD NOT</strong> check the size of a transaction 
+group (if this can be done safely). 
+In addition, a given method <strong>SHOULD</strong> always expect the same
+number of transactions before itself. For example, the method 
+<code class="language-plaintext highlighter-rouge">deposit(string,axfer,pay,uint32)void</code> is always preceded by two transactions.
+It is never the case that it can be called only with one asset transfer
+but no payment transfer.</p>
+
+<blockquote>
+  <p>The reason for the above recommendation is to provide minimal
+composability support while preventing obvious dangerous attacks.
+For example, if some apps expect payment transactions after them
+while other expect payment transaction before them, then the same
+payment may be counted twice.</p>
+</blockquote>
+  
+    <h2 id="copyright">
+      
+      
+        <a href="#copyright" class="anchor-link"></a> Copyright
+      
+      
+    </h2>
+
+<p>Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+
+  <h2>Citation</h2>
+  <p>Please cite this document as:</p>
+  
+  <p>, "ARC-4: Algorand Application Binary Interface (ABI) [DRAFT]," <em>Ethereum Improvement Proposals</em>, no. 4, . [Online serial]. Available: https://algorandfoundation.github.io/ARCS/arc-4.</p>
+</div>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "TechArticle",
+    "headline": "ARC-4: Algorand Application Binary Interface (ABI) [DRAFT]",
+    "author": "",
+    "name": "ARC-4: Algorand Application Binary Interface (ABI) [DRAFT]",
+    "dateCreated": "",
+    "datePublished": "",
+    
+    "inLanguage": "en-US",
+    "license": "#copyright",
+    "copyrightYear": ""
+  }
+</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Algorand Requests for Comments</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Algorand Requests for Comments</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/algorandfoundation/ARCs"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">algorandfoundation/ARCs</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>To discuss ARC drafts, use the corresponding issue in the issue tracker.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
