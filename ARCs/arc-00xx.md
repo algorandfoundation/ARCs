@@ -228,6 +228,8 @@ Calling `AssetFreeze` prevents an account from transferring a Smart ASA.
 > that Smart ASA holders cannot reset their `frozen` flag by clearing out their state
 > at the controlling Smart Contract.
 
+TODO: Add getter to check if someone is frozen.
+
 ### Asset Destroy
 
 ```json
