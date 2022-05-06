@@ -222,13 +222,31 @@ Calling `AssetFreeze` prevents an account from transferring a Smart ASA.
 > - Succeed iff the `Sender` of the transaction corresponds to the `FreezeAddr`,
 >   as persisted by the controlling Smart Contract.
 >
-> The controlling Smart Contract SHOULD persist the pair `(FreezeAccount, AssetFrozen)`
-> (for instance by setting `frozen` flag in the local storage of the `FreezeAccount`).
-> See the [security considerations section](#security-considerations) for how to ensure
+> The controlling Smart Contract SHOULD persist the tuple
+> `(FreezeAsset, FreezeAccount, AssetFrozen)` (for instance by setting a `frozen`
+> flag in the local storage of the `FreezeAccount`). See the
+> [security considerations section](#security-considerations) for how to ensure
 > that Smart ASA holders cannot reset their `frozen` flag by clearing out their state
 > at the controlling Smart Contract.
 
-TODO: Add getter to check if someone is frozen.
+```json
+{
+  "name": "IsAssetFrozen",
+  "args": [
+    { "type": "asset", "name": "FreezeAsset" },
+    { "type": "account", "name": "FreezeAccount" }
+  ],
+  "returns": { "type": "bool" }
+}
+```
+
+The value returned by `IsAssetFrozen` tells whether `FreezeAccount` can transfer
+`FreezeAsset`. A returned value of `false` tells that the account is frozen and
+cannot transfer the asset.
+
+> Upon a call to `IsAssetFrozen`, a reference implementation SHOULD retrieve the
+> tuple `(FreezeAsset, FreezeAccount, AssetFrozen)` as stored on `AssetFreeze`
+> and return the value corresponding to `AssetFrozen`.
 
 ### Asset Destroy
 
@@ -261,57 +279,57 @@ TODO: Prose.
 ```json
 [
   {
-    "name": "getTotal",
+    "name": "GetTotal",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "uint64" }
   },
   {
-    "name": "getDecimals",
+    "name": "GetDecimals",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "uint32" }
   },
   {
-    "name": "getDefaultFrozen",
+    "name": "GetDefaultFrozen",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "bool" }
   },
   {
-    "name": "getUnitName",
+    "name": "GetUnitName",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "string" }
   },
   {
-    "name": "getAssetName",
+    "name": "GetAssetName",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "string" }
   },
   {
-    "name": "getURL",
+    "name": "GetURL",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "string" }
   },
   {
-    "name": "getMetaDataHash",
+    "name": "GetMetaDataHash",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "[]byte" }
   },
   {
-    "name": "getManagerAddr",
+    "name": "GetManagerAddr",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "address" }
   },
   {
-    "name": "getReserveAddr",
+    "name": "GetReserveAddr",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "address" }
   },
   {
-    "name": "getFreezeAddr",
+    "name": "GetFreezeAddr",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "address" }
   },
   {
-    "name": "getClawbackAddr",
+    "name": "GetClawbackAddr",
     "args": [{ "type": "asset", "name": "Asset" }],
     "returns": { "type": "address" }
   }
