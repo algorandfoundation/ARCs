@@ -231,7 +231,7 @@ Calling `AssetFreeze` prevents an account from transferring a Smart ASA.
 
 ```json
 {
-  "name": "IsAssetFrozen",
+  "name": "IsAccountFrozen",
   "args": [
     { "type": "asset", "name": "FreezeAsset" },
     { "type": "account", "name": "FreezeAccount" }
