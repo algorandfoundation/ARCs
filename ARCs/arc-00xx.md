@@ -449,7 +449,7 @@ standard.
 
 ## Reference Implementation
 
-[https://github.com/aldur/tc-asa](https://github.com/aldur/tc-asa)
+TODO.
 
 ## Security Considerations
 
