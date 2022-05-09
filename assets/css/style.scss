@@ -68,3 +68,10 @@ main.page-content {
   background-color: #f9e7e5;
   border: solid 1px #c0392b;
 }
+
+
+.footer-col-1 { width: -webkit-calc(30% - (30px / 2)); width: calc(30% - (30px / 2)); }
+
+.footer-col-2 { width: -webkit-calc(30% - (30px / 2)); width: calc(30% - (30px / 2)); }
+
+.footer-col-3 { width: -webkit-calc(40% - (30px / 2)); width: calc(40% - (30px / 2)); }
