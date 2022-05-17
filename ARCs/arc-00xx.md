@@ -80,7 +80,7 @@ types but left otherwise unchanged.
     { "type": "string", "name": "UnitName" },
     { "type": "string", "name": "AssetName" },
     { "type": "string", "name": "URL" },
-    { "type": "[]byte", "name": "MetaDataHash" },
+    { "type": "byte[]", "name": "MetaDataHash" },
     { "type": "address", "name": "ManagerAddr" },
     { "type": "address", "name": "ReserveAddr" },
     { "type": "address", "name": "FreezeAddr" },
@@ -124,7 +124,7 @@ ASA. The [metadata section](#metadata) describes its required properties.
     { "type": "string", "name": "UnitName" },
     { "type": "string", "name": "AssetName" },
     { "type": "string", "name": "URL" },
-    { "type": "[]byte", "name": "MetaDataHash" },
+    { "type": "byte[]", "name": "MetaDataHash" },
     { "type": "address", "name": "ManagerAddr" },
     { "type": "address", "name": "ReserveAddr" },
     { "type": "address", "name": "FreezeAddr" },
@@ -311,7 +311,7 @@ TODO: Prose.
   {
     "name": "GetMetaDataHash",
     "args": [{ "type": "asset", "name": "Asset" }],
-    "returns": { "type": "[]byte" }
+    "returns": { "type": "byte[]" }
   },
   {
     "name": "GetManagerAddr",
