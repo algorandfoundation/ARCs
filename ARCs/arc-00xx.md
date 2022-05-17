@@ -72,39 +72,39 @@ types but left otherwise unchanged.
 
 ```json
 {
-  "name": "AssetCreate",
+  "name": "asset_create",
   "args": [
-    { "type": "uint64", "name": "Total" },
-    { "type": "uint32", "name": "Decimals" },
-    { "type": "bool", "name": "DefaultFrozen" },
-    { "type": "string", "name": "UnitName" },
-    { "type": "string", "name": "AssetName" },
-    { "type": "string", "name": "URL" },
-    { "type": "byte[]", "name": "MetaDataHash" },
-    { "type": "address", "name": "ManagerAddr" },
-    { "type": "address", "name": "ReserveAddr" },
-    { "type": "address", "name": "FreezeAddr" },
-    { "type": "address", "name": "ClawbackAddr" }
+    { "type": "uint64", "name": "total" },
+    { "type": "uint32", "name": "decimals" },
+    { "type": "bool", "name": "default_frozen" },
+    { "type": "string", "name": "unit_name" },
+    { "type": "string", "name": "asset_name" },
+    { "type": "string", "name": "url" },
+    { "type": "byte[]", "name": "metadata_hash" },
+    { "type": "address", "name": "manager_addr" },
+    { "type": "address", "name": "reserve_addr" },
+    { "type": "address", "name": "freeze_addr" },
+    { "type": "address", "name": "clawback_addr" }
   ],
   "returns": { "type": "uint64" }
 }
 ```
 
-Calling `AssetCreate` creates a new Smart ASA and returns the identifier of the
+Calling `asset_create` creates a new Smart ASA and returns the identifier of the
 ASA. The [metadata section](#metadata) describes its required properties.
 
-> Upon a call to `AssetCreate`, a reference implementation SHOULD:
+> Upon a call to `asset_create`, a reference implementation SHOULD:
 >
 > - Mint an Algorand Standard Asset (ASA) that MUST specify the properties defined
 >   in the [metadata section](#metadata). In addition:
->   - The `Manager`, `Reserve` and `Freeze` addresses SHOULD be set to the
+>   - The `manager`, `reserve` and `freeze` addresses SHOULD be set to the
 >     account of the controlling Smart Contract.
->   - The remaining fields are left to the implementation, which MAY set `Total`
+>   - The remaining fields are left to the implementation, which MAY set `total`
 >     to `2 ** 64 - 1` to enable dynamically increasing the circulating supply
 >     of the asset.
->   - `AssetName` and `UnitName` MAY be set to `SMART-ASA` and `S-ASA`, to denote
+>   - `asset_name` and `unit_name` MAY be set to `SMART-ASA` and `S-ASA`, to denote
 >     that this ASA is Smart and has a controlling application.
-> - Persist the `Total`, `Decimals`, `DefaultFrozen`, etc. fields for later
+> - Persist the `total`, `decimals`, `default_frozen`, etc. fields for later
 >   use/retrieval.
 > - Return the ID of the created ASA.
 >
@@ -115,83 +115,82 @@ ASA. The [metadata section](#metadata) describes its required properties.
 
 ```json
 {
-  "name": "AssetConfig",
+  "name": "asset_config",
   "args": [
-    { "type": "asset", "name": "ConfigAsset" },
-    { "type": "uint64", "name": "Total" },
-    { "type": "uint32", "name": "Decimals" },
-    { "type": "bool", "name": "DefaultFrozen" },
-    { "type": "string", "name": "UnitName" },
-    { "type": "string", "name": "AssetName" },
-    { "type": "string", "name": "URL" },
-    { "type": "byte[]", "name": "MetaDataHash" },
-    { "type": "address", "name": "ManagerAddr" },
-    { "type": "address", "name": "ReserveAddr" },
-    { "type": "address", "name": "FreezeAddr" },
-    { "type": "address", "name": "ClawbackAddr" }
+    { "type": "asset", "name": "config_asset" },
+    { "type": "uint64", "name": "total" },
+    { "type": "uint32", "name": "decimals" },
+    { "type": "bool", "name": "default_frozen" },
+    { "type": "string", "name": "unit_name" },
+    { "type": "string", "name": "asset_name" },
+    { "type": "string", "name": "url" },
+    { "type": "byte[]", "name": "metadata_hash" },
+    { "type": "address", "name": "manager_addr" },
+    { "type": "address", "name": "reserve_addr" },
+    { "type": "address", "name": "freeze_addr" },
+    { "type": "address", "name": "clawback_addr" }
   ],
   "returns": { "type": "void" }
 }
 ```
 
-Calling `AssetConfig` configures an existing Smart ASA and returns its
+Calling `asset_config` configures an existing Smart ASA and returns its
 identifier.
 
-> Upon a call to `AssetConfig`, a reference implementation SHOULD:
+> Upon a call to `asset_config`, a reference implementation SHOULD:
 >
-> - Fail if `ConfigAsset` does not correspond to an ASA controlled by this smart
+> - Fail if `config_asset` does not correspond to an ASA controlled by this smart
 >   contract.
-> - Update the persisted `Total`, `Decimals`, `DefaultFrozen`, etc. fields for later
+> - Update the persisted `total`, `decimals`, `default_frozen`, etc. fields for later
 >   use/retrieval.
 >
 > It is RECOMMENDED for calls to this method to be permissioned (see
-> `AssetCreate`).
+> `asset_create`).
 >
 > The business logic associated to the update of the other parameters is left to
 > the implementation. An implementation that maximizes similarities with ASAs,
-> SHOULD NOT allow modifying the `ClawbackAddr` or `FreezeAddr` after they
+> SHOULD NOT allow modifying the `clawback_addr` or `freeze_addr` after they
 > have been set to the special value `ZeroAddress`.
 >
 > The implementation MAY provide flexibility on the fields of an ASA that
 > cannot be updated after initial configuration. For instance, it MAY update the
-> `Total` parameter to enable minting of new units or restricting the maximum
+> `total` parameter to enable minting of new units or restricting the maximum
 > supply; when doing so, the implementation SHOULD ensure that the updated
-> `Total` is not lower than the current circulating supply of the asset.
+> `total` is not lower than the current circulating supply of the asset.
 
 ### Asset Transfer
 
 ```json
 {
-  "name": "AssetTransfer",
-  "args": [
-    { "type": "asset", "name": "XferAsset" },
-    { "type": "uint64", "name": "AssetAmount" },
-    { "type": "account", "name": "AssetSender" },
-    { "type": "account", "name": "AssetReceiver" }
-  ],
+  "name": "asset_transfer",
+  "args":     { "type": "asset", "name": "xfer_asset" },
+  { "type": "uint64", "name": "asset_amount" },
+  { "type": "account", "name": "asset_sender" },
+  { "type": "account", "name": "asset_receiver" }
+  ,
   "returns": { "type": "void" }
 }
 ```
 
-Calling `AssetTransfer` transfers a Smart ASA.
+Calling `asset_transfer` transfers a Smart ASA.
 
-> Upon a call to `AssetTransfer`, a reference implementation SHOULD:
+> Upon a call to `asset_transfer`, a reference implementation SHOULD:
 >
-> - Fail if `XferAsset` does not correspond to an ASA controlled by this smart
+> - Fail if `xfer_asset` does not correspond to an ASA controlled by this smart
 >   contract.
-> - Succeed if the `Sender` of the transaction is the `AssetSender` and
->   `AssetSender` and `AssetReceiver` are not in a frozen state (see
+> - Succeed if the `sender` of the transaction is the `asset_sender` and
+>   `asset_sender` and `asset_receiver` are not in a frozen state (see
 >   [below](#asset-freeze)).
-> - Succeed if the `Sender` of the transaction corresponds to the `ClawbackAddr`,
+> - Succeed if the `sender` of the transaction corresponds to the `clawback_addr`,
 >   as persisted by the controlling Smart Contract. This enables clawback
 >   operations on the Smart ASA.
 >
 > Internally, the controlling Smart Contract SHOULD issue a clawback inner
-> transaction that transfers the `AssetAmount` from `AssetSender` to
-> `AssetReceiver`. The inner transaction will fail on the usual conditions (e.g.
+> transaction that transfers the `asset_amount` from `asset_sender` to
+> `asset_receiver`. The inner transaction will fail on the usual conditions (e.g.
 > not enough balance).
 >
-> Note that the method interface does not specify `AssetCloseTo`, because
+> Note that the method interface does not specify `asset_close_to`, because
 > holders of a Smart ASA will need two transactions (RECOMMENDED in an Atomic
 > Transfer) to close their position:
 >
@@ -203,73 +202,73 @@ Calling `AssetTransfer` transfers a Smart ASA.
 
 ```json
 {
-  "name": "AssetFreeze",
+  "name": "asset_freeze",
   "args": [
-    { "type": "asset", "name": "FreezeAsset" },
-    { "type": "account", "name": "FreezeAccount" },
-    { "type": "bool", "name": "AssetFrozen" }
+    { "type": "asset", "name": "freeze_asset" },
+    { "type": "account", "name": "freeze_account" },
+    { "type": "bool", "name": "asset_frozen" }
   ],
   "returns": { "type": "void" }
 }
 ```
 
-Calling `AssetFreeze` prevents an account from transferring a Smart ASA.
+Calling `asset_freeze` prevents an account from transferring a Smart ASA.
 
-> Upon a call to `AssetFreeze`, a reference implementation SHOULD:
+> Upon a call to `asset_freeze`, a reference implementation SHOULD:
 >
-> - Fail if `FreezeAsset` does not correspond to an ASA controlled by this smart
+> - Fail if `freeze_asset` does not correspond to an ASA controlled by this smart
 >   contract.
-> - Succeed iff the `Sender` of the transaction corresponds to the `FreezeAddr`,
+> - Succeed iff the `sender` of the transaction corresponds to the `freeze_addr`,
 >   as persisted by the controlling Smart Contract.
 >
 > The controlling Smart Contract SHOULD persist the tuple
-> `(FreezeAsset, FreezeAccount, AssetFrozen)` (for instance by setting a `frozen`
-> flag in the local storage of the `FreezeAccount`). See the
+> `(freeze_asset, freeze_account, asset_frozen)` (for instance by setting a `frozen`
+> flag in the local storage of the `freeze_account`). See the
 > [security considerations section](#security-considerations) for how to ensure
 > that Smart ASA holders cannot reset their `frozen` flag by clearing out their state
 > at the controlling Smart Contract.
 
 ```json
 {
-  "name": "IsAccountFrozen",
+  "name": "is_account_frozen",
   "args": [
-    { "type": "asset", "name": "FreezeAsset" },
-    { "type": "account", "name": "FreezeAccount" }
+    { "type": "asset", "name": "freeze_asset" },
+    { "type": "account", "name": "freeze_account" }
   ],
   "returns": { "type": "bool" }
 }
 ```
 
-The value returned by `IsAssetFrozen` tells whether `FreezeAccount` can transfer
-`FreezeAsset`. A returned value of `false` tells that the account is frozen and
+The value returned by `is_asset_frozen` tells whether `freeze_account` can transfer
+`freeze_asset`. A returned value of `false` tells that the account is frozen and
 cannot transfer the asset.
 
-> Upon a call to `IsAssetFrozen`, a reference implementation SHOULD retrieve the
-> tuple `(FreezeAsset, FreezeAccount, AssetFrozen)` as stored on `AssetFreeze`
-> and return the value corresponding to `AssetFrozen`.
+> Upon a call to `is_asset_frozen`, a reference implementation SHOULD retrieve the
+> tuple `(freeze_asset, freeze_account, asset_frozen)` as stored on `asset_freeze`
+> and return the value corresponding to `asset_frozen`.
 
 ### Asset Destroy
 
 ```json
 {
-  "name": "AssetDestroy",
-  "args": [{ "type": "asset", "name": "DestroyAsset" }],
+  "name": "asset_destroy",
+  "args": [{ "type": "asset", "name": "destroy_asset" }],
   "returns": { "type": "void" }
 }
 ```
 
-Calling `AssetDestroy` destroys a Smart ASA.
+Calling `asset_destroy` destroys a Smart ASA.
 
-> Upon a call to `AssetDestroy`, a reference implementation SHOULD:
+> Upon a call to `asset_destroy`, a reference implementation SHOULD:
 >
-> - Fail if `DestroyAsset` does not correspond to an ASA controlled by this smart
+> - Fail if `destroy_asset` does not correspond to an ASA controlled by this smart
 >   contract.
 >
 > It is RECOMMENDED for calls to this method to be permissioned (see
-> `AssetCreate`).
+> `asset_create`).
 >
 > The controlling Smart Contract SHOULD perform an asset destroy operation on
-> the ASA with ID `DestroyAsset`. The operation will fail if the asset is still
+> the ASA with ID `destroy_asset`. The operation will fail if the asset is still
 > in circulation.
 
 ### Getters
@@ -279,58 +278,58 @@ TODO: Prose.
 ```json
 [
   {
-    "name": "GetTotal",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_total",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "uint64" }
   },
   {
-    "name": "GetDecimals",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_decimals",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "uint32" }
   },
   {
-    "name": "GetDefaultFrozen",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_default_frozen",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "bool" }
   },
   {
-    "name": "GetUnitName",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_unit_name",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "string" }
   },
   {
-    "name": "GetAssetName",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_asset_name",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "string" }
   },
   {
-    "name": "GetURL",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_url",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "string" }
   },
   {
-    "name": "GetMetaDataHash",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_meta_data_hash",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "byte[]" }
   },
   {
-    "name": "GetManagerAddr",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_manager_addr",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "address" }
   },
   {
-    "name": "GetReserveAddr",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_reserve_addr",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "address" }
   },
   {
-    "name": "GetFreezeAddr",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_freeze_addr",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "address" }
   },
   {
-    "name": "GetClawbackAddr",
-    "args": [{ "type": "asset", "name": "Asset" }],
+    "name": "get_clawback_addr",
+    "args": [{ "type": "asset", "name": "asset" }],
     "returns": { "type": "address" }
   }
 ]
