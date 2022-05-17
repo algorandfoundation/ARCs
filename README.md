@@ -2,6 +2,8 @@
 
 To discuss ARC drafts, use the corresponding issue in the [issue tracker](https://github.com/algorandfoundation/ARCs/issues).
 
+This repository has a github page: https://algorandfoundation.github.io/ARCs/
+
 ## Index
 
 - [ARC1: Algorand Wallet Transaction Signing API](ARCs/arc-0001.md)
