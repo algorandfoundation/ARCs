@@ -165,7 +165,7 @@ Users sign *Authentication Message*s using the secret keys stored into a wallet.
 
 #### Simple Authentication Message
 
-The *Simple Authentication Message* is a sequence of bytes representing an ARC-0014 *Authentication Message*. It **SHOULD** be used in contexts that support signatures of random bytes. A *Simple Authentication Message* is an *Authentication Message* prepended with the prefix `ARC-0014-authentication` for domain separation. It **MUST** be represented as the hash SHA-512/256 of such prefix, together with a msgpack encoded *Authentication Message*. For example, given an *Authentication Message* object `aut_message`, its *Simple Authentication Message* representation would be something like: `SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message)`.
+The *Simple Authentication Message* is a sequence of bytes representing an ARC-0014 *Authentication Message*. It **SHOULD** be used in contexts that support signatures of random bytes. A *Simple Authentication Message* is an *Authentication Message* prepended with the prefix `arc14` for domain separation. It **MUST** be represented as the hash SHA-512/256 of such prefix, together with a msgpack encoded *Authentication Message*. For example, given an *Authentication Message* object `aut_message`, its *Simple Authentication Message* representation would be something like: `SHA512_256(“arc14”+msgpacked_auth_message)`.
 
 #### Transaction Authentication Message
 
@@ -183,11 +183,11 @@ The fields of a `Payment Transaction` object which represents a *Transaction Aut
 - `sender/receiver` = *PKa*;
 - `firstValid/lastValid` = 0;
 - `fee` = 0;
-- `genesisId` = “ARC-0014-authentication”;
-- `genesisHash` = SHA-512/256 of the string “ARC-0014-authentication”;
-- `note` = SHA512_256(“ARC-0014-authentication”+msgpacked_auth_message);
+- `genesisId` = “arc14-arc”;
+- `genesisHash` = SHA-512/256 of the string “arc14-auth”;
+- `note` = SHA512_256(“arc14”+msgpacked_auth_message);
 
-The fields `genesisId` and `genesisHash` specify respectively the id and hash of the genesis block of the network, and they **MUST** be initialized to the ARC-0014 values (not conventional for MainNet/TestNet/BetaNet). The `note` field **MUST** include a *Simple Authentication Message* object. Finally, the `sender` field **SHOULD** be set to the Algorand address of the user. 
+The fields `genesisId` and `genesisHash` specify respectively the id and hash of the genesis block of the network, and they **MUST** be initialized to the ARC-0014 values (not conventional for MainNet/TestNet/BetaNet). The `note` field **MUST** include a *Simple Authentication Message* object. Finally, the `sender` field **MUST** be set to the Algorand address of the user.
 
 > A detailed description of the transitions fields of Algorand Transactions is available in the transaction's reference [documentation](https://developer.algorand.org/docs/get-details/transactions/transactions/).
 
@@ -199,8 +199,8 @@ For example:
     "amt": 0,
     "fee": 0,
     "fv": 0,
-    "gen": "ARC-0014-authentication",
-    "gh": "esN73ktiC1qzkkit8=",
+    "gen": "arc14-auth",
+    "gh": "f20b122eb226626b5c0d36cd33edcdb94613820f048baf2a1d6dfe46e5be18d1",
     "lv": 0,
     "rcv": "EW64GC6F24M7NDSC5R3ES4YUVE3ZXXNMARJHDCCCLIHZU6TBEOC7XRSBG4",
     "snd": "EW64GC6F24M7NDSC5R3ES4YUVE3ZXXNMARJHDCCCLIHZU6TBEOC7XRSBG4",
@@ -232,7 +232,7 @@ A digital signature generated with the secret key *SKa* of an Algorand account c
 1. decode the Algorand address into a traditional 32-bytes public key *PK*;
 2. use an open-source cryptographic library to verify the signature `Sig(msg)` (e.g. Python lib PyNaCl); usually those libraries work with raw bytes and some encoding/decoding magic is needed:
     - the message msg **MUST** be bytes encoded with msgpack. For example, with the Algorand SDK for Python this can achieved with `encoding.msgpack_encode(msg)`;
-    - if the message is a *Simple Message Transaction*, then it **MUST** be prefixed with the string `“ARC-0014-authentication”`, otherwise it is a `Transaction` object and **MUST** be prefixed with the string `“TX”`;
+    - if the message is a *Simple Message Transaction*, then it **MUST** be prefixed with the string `“arc14”`, otherwise it is a `Transaction` object and **MUST** be prefixed with the string `“TX”`;
     - the digital signature `Sig(msg)` **MUST** be decoded from base64 with the base64 library of the SDK. For example with the Python SDK this can be achieved with `base64.b64decode(Sig(msg))`.
 
 ## A Standard for Session Id creation
@@ -264,7 +264,7 @@ Payload:
 ```json
 {
  "algo_addr":"PKa",
- "message":"SHA512_256(‘ARC-0014-authentication’+msgpacked_auth_message)",
+ "message":"SHA512_256(‘arc14’+msgpacked_auth_message)",
  "exp":"<timestamp>",
  "device":"<device_id>"
 }
