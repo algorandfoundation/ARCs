@@ -20,7 +20,7 @@ url: "https://algorandfoundation.github.io"
 github_username:  algorandfoundation
 
 header_pages:
- - all.html
+ - .
 
 
 # Build settings
