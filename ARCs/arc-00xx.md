@@ -7,7 +7,7 @@ status: Draft
 type: Standards Track
 category: ARC
 created: 2022-08-12
-discussions-to: https://github.com/algorandfoundation/ARCs/issues/62 TODO?????
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/25
 ---
 
 # Standard for defining mutable collections of ASAs
