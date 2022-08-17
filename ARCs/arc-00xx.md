@@ -18,7 +18,7 @@ This document introduces the standard for declaring collection metadata, which r
 
 ## Abstract
 
-This ARC introduces a standard for defining a collection ASA (cASA) linked to ARC19 metadata. This standard defines a collection as a mutable set of indices, providing flexibility. By linking to ARC19 metadata on IPFS, the set can be arbitrarily large, even including the complete set of all indices. Indices can be application IDs, ASA IDs, or addresses. 
+This ARC introduces a standard for defining a collection ASA (cASA) linked to ARC19 metadata. This standard defines a collection as a mutable set of indices, providing flexibility. By linking to ARC19 metadata on IPFS, the set can be arbitrarily large, even including the complete set of all indices. Indices can be application IDs, ASA IDs, or addresses.  
 
 ## Specification
 
@@ -26,38 +26,74 @@ The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL 
 
 > Comments like this are non-normative.
 
-To be considered a collection, the cASA **MUST** use the unit name `CLXN` and **MUST** contain a property `assets`. The `assets` property **MUST** contain an array with at least one index. A collection name and description are **RECOMMENDED**. All other fields are **OPTIONAL** and additional, custom fields **MAY** be included. The cASA **SHOULD** be minted using ARC19 to allow for immutability, but **MAY** be minted in the ARC3 format if immutability is preferred.
+To be considered a collection, the cASA **MUST** use the unit name `CLXN` and **MUST** contain a property `assets`. The `assets` property **MUST** contain an array with at least one index. The `description`, `creatorAddresses`, and `unitnamePrefixes` fields are **RECOMMENDED** for current ecosystem compatibility. The marketplace `verification` field is **RECOMMENDED** and specific values may change depending on specific marketplace requirements. If a non-fungible domain is present in the `verification` field, then no other verification information is required. All other fields are **OPTIONAL** and additional, custom fields **MAY** be included. The cASA **SHOULD** be minted using ARC19 to allow for immutability, but **MAY** be minted in the ARC3 format if immutability is preferred.
 
-The JSON schema is as follows:
+The recommended JSON schema is as follows:
 
 ```json
 {
   "name": "Name of the collection",
   "assets": [],
-  "description": "Description of purpose and/or contents of the collection"
+  "description": "Description of purpose and/or contents of the collection",
+  "creatorAddresses": [],
+  "unitnamePrefixes": [],
+  "verification": {}
 }
 ```
 
 #### Examples
 
-##### Example of a cASA containing ASA indices
+##### Example of a minimal cASA containing ASA indices
 
 ```json
 {
-  "name": "A cASA of ASAs",
+  "name": "My favorite tokens",
   "assets": [417708610, 470842789, 230946361],
-  "description": "My favorite tokens."
 }
 ```
 
-##### Example of a cASA with mixed indices and custom fields
+##### Example of a cASA with all recommended fields, mixed assets, custom fields, and NFD verification
 
 ```json
 {
-  "name": "Cell NFTs",
+  "name": "My favorite cell NFTs",
   "assets": [289741461, 333143277, 374937094, 290027123, 463778159],
   "description": "A mix of ASAs and application indices of NFTs about cells.",
-  "NFD": "cells.algo",
+  "creatorAddresses": [
+    "4AHPGYJZVNX7Y7S3MWQ4KGZNEQ5MMKIZIB2HDT2P4ECH2E2YZSQIVT22MU", 
+    "TLJVGANHNZB4JH5QTOAAXAXCSV2DLNWPSI54Y5D4HN375EK4B6LOMSNGGY",
+    "VJAP54KVDVR46FUOIUHJI3WS7GHIOYPK64NTJHDIGPTRI76T7B7IBARJ2U",
+    "MVDVSD6MB53WBS7HPXIVG73BNHZQMTF4VTIMVTBB7UXP36JH65OIBHWMSE"
+    ],
+  "unitnamePrefixes": ["cells"],
+  "verification": {
+    "NFD": "cells.algo"
+  },
+  "externalURL": "kinn.info",
+  "register": "KinnDAO Registered Collection"
+}
+```
+
+##### Example of a cASA with mixed indices, custom fields, and alternative verification
+
+```json
+{
+  "name": "My Cell NFTs",
+  "assets": [463774589, 463781937, 452783313, 463778159],
+  "description": "A mix of ASAs and application indices of NFTs about cells.",
+  "creatorAddresses": ["MVDVSD6MB53WBS7HPXIVG73BNHZQMTF4VTIMVTBB7UXP36JH65OIBHWMSE"],
+  "unitnamePrefixes": ["cells"],
+  "verification": {
+    "promoImage": "ipfs://QmWePDexCttsafdMWAZ8MTruUZXdmQHmbENfcrtPxPVG2h",
+    "artwork": [
+      "https://www.instagram.com/p/CaeIrTarRPi/", 
+      "https://www.instagram.com/p/CRfDlPRDP7D/",
+      "https://www.instagram.com/p/CMGOkCaDajV/"
+    ],
+    "twitter": "@evan_maltz",
+    "statement": "All artworks were created by me and are completely original."
+  },
+  "externalURL": "kinn.info",
   "register": "KinnDAO Registered Collection"
 }
 ```
