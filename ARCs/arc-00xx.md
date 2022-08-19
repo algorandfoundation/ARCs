@@ -18,7 +18,7 @@ This document introduces the standard for declaring collection metadata, which r
 
 ## Abstract
 
-This ARC introduces a standard for defining a collection ASA (cASA) linked to ARC19 metadata. This standard defines a collection as a mutable set of indices, providing flexibility. By linking to ARC19 metadata on IPFS, the set can be arbitrarily large, even including the complete set of all indices. Indices can be application IDs, ASA IDs, or addresses.  
+This ARC introduces a standard for defining a collection ASA (cASA) linked to ARC19 metadata. This standard defines a collection as a mutable set of indices, providing flexibility. By linking to ARC19 metadata on IPFS, the set can be arbitrarily large, even including the complete set of all indices. Indices can be application IDs, ASA IDs, or addresses. This standard introduces a method for verifiable and permissioned on-chain licensing of IP.  
 
 ## Specification
 
@@ -26,7 +26,27 @@ The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL 
 
 > Comments like this are non-normative.
 
-To be considered a collection, the cASA **MUST** use the unit name `CLXN` and **MUST** contain a property `assets`. The `assets` property **MUST** contain an array with at least one index. The `description`, `creatorAddresses`, and `unitnamePrefixes` fields are **RECOMMENDED** for current ecosystem compatibility. The marketplace `verification` field is **RECOMMENDED** and specific values may change depending on specific marketplace requirements. If a non-fungible domain is present in the `verification` field, then no other verification information is required. All other fields are **OPTIONAL** and additional, custom fields **MAY** be included. The cASA **SHOULD** be minted using ARC19 to allow for immutability, but **MAY** be minted in the ARC3 format if immutability is preferred.
+To be considered a collection, the cASA **MUST**:
+  1. use the unit name `CLXN` on the ASA
+  2. contain a property `assets` with an array of length >0 that can contain ASA IDs, Application IDs, or addresses (asset types **MAY** be mixed)
+  3. atomic units >>> number of creators, collaborators, and IP holders; the **RECOMMENDED** value for the total supply is 1 with 19 decimals (>10**11 atomic units ensures every holder of Algorand can be listed)
+  4. a property `verification` that can either point to an object containing relevant details about the creator/collection, or null in the case that the collection is intended for non official use; marketplaces may require filling out this field 
+  5. adhere to ARC19 standards for storing the metadata, though immutability **MAY** be activated by deleting the manager address
+
+The following are **RECOMMENDED**:
+  1. `description`: field that explains the purpose and/or contents of the collection
+  2. `creatorAddresses`: an array of addresses who have contributed tokens and/or IP to the collection, important for transparency and verification
+  3. `unitnamePrefixes`: an array of strings important for aggregators and ecosystem compatibility
+  4. `verification`: while presence of this field is **REQUIRED**, the structure of the object it defines depends on marketplace standards and may be subject to change.. The **RECOMMENDED** structure of the `verification` object is as follows: 
+  {
+    "promoImage": "link to display image, decentralized file storage, e.g. IPFS, is **RECOMMENDED**",
+    "artwork": ["array of links to artworks on social media, an artist website, or elsewhere to help demonstrate originality and quality of work"],
+    "socialMedia": {"an object of social media handles, e.g. twitter"},
+    "statement": "Statement of originality and authenticity; attribution and origin of rights and IP"
+  }
+  5. `NFD`: providing an NFD offers superior verification and allows the rest of the `verification` fields to be filled out automatically, otherwise the creator will need to manually provide these fields
+
+Custom fields **MAY** be included.
 
 The recommended JSON schema is as follows:
 
@@ -37,7 +57,13 @@ The recommended JSON schema is as follows:
   "description": "Description of purpose and/or contents of the collection",
   "creatorAddresses": [],
   "unitnamePrefixes": [],
-  "verification": {}
+  "verification": {
+    "promoImage": "image link",
+    "artwork": [],
+    "socialMedia": {"twitter": "@handle"},
+    "statement": ""
+  },
+  "NFD": "*.algo"
 }
 ```
 
@@ -47,18 +73,18 @@ The recommended JSON schema is as follows:
 
 ```json
 {
-  "name": "My favorite tokens",
   "assets": [417708610, 470842789, 230946361],
+  "verification": null
 }
 ```
 
-##### Example of a cASA with all recommended fields, mixed assets, custom fields, and NFD verification
+##### Example of a multi-creator cASA without original works 
 
 ```json
 {
   "name": "My favorite cell NFTs",
   "assets": [289741461, 333143277, 374937094, 290027123, 463778159],
-  "description": "A mix of ASAs and application indices of NFTs about cells.",
+  "description": "A mix of my favorite ASAs and application indices about cells.",
   "creatorAddresses": [
     "4AHPGYJZVNX7Y7S3MWQ4KGZNEQ5MMKIZIB2HDT2P4ECH2E2YZSQIVT22MU", 
     "TLJVGANHNZB4JH5QTOAAXAXCSV2DLNWPSI54Y5D4HN375EK4B6LOMSNGGY",
@@ -66,21 +92,17 @@ The recommended JSON schema is as follows:
     "MVDVSD6MB53WBS7HPXIVG73BNHZQMTF4VTIMVTBB7UXP36JH65OIBHWMSE"
     ],
   "unitnamePrefixes": ["cells"],
-  "verification": {
-    "NFD": "cells.algo"
-  },
-  "externalURL": "kinn.info",
-  "register": "KinnDAO Registered Collection"
+  "verification": null,
 }
 ```
 
-##### Example of a cASA with mixed indices, custom fields, and alternative verification
+##### Example of a cASA with mixed indices, custom fields, and verification
 
 ```json
 {
   "name": "My Cell NFTs",
   "assets": [463774589, 463781937, 452783313, 463778159],
-  "description": "A mix of ASAs and application indices of NFTs about cells.",
+  "description": "Paintings and drawings of cells based on my experiences in the lab.",
   "creatorAddresses": ["MVDVSD6MB53WBS7HPXIVG73BNHZQMTF4VTIMVTBB7UXP36JH65OIBHWMSE"],
   "unitnamePrefixes": ["cells"],
   "verification": {
@@ -93,6 +115,7 @@ The recommended JSON schema is as follows:
     "twitter": "@evan_maltz",
     "statement": "All artworks were created by me and are completely original."
   },
+  "NFD": "cells.algo",
   "externalURL": "kinn.info",
   "register": "KinnDAO Registered Collection"
 }
@@ -100,7 +123,16 @@ The recommended JSON schema is as follows:
 
 ## Rationale
 
-NFT collections are currently only defined off chain, and many sites have their own index of collections that require independent verification. This standard allows anyone to define an NFT collection with optional verification. Anyone can assemble their own collection list from data on chain without relying on an intermediary or gatekeeper, representing a common reference. Creators can mint a cASA to group their own creations, and any user can mint a collection from multiple creators for arbitrary categorization. An ASA can be part of multiple collections or none at all. Using ARC19 as the base format allows cASAs to be mutable: new assets can be added to or removed from the list dynamically. A consistent unit name ('CLXN') allows for easy asset search by unit name. Allowing collections of applications or addresses provides further flexibility and new functionality. Using this specification applies no additional requirements to the creation of assets, or the existing standards for doing so, which allows for backwards compatibility with existing minted items.
+NFT collections are currently only defined off chain, and many sites have their own index of collections that require independent verification. This standard allows anyone to cheaply define an NFT collection with optional verification. Anyone can assemble their own collection list from data on chain without relying on an intermediary or gatekeeper, representing a common reference. Creators can mint a cASA to group their own creations, and any user can mint a collection from multiple creators for arbitrary categorization. An ASA can be part of multiple collections or none at all. 
+
+Using ARC19 as the base format allows cASAs to be mutable: new assets can be added to or removed from the list dynamically. A consistent unit name ('CLXN') allows for easy asset search by unit name. Allowing collections of applications or addresses provides further flexibility and new functionality. Using this specification applies no additional requirements to the creation of assets, or the existing standards for doing so, which allows for backwards compatibility with existing minted items. However, mutability is not required
+
+Another differentiating capability introduced by this standard is that of verifiable permissioned licensing of IP. Creators of collections may want to include derivative works from other collections (i.e. collabs, features, or multi-creator collections) and permission to use others' IP is currently recorded publicly off-chain via social media. However, exchanging cASA units allows an address to publicly endorse and permit usage of their IP. Without this mechanism, a cASA creator could include works in an official collection without clear and public permission to do so, and verification of claims of permission would be difficult to confirm. It is the responsibility of the collection owner to ask for permission to use IP by exchanging units and the responsibility of IP holders to monitor usage of their IP. Example of trustless licensing of IP: User A creates popular collection A, user B wants to collaborate with user A and include works derived from collection A in a new collection B, user A can give consent by holding a unit of cASA B (transparently approving collection B without having to make a multisig or forcing user B to give user A any control over collection B). 
+
+Notes on independent, trustless verification by third parties: 
+  1. Check that the collection is intended to be verified (i.e. `verification`!= null), if false or null verification is not required.
+  2. Check the asset list and assemble a list of creators. Though ideally it will be correct in the creatorAddresses field metadata. If the lists are found not to match, some may choose to fail verification. This step could be optimized to simply check if the assets list is a subset of the cASA creator's created assets (which is currently the norm), in which case no subsequent steps are required.
+  3. Check that all creators are holding >0 units of the cASA. No other addresses need to be checked because it will be up to the cASA creator to manage the distribution of the units.
 
 ## Copyright
 
