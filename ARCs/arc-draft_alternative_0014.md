@@ -235,7 +235,7 @@ A digital signature generated with the secret key *SKa* of an Algorand account c
     - if the message is a *Simple Message Transaction*, then it **MUST** be prefixed with the string `“arc14”`, otherwise it is a `Transaction` object and **MUST** be prefixed with the string `“TX”`;
     - the digital signature `Sig(msg)` **MUST** be decoded from base64 with the base64 library of the SDK. For example with the Python SDK this can be achieved with `base64.b64decode(Sig(msg))`.
 
-## A Standard for Session Id creation
+## Session design: best practice
 
 After authentication, the Verifier **SHOULD** exchange a `session-id` with the User, such as a cookie or a JWT. The way `session-id`s are implemented is an implementation choice. However, to comply with the ARC-0014, it **MUST** include the following information:
 
