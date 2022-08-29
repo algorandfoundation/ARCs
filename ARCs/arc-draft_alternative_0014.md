@@ -11,8 +11,6 @@ created: 2022-04-05
 
 # Algorand Standard for Authentication
 
-> This ARC is intended to be an alternative to PR #41 [Create arc-0014](https://github.com/algorandfoundation/ARCs/pull/41).
-
 ## Summary
 
 A standard approach to authenticate users with Algorand accounts.
