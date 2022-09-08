@@ -37,7 +37,7 @@ jobs:
     
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@abd5a04789790ec194a4baae45d393690f7ff0ca
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       
       - name: Install OpenSSL
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@abd5a04789790ec194a4baae45d393690f7ff0ca
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Run CodeSpell
         uses: codespell-project/actions-codespell@2391250ab05295bddd51e36a8c6295edb6343b0e
@@ -81,7 +81,7 @@ jobs:
 
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@abd5a04789790ec194a4baae45d393690f7ff0ca
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - uses: algorandfoundation/arcw-action@dist
         id: arcw
