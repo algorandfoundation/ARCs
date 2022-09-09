@@ -9,4 +9,5 @@
   {% else %}
     <a href="{{arcnum|strip|prepend:"arc-" }}">{{arcnum|strip}}</a>
   {% endif %}
+  {% if forloop.last == false %}, {% endif %}
 {% endfor %}
