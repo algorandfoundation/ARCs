@@ -1,16 +1,12 @@
 {% assign arcs=include.arcs|split:"," %}
 {% for arcnum in arcs %}
-  {% if arcnum[3] != null %}
+  {% if arcnum[3] != undefined %}
     <a href="{{arcnum|strip|prepend:"arc-" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
+  {% elsif arcnum[2] != undefined %}
+    <a href="{{arcnum|strip|prepend:"arc-0" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
+  {% elsif arcnum[1] != undefined %}
+    <a href="{{arcnum|strip|prepend:"arc-00" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
   {% else %}
-    {% if arcnum[2] != null  %}
-      <a href="{{arcnum|strip|prepend:"arc-0" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
-    {% else %}
-      {% if arcnum[1] != null  %}
-        <a href="{{arcnum|strip|prepend:"arc-00" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
-      {% else %}
-        <a href="{{arcnum|strip|prepend:"arc-000" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
-      {% endif %}
-    {% endif %}
+    <a href="{{arcnum|strip|prepend:"arc-000" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
   {% endif %}
 {% endfor %}
