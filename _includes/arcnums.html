@@ -1,10 +1,11 @@
 {% assign arcs=include.arcs|split:"," %}
 {% for arcnum in arcs %}
-  {% if arcnum.size > 3 %}
+  {% assign arcnumsize = arcnum.size %}
+  {% if arcnumsize > 3 %}
     <a href="{{arcnum|strip|prepend:"arc-" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
-  {% elsif arcnum.size arcnum.size > 2 %}
+  {% elsif arcnumsize > 2 %}
     <a href="{{arcnum|strip|prepend:"arc-0" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
-  {% elsif arcnum[.size arcnum.size > 1 %}
+  {% elsif arcnumsize > 1 %}
     <a href="{{arcnum|strip|prepend:"arc-00" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
   {% else %}
     <a href="{{arcnum|strip|prepend:"arc-000" }}">{{arcnum|strip}}</a>{% if forloop.last == false %}, {% endif %}
