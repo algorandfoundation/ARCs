@@ -15,7 +15,9 @@ Before submitting a new ARC, please have a look at [ARC-0](ARCs/arc-0000.md).
 
 Pull requests in this repository must pass automated validation checks:
 
-* EIP front matter and formatting are [checked](https://github.com/algorandfoundation/ARCs/blob/master/.github/workflows/auto-merge-bot.yml) using [ARC Validator](https://github.com/algorandfoundation/arcw).
+* HTML formatting and broken links are checked using [html-proofer](https://rubygems.org/gems/html-proofer).
+
+* ARC front matter and formatting are [checked](https://github.com/algorandfoundation/ARCs/blob/master/.github/workflows/auto-merge-bot.yml) using [ARC Validator](https://github.com/algorandfoundation/arcw).
 
 To install `arcw` and validate the ARCs repository:
 
