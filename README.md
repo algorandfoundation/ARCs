@@ -9,8 +9,7 @@ Please consider anything which is not published on https://github.com/algorandfo
 
 And please consider anything published at https://github.com/algorandfoundation/ARCs with a status of "draft" as an incomplete draft.
 
-We recommend only using ARCs with the status "Final", "Living,
-" or "Last Call.
+We recommend only using ARCs with the status "Final", "Living" or "Last Call".
 
 ## Process
 Before submitting a new ARC, please have a look at [ARC-0](ARCs/arc-0000.md).
