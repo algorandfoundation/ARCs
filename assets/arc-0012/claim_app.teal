@@ -1,0 +1,117 @@
+#pragma version 6
+b main
+
+init_scratch: // init_scratch()
+    txn GroupIndex
+    int 2
+    +
+    store 0 // payment_txn
+
+    txn GroupIndex
+    int 1
+    +
+    store 1 // axfer_txn
+
+    txna Assets 0
+    store 2 // asa_being_claimed
+
+    txna Accounts 1
+    store 3 // lsig_account
+
+    load 2 // asa_being_claimed
+    asset_params_get AssetCreator
+    pop
+    store 4 // asa_creator
+
+    global MinBalance
+    int 2
+    *
+    store 5 // payment_amount
+
+    retsub
+
+main:
+    
+    // ensure the OnComplete is NoOp
+    txn OnCompletion
+    int NoOp
+    ==
+    assert
+
+    
+    // instantly approve if the application is being created
+    txn ApplicationID
+    int 0
+    ==
+    bz if0_else0
+
+    int 1
+    return
+
+    b if0_end
+
+    if0_else0:
+    if0_end:
+    callsub init_scratch
+
+    
+    // verify the asset is in the assets array
+    load 1 // axfer_txn
+    gtxns XferAsset
+    load 2 // asa_being_claimed
+    ==
+    assert
+
+    
+    // verify the asset is being sent from the lsig account
+    load 1 // axfer_txn
+    gtxns Sender
+    load 3 // lsig_account
+    ==
+    assert
+
+    
+    // verify the payment is coming from the lsig account
+    load 0 // payment_txn
+    gtxns Sender
+    load 3 // lsig_account
+    ==
+    assert
+
+    
+    // verify the payment amount is equal to 2*MBR
+    load 0 // payment_txn
+    gtxns Amount
+    load 5 // payment_amount
+    ==
+    assert
+
+    
+    // verify the payment is being sent to the creator
+    load 0 // payment_txn
+    gtxns Receiver
+    load 4 // asa_creator
+    ==
+    assert
+
+    
+    // if the balance is 2*MBR, then the smart signature account must be closed
+    load 3 // lsig_account
+    acct_params_get AcctBalance
+    pop
+    load 5 // payment_amount
+    ==
+    bz if1_else0
+
+    load 0 // payment_txn
+    gtxns CloseRemainderTo
+    load 4 // asa_creator
+    ==
+    assert
+
+    b if1_end
+
+    if1_else0:
+    if1_end:
+    int 1
+    return

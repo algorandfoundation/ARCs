@@ -1,0 +1,150 @@
+#pragma version 6
+b main
+
+handle_claim_payment: // handle_claim_payment()
+    
+    // verify that the app call is a NoOp
+    txn GroupIndex
+    int 2
+    -
+    gtxns OnCompletion
+    int NoOp
+    ==
+    assert
+
+    
+    // verify that the app call is to the correct app
+    txn GroupIndex
+    int 2
+    -
+    gtxns ApplicationID
+    $APP_ID
+    ==
+    assert
+
+    retsub
+
+handle_optin: // handle_optin()
+    
+    // verify the the asset receiver is the lsig address
+    txn AssetReceiver
+    txn Sender
+    ==
+    assert
+
+    
+    // verify we are not closing the asset
+    txn AssetCloseTo
+    global ZeroAddress
+    ==
+    assert
+
+    retsub
+
+handle_claim_axfer: // handle_claim_axfer()
+    
+    // verify asset receiver is the hardcoded receiver address
+    txn AssetReceiver
+    $RECEIVER_ADDRESS
+    ==
+    assert
+
+    
+    // verify asset close to address is the hardcoded receiver address
+    txn AssetCloseTo
+    $RECEIVER_ADDRESS
+    ==
+    assert
+
+    
+    // verify the next transaction in the group is a payment
+    txn GroupIndex
+    int 1
+    +
+    gtxns TypeEnum
+    int pay
+    ==
+    assert
+
+    
+    // verify the next transaction in the group is is from the lsig address
+    txn GroupIndex
+    int 1
+    +
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+
+    retsub
+
+handle_axfer: // handle_axfer()
+    
+    // conditional logic to determine if this is an opt-in or a claim
+    txn AssetReceiver
+    txn Sender
+    ==
+    bz if0_else0 // if receiever == sender then we know this is an opt-in
+
+    callsub handle_optin
+
+    b if0_end
+
+    if0_else0:
+    txn AssetReceiver
+    $RECEIVER_ADDRESS
+    ==
+    bz if0_else1 // else if the receiver is the hardcoded receiver address then we know this is a claim
+
+    callsub handle_claim_axfer
+
+    b if0_end
+
+    if0_else1: // else fail since this isn't an opt-in or claim transaction
+    err
+
+    if0_end:
+    retsub
+
+main:
+    
+    // verify fee is zero (covered via pooling)
+    txn Fee
+    int 0
+    ==
+    assert
+
+    
+    // verify the lsig cannot be rekeyed
+    txn RekeyTo
+    global ZeroAddress
+    ==
+    assert
+
+    
+    // conditional logic to handle transaction type
+    txn TypeEnum
+    int pay
+    ==
+    bz if1_else0 // if this is a payment, handle the payment
+
+    callsub handle_claim_payment
+
+    b if1_end
+
+    if1_else0:
+    txn TypeEnum
+    int axfer
+    ==
+    bz if1_else1 // else f this is a axfer, handle the axfer
+
+    callsub handle_axfer
+
+    b if1_end
+
+    if1_else1: // else fail since this isn't a payment or axfer
+    err
+
+    if1_end:
+    int 1
+    return
