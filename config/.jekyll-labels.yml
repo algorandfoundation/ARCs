@@ -1,0 +1,28 @@
+#### ARC Type / Category ####
+
+# Type
+t-informational: this?.new?.type == "Informational" && this?.old?.status != "Living"
+t-meta: this?.new?.type == "Meta" && this?.old?.status != "Living"
+
+# Categories
+t-core: this?.new?.category == "Core" && this?.old?.status != "Living"
+t-networking: this?.new?.category == "Networking" && this?.old?.status != "Living"
+t-interface: this?.new?.category == "Interface" && this?.old?.status != "Living"
+t-arc: this?.new?.category == "ARC" && this?.old?.status != "Living"
+
+# Living ARCs & ARC Template
+t-process: this?.old?.status == "Living" || this?.old?.title == "<The ARC title is a few words, not a complete sentence>"
+
+# Status
+s-draft: this?.new?.status == "Draft"
+s-final: this?.new?.status == "Final"
+s-lastcall: this?.new?.status == "Lastcall"
+s-review: this?.new?.status == "Review"
+s-stagnant: this?.new?.status == "Stagnant"
+s-withdrawn: this?.new?.status == "Withdrawn"
+
+#### PR Classification ####
+
+c-new: this?.new?.arc && !this?.old?.arc
+c-update: this?.new?.arc && this?.old?.arc && this?.new?.status == this?.old?.status
+c-status: this?.new?.arc && this?.old?.arc && this?.new?.status != this?.old?.status
