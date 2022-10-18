@@ -1,0 +1,57 @@
+@startuml
+hide footbox
+actor Alice <<Sender>>
+
+box "Master Vault"  #LightBlue
+    participant "Box [Address -> (App_ID, mbr)]" as MB
+end box
+
+
+
+box "Child Vault"  #LightGreen
+    participant "Box [Asset_ID -> (Address, mbr)]" as CB
+end box
+
+actor Bob <<Receiver>>
+actor Charly <<Creator>>
+
+alt Bob-Opted-In
+	Alice --> Bob : Send Asset
+else Bob-Not-Opted-In
+    alt No-Child-Vault
+        Alice --> MB : create_child
+        MB --> CB : create_app_id
+        MB --> MB : Add Key/Value to Box
+    end
+    Alice --> MB : get_child_app_ID
+    MB --> Alice : child_app_ID
+    alt Child-Not-Opted-In 
+        Alice --> MB : opt_in
+        MB --> CB : opt_in
+        CB --> CB : Opt-In
+        MB --> CB : init_vault
+        CB --> CB : Add Key/Value to Box
+    end
+    Alice --> CB : Send Asset
+    alt Ok
+        Bob --> MB : receive
+        MB --> CB : close_out
+        CB --> Bob : Close Out Asset
+    else Not Ok
+        Bob --> MB : reject
+        MB --> CB : close_out
+        CB --> Charly : Close Out Asset
+    end
+    CB --> Alice : Send mbr
+    MB --> CB : pop_asset
+    CB --> CB : Remove Key/Value from Box
+end
+
+
+
+legend right
+    arc-12
+end legend
+
+
+@enduml
