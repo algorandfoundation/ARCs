@@ -2,11 +2,15 @@
 
 ## Mission
 This repository serves to provide a location for the proposal and discussion of ARCs.
-You can find the webpage related here: https://arc.algorand.foundation/
+
+To know an ARC's status, please refer to https://arc.algorand.foundation/.
 
 ## Status
 Please consider anything which is not published on https://github.com/algorandfoundation/ARCs as a working paper.
+
 And please consider anything published at https://github.com/algorandfoundation/ARCs with a status of "draft" as an incomplete draft.
+
+We recommend only using ARCs with the status "Final", "Living" or "Last Call".
 
 ## Process
 Before submitting a new ARC, please have a look at [ARC-0](ARCs/arc-0000.md).
@@ -15,7 +19,9 @@ Before submitting a new ARC, please have a look at [ARC-0](ARCs/arc-0000.md).
 
 Pull requests in this repository must pass automated validation checks:
 
-* EIP front matter and formatting are [checked](https://github.com/algorandfoundation/ARCs/blob/master/.github/workflows/auto-merge-bot.yml) using [ARC Validator](https://github.com/algorandfoundation/arcw).
+* HTML formatting and broken links are checked using [html-proofer](https://rubygems.org/gems/html-proofer).
+
+* ARC front matter and formatting are [checked](https://github.com/algorandfoundation/ARCs/blob/master/.github/workflows/auto-merge-bot.yml) using [ARC Validator](https://github.com/algorandfoundation/arcw).
 
 To install `arcw` and validate the ARCs repository:
 
