@@ -2,7 +2,8 @@
 
 ## Mission
 This repository serves to provide a location for the proposal and discussion of ARCs.
-You can find the webpage related here: https://arc.algorand.foundation/
+
+To know an ARC's status, please refer to https://arc.algorand.foundation/.
 
 ## Status
 Please consider anything which is not published on https://github.com/algorandfoundation/ARCs as a working paper.
