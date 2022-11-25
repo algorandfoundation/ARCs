@@ -87,4 +87,4 @@ jobs:
         id: arcw
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          unchecked: 0000
+          unchecked: 1, 5069, 5757
