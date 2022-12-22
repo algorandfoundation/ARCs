@@ -9,10 +9,8 @@ from nacl.encoding import *
 def store_key(app_client, private_key):  
     key = "arc15-nacl-curve25519:"
     pub_key = key + str(private_key.public_key.encode(encoder=HexEncoder))[2:-1]
-
     app_client.call(Master.set_public_key, public_key=pub_key)
     application_state = app_client.get_application_state()
-    print(f"Public Key stored in App: {application_state['public_key']}")
     return application_state['public_key'][len(key):]
 
 def encrypt_text(nacl_public_key, text):  
@@ -59,7 +57,6 @@ def demo():
     text = b"This is an ARC-15 message"
     encrypted_text = encrypt_text(nacl_public_key, text)
     print(f"Encrypted_text {encrypted_text}")
-    print(len(encrypted_text))
     #Fund application for using box
     app_client.fund(161000 + (len(encrypted_text) - 64)* 400) 
 
@@ -76,8 +73,6 @@ def demo():
 
     #Abi encode of the tuple (sender, round)
     sender_round = abi_encode(SR(), (acct_sender.address,current_round))
-    print(sender_round)
-    print(current_round)
 
     #Write messages to receiver App
     app_sender.call(
@@ -87,19 +82,17 @@ def demo():
         )
 
     #Read all messages 
-    boxes = app_client.client.application_boxes(app_client.app_id)["boxes"]
-    box= boxes[0]
-    print(box)
-    name = base64.b64decode(box["name"])
-    contents = app_client.client.application_box_by_name(app_client.app_id, name)
-    text_to_decrypt = abi_decode(abi.String(), base64.b64decode(contents["value"]))
-    box_key = abi_decode(SR(), name)
-    print(f"Current Box: {box_key} {text_to_decrypt}")
-    
-    encrypted_from_box = text_to_decrypt
-    unseal_box = SealedBox(private_key)
-    plaintext = unseal_box.decrypt(encrypted_from_box, encoder=Base64Encoder)
-    print(f"Decrypted Text: {plaintext.decode('utf-8')}")
+    for box in app_client.client.application_boxes(app_client.app_id)["boxes"]:
+        name = base64.b64decode(box["name"])
+        if name == sender_round:
+            contents = app_client.client.application_box_by_name(app_client.app_id, name)
+            text_to_decrypt = abi_decode(abi.String(), base64.b64decode(contents["value"]))
+            box_key = abi_decode(SR(), name)
+            print(f"Current Box: {box_key} {text_to_decrypt}")
+            encrypted_from_box = text_to_decrypt
+            unseal_box = SealedBox(private_key)
+            plaintext = unseal_box.decrypt(encrypted_from_box, encoder=Base64Encoder)
+            print(f"Decrypted Text: {plaintext.decode('utf-8')}")
 
     #Delete the message
     app_sender.call(
