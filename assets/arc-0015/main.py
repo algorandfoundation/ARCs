@@ -7,15 +7,17 @@ from nacl.public import PrivateKey, SealedBox, PublicKey
 from nacl.encoding import *
 
 def store_key(app_client, private_key):  
-    key = "arc15-nacl-curve25519:"
-    pub_key = key + str(private_key.public_key.encode(encoder=HexEncoder))[2:-1]
-    app_client.call(Master.set_public_key, public_key=pub_key)
+    key_encryption = "arc15-nacl-curve25519"
+    pub_key = private_key.public_key
+    app_client.call(Master.set_public_key, key_encryption=key_encryption, public_key=pub_key.encode(encoder=RawEncoder))
     application_state = app_client.get_application_state()
-    return application_state['public_key'][len(key):]
+    print(f"Public Key stored in App: {application_state['public_key']}")
+    return application_state['public_key']
 
 def encrypt_text(nacl_public_key, text):  
     sealed_box = SealedBox(PublicKey(bytes.fromhex((nacl_public_key))))
     encrypted_text = sealed_box.encrypt(text, encoder=Base64Encoder).decode("utf-8")
+    encrypted_text = sealed_box.encrypt(text, encoder=RawEncoder)
     return encrypted_text
 
 def abi_encode(abi_type, value):
@@ -54,11 +56,12 @@ def demo():
     nacl_public_key = store_key(app_client, private_key)
     
 
-    text = b"This is an ARC-15 message"
+    text = b"The ARC-15 Message"
+    assert(len(text) < 975) # It will be too long for the App Call
     encrypted_text = encrypt_text(nacl_public_key, text)
     print(f"Encrypted_text {encrypted_text}")
     #Fund application for using box
-    app_client.fund(161000 + (len(encrypted_text) - 64)* 400) 
+    app_client.fund(135400 + (len(encrypted_text))*400) 
 
     app_client.call(
         Master.authorize,
@@ -86,12 +89,11 @@ def demo():
         name = base64.b64decode(box["name"])
         if name == sender_round:
             contents = app_client.client.application_box_by_name(app_client.app_id, name)
-            text_to_decrypt = abi_decode(abi.String(), base64.b64decode(contents["value"]))
+            text_to_decrypt = bytes(abi_decode(abi.DynamicBytes(), base64.b64decode(contents["value"])))
             box_key = abi_decode(SR(), name)
             print(f"Current Box: {box_key} {text_to_decrypt}")
-            encrypted_from_box = text_to_decrypt
             unseal_box = SealedBox(private_key)
-            plaintext = unseal_box.decrypt(encrypted_from_box, encoder=Base64Encoder)
+            plaintext = unseal_box.decrypt(text_to_decrypt, encoder=RawEncoder)
             print(f"Decrypted Text: {plaintext.decode('utf-8')}")
 
     #Delete the message
@@ -104,3 +106,14 @@ def demo():
 
 if __name__ == "__main__":
     demo()
+
+    '''
+    output:
+
+    Sender 6TVFM2TBCSOQZDTMKQ4YPLVNFCHQLBI6WSCJ5EUOEQYAO7ED4FVYWELKUA
+    Receiver JIYAQPLP5GS4QGEORKBDRDEI52OZVGAGHFBCG65CCYX74XQHN7JAVMPVVM
+    Public Key stored in App: ff38c8409bf2c9cbea293e4a89739c533d81ff3cae003abc71c97d913ccfe07f
+    Encrypted_text b'<\x90-\x95{\xe4+e\xd0\xafh\xea(?\x9a\x86\xfbLC\xf8\xc7h\xc61\x9f>\xcd\xea\x99P\xfd\x16\xc2&8k\xd3\xc3\x0ba\xc9\x87\x9c~/\xaaN]\xc6\xcf\x8c\x01\x14\nF]((!\xa3zz\x0cIQp'
+    Current Box: ['6TVFM2TBCSOQZDTMKQ4YPLVNFCHQLBI6WSCJ5EUOEQYAO7ED4FVYWELKUA', 10016] b'<\x90-\x95{\xe4+e\xd0\xafh\xea(?\x9a\x86\xfbLC\xf8\xc7h\xc61\x9f>\xcd\xea\x99P\xfd\x16\xc2&8k\xd3\xc3\x0ba\xc9\x87\x9c~/\xaaN]\xc6\xcf\x8c\x01\x14\nF]((!\xa3zz\x0cIQp'
+    Decrypted Text: The ARC-15 Message
+    '''
