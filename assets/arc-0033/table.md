@@ -7,7 +7,7 @@
 <tbody>
   <tr>
     <td>Inscription</td>
-    <td colspan="2">Every Quarter</td>
+    <td colspan="2">Every 2 months</td>
   </tr>
   <tr>
     <td>Duration</td>
@@ -16,7 +16,7 @@
   <tr>
     <td>How to <br>become eligible</td>
     <td>Having participated in a previous Governance period<br>(Through official or approved defi governance)<br>&amp; Not have been disqualified from a previous gov</td>
-    <td>OR Participate actively in consensus.<br>(Active participation means at least 90% uptime per quarter.)<br></td>
+    <td>OR Participate actively in consensus.<br>(Active participation means at least 90% uptime per 2 months.)<br></td>
   </tr>
   <tr>
     <td>Incentive</td>
