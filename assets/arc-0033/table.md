@@ -15,7 +15,7 @@
   </tr>
   <tr>
     <td>How to <br>become eligible</td>
-    <td>Having participated in a previous Governance period<br>(Through official or approved defi governance)<br>&amp; Not have been disqualified from a previous gov</td>
+    <td>Having participated in full at a previous Governance period<br>(Through official or approved defi governance)</td>
     <td>OR Participate actively in consensus.<br>(Active participation means at least 90% uptime per 2 months.)<br></td>
   </tr>
   <tr>
