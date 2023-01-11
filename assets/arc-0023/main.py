@@ -1,5 +1,5 @@
 
-from pyteal import *  # Python 3.8.3, pyteal==0.10.1
+from pyteal import *
 from algosdk.v2client import algod
 import base64
 from Folder.Application import calc
@@ -9,16 +9,13 @@ def create_teal_bytecblock(bytes_slice):
     return f'bytecblock {" ".join(["0x"+b.hex() for b in bytes_slice])}'
 
 def append_information_to_teal(teal_script: str, cid: str):
-    cd_bytes = f"arc23: {cid}".encode()
+    cd_bytes = f"arc23 {len(cid)} {cid}".encode()
     bytecblk = create_teal_bytecblock([cd_bytes])
     return f'{teal_script}\n{bytecblk}\n'
-
 
 def compile_program(client, source_code):
     compile_response = client.compile(source_code)
     return base64.b64decode(compile_response["result"])
-
-
 
 if __name__ == "__main__":
     output = os.popen("ipfs add --cid-version=1 Folder/*  -q -w | tail -1")
