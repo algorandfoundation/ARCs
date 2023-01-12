@@ -1,0 +1,41 @@
+{
+  "name": "arc-0031-client",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "^2.8.0",
+    "@pinia/nuxt": "^0.4.6",
+    "@randlabs/myalgo-connect": "^1.4.2",
+    "@vueuse/core": "^9.10.0"
+  },
+  "devDependencies": {
+    "@css-render/vue3-ssr": "^0.15.12",
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
+    "@nuxtjs/eslint-config-typescript": "^12.0.0",
+    "@rollup/plugin-inject": "^5.0.3",
+    "@vicons/ionicons5": "^0.12.0",
+    "eslint": "^8.30.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "naive-ui": "^2.34.3",
+    "nuxt": "3.0.0",
+    "prettier": "^2.8.1",
+    "typescript": "4.8.4"
+  },
+  "overrides": {
+    "vue": "3"
+  }
+}
