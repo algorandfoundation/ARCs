@@ -34,6 +34,10 @@ Visit `localhost:3000`
 
 ## Run local development environment
 
+### Requirements
+- `node.js`
+- `yarn`
+
 From `client` folder run
 
 ```
