@@ -1,24 +1,30 @@
-# arc-0031
+# ARC-0031 Reference Implementation
 
-## Users registration
+**⚠️ Disclamer: This repo provides a simple example of ARC-31. The code is not audited and therefore, it should not be used for production environments.**
 
-Add registered users to the `server/mock/users.json` array, user `nonce` must be set to `''`.
+The ARC-31 reference implementation is a self contained, standalone repo providing both client and server interfaces. It simulates a User, previously registered to the Validator, authenticating with his Algorand public key *PKa* to a service exposed by the Verifier.
+
+The example shows the entire workflow of authentication using a standalone Algorand account signing an Authentication message. Rekey and MultiSig use cases are not covered yet.
+
+## User registration
+
+Add registered users to the `server/mock/users.json` array. The `nonce` field must be left empty `''`.
 
 ## Run via Docker Compose
 
-From `client` folder run
+From the `client` folder run
 
 ```
 docker build -t arc-0031-client .
 ```
 
-From `server` folder run
+From the `server` folder run
 
 ```
 docker build -t arc-0031-server .
 ```
 
-From `arc-0031` folder run
+From the `arc-0031` folder run
 
 ```
 docker-compose up
