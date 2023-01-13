@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  arc-0031-client:
+    image: arc-0031-client:latest
+    environment:
+      NUXT_APP_API_URL: http://arc-0031-server:3001/api
+    networks:
+      - arc-0031
+    ports:
+      - '3000:3000'
+    depends_on:
+      - arc-0031-server
+
+  arc-0031-server:
+    image: arc-0031-server:latest
+    networks:
+      - arc-0031
+    ports:
+      - '3001:3001'
+
+networks:
+  arc-0031:
