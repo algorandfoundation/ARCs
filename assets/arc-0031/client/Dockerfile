@@ -9,6 +9,7 @@ RUN yarn install \
   --non-interactive
 RUN NODE_ENV=production yarn build
 
+ENV NUXT_APP_API_URL=http://localhost:3001/api
 EXPOSE 3000
 
 ENTRYPOINT ["node", ".output/server/index.mjs"]

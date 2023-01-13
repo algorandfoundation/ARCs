@@ -14,7 +14,8 @@ dist-ssr
 coverage
 *.local
 .env
-.env.*
+.env.*.
+!.env.example
 
 # Nuxt dev/build outputs
 .output

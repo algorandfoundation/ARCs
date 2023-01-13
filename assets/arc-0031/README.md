@@ -38,16 +38,10 @@ Visit `localhost:3000`
 - `node.js`
 - `yarn`
 
-From `client` folder run
-
-```
-yarn install --frozen-lockfile
-yarn dev
-```
-
 From `server` folder run
 
 ```
+ln -s .env.example .env.local
 yarn install --frozen-lockfile
 yarn dev
 ```

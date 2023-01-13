@@ -4,6 +4,7 @@ import algosdk from 'algosdk'
 import express, { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import users from '../../mock/users.json'
+import { type AuthMessage } from '../../types'
 
 const v1 = express.Router()
 
@@ -19,7 +20,7 @@ v1.post('/signin/request', (req: Request, res: Response) => {
   }
 
   const nonce = uuidv4()
-  const authMessage = {
+  const authMessage: AuthMessage = {
     domain: process.env.SERVICE_NAME,
     authAcc,
     nonce,
@@ -42,7 +43,7 @@ v1.post('/signin/verify', async (req: Request, res: Response) => {
   try {
     const user = users.find(user => user.authAcc === authAcc)
     if (user) {
-      const authMessage = {
+      const authMessage: AuthMessage = {
         domain: process.env.SERVICE_NAME,
         authAcc,
         nonce: user.nonce,
