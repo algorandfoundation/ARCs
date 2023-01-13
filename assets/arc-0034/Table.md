@@ -9,7 +9,7 @@
     <td>Week</td>
     <td>Phase</td>
     <td>Entry<br>Criteria</td>
-    <td>Tresholds</td>
+    <td>Thresholds</td>
     <td>xGov<br>Requirements</td>
   </tr>
   <tr>
