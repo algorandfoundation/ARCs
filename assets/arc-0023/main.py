@@ -56,7 +56,7 @@ def compute_information_bytes(folder: str) -> bytes:
 
     # The CID is the last non-empty line
     text_cid = output.stdout.decode().strip().split("\n")[-1]
-    assert text_cid == "bafybeibm6rgofb2jn6iibyo67vchj6r3s3v3xkho7xkydlhy7inalysxxa"
+    assert text_cid == "bafybeiavazvdva6uyxqudfsh57jbithx7r7juzvxhrylnhg22aeqau6wte"
 
     # Check that the text CID is a base32 CID
     if text_cid[0] != "b":
@@ -64,17 +64,17 @@ def compute_information_bytes(folder: str) -> bytes:
 
     # The CID is a base32 string starting with b, we need to remove this b to get the binary CID
     b32_string = text_cid[1:]
-    assert b32_string == "afybeibm6rgofb2jn6iibyo67vchj6r3s3v3xkho7xkydlhy7inalysxxa"
+    assert b32_string == "afybeiavazvdva6uyxqudfsh57jbithx7r7juzvxhrylnhg22aeqau6wte"
 
     # We need to re-pad to make Python happy, pad_length = 6
     pad_length = (8 - (len(b32_string) % 8)) % 8
     binary_cid = base64.b32decode(b32_string.upper() + '=' * pad_length)
-    assert binary_cid.hex() == "017012202cf44ce287496f9080e1defd4474fa3b96ebbba8eefdd581acf8fa1a05e257b8"
+    assert binary_cid.hex() == "0170122015066a3a83d4c5e1419647efd2144cf7fc7e9a66b73c70b69cdad0090053d699"
 
     # Finally compute the bytes information
     information_bytes = b"arc23" + binary_cid
     assert information_bytes.hex() == \
-           "6172633233017012202cf44ce287496f9080e1defd4474fa3b96ebbba8eefdd581acf8fa1a05e257b8"
+           "61726332330170122015066a3a83d4c5e1419647efd2144cf7fc7e9a66b73c70b69cdad0090053d699"
 
     return information_bytes
 
@@ -139,12 +139,12 @@ def main():
     compiled_program = compile_program(algod_client, teal_script_with_information)
 
     # Check that the new program is the old program concatenated with
-    # 0x2601296172633233017012202cf44ce287496f9080e1defd4474fa3b96ebbba8eefdd581acf8fa1a05e257b8
+    # 0x26012961726332330170122015066a3a83d4c5e1419647efd2144cf7fc7e9a66b73c70b69cdad0090053d699
     # where 0x2601296172633233 is the prefix described above in `get_cid_from_compiled_program`
-    # and 0x017012202cf44ce287496f9080e1defd4474fa3b96ebbba8eefdd581acf8fa1a05e257b8 is the binary CID
+    # and 0x0170122015066a3a83d4c5e1419647efd2144cf7fc7e9a66b73c70b69cdad0090053d699 is the binary CID
     assert compiled_program == \
            compiled_program_wo_information +\
-           bytes.fromhex("2601296172633233017012202cf44ce287496f9080e1defd4474fa3b96ebbba8eefdd581acf8fa1a05e257b8")
+           bytes.fromhex("26012961726332330170122015066a3a83d4c5e1419647efd2144cf7fc7e9a66b73c70b69cdad0090053d699")
     assert len(compiled_program) == len(compiled_program_wo_information) + 44
 
     # Now verify that we can read back
@@ -153,7 +153,7 @@ def main():
     # Compute the associated text_cid
     # (remove padding, prefix by "b", put everything in lower case)
     text_cid = "b" + base64.b32encode(binary_cid).decode("ascii").lower().replace("=", "")
-    assert text_cid == "bafybeibm6rgofb2jn6iibyo67vchj6r3s3v3xkho7xkydlhy7inalysxxa"
+    assert text_cid == "bafybeiavazvdva6uyxqudfsh57jbithx7r7juzvxhrylnhg22aeqau6wte"
 
     print(f"Success: the CID is: {text_cid}")
 
