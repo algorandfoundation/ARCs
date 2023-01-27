@@ -1,0 +1,24 @@
+{
+    "name": "Calculator",
+    "desc": "Contract of a basic calculator supporting additions and multiplications. Implements the Calculator interface.",
+    "methods": [
+        {
+        "name": "add",
+        "desc": "Calculate the sum of two 64-bit integers",
+        "args": [
+            { "type": "uint64", "name": "a", "desc": "The first term to add" },
+            { "type": "uint64", "name": "b", "desc": "The second term to add" }
+        ],
+        "returns": { "type": "uint64", "desc": "The sum of a and b" }
+        },
+        {
+        "name": "multiply",
+        "desc": "Calculate the product of two 64-bit integers",
+        "args": [
+            { "type": "uint64", "name": "a", "desc": "The first factor to multiply" },
+            { "type": "uint64", "name": "b", "desc": "The second factor to multiply" }
+        ],
+        "returns": { "type": "uint64", "desc": "The product of a and b" }
+        }
+    ]
+}
