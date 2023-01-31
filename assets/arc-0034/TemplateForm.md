@@ -2,7 +2,7 @@
 Title: <The proposal title is a few words, not a complete sentence>
 author: <a comma separated list of the author's or authors' name + GitHub username (in parenthesis), or name and email (in angle brackets).  Example, FirstName LastName (@GitHubUsername), FirstName LastName <foo@bar.com>, FirstName (@GitHubUsername) and GitHubUsername (@GitHubUsername)>
 CompanyName: <Name of the company>
-Catgory: <dApps,Tools,Community>
+Category: <dApps,Tools,Community>
 FocusArea: <Banking, Defi, DEX, Gaming, Identity, Marketplace, Metaverse, NFT, Oracle, Storage,User Onboarding,IDE,Teal,Deployment,Libraries,Monitoring,Node,Education,Other (Please Specify)>
 OpenSource: <Yes, No>
 AmountRequested: <Amount requested in ALGO>
@@ -24,7 +24,7 @@ Details about the team's experience with the Algorand protocol and any previous 
     > Knowledge about the ecosystem
     > Running nodes
 
-## Road Map
+## Roadmap
 A detailed plan for the development and implementation of the proposal, including timelines and milestones.
 
 ## Benefits for the community
