@@ -5,9 +5,9 @@ from beaker.lib.storage import Mapping
 from typing import Literal
 
 class Proposals(abi.NamedTuple):
-    pr: abi.Field[abi.Uint64]
-    commit: abi.Field[abi.StaticBytes[Literal[20]]]
-    hash: abi.Field[abi.StaticBytes[Literal[32]]]
+    pr: abi.Field[abi.Uint64] #Proposals number
+    commit: abi.Field[abi.StaticBytes[Literal[20]]] #Version
+    hash: abi.Field[abi.StaticBytes[Literal[32]]] #Hash of the proposal
 
 
 class Votes(abi.NamedTuple):
@@ -35,6 +35,7 @@ class xGov(bk.Application):
         descr="Bool to check vote",
     )
 
+    # On the Distribute App
     max_algo: Final[bk.ApplicationStateValue] = bk.ApplicationStateValue(
         stack_type=TealType.uint64,
         default=Int(0),
@@ -59,7 +60,7 @@ class xGov(bk.Application):
         )
 
     @bk.external(authorize=bk.Authorize.only(Global.creator_address()))
-    def register(self, xgov_address: abi.Address, reward: abi.Uint64):
+    def register(self, xgov_address: abi.Address, reward: abi.Uint64): #Send a payment instead?
         return Seq(
             self.max_vote.set(self.max_vote + reward.get()),
             self.max_algo.set(self.max_algo + reward.get()),
@@ -77,7 +78,7 @@ class xGov(bk.Application):
             Pop(self.xgov_vote[xgov_address].delete())
         )
 
-    @bk.external
+    @bk.external # On the Distribute App
     def distribute(self):
         return Seq(
             Assert(self.period == Int(1)),
