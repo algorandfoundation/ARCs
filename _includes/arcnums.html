@@ -4,10 +4,12 @@
     <a href="{{arcnum|strip|prepend:"arc-000" }}">{{arcnum|strip}}</a>
   {% elsif arcnum.size == 3 %}
     <a href="{{arcnum|strip|prepend:"arc-00" }}">{{arcnum|strip}}</a>
-  {% elsif arcnum.size == 5 %}
+    {% elsif arcnum.size == 5 %}
     <a href="{{arcnum|strip|prepend:"arc-0" }}">{{arcnum|strip}}</a>
-  {% else %}
+    {% elsif arcnum.size == 7 %}
     <a href="{{arcnum|strip|prepend:"arc-" }}">{{arcnum|strip}}</a>
+  {% else %}
+    <a href="{{arcnum|strip|prepend:"arc-000" }}">{{arcnum|strip}}</a>
   {% endif %}
   {% if forloop.last == false %}, {% endif %}
 {% endfor %}
