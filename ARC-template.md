@@ -21,7 +21,7 @@ The title should be 44 characters or less. It should not repeat the ARC number i
 Abstract is a multi-sentence (short paragraph) technical summary. This should be a very terse and human-readable version of the specification section. Someone should be able to read only the abstract to get the gist of what this specification does.
 
 ## Motivation
-The motivation section should describe the "why" of this ARC. What problem does it solve? Why should someone want to implement this standard? What benefit does it provide to the Ethereum ecosystem? What use cases does this ARC address?
+The motivation section should describe the "why" of this ARC. What problem does it solve? Why should someone want to implement this standard? What benefit does it provide to the Algorand ecosystem? What use cases does this ARC address?
 
 ## Specification
 The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL NOT**", "**SHOULD**", "**SHOULD NOT**", "**RECOMMENDED**", "**MAY**", and "**OPTIONAL**" in this document are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.
