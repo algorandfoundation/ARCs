@@ -1,11 +1,11 @@
-{% assign arcs=include.arcs|split:"," %}
+{% assign arcs=include.arcs|split:", " %}
 {% for arcnum in arcs %}
   {% if arcnum.size == 1 %}
-    <a href="{{arcnum|strip|prepend:"arc-000" }}">{{arcnum|strip}}</a>
+  <a href="{{arcnum|strip|prepend:"arc-000" }}">{{arcnum|strip}}</a>
+  {% elsif arcnum.size == 2 %}
+  <a href="{{arcnum|strip|prepend:"arc-00" }}">{{arcnum|strip}}</a>
   {% elsif arcnum.size == 3 %}
-    <a href="{{arcnum|strip|prepend:"arc-00" }}">{{arcnum|strip}}</a>
-  {% elsif arcnum.size == 5 %}
-    <a href="{{arcnum|strip|prepend:"arc-0" }}">{{arcnum|strip}}</a>
+  <a href="{{arcnum|strip|prepend:"arc-0" }}">{{arcnum|strip}}</a>
   {% else %}
     <a href="{{arcnum|strip|prepend:"arc-" }}">{{arcnum|strip}}</a>
   {% endif %}
