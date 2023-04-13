@@ -26,7 +26,7 @@ layout: default
 
 <div class="home">
   <h1 class="page-heading">
-    ARC-{{ page.arc | xml_escape }}: {{ page.title | xml_escape }}
+    ARC-{{ pagearc | xml_escape }}: {{ page.title | xml_escape }}
     <a href="{{site.github.repository_url}}/blob/master/{{page.path}}"><svg role="img" aria-label="Source" xmlns="https://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16"><title>Source</title><path fill-rule="evenodd" d="M9.5 3L8 4.5 11.5 8 8 11.5 9.5 13 14 8 9.5 3zm-5 0L0 8l4.5 5L6 11.5 2.5 8 6 4.5 4.5 3z"/></svg></a>
   </h1>
   <h3>{{ page.description | xml_escape }}</h3>
@@ -69,7 +69,16 @@ layout: default
   IEEE specification for reference formatting:
   https://ieee-dataport.org/sites/default/files/analysis/27/IEEE%20Citation%20Guidelines.pdf
   {% endcomment %}
-  <p>{% include authorlist.html authors=page.author %}, "ARC-{{ page.arc | xml_escape }}: {{ page.title | xml_escape }}{% if page.status == "Draft" or page.status == "Last Call" %} [DRAFT]{% endif %}," <em>Algorand Requests for Comments</em>, no. {{ page.arc | xml_escape }}, {{ page.created | date: "%B %Y" }}. [Online serial]. Available: https://algorandfoundation.github.io/ARCS/arc-{{ page.arc | xml_escape }}.</p>
+  {% if arcnum.size == 1 %}
+    {% assign pagearc=arcnum|strip|prepend:"arc-000" %}
+  {% elsif arcnum.size == 2 %}
+    {% assign pagearc=arcnum|strip|prepend:"arc-00" %}
+  {% elsif arcnum.size == 3 %}
+    {% assign pagearc=arcnum|strip|prepend:"arc-0" %}
+  {% else %}
+    {% assign pagearc=arcnum|strip|prepend:"arc-" %}
+  {% endif %}
+  <p>{% include authorlist.html authors=page.author %}, "ARC-{{ pagearc | xml_escape }}: {{ page.title | xml_escape }}{% if page.status == "Draft" or page.status == "Last Call" %} [DRAFT]{% endif %}," <em>Algorand Requests for Comments</em>, no. {{ pagearc | xml_escape }}, {{ page.created | date: "%B %Y" }}. [Online serial]. Available: https://algorandfoundation.github.io/ARCS/arc-{{ pagearc | xml_escape }}.</p>
 </div>
 {% comment %}
 Article schema specification:
@@ -79,9 +88,9 @@ https://schema.org/TechArticle
   {
     "@context": "http://schema.org",
     "@type": "TechArticle",
-    "headline": "ARC-{{ page.arc | xml_escape }}: {{ page.title | xml_escape }}{% if page.status == "Draft" or page.status == "Last Call" %} [DRAFT]{% endif %}",
+    "headline": "ARC-{{ pagearc | xml_escape }}: {{ page.title | xml_escape }}{% if page.status == "Draft" or page.status == "Last Call" %} [DRAFT]{% endif %}",
     "author": "{{ page.author }}",
-    "name": "ARC-{{ page.arc | xml_escape }}: {{ page.title | xml_escape }}{% if page.status == "Draft" or page.status == "Last Call" %} [DRAFT]{% endif %}",
+    "name": "ARC-{{ pagearc | xml_escape }}: {{ page.title | xml_escape }}{% if page.status == "Draft" or page.status == "Last Call" %} [DRAFT]{% endif %}",
     "dateCreated": "{{ page.created | date: "%Y-%m-%d" }}",
     "datePublished": "{{ page.created | date: "%Y-%m-%d" }}",
 {% if page["discussions-to"] != undefined %}
