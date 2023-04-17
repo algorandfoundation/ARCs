@@ -31,9 +31,11 @@ A detailed plan for the development and implementation of the proposal, includin
 
 ### Milestone 1
 Date: DD/MM/YYYY
+Amount: Amount in Algo
+Description: Free text
 
-### Milestone 2
-Date: DD/MM/YYYY
+### Milestone 2 
+...
 
 
 ## Benefits for the community
