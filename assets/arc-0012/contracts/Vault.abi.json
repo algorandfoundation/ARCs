@@ -1,0 +1,110 @@
+{
+  "name": "Vault",
+  "desc": "",
+  "methods": [
+    {
+      "name": "create",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "account",
+          "desc": ""
+        },
+        {
+          "name": "sender",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "reject",
+      "args": [
+        {
+          "name": "asaCreator",
+          "type": "account",
+          "desc": ""
+        },
+        {
+          "name": "feeSink",
+          "type": "account",
+          "desc": ""
+        },
+        {
+          "name": "asa",
+          "type": "asset",
+          "desc": ""
+        },
+        {
+          "name": "vaultCreator",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "optIn",
+      "args": [
+        {
+          "name": "asa",
+          "type": "asset",
+          "desc": ""
+        },
+        {
+          "name": "mbrPayment",
+          "type": "pay",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "claim",
+      "args": [
+        {
+          "name": "asa",
+          "type": "asset",
+          "desc": ""
+        },
+        {
+          "name": "creator",
+          "type": "account",
+          "desc": ""
+        },
+        {
+          "name": "asaMbrFunder",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "delete",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    }
+  ]
+}
