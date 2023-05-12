@@ -3,8 +3,8 @@ period: <The governance period number>
 title: <The proposal title is a few words, not a complete sentence>
 author: <a comma separated list of the author's or authors' name + GitHub username (in parenthesis), or name and email (in angle brackets).  Example, FirstName LastName (@GitHubUsername), FirstName LastName <foo@bar.com>, FirstName (@GitHubUsername) and GitHubUsername (@GitHubUsername)>
 company_name: <Name of the company>
-category: <dApps,Tools,Community,Wallets>
-focus_area: <Banking, Defi, Social, DEX, Gaming, Identity, Marketplace, Metaverse, NFT, Oracle, Storage, User Onboarding, IDE, Teal, Deployment, Libraries, Monitoring, Node, Education>
+category: <dApps,Tools,Community>
+focus_area: <Banking,DEX,Defi,Deployment,Education,Gaming,IDE,Identity,Libraries,Metaverse,Monitoring,Node,NFT,Oracle,Social,Storage,Teal,User Onboarding,Wallets>
 open_source: <Yes, No>
 amount_requested: <Amount requested in ALGO>
 status: <Draft, Final>
