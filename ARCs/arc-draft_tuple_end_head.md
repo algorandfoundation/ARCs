@@ -1,0 +1,54 @@
+---
+arc: <to be assigned>
+title: Dynamic Tuple End In Head
+description: Append the end of a dynamic tuple to the head values
+author: Joe Polny (@joe-p)
+discussions-to: <URL>
+status: Draft
+type: Standards Track
+category: ARC
+created: 2023-07-15
+requires (*optional): [ARC-0004](./arc-0004.md)
+---
+
+## Abstract
+According to [ARC-0004](./arc-0004.md), when encoding dynamic types in a tuple the tuple consists of a `head` containing all of the offsets of the actual values in the `tail`. An additional value, the byte offset of the end of the tuple, should be added to the end of the `head` value for more efficient element reading.
+
+## Motivation
+When reading a value in a dynamic tuple, the head offset of the element must be extracted as a `uint16` to get the start of the element. To get the end of the element, which is necessary to properly read the element, the following head value can be extracted. This, however, fails to work when the element being read is the last element in its respective dynamic array or tuple. When the element is the last in the array or tuple, one must compute the length of the element. For static types, this is trivial and for dynamic arrays of static types this is also trivial because the length prefix can be used. For more complex nested dynamic types, however, this could involve many levels of extracting lengths and offsets, thus reading an element is `O(N)`, which `N` being the depth of the nested dynamic types. If there was an additional head value containing the end of the dynamic tuple, readnig any element, regardless of its type or position, would be `O(1)` since one can always just extract the following head value.
+
+## Specification
+The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL NOT**", "**SHOULD**", "**SHOULD NOT**", "**RECOMMENDED**", "**MAY**", and "**OPTIONAL**" in this document are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.
+
+Tuples **MUST** be encoded with the following rules:
+
+* If `x` is a tuple of `N` types, `(T1,T2,...,TN)`, where `x[i]` is the value at index `i`, starting at 1 and `x[i]` is dynamic:
+    * `head(x[i]) = enc(2 + len( head(x[1]) ... head(x[N]) tail(x[1]) ... tail(x[i-1]) ))`
+    * `tail(x[i]) = enc(x[i])`
+* If `x` is a tuple of `N` types, `(T1,T2,...,TN)`, and any type is dynamic
+  * `x = enc( head(x[i]) ... head(x[N]) + ( 2 + len( head(x[i]) ... head(x[N]) ) + len( tail(x[i]) ... tail(x[N]) ) ) + tail(x[i]) ... tail(x[N]) )`
+
+
+## Rationale
+This will make reading values from an ABI encoded tuple much more efficient, which is especially important for on-chain logic.
+
+## Backwards Compatibility
+[ARC-0004](./arc-0004.md) clients will be able to read tuples encoded according to this ARC, but they will not be able to write them.
+
+## Test Cases
+N/A
+
+## Reference Implementation
+
+Encoding of `["Hello", "World"]` as `string[]`
+
+[ARC-0004](./arc-0004.md): `0x0002 0004 000b 0005 48656c6c6f 0005 576f726c64`
+
+This ARC: `0x0002 0006 000d 0014 0005 48656c6c6f 0005 576f726c64`
+
+Note the addition of the `0014` signifying the end of the tuple/array and `head(x[1])` and `head[x[2]]` being incremented by two to account for this additional value.
+## Security Considerations
+None
+
+## Copyright
+Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CCO</a>.
