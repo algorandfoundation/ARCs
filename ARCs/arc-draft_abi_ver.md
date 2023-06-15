@@ -6,9 +6,9 @@ author: Joe Polny (@joe-p)
 discussions-to: <URL>
 status: Draft
 type: Standards Track
-category (*only required for Standards Track): ARC
+category: ARC
 created: 2023-07-15
-requires (*optional): [ARC-0004](./arc-0004.md)
+requires: [ARC-0004](./arc-0004.md)
 ---
 
 ## Abstract
