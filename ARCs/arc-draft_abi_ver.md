@@ -22,25 +22,25 @@ The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL 
 
 Every ABI change is versioned `MAJOR.MINOR`. `MAJOR` is incremeneted when there are breaking changes and `MINOR` is incremented for the addition of backwards-compatible features.
 
-Any ABI Interface or Contract JSON description that adheres to ABI standards beyond [ARC-0004](./arc-0004.md) **MUST** inlcude a `version` key in the top-level of the interface. Interface or Contract JSON descriptions that only adhere to [ARC-0004](./arc-0004.md) **SHOULD** have `"version": "1.0"` at the top level, but descriptions without a `version` key **MUST** be interepreted to implcitly be version 1.0.
+Any ABI Interface or Contract JSON description that adheres to ABI standards beyond [ARC-0004](./arc-0004.md) **MUST** inlcude a `abi-version` key in the top-level of the interface. Interface or Contract JSON descriptions that only adhere to [ARC-0004](./arc-0004.md) **SHOULD** have `"abi-version": "1.0"` at the top level, but descriptions without a `abi-version` key **MUST** be interepreted to implcitly be version 1.0.
 
 ## Rationale
 The `MAJOR.MINOR` scheme is used to make it clear what features a given description supports and when clients will become incompatible with  the respective contract.
 
-Since `version` is a new key being added, all existing descriptions without will not have the `version` key, thus the omission of the key is implying version 1.0 ([ARC-0004](./arc-0004.md)).
+Since `abi-version` is a new key being added, all existing descriptions without will not have the `abi-version` key, thus the omission of the key is implying version 1.0 ([ARC-0004](./arc-0004.md)).
 
 ## Backwards Compatibility
-This ARC is fully backwards compatible with [ARC-0004](./arc-0004.md) and all clients. There will, however, need to be additional effort for clients to parse the `version` key for future evolutions of the ABI.
+This ARC is fully backwards compatible with [ARC-0004](./arc-0004.md) and all clients. There will, however, need to be additional effort for clients to parse the `abi-version` key for future evolutions of the ABI.
 
 ## Test Cases
 N/A
 
 ## Reference Implementation
 
-An [ARC-0004](./arc-0004.md) contract description witht the `version` key
+An [ARC-0004](./arc-0004.md) contract description witht the `abi-version` key
 ```json
 {
-  "version": "1.0",
+  "abi-version": "1.0",
   "name": "Calculator",
   "desc": "Contract of a basic calculator supporting additions and multiplications. Implements the Calculator interface.",
   "networks": {
