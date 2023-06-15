@@ -44,7 +44,7 @@ This removes client-specific information from [ARC-0004](./arc-0004.md), makes i
 N/A
 
 ## Reference Implementation
-An [ARC-0004](./arc-0004.md) method `foo(Account)void` will become `foo(Address)void` if, and only if, the on-chain logic explitictly uses the passed in address. If the on-chain logic does not explicitly use the passed in address (for example, it is stored in box storage), the method signature will become `foo()void`.
+An [ARC-0004](./arc-0004.md) method `foo(Account)void` will become `foo(Address)void` if, and only if, the on-chain logic explitictly uses the passed in address. If the on-chain logic does not explicitly use the passed in address (for example, the address is read from box storage), the method signature will become `foo()void`.
 
 ## Security Considerations
 None
