@@ -3,7 +3,7 @@ arc: <to be assigned>
 title: No Length in Dynamic Arrays of Static Types
 description: Remove the length prefix in dynamic arrays if the type is static
 author: Joe Polny (@joe-p)
-discussions-to: <URL>
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/214
 status: Draft
 type: Standards Track
 category: ARC
