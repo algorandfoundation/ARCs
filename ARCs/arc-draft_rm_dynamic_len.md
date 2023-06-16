@@ -1,0 +1,44 @@
+---
+arc: <to be assigned>
+title: No Length in Dynamic Arrays of Static Types
+description: Remove the length prefix in dynamic arrays if the type is static
+author: Joe Polny (@joe-p)
+discussions-to: <URL>
+status: Draft
+type: Standards Track
+category: ARC
+created: 2023-07-16
+requires: 4
+---
+## Abstract
+According to [ARC-0004](./arc-0004.md), all dynamic arrays must be prefixed with their element length encoded as a uint16. This information is not necessary when the element type is static and thus it should be removed for simplicity sake. The exception is if the array is encoded inside of a tuple.
+
+## Motivation
+ABI-compliant contracts freuquently work with `string` types but all of the AVM opcodes expect regular byteslices, wihch means extra opcodes are needed when using a `string` with opcodes, which is quite common.
+
+## Specification
+The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL NOT**", "**SHOULD**", "**SHOULD NOT**", "**RECOMMENDED**", "**MAY**", and "**OPTIONAL**" in this document are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.
+
+If encoding a dynamic array, `x`, of type `T[]`, and the element type `T` is static, the array is encoded by simply concatenating all values of `x` together. If the array is inside of a tuple, the number of elements in `x` must be encoded as `uint16` and prefixed to the array, as per [ARC-0004](./arc-0004.md).
+
+## Rationale
+This will reduce the amount of bytes required when encoding dynamic arrays and make it easier to work with `byte[]` and `string` types in the AVM.
+
+## Backwards Compatibility
+This change is not backwards compatible with [ARC-0004](./arc-0004.md).
+
+## Test Cases
+N/A
+
+## Reference Implementation
+`[1, 2, 3]` encoded as `uint8[]`
+
+[ARC-0004](./arc-0004.md): `0x 0003 01 02 03`
+
+This ARC:  `0x 01 02 03`
+
+## Security Considerations
+None
+
+## Copyright
+Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CCO</a>.
