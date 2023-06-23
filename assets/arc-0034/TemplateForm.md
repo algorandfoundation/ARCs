@@ -25,16 +25,17 @@ Details about the team's experience with the Algorand protocol and any previous 
     > Running nodes
 
 ## Roadmap
-A detailed plan for the development and implementation of the proposal, including timelines and milestones.
-> If funding is above 10,000 ALGO, it will require a milestone-based fund release plan. Use subtitles as shown below:
+A detailed plan for the development and implementation of the proposal, including timelines.
+Use subtitles as shown below:
 
-### Milestone 1
+### Step 1
 Date: DD/MM/YYYY
-Amount: Amount in Algo
 Description: Free text
 
-### Milestone 2 
+### Step 2 
 ...
+
+> For Milestone-based grants, please refer to <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0034.md#submit-a-proposal"> How to submit a proposal</a>.
 
 
 ## Benefits for the community
