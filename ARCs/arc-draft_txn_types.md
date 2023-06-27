@@ -1,0 +1,90 @@
+---
+arc: <to be assigned>
+title: gtxn ABI Encoding
+description: Introduces a new, more flexible, encoding for referencing other transactions in the group
+author: Joe Polny (@joe-p)
+discussions-to: <URL>
+status: Draft
+type: Standards Track
+category: ARC
+created: 2023-07-26
+requires: 4
+---
+
+## Abstract
+This ARC proposes a flexible encoding scheme for referencing transactions in a group via either relative or direct indexing.
+
+## Motivation
+The [ARC-4](./arc-0004.md) encoding of transaction types is quite limiting due to the fact that it requires transactions to come before the application call in succession. This also means that if multiple app calls in a group require a specific transaction, those app calls must all be accompanied by a similar transaction, thus taking up extra space in the group. There needs to be a more flexible way to use transactions with ABI methods.
+
+## Specification
+
+### ARC-4 Transaction Type Removal
+
+The current [ARC-4](./arc-0004.md) transaction types (`txn`, `pay`, `keyreg`, `acfg`, `axfer`, `afrz`, `appl`) are no longer valid ABI types.
+
+### gtxn Encoding
+The `gtxn` type is a reference to a transaction in the same group as the current application call. `gtxn` **MUST** be encoded in 2 bytes. The least significant bytes is a number 0-16 encoded as `uint8`. The first byte is also a `uint8` that indicates the mode of the reference.
+
+| Mode | Description |
+| ---- | ----------- |
+| 0 | The least significant byte is the offet that should be *subtracted* from `txn GroupIndex` of the current application call |
+| 1 | The least significant byte is the offet that should be *added* from `txn GroupIndex` of the current application call |
+| 2 | The least significant byte is the exact index of the transaction being referenced in the current application call's group |
+
+
+## Rationale
+There were condierations for a more complex encoding that would leave room for referencing inner transactions. Due to the uncertainty of how this would look like in the AVM, however, it didn't seem possible to come up with a sensible encoding scheme for referencing inner transactions (particularly for relative indexing).
+
+Due to the above, this encoding scheme allows any transaction in the current group of the application call can be referenced, but inner transactions are still unable to be referenced.
+
+## Backwards Compatibility
+Due to the removal of the current transaction types, this ARC is not backwards compatiable with [ARC-4](./arc-0004.md).
+
+## Reference Implementation
+
+### `gtxn` Encoding Examples
+
+* `0x0003` signifies the referenced transactions comes three transactions *before* the current application call.
+* `0x0103` signifies the referenced transactions comes three transactions *after* the current application call.
+* `0x0203` signifies the referenced transactions is the 4th transaction in the current transaction group.
+
+### TEAL Decoding Example
+
+```
+deocde_gtxn:
+    txnas ApplicationArg     // [encoded_gtxn]
+    dup                      // [encoded_gtxn, encoded_gtxn]
+    extract 1 2              // [encoded_gtxn, byte(index)]
+    btoi                     // [encoded_gtxn, uint64(index)]
+    swap                     // [uint64(index), encoded_gtxn]
+    extract 0 1              // [uint64(index), byte(mode)]
+    btoi                     // [uint64(index), uint64(mode)]
+    dup                      // [uint64(index), uint64(mode), uint64(mode)]
+    int 3                    // [uint64(index), uint64(mode), uint64(mode), 3]
+    <                        // [uint64(index), uint64(mode), uint64]
+    assert                   // [uint64(index), uint64(mode)]
+    switch pre_gtxn post_txn // [uint64(index)]
+
+deocde_gtxn_retsub:
+    gtxns                    // [gtxn]
+    retsub
+
+pre_gtxn:
+    txn GroupIndex           // [uint64(index), uint64(GroupIndex)]
+    swap                     // [uint64(GroupIndex), uint64(index)]
+    -                        // [uint64(gtxn_index)]
+    b deocde_gtxn_retsub
+
+
+post_gtxn:
+    txn GroupIndex          // [uint64(index), uint64(GroupIndex)]
+    +                       // [uint64(gtxn_index)]
+    b deocde_gtxn_retsub    // [uint64(gtxn_index)]
+```
+
+## Security Considerations
+None
+
+## Copyright
+Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CCO</a>.
