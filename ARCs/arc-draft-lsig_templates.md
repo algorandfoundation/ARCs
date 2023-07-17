@@ -1,0 +1,172 @@
+---
+arc: <to be assigned>
+title: Logic Signature Templates
+description: A stanrard for defining templated logic signatures so wallets can safely sign them.
+author: Joe Polny (@joe-p)
+discussions-to: <URL>
+status: Draft
+type: Standards Track
+category: ARC
+created: 2023-07-17
+---
+
+## Abstract
+This standards allows wallets to sign known logic signatures and clearly tell the user what they are signing.
+
+## Motivation
+Currently, most Algorand wallets do not enable the signing of logic signature programs for the purpose of delegation. The rationale is to prevent users from signing malicious programs, but this limiation also prevents non-malicious delegated logic signatures to be used in the Algorand ecosystem. As such, there needs to be a way to provide a safe way for wallets to sign logic signatures without putting users at risk.
+
+## Specification
+
+A logic signature **MUST** be described via the following JSON interface(s):
+
+### Interface
+
+```typescript
+interface LogicSignatureDescription {
+    name: string,
+    description: string,
+    program: string,
+    variables?: {
+        variable: string,
+        name: string,
+        type: string,
+        description: string
+    }[]
+}
+```
+
+| Key | Description |
+| --- | ----------- |
+| `name` | The name of the logic signature. **SHOULD** be short and descriptive |
+| `description` | A description of what the logic signature does |
+| `program` | base64 encoding of the TEAL program source
+| `variables` | An optional array of variables in the program |
+| `variables.variable` | The name of the variable in the templated program. |
+| `variable.name` | Human-friendly name for the variable. **SHOULD** be short and descriptive |
+| `variable.type` | **MUST** be a type defined below in the `type` section |
+
+### Variables
+
+A variable in the program **MUST** be start with `#{` and end with `}`.
+
+#### Types
+
+Any valid ABI type encoded in base16 (without the leading `0x`) with the following exceptions:
+
+| Type | Description |
+| ---- | ----------- |
+| `Address` | 58-character Algorand public address. Typically to be used as an argument to the `addr` opcode. Front-ends **SHOULD** provide a link to the address on an explorer
+| `Application` | Application ID. Alias for `uint64`. Front-ends **SHOULD** provide a link to the app on an explorer |
+| `Asset` | Asset ID. Alias for `uint64`. Front-ends **SHOULD** provide a link to the asset on an explorer |
+| `string` | ASCII string. Typically used as an argument to `byte`, `method`, or a branching opcode. **MUST** be the full immediate argument to an opcode.
+| `hex` | base16 encoding of binary data. Typically used as an argument to `byte`. **MUST NOT** inlcude a leading `0x` |
+
+For all other types, front-ends **MUST** decode the ABI type to display the human-readable value to the user.
+
+## Rationale
+
+This provides a way for frontends to clearly display to the user what is being signed when signing a logic signature. 
+
+Template variables must be at least part of an immediate argument otherwise a string variable could specify the opcode in the program, which could have unintended and unclear consequences. 
+
+`#{}` wrapping is used to ensure template variables stand out in program source. `${}` was avoided since this is the syntax used by template strings in JavaScript and could result in confusing JavaScript client code.
+
+`hex` values must not include the leading `0x` incase the value is used in the middle of a byte sequence.
+
+`string` value must be the full immediate arugment to prevent compliation of a program that hasn't properly replaced all template variables.
+
+## Backwards Compatibility
+N/A
+
+## Test Cases
+N/A
+
+## Reference Implementation
+
+### Description
+```json
+{
+    "name": "Address Opt-In",
+    "Description": "This program allows a given address to opt in the signer to any asset provided it's approved by the associated application",
+    "program": "I3ByYWdtYSB2ZXJzaW9uIDgKI2RlZmluZSBNYXN0ZXJBcHBDYWxsIGxvYWQgMAoKLy8gU2F2ZSBNYXN0ZXJBcHBDYWxsCnR4biBHcm91cEluZGV4CmludCAxCisKc3RvcmUgMAoKLy8gVmVyaWZ5IGFtb3VudCBpcyAwCnR4biBBc3NldEFtb3VudAppbnQgMAo9PQphc3NlcnQKCi8vIFZlcmlmeSBzZW5kZXIgPT0gcmVjZWl2ZXIKdHhuIEFzc2V0UmVjZWl2ZXIKdHhuIFNlbmRlcgo9PQphc3NlcnQKCi8vIFZlcmlmeSBmZWUgaXMgMCAoY292ZXJlZCBieSBzZW5kZXIpCnR4biBGZWUKaW50IDAKPT0KYXNzZXJ0CgovLyBWZXJpZnkgYXNzZXRDbG9zZVRvIGlzIG5vdCBzZXQKdHhuIEFzc2V0Q2xvc2VUbwpnbG9iYWwgWmVyb0FkZHJlc3MKPT0KYXNzZXJ0CgovLyBWZXJpZnkgY2FsbGVkIGF0b21pY2FsbHkgd2l0aCBtYXN0ZXIgYXBwCk1hc3RlckFwcENhbGwKZ3R4bnMgQXBwbGljYXRpb25JRAppbnQgI3tERUxFR0FURURfT1BUSU5fQVBQX0lEfQo9PQphc3NlcnQKCi8vIFZlcmlmeSB0aGUgY29ycmVjdCBtZXRob2QgaXMgYmVpbmcgY2FsbGVkCk1hc3RlckFwcENhbGwKZ3R4bnNhIEFwcGxpY2F0aW9uQXJncyAwCm1ldGhvZCAiYWRkcmVzc09wdEluKHBheSxheGZlcil2b2lkIgo9PQphc3NlcnQKCi8vIFZlcmlmeSB0aGUgc2VuZGVyIGlzIHRoZSBjb3JyZWN0IGFkZHJlc3MKTWFzdGVyQXBwQ2FsbApndHhucyBTZW5kZXIKYWRkciAje0FVVEhPUklaRURfQUREUkVTU30KPT0=",
+    "variables": {
+        [
+            {
+                "variable": "DELEGATED_OPTIN_APP_ID",
+                "name": "Delegated Opt-In App ID",
+                "type": "Application",
+                "description": "The ID of the application that will be used for verifying opt ins"
+            },
+            {
+                "variable": "AUTHORIZED_ADDRESS",
+                "name": "Aurhotized address",
+                "type": "Address",
+                "description": "The address that will be allowed to opt the signer into assets provided it's approved by the associated application"
+            }
+        ]
+    }
+}
+```
+
+### String Variables
+
+
+#### Invalid: Partial Argument
+```
+#pragma version 9
+byte "Hello, #{NAME}"
+```
+
+This is not valid because `NAME` is not the full immediate argument. 
+
+#### Invalid: Not An Argument
+```
+#pragma version 9
+#{PUSH_HELLO_NAME}
+```
+
+This is not valid because `PUSH_HELLO_NAME` is not an immediate argument to an opcode.
+
+#### Valid
+```
+#pragma version 9
+byte #{HELLO_NAME}
+```
+
+This is valid as `HELLO_NAME` is the entire immediate argument of the `byte` opcode. A possible value could be `Hello, AlgoDev`
+
+### Hex Variables
+
+
+#### Invalid: Leading 0x
+```
+#pragma version 9
+byte #{DEAD_BEEF}
+```
+
+This is invalid because it would require the client to pass in a value with a leading `0x`
+
+#### Valid: Immediate Argument
+```
+#pragma version 9
+byte 0x#{DEAD_BEEF}
+```
+
+This is valid as `DEAD_BEEF` is the full immediate argument to the `byte` opcode. A possible value could be `deadbeef`.
+
+#### Valid: Partial Immediate Argument
+
+```
+#pragma version 9
+byte 0xdead#{BEEF}
+```
+
+This is valid as `BEEF` is the part of the immediate argument to the `byte` opcode. A possible value could be `beef`.
+
+
+## Security Considerations
+It should be made clear that this standard alone does not define how frontends, paticularly wallets, should deem a logic signature to be safe. This is a decision made soley by the front-ends as to which logic signatures they allow to be signed. It is **RECOMMENDED** to only support the signing of audited or otherwise trusted logic signatures.
+
+## Copyright
+Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CCO</a>.
