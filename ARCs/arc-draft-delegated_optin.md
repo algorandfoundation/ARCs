@@ -1,0 +1,210 @@
+---
+arc: <to be assigned>
+title: Delegated Asset Opt Ins
+description: Allows accounts to delegated the ability to opt into assets
+author: Joe Polny (@joe-p)
+discussions-to: <URL>
+status: Draft
+type: Standards Track
+category: ARC
+created: 2023-07-25
+requires: 47
+---
+
+## Abstract
+This ARC provides a standardized logic signature intended to be used to delegate asset opt ins. An atomic app call is used to provide modular functionality.
+
+## Motivation
+Asset opt ins has been a long-standing point of friction for the Algorand ecosystem, especially for onboarding new users. As such, there needs to be a standardized way to allow delegation of opt ins while still allowing users to have control over their accounts.
+
+## Specification
+
+There are two logic signature programs that apply to this ARC. *Open Opt In Program* refers to a logic signature program that can be used by anyone to opt the signing account into any asset. *Address Opt In Delegation* refers to a logic signature program that can only be used by a specific account to opt the signing account into an asset. 
+
+Both logic signatures must be sent alongside an appcall to an app that implements a specific ABI method `openOptIn(pay,axfer)void` or `addressOptIn(pay,axfer)void`. These methods should determine whether the opt-in is allowed.
+
+### Open Opt-In Program
+```
+#pragma version 8
+#define AppCall load 0
+
+// Save AppCall
+txn GroupIndex
+int 1
++
+store 0
+
+// Verify amount is 0
+txn AssetAmount
+int 0
+==
+assert
+
+// Verify sender == receiver
+txn AssetReceiver
+txn Sender
+==
+assert
+
+// Verify fee is 0 (covered by sender)
+txn Fee
+int 0
+==
+assert
+
+// Verify assetCloseTo is not set
+txn AssetCloseTo
+global ZeroAddress
+==
+assert
+
+// Verify called atomically with master app
+AppCall
+gtxns ApplicationID
+int TMPL_DELEGATED_OPTIN_APP_ID
+==
+assert
+
+// Verify the correct method is being called
+AppCall
+gtxnsa ApplicationArgs 0
+method "openOptIn(pay,axfer)void"
+==
+```
+
+### Open Opt-In ARC-47 JSON
+
+TODO: To be added once ARC-47 is finalized
+
+### Open Opt-In Interface
+
+```json
+ {
+    "name": "openOptIn",
+    "args": [
+        {
+            "name": "mbrPayment",
+            "type": "pay",
+            "desc": "Payment to the receiver that covers the ASA MBR"
+        },
+        {
+            "name": "optIn",
+            "type": "axfer",
+            "desc": "The opt in transaction, presumably from the open opt-in lsig"
+        }
+    ],
+    "desc": "Verifies that the opt in is allowed",
+    "returns": {
+        "type": "void",
+        "desc": ""
+    }
+}  
+```
+
+### Address Opt-In Program
+```
+#pragma version 8
+#define MasterAppCall load 0
+
+// Save MasterAppCall
+txn GroupIndex
+int 1
++
+store 0
+
+// Verify amount is 0
+txn AssetAmount
+int 0
+==
+assert
+
+// Verify sender == receiver
+txn AssetReceiver
+txn Sender
+==
+assert
+
+// Verify fee is 0 (covered by sender)
+txn Fee
+int 0
+==
+assert
+
+// Verify assetCloseTo is not set
+txn AssetCloseTo
+global ZeroAddress
+==
+assert
+
+// Verify called atomically with master app
+MasterAppCall
+gtxns ApplicationID
+int TMPL_DELEGATED_OPTIN_APP_ID
+==
+assert
+
+// Verify the correct method is being called
+MasterAppCall
+gtxnsa ApplicationArgs 0
+method "addressOptIn(pay,axfer)void"
+==
+assert
+
+// Verify the sender is the correct address
+MasterAppCall
+gtxns Sender
+addr TMPL_AUTHORIZED_ADDRESS
+==
+```
+
+### Address Opt-In ARC-47 JSON
+
+TODO: To be added once ARC-47 is finalized
+
+### Address Opt-In Interface
+
+```json
+{
+    "name": "addressOptIn",
+    "args": [
+        {
+            "name": "mbrPayment",
+            "type": "pay",
+            "desc": "Payment to the receiver that covers the ASA MBR"
+        },
+        {
+            "name": "optIn",
+            "type": "axfer",
+            "desc": "The opt in transaction, presumably from the address opt-in lsig"
+        }
+    ],
+    "desc": "Verifies that the opt in is allowed from the sender",
+    "returns": {
+        "type": "void",
+        "desc": ""
+    }
+},
+```
+
+## Rationale
+
+The key to this ARC is the atomic application that must be called alongside the transaction signed by the logic signature. This app can allow more refined control over opt in delegation. 
+
+For example, without the app, the only way to undo the effects of signing one of the programs would be rekeying the signing address. An app allows implementaions to add ways to invalidate the logic signature in more user-friendly ways. 
+
+## Backwards Compatibility
+N/A
+
+## Test Cases
+N/A
+
+## Reference Implementation
+
+TODO
+
+## Security Considerations
+
+It should be made clear that signing a delegated logic signature allows the delegated logic signature to be used for any account that has the signing account as the `auth-addr`. This applies to rekeyed accounts on the same network AND the same accounts on other networks, such as testnet. 
+
+## Copyright
+Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CCO</a>.
