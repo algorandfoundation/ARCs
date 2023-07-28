@@ -19,7 +19,7 @@ As of the time of this ARC, it can be hard to know which resources a caller need
 
 ### Simulation Consideration
 
-It should be noted that it is currently planned for the algod simulate endpoint to allow readonly execution of a method without providing in references. The response to this endpoint will return the necessary resources. Once this functionality is availible, this ARC will no longer be needed. The primary intent of this ARC is to serve as an intermediate solution.
+It should be noted that it is currently planned for the algod simulate endpoint to allow readonly execution of a method without providing references. The response to this endpoint will return the necessary resources. Once this functionality is availible, this ARC will no longer be needed. The primary intent of this ARC is to serve as an intermediate solution.
 
 ## Specification
 If an application has a method and the contract wants to make the required resources for calling the method discoverable, it **MUST** implement a readonly method with the same exact signature with an `arcXXXX_` prefix and a return type of `(address[],uint64[],uint64[],(uint64,byte[]))`. 
