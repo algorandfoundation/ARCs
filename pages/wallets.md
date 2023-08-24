@@ -1,12 +1,13 @@
 ---
 layout: page
-title: Algorand Wallet Compatiblity Matrix 
+title: Algorand Wallet Compatiblity Matrix
 permalink: /wallets
 ---
 ## Status
 Allowed Status are:
 - Supported
 - Not Supported
+- Planned
 - EXPERIMENTAL
 - UNKNOWN
 - DEPRECATED
@@ -16,22 +17,22 @@ Allowed Status are:
 | ARCS | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | ---- | ------------- | ------------- | ------------- | ------------- |
 | 1    | UNKNOWN       | Supported     | Supported     | Supported     |
-| 5    | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 6    | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 7    | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 8    | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 9    | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 10   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 11   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 25   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 35   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
+| 5    | UNKNOWN       | Supported     | UNKNOWN       | UNKNOWN       |
+| 6    | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
+| 7    | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
+| 8    | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
+| 9    | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
+| 10   | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
+| 11   | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
+| 25   | UNKNOWN       | Supported     | UNKNOWN       | UNKNOWN       |
+| 35   | UNKNOWN       | Supported     | UNKNOWN       | UNKNOWN       |
 
 ## BIPS
 
 | BIPS | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | ---- | ------------- | ------------- | ------------- | ------------- |
-| 32   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 39   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| 44   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
+| 32   | UNKNOWN       | Not supported | UNKNOWN       | UNKNOWN       |
+| 39   | UNKNOWN       | Planned       | UNKNOWN       | UNKNOWN       |
+| 44   | UNKNOWN       | Not supported | UNKNOWN       | UNKNOWN       |
 
 **Disclaimer:** This website is under constant modification.
