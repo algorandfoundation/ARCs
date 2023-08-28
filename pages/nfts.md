@@ -5,8 +5,8 @@ permalink: /nfts
 ---
 ## Status
 Allowed Status are:
-- OK
-- --
+* OK
+* --
 
 Name should be in alphabetical order.
 
