@@ -1,0 +1,307 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "AlgoAppSpec",
+  "type": "object",
+  "required": ["contract", "schema", "source", "state"],
+  "additionalProperties": false,
+  "properties": {
+    "hints": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Hint"
+      }
+    },
+    "source": {
+      "$ref": "#/definitions/AppSources"
+    },
+    "contract": {
+      "$ref": "contract.schema.json"
+    },
+    "schema": {
+      "$ref": "#/definitions/SchemaSpec"
+    },
+    "state": {
+      "$ref": "#/definitions/StateSchemaSpec"
+    },
+    "bare_call_config": {
+      "$ref": "#/definitions/CallConfig"
+    }
+  },
+  "definitions": {
+    "AVMType": {
+      "description": "AVM data type",
+      "enum": ["uint64", "bytes"]
+    },
+    "DeclaredSchemaValueSpec": {
+      "type": "object",
+      "required": ["type", "key"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "The type of the value",
+          "$ref": "#/definitions/AVMType"
+        },
+        "key": {
+          "description": "The name of the key",
+          "type": "string"
+        },
+        "descr": {
+          "description": "A description of the variable",
+          "type": "string"
+        },
+        "static": {
+          "description": "Whether the value is set statically (at create time only) or dynamically",
+          "type": "boolean"
+        }
+      }
+    },
+    "ReservedSchemaValueSpec": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "description": "The type of the value",
+          "$ref": "#/definitions/AVMType"
+        },
+        "descr": {
+          "description": "A description of the variable",
+          "type": "string"
+        },
+        "max_keys": {
+          "description": "The maximum number of slots to reserve",
+          "type": "integer"
+        }
+      }
+    },
+    "StateSchemaSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["global", "local"],
+      "properties": {
+        "global": {
+          "$ref": "#/definitions/StateSchema"
+        },
+        "local": {
+          "$ref": "#/definitions/StateSchema"
+        }
+      }
+    },
+    "StateSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["num_byte_slices", "num_uints"],
+      "properties": {
+        "num_uints": {
+          "type": "integer"
+        },
+        "num_byte_slices": {
+          "type": "integer"
+        }
+      }
+    },
+    "SchemaSpec": {
+      "description": "The schema for global and local storage",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "global": {
+          "$ref": "#/definitions/Schema"
+        },
+        "local": {
+          "$ref": "#/definitions/Schema"
+        }
+      }
+    },
+    "Schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "declared": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/DeclaredSchemaValueSpec"
+          }
+        },
+        "reserved": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ReservedSchemaValueSpec"
+          }
+        }
+      }
+    },
+    "AppSources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "approval": {
+          "type": "string"
+        },
+        "clear": {
+          "type": "string"
+        }
+      }
+    },
+    "Hint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "read_only": {
+          "type": "boolean"
+        },
+        "structs": {
+          "type": "object",
+          "properties": {
+            "output": {
+              "$ref": "#/definitions/Struct"
+            }
+          },
+          "additionalProperties": {
+            "$ref": "#/definitions/Struct"
+          }
+        },
+        "default_arguments": {
+          "additionalProperties": {
+            "$ref": "#/definitions/DefaultArgument"
+          }
+        },
+        "call_config": {
+          "$ref": "#/definitions/CallConfig"
+        }
+      }
+    },
+    "CallConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "no_op": {
+          "$ref": "#/definitions/CallConfigValue"
+        },
+        "opt_in": {
+          "$ref": "#/definitions/CallConfigValue"
+        },
+        "close_out": {
+          "$ref": "#/definitions/CallConfigValue"
+        },
+        "update_application": {
+          "$ref": "#/definitions/CallConfigValue"
+        },
+        "delete_application": {
+          "$ref": "#/definitions/CallConfigValue"
+        }
+      }
+    },
+    "CallConfigValue": {
+      "enum": ["NEVER", "CALL", "CREATE", "ALL"]
+    },
+    "Struct": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "elements"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StructElement"
+          }
+        }
+      }
+    },
+    "FieldName": {
+      "type": "string"
+    },
+    "ABIType": {
+      "type": "string"
+    },
+    "StructElement": {
+      "type": "array",
+      "minItems": 2,
+      "items": [
+        {
+          "$ref": "#/definitions/FieldName"
+        },
+        {
+          "$ref": "#/definitions/ABIType"
+        }
+      ]
+    },
+    "DefaultArgument": {
+      "description": "Defines a strategy for obtaining a default value for a given ABI arg.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["source", "data"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "description": "The default value should be fetched by invoking an ABI method",
+              "enum": ["abi-method"]
+            },
+            "data": {
+              "description": "The contract of the ABI method to invoke.",
+              "$ref": "contract.schema.json#/definitions/ContractMethod"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["source", "data"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "description": "The default value should be fetched from global state",
+              "enum": ["global-state"]
+            },
+            "data": {
+              "description": "The key of the state variable",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["source", "data"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "description": "The default value should be fetched from the local state of the sender user",
+              "enum": ["local-state"]
+            },
+            "data": {
+              "description": "The key of the state variable",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["source", "data"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "description": "The default value is a constant.",
+              "enum": ["constant"]
+            },
+            "data": {
+              "description": "The static default value to use.",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
