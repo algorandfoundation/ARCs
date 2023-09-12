@@ -1,0 +1,53 @@
+#pragma version 9
+
+// Verify this is a payment
+txn TypeEnum
+int pay
+==
+
+// Verify this is not rekeying the sender address
+txn RekeyTo
+global ZeroAddress
+==
+assert
+
+// Verify the sender's account is not being closed
+txn CloseRemainderTo
+global ZeroAddress
+==
+assert
+
+// Verify the receiver is equal to the templated receiver address
+txn Receiver
+addr TMPL_RECEIVER
+==
+assert
+
+// Verify the amount is equal to the templated amount
+txn Amount
+int TMPL_AMOUNT
+==
+assert
+
+// Verify the current round is within 500 rounds of a product of 25_000
+global Round
+int 25_000
+%
+store 0
+
+load 0
+int 500
+<=
+
+load 0
+int 24_500
+>=
+
+||
+assert
+
+// Verify lease 
+txn Lease
+byte "scheduled 25_000 payment"
+sha256
+==
