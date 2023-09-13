@@ -15,8 +15,8 @@ function validateValue(value: string | number, type: string): void {
     }
     
 
-    if (type === 'uint64') {
-        if (typeof value !== 'number') throw Error('uint64 must be a number')
+    if (['uint64', 'asset', 'application'].includes(type)) {
+        if (typeof value !== 'number') throw Error(`${type} must be a number`)
         algosdk.encodeUint64(value)
         return
     }
