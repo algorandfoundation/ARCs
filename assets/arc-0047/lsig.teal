@@ -4,6 +4,7 @@
 txn TypeEnum
 int pay
 ==
+assert
 
 // Verify this is not rekeying the sender address
 txn RekeyTo
