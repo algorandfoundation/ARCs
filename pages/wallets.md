@@ -17,22 +17,22 @@ Allowed Status are:
 | ARCS | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | ---- | ------------- | ------------- | ------------- | ------------- |
 | 1    | UNKNOWN       | Supported     | Supported     | Supported     |
-| 5    | UNKNOWN       | Supported     | UNKNOWN       | UNKNOWN       |
-| 6    | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
-| 7    | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
-| 8    | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
-| 9    | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
-| 10   | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
-| 11   | UNKNOWN       | Not Supported | UNKNOWN       | UNKNOWN       |
-| 25   | UNKNOWN       | Supported     | UNKNOWN       | UNKNOWN       |
-| 35   | UNKNOWN       | Supported     | UNKNOWN       | UNKNOWN       |
+| 5    | UNKNOWN       | Supported     | UNKNOWN       | Supported     |
+| 6    | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
+| 7    | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
+| 8    | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
+| 9    | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
+| 10   | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
+| 11   | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
+| 25   | UNKNOWN       | Supported     | UNKNOWN       | Supported     |
+| 35   | UNKNOWN       | Supported     | UNKNOWN       | Planned       |
 
 ## BIPS
 
 | BIPS | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | ---- | ------------- | ------------- | ------------- | ------------- |
-| 32   | UNKNOWN       | Not supported | UNKNOWN       | UNKNOWN       |
-| 39   | UNKNOWN       | Planned       | UNKNOWN       | UNKNOWN       |
-| 44   | UNKNOWN       | Not supported | UNKNOWN       | UNKNOWN       |
+| 32   | UNKNOWN       | Not supported | UNKNOWN       | Not supported |
+| 39   | UNKNOWN       | Planned       | UNKNOWN       | Planned       |
+| 44   | UNKNOWN       | Not supported | UNKNOWN       | Not supported |
 
 **Disclaimer:** This website is under constant modification.
