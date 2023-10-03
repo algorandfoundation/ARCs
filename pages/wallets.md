@@ -43,12 +43,12 @@ Allowed Status are:
 | ARCS           | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | -------------- | ------------- | ------------- | ------------- | ------------- |
 | [3][ARC-3]     | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
-| [16][ARC-16]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [19][ARC-19]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [20][ARC-20]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [69][ARC-69]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [72][ARC-72]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [200][ARC-200] | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
+| [16][ARC-16]   | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
+| [19][ARC-19]   | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
+| [20][ARC-20]   | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
+| [69][ARC-69]   | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
+| [72][ARC-72]   | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
+| [200][ARC-200] | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
 
 [ARC-3]: ../ARCs/arc-0003.md "Conventions Fungible/Non-Fungible Tokens"
 [ARC-16]: ../ARCs/arc-0016.md "Convention for declaring traits of an NFT's"
