@@ -43,7 +43,7 @@ Allowed Status are:
 | ARCS           | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | -------------- | ------------- | ------------- | ------------- | ------------- |
 | [3][ARC-3]     | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
-| [16][ARC-16]   | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
+| [16][ARC-16]   | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
 | [19][ARC-19]   | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
 | [20][ARC-20]   | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
 | [69][ARC-69]   | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
