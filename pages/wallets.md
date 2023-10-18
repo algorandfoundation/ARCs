@@ -17,15 +17,15 @@ Allowed Status are:
 | ARCS           | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | -------------- | ------------- | ------------- | ------------- | ------------- |
 | [1][ARC-1]     | UNKNOWN       | Supported     | Supported     | Supported     |
-| [5][ARC-5]     | UNKNOWN       | Supported     | UNKNOWN       | Supported     |
-| [6][ARC-6]     | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
-| [7][ARC-7]     | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
-| [8][ARC-8]     | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
-| [9][ARC-9]     | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
-| [10][ARC-10]   | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
-| [11][ARC-11]   | UNKNOWN       | Not Supported | UNKNOWN       | Not Supported |
-| [25][ARC-25]   | UNKNOWN       | Supported     | UNKNOWN       | Supported     |
-| [35][ARC-35]   | UNKNOWN       | Supported     | UNKNOWN       | Planned       |
+| [5][ARC-5]     | UNKNOWN       | Supported     | Supported     | Supported     |
+| [6][ARC-6]     | UNKNOWN       | Not Supported | Not Supported | Not Supported |
+| [7][ARC-7]     | UNKNOWN       | Not Supported | Supported     | Not Supported |
+| [8][ARC-8]     | UNKNOWN       | Not Supported | Supported     | Not Supported |
+| [9][ARC-9]     | UNKNOWN       | Not Supported | Supported     | Not Supported |
+| [10][ARC-10]   | UNKNOWN       | Not Supported | Supported     | Not Supported |
+| [11][ARC-11]   | UNKNOWN       | Not Supported | Supported     | Not Supported |
+| [25][ARC-25]   | UNKNOWN       | Supported     | Supported     | Supported     |
+| [35][ARC-35]   | UNKNOWN       | Supported     | Not Supported | Planned       |
 
 [ARC-1]: ../ARCs/arc-0001.md "Algorand Wallet Transaction Signing API"
 [ARC-5]: ../ARCs/arc-0005.md "Wallet Transaction Signing API (Functional)"
@@ -42,13 +42,13 @@ Allowed Status are:
 
 | ARCS           | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | -------------- | ------------- | ------------- | ------------- | ------------- |
-| [3][ARC-3]     | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [16][ARC-16]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [19][ARC-19]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [20][ARC-20]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [69][ARC-69]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [72][ARC-72]   | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
-| [200][ARC-200] | UNKNOWN       | UNKNOWN       | UNKNOWN       | UNKNOWN       |
+| [3][ARC-3]     | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
+| [16][ARC-16]   | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
+| [19][ARC-19]   | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
+| [20][ARC-20]   | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
+| [69][ARC-69]   | UNKNOWN       | UNKNOWN       | Supported     | UNKNOWN       |
+| [72][ARC-72]   | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
+| [200][ARC-200] | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
 
 [ARC-3]: ../ARCs/arc-0003.md "Conventions Fungible/Non-Fungible Tokens"
 [ARC-16]: ../ARCs/arc-0016.md "Convention for declaring traits of an NFT's"
@@ -63,9 +63,9 @@ Allowed Status are:
 
 | BIPS           | Daffi         | Defly         | Exodus        | Pera Wallet   |
 | -------------- | ------------- | ------------- | ------------- | ------------- |
-| [32][BIP-32]   | UNKNOWN       | Not supported | UNKNOWN       | Not supported |
-| [39][BIP-39]   | UNKNOWN       | Planned       | UNKNOWN       | Planned       |
-| [44][BIP-44]   | UNKNOWN       | Not supported | UNKNOWN       | Not supported |
+| [32][BIP-32]   | UNKNOWN       | Not supported | Supported     | Not supported |
+| [39][BIP-39]   | UNKNOWN       | Planned       | Supported     | Planned       |
+| [44][BIP-44]   | UNKNOWN       | Not supported | Supported     | Not supported |
 
 [BIP-32]: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki "Hierarchical Deterministic Wallets"
 [BIP-39]: https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki "Mnemonic code for generating deterministic keys"
