@@ -1,0 +1,155 @@
+---
+arc: <to be assigned>
+title: On-Chain Multisignature Management, Transaction Distribution, and Signing Workflow
+description: A smart contract that stores transactions and signatures for simplified multisignature use.
+author: Steve Ferrigno (@nullun)
+discussion-to: <URL>
+status: Draft
+type: Standards Track
+category: Interface
+created: 2023-10-16
+requires: 4
+---
+
+## Abstract
+
+This ARC proposes the utilization of on-chain smart contracts to facilitate the storage and transfer of multisignature metadata, transactions, and corresponding signatures for the respective multisignature sub-accounts on the Algorand blockchain.
+
+## Motivation
+
+Multisignature (multisig) accounts play a crucial role in enhancing security and control within the Algorand ecosystem. However, the management of multisig accounts often involves intricate off-chain coordination and the distribution of transactions among authorized signers. There exists a pressing need for a more streamlined and simplified approach to multisig utilization, along with an efficient transaction signing workflow.
+
+## Specification
+
+The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL NOT**", "**SHOULD**", "**SHOULD NOT**", "**RECOMMENDED**", "**MAY**", and "**OPTIONAL**" in this document are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.
+
+### ABI
+
+A compliant smart contract, conforming to this ARC, **MUST** implement the following interface:
+
+```json
+{
+  "name": "ARC-XXXX",
+  "desc": "On-Chain Msig Util",
+  "methods": [
+    {
+      "name": "deploy",
+      "desc": "Deploy a new On-Chain Msig Signer Application",
+      "args": [],
+      "returns": { "type": "uint64", "desc": "Msig Util Application ID" }
+    },
+    {
+      "name": "setSignatures",
+      "desc": "Set signatures for account. Signatures must be included as an array of byte-arrays",
+      "args": [
+        { "type": "byte[][]", "name": "Signatures", "desc": "Array of signatures" }
+      ],
+      "returns": { "type": "void" }
+    },
+    {
+      "name": "clearSignatures",
+      "desc": "Clear signatures for account. Be aware this only removes it from your local state, and indexers will still know and could use your signatures",
+      "args": [],
+      "returns": { "type": "void" }
+    },
+    {
+      "name": "addAccount",
+      "desc": "Add account to multisig",
+      "args": [
+        { "type": "uint8", "name": "Account Index", "desc": "Account position within multisig" },
+        { "type": "account", "name": "Account", "desc": "Account to add" }
+      ],
+      "returns": { "type": "void" }
+    },
+    {
+      "name": "removeAccount",
+      "desc": "Remove account from multisig",
+      "args": [
+        { "type": "uint8", "name": "Account Index", "desc": "Account position within multisig to remove" }
+      ],
+      "returns": { "type": "void" }
+    },
+    {
+      "name": "addTransaction",
+      "desc": "Add transaction to the app. Only one transaction should be included per call",
+      "args": [
+        { "type": "uint8", "name": "Group Index", "desc": "Transactions position within an atomic group" },
+        { "type": "byte[]", "name": "Transaction", "desc": "Transaction to add" }
+      ],
+      "returns": { "type": "void" }
+    },
+    {
+      "name": "removeTransaction",
+      "desc": "Remove transaction from the app. Unlike signatures which will remove all previous signatures when a new one is added, you must clear all previously transactions if you want to reuse the same app",
+      "args": [
+        { "type": "uint8", "name": "Group Index", "desc": "Transactions position within an atomic group" }
+      ],
+      "returns": { "type": "void" }
+    },
+    {
+      "name": "setThreshold",
+      "desc": "Update the multisig threshold",
+      "args": [
+        { "type": "uint8", "name": "Threshold", "desc": "New multisignature threshold" }
+      ],
+      "returns": { "type": "void" }
+    },
+    {
+      "name": "destroy",
+      "desc": "Destroy the application and return funds to creator address. All transactions must be removed before calling destroy",
+      "args": [],
+      "returns": { "type": "void" }
+    }
+  ]
+}
+```
+
+Each deployment is administered by the creator's address, who is responsible for configuring the multisignature metadata, which includes the threshold and sub-accounts, and adding or removing transactions. After successful deployment and configuration, the application ID should be distributed among the involved parties as a one-time off-chain exchange.
+
+Each constituent of an on-chain multisignature application **SHOULD** OptIn to the application ID. This OptIn serves two primary purposes: it allocates the minimum balance requirement for storing up to 16 signatures in their local state, and it enables any local infrastructure, such as wallets, to track changes in the application's state and notify the user of any new transactions requiring their signature.
+
+Once a transaction receives enough signatures to meet the threshold and falls within the valid rounds, a party member may construct the multisignature transaction, including all the signatures, and submit it to the network. Subsequently, participants can clear the signatures from their local state, and the administrator can remove or replace the transactions.
+
+When an on-chain multisig application is no longer needed, the administrator may destroy the application, reclaiming any Algo funds used for storing the transactions in boxes. Destroying the application does not render the multisignature account inaccessible, as a new deployment with the same multisignature metadata can be configured and used.
+
+### Storage
+
+| Type   | Key         | Value   | Description                                              |
+|--------|-------------|---------|----------------------------------------------------------|
+| Global | "Threshold" | uint64  | The multisig threshold                                   |
+| Global | uint8       | Account | The sub-account index for the multisig                   |
+| Global | Account     | uint64  | The number of times this account appears in the multisig |
+| Local  | uint8       | byte[]  | The signature for the nth-indexed transaction            |
+| Box    | "txn"+i     | byte[]  | The transactions available for signing "txn0", "txn1"... |
+
+### Cost
+
+Given that all interactions occur on-chain, there are associated costs, excluding the standard transaction fee. Below is an approximate breakdown of the minimum additional costs:
+
+| Action          | Storage Cost (microAlgos) | Breakdown                                        |
+|-----------------|--------------------------|---------------------------------------------------|
+| Creation        | 250,000+                 | 100,000 + (50,000 * (1 + (2 * NumOfSubAccounts))) |
+| OptIn           | 900,000                  | 100,000 + (25,000 + 25,000) * 16                  |
+| Add Transaction | 72,100+                  | 2,500 + (400 * (4 + TxnSize)) * NumOfTxns         |
+
+## Limitations and Design Decisions
+
+The current design necessitates that all transactions within the group be exclusively signed by the constituents of the multisig account. If a group transaction requires a separate signature from another account or a logicsig, this design does not support it. An extension to this ARC should be considered to address such scenarios.
+
+This ARC inherently promotes transparency of transactions and signers. If an additional layer of anonymity is required, an extension to this ARC should be proposed, outlining how to store and share encrypted data.
+
+Having individual deployments for different groups rather than a single instance that everyone uses has benefits for third-party infrastructure. Managing a large number of boxes for a single application can be cumbersome. Instead, small groups can create their multisig app by having one member deploy the contract. They can then subscribe to the application ID, simplifying the tracking of multisig applications and transactions for wallets and other infrastructure.
+
+## Reference Implementation
+
+A reference implementation is available at [github.com/nullun/MsigShare](https://github.com/nullun/MsigShare) with a user interface at [github.com/nullun/MsigShareUI](https://github.com/nullun/MsigShareUI). Although the code was originally written in TEAL, it is encouraged for others to implement this standard in their prefered smart contract language of choice, provided it conforms to the ABI specification, which is the most critical aspect.
+
+## Security Considerations
+
+This ARC's design solely involves storing existing data structures and does not have the capability to create or use multisignature accounts. Therefore, the security implications are minimal. End users are expected to review each transaction before generating a signature for it. If a smart contract implementing this ARC lacks proper security checks, the worst-case scenario would involve incorrect transactions and invalid signatures being stored on-chain, along with the potential loss of the minimum balance requirement from the application account.
+
+## Additional Considerations
+
+## Copyright
+
+Copyright and related rights are waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
