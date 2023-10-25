@@ -7,7 +7,7 @@ company_name: <Name of the company>
 category: <dApps, Tools, Community, Other>
 focus_area: <Banking,DEX,Defi,Deployment,Education,Gaming,IDE,Identity,Libraries,Metaverse,Monitoring,Node,NFT,Oracle,Social,Storage,Teal,User Onboarding,Wallet, Other>
 open_source: <Yes, No>
-amount_requested: <Amount (integer) requested in ALGO, it should be at least 1000>
+amount_requested: <Amount (integer) requested in ALGO, it should be at least 10000>
 status: <Draft, Final, Approved>
 ---
 
