@@ -1,35 +1,7 @@
-import { CryptoKX, KeyPair, crypto_kx_client_session_keys, crypto_kx_server_session_keys, crypto_scalarmult, crypto_scalarmult_ed25519_base_noclamp, crypto_secretbox_NONCEBYTES, crypto_secretbox_easy, crypto_secretbox_open_easy, crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519, crypto_sign_keypair, crypto_sign_seed_keypair, ready, to_base64 } from "libsodium-wrappers-sumo"
+import { CryptoKX, KeyPair, crypto_kx_client_session_keys, crypto_kx_server_session_keys, crypto_scalarmult, crypto_secretbox_NONCEBYTES, crypto_secretbox_easy, crypto_secretbox_open_easy, crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519, crypto_sign_keypair, ready, to_base64 } from "libsodium-wrappers-sumo"
 import * as bip39 from "bip39"
-import { sha512_256 } from "js-sha512"
-import base32 from "hi-base32"
 import { randomBytes } from "crypto"
 import { ContextualCryptoApi, Encoding, KeyContext, SignMetadata } from "./contextual.api.crypto"
-
-/**
- * @param publicKey 
- * @returns 
- */
-function encodeAddress(publicKey: Buffer): string {
-    const keyHash: string = sha512_256.create().update(publicKey).hex()
-
-    // last 4 bytes of the hash
-    const checksum: string = keyHash.slice(-8)
-
-    return base32.encode(ConcatArrays(publicKey, Buffer.from(checksum, "hex"))).slice(0, 58)
-}
-
-function ConcatArrays(...arrs: ArrayLike<number>[]) {
-    const size = arrs.reduce((sum, arr) => sum + arr.length, 0)
-    const c = new Uint8Array(size)
-
-    let offset = 0
-    for (let i = 0; i < arrs.length; i++) {
-        c.set(arrs[i], offset)
-        offset += arrs[i].length
-    }
-
-    return c
-}
 
 describe("Contextual Derivation & Signing", () => {
 
@@ -52,72 +24,34 @@ describe("Contextual Derivation & Signing", () => {
                 describe("Soft Derivations", () => {
                     it("\(OK) Derive m'/44'/283'/0'/0/0 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("9183c50768a724c5b77a4ddf56d7da2f204d56da68ced53626222ace25b25cd8", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("7915e7ecbaad1dc9bc22a9e496686687f1a8cb4895b7ca46f86d64dd56c6cd97", "hex")))
                     })
             
                     it("\(OK) Derive m'/44'/283'/0'/0/1 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 1)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("15965b321e69bfb6386a1dc31925ee608f8fdc9f272442e4a57e47508390a714", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("054a6881d8809c348a402d67ba2feedcd8e3145f40f21a6bbd0de09c30c78d0a", "hex")))
                     })
             
                     it("\(OK) Derive m'/44'/283'/0'/0/2 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 2)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("af1bb9cba94b7a7569c186ecffe881b01bd2cbded23418d2fb51c7ffe675502c", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("8cea8052cfa1fd8cec0b4fad6241a91f2edbfe9f072586f243839174e40a25ef", "hex")))
                     })
 
                     it("\(OK) Derive m'/44'/283'/3'/0/0 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 3, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("d81624d97ef08248724eb2432a514efb857d2705783dcb012ede40fcaaeadcd0", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("cf8d28a3d41bc656acbfeadb64d06054142c97bee6a987c11d934f84853df866", "hex")))
                     })
                 })
 
                 describe("Hard Derivations", () => {
                     it("\(OK) Derive m'/44'/283'/1'/0/0 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 1, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("ccca8fd695161983b306bb0756f674d0b437d77b4bdf2b546ab2ecf2890270dd", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("04f3ba279aa781ab4f8f79aaf6cf91e3d7ff75429064dc757001a30e10c628df", "hex")))
                     })
         
                     it("\(OK) Derive m'/44'/283'/2'/0/1 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 2, 1)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("d9675a7ce320937ce756617f60a73a72d30de183277bc8ecf8f923787f4f9875", "hex")))
-                    })
-
-                    describe("Ledger Addresses test Vectors", ()=> {
-                        it("\(OK) Derive m'/44'/283'/0'/0/0 Algorand Address", async () => {
-                            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
-                            const algorandAddress: string = encodeAddress(Buffer.from(key))
-                            expect(algorandAddress).toEqual("SGB4KB3IU4SMLN32JXPVNV62F4QE2VW2NDHNKNRGEIVM4JNSLTMJV53P6I")
-                        })
-            
-                        it("\(OK) Derive m'/44'/283'/1'/0/0 Algorand Address", async () => {
-                            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 1, 0)
-                            const algorandAddress: string = encodeAddress(Buffer.from(key))
-                            expect(algorandAddress).toEqual("ZTFI7VUVCYMYHMYGXMDVN5TU2C2DPV33JPPSWVDKWLWPFCICODO6HWLPLI")
-                        })
-
-                        it("\(OK) Derive m'/44'/283'/2'/0/0 Algorand Address", async () => {
-                            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 2, 0)
-                            const algorandAddress: string = encodeAddress(Buffer.from(key))
-                            expect(algorandAddress).toEqual("PSVABV5X6EGQZIHKZWVUUISWIZZKZ6RFEQ6O3IOOHPAJBSVHNNQENRMGQY")
-                        })
-
-                        it("\(OK) Derive m'/44'/283'/3'/0/0 Algorand Address", async () => {
-                            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 3, 0)
-                            const algorandAddress: string = encodeAddress(Buffer.from(key))
-                            expect(algorandAddress).toEqual("3ALCJWL66CBEQ4SOWJBSUUKO7OCX2JYFPA64WAJO3ZAPZKXK3TIPC4J3VQ")
-                        })
-
-                        it("\(OK) Derive m'/44'/283'/4'/0/0 Algorand Address", async () => {
-                            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 4, 0)
-                            const algorandAddress: string = encodeAddress(Buffer.from(key))
-                            expect(algorandAddress).toEqual("42ASNPEG4P73PI4DYJDILSX6CKOQ275N3IX6GDLVUMDRIGMBURCFNVXNEI")
-                        })
-
-                        it("\(OK) Derive m'/44'/283'/5'/0/0 Algorand Address", async () => {
-                            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 5, 0)
-                            const algorandAddress: string = encodeAddress(Buffer.from(key))
-                            expect(algorandAddress).toEqual("XGLSRHKE2RD4VNOKWIHBR4U2SEGX2H2AN75ZLJJ7VLLXWIZPJPCB4MZUFY")
-                        })
+                        expect(key).toEqual(new Uint8Array(Buffer.from("400d78302258dc7b3cb56d1a09f85b018e8100865ced0b5cda474c26bbc07c30", "hex")))
                     })
                 })
             })
@@ -126,29 +60,29 @@ describe("Contextual Derivation & Signing", () => {
                 describe("Soft Derivations", () => {
                     it("\(OK) Derive m'/44'/0'/0'/0/0 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("19dc07a51e5be0ce009d751c6d5fbd3a14d3dc4d0fc9c3c6f13e3581a08e4322", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("28804f08d8c145e172c998fe75058237b8181846ca763894ae3eefea6ab88352", "hex")))
                     })
             
                     it("\(OK) Derive m'/44'/0'/0'/0/1 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 1)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("270779072e644fd8575925a49084ecbdec3907ec876ebc9081d11278dea24165", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("fc8d1c79edd406fa415cb0a76435eb83b6f8af72cd9bd673753471470205057a", "hex")))
                     })
             
                     it("\(OK) Derive m'/44'/0'/0'/0/2 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 2)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("618d1493f75752fe398f3d7a361d3003d5652ae3446804256a63bbea8e11a179", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("f7e317899420454886fe79f24e25af0bbb1856c440b14829674015e5fc2ad28a", "hex")))
                     })
                 })
 
                 describe("Hard Derivations", () => {
                     it("\(OK) Derive m'/44'/0'/1'/0/0 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 1, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("9afd78d1456265bbdea1b82e2bc1d31ba64589f53325d69f222375fcd09f02c6", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("dddea98ec1fd24f9045ef0cade9055116079c87d16e51a0a081e94a8fb905435", "hex")))
                     })
         
                     it("\(OK) Derive m'/44'/0'/2'/0/1 Identity Key", async () => {
-                        const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 2, 1)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("c3364323ba03483057b08a52087c4d6bae2e26c6dbbb3adce6aa8db627eba2b1", "hex")))
+                        const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 2, 1)                        
+                        expect(key).toEqual(new Uint8Array(Buffer.from("2623ec5aad0ed598fcba654d9abd24c0c3f4804d5ac5f486e618fa1c66da139a", "hex")))
                     })
                 })
             })

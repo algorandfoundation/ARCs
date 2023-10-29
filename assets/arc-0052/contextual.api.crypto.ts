@@ -1,4 +1,3 @@
-import { createHash, createHmac } from 'crypto';
 import {
     crypto_core_ed25519_scalar_add,
     crypto_core_ed25519_scalar_mul,
@@ -11,9 +10,8 @@ import {
     crypto_scalarmult
 } from 'libsodium-wrappers-sumo';
 
-import Ajv, { JSONSchemaType } from "ajv"
-const bip32ed25519 = require("bip32-ed25519");
-
+import Ajv from "ajv"
+import { deriveChildNodePrivate, fromSeed } from './bip32-ed25519';
 
 /**
  * 
@@ -63,45 +61,6 @@ export class ContextualCryptoApi {
 
     }
 
-    /**
-     * 
-     * Reference of BIP32-Ed25519 Hierarchical Deterministic Keys over a Non-linear Keyspace (https://acrobat.adobe.com/id/urn:aaid:sc:EU:04fe29b0-ea1a-478b-a886-9bb558a5242a)
-     * 
-     * @param seed - 256 bite seed generated from BIP39 Mnemonic 
-     * @returns - Extended root key (kL, kR, c) where kL is the left 32 bytes of the root key, kR is the right 32 bytes of the root key, and c is the chain code. Total 96 bytes
-     */
-    private async rootKey(seed: Buffer): Promise<Uint8Array> {
-        // SLIP-0010
-        // We should have been using [BIP32-Ed25519 HierarchicalDeterministicKeysoveraNon-linear Keyspace] instead. Which would mean SHA512(seed)
-        // As in the [Section V].A Root keys. 
-        const c: Buffer = createHmac('sha256', "ed25519 seed").update(Buffer.concat([new Uint8Array([0x1]), seed])).digest()
-        let I: Buffer = createHmac('sha512', "ed25519 seed").update(seed).digest()
-
-        // split into KL and KR.
-        // (KL, KR) is the extended private key
-        let kL = I.subarray(0, 32) 
-        let kR = I.subarray(32, 64)
-
-        // Specific to our Algorand app implementation (Taken from Ledger reference implementation: https://github.com/LedgerHQ/orakolo/blob/0b2d5e669ec61df9a824df9fa1a363060116b490/src/python/orakolo/HDEd25519.py#L130)
-        // Seems to try to find a rootKey in which the last bits are cleared
-        // Shouldn't be necessary has keys are expected to be clamped as in the next step
-        while ((kL[31] & 0b00_10_00_00) != 0) {
-            I = createHmac('sha512', "ed25519 seed").update(I).digest()
-            kL = I.subarray(0, 32)
-            kR = I.subarray(32, 64)
-        }
-
-        // clamping
-        // This bit is "compliant" with [BIP32-Ed25519 Hierarchical Deterministic Keys over a Non-linear Keyspace]
-        //Set the bits in kL as follows:
-        // little Endianess 
-        kL[0] &= 0b11_11_10_00; // the lowest 3 bits of the first byte of kL are cleared
-        kL[31] &= 0b01_11_11_11; // the highest bit of the last byte is cleared
-        kL[31] |= 0b01_00_00_00; // the second highest bit of the last byte is set
-
-        return new Uint8Array(Buffer.concat([kL, kR, c]))
-    }
-
 
     /**
      * Derives a child key from the root key based on BIP44 path
@@ -112,26 +71,26 @@ export class ContextualCryptoApi {
      * @returns 
      */
     private async deriveKey(rootKey: Uint8Array, bip44Path: number[], isPrivate: boolean = true): Promise<Uint8Array> {
-        let derived = bip32ed25519.derivePrivate(Buffer.from(rootKey), bip44Path[0])
-            derived = bip32ed25519.derivePrivate(derived, bip44Path[1])
-            derived = bip32ed25519.derivePrivate(derived, bip44Path[2])
-            derived = bip32ed25519.derivePrivate(derived, bip44Path[3])
-            derived = bip32ed25519.derivePrivate(derived, bip44Path[4])
+        let derived = deriveChildNodePrivate(Buffer.from(rootKey), bip44Path[0])
+            derived = deriveChildNodePrivate(derived, bip44Path[1])
+            derived = deriveChildNodePrivate(derived, bip44Path[2])
+            derived = deriveChildNodePrivate(derived, bip44Path[3])
 
-            const derivedKl = derived.subarray(0, 32)
-            const xpvt = createHash('sha512').update(derivedKl).digest()
+            // Public Key SOFT derivations are possible without using the private key of the parent node
+            // Could be an implementation choice. 
+            // Example: 
+            // const nodeScalar: Uint8Array = derived.subarray(0, 32)
+            // const nodePublic: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(nodeScalar)
+            // const nodeCC: Uint8Array = derived.subarray(64, 96)
 
-            // Keys clamped again
-            // This is specific to our algorand app implementation
-            // Taken from reference code: https://github.com/Zondax/ledger-algorand/blob/test/tests_zemu/tests/key_derivation.ts#L84
-            // But not part of Ledger's reference implementation:https://github.com/LedgerHQ/orakolo/blob/0b2d5e669ec61df9a824df9fa1a363060116b490/src/python/orakolo/HDEd25519.py#L156
-            // And not part of [BIP32-Ed25519 Hierarchical Deterministic Keys over a Non-linear Keyspace] derivation spec
-            xpvt[0] &= 0b11_11_10_00
-            xpvt[31] &= 0b01_11_11_11
-            xpvt[31] |= 0b01_00_00_00 // This bit set is not in the BIP32-Ed25519 derivation sepc
+            // // [Public][ChainCode]
+            // const extPub: Uint8Array = new Uint8Array(Buffer.concat([nodePublic, nodeCC]))
+            // const publicKey: Uint8Array = deriveChildNodePublic(extPub, bip44Path[4]).subarray(0, 32)
 
-        const scalar: Uint8Array = xpvt.subarray(0, 32)
-        return isPrivate ? xpvt : crypto_scalarmult_ed25519_base_noclamp(scalar)
+            derived = deriveChildNodePrivate(derived, bip44Path[4])
+
+        const scalar = derived.subarray(0, 32) // scalar == pvtKey
+        return isPrivate ? scalar : crypto_scalarmult_ed25519_base_noclamp(scalar)
     }
 
     /**
@@ -145,7 +104,7 @@ export class ContextualCryptoApi {
     async keyGen(context: KeyContext, account:number, keyIndex: number): Promise<Uint8Array> {
         await ready // libsodium
 
-        const rootKey: Uint8Array = await this.rootKey(this.seed)
+        const rootKey: Uint8Array = fromSeed(this.seed)
         const bip44Path: number[] = GetBIP44PathFromContext(context, account, keyIndex)
 
         return await this.deriveKey(rootKey, bip44Path, false)
@@ -172,7 +131,7 @@ export class ContextualCryptoApi {
         
         await ready // libsodium
 
-        const rootKey: Uint8Array = await this.rootKey(this.seed)
+        const rootKey: Uint8Array = fromSeed(this.seed)
         const bip44Path: number[] = GetBIP44PathFromContext(context, account, keyIndex)
         const raw: Uint8Array = await this.deriveKey(rootKey, bip44Path, true)
 
@@ -266,7 +225,7 @@ export class ContextualCryptoApi {
     async ECDH(context: KeyContext, account: number, keyIndex: number, otherPartyPub: Uint8Array): Promise<Uint8Array> {
         await ready
 
-        const rootKey: Uint8Array = await this.rootKey(this.seed)
+        const rootKey: Uint8Array = fromSeed(this.seed)
         
         const bip44Path: number[] = GetBIP44PathFromContext(context, account, keyIndex)
         const childKey: Uint8Array = await this.deriveKey(rootKey, bip44Path, true)
