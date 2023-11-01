@@ -64,14 +64,15 @@ export function deriveChildNodePrivate(
 
   const { z, childChainCode } = index < 0x80000000 ? derivedNonHardened(kl, cc, index) : deriveHardened(kl, kr, cc, index);
 
-  var chainCode = childChainCode.subarray(32, 64);
-  var zl = z.subarray(0, 32);
-  var zr = z.subarray(32, 64);
+  const chainCode = childChainCode.subarray(32, 64);
+  const zl = z.subarray(0, 32);
+  const zr = z.subarray(32, 64);
 
   // left = kl + 8 * trunc28(zl)
   // right = zr + kr
-  var left = new BN(kl, 16, "le").add(new BN(zl.subarray(0, 28), 16, "le").mul(new BN(8))).toArrayLike(Buffer, "le", 32);
-  var right = new BN(kr, 16, "le").add(new BN(zr, 16, "le")).toArrayLike(Buffer, "le").slice(0, 32);
+
+  const left = new BN(kl, 16, "le").add(new BN(zl.subarray(0, 28), 16, "le").mul(new BN(8))).toArrayLike(Buffer, "le", 32);
+  let right = new BN(kr, 16, "le").add(new BN(zr, 16, "le")).toArrayLike(Buffer, "le").slice(0, 32);
 
   // just padding
   if (right.length !== 32) {
@@ -109,13 +110,11 @@ export function deriveChildNodePublic(extendedKey: Uint8Array, index: number): U
     
     const i: Buffer = createHmac("sha512", cc).update(data).digest();
 
-    // truncanted to the 32 bytes on the right hand side
     // Section V. BIP32-Ed25519: Specification; subsection D) Public Child Key Derivation
     const chainCode: Buffer = i.subarray(32, 64);
     const zl: Buffer = z.subarray(0, 32);
 
-    // left = 8 * trunc28(zl)
-    // const scalar = new BN(zl.subarray(0, 28), 16, 'le').mul(new BN(8));
+    // left = 8 * 28bytesOf(zl)
     const left = new BN(zl.subarray(0, 28), 16, 'le').mul(new BN(8)).toArrayLike(Buffer, 'le', 32);
 
     const p: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(left);
