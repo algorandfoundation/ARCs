@@ -9,7 +9,7 @@ import {
     crypto_sign_ed25519_pk_to_curve25519,
     crypto_scalarmult
 } from 'libsodium-wrappers-sumo';
-
+import * as msgpack from "algo-msgpack-with-bigint"
 import Ajv from "ajv"
 import { deriveChildNodePrivate, fromSeed } from './bip32-ed25519';
 
@@ -53,6 +53,8 @@ function GetBIP44PathFromContext(context: KeyContext, account:number, key_index:
             throw new Error("Invalid context")
     }
 }
+
+export const ERROR_BAD_DATA: Error = new Error("Invalid Data. Unable to decode or algorand protocol specific tags found")
 
 export class ContextualCryptoApi {
 
@@ -126,7 +128,7 @@ export class ContextualCryptoApi {
     async signData(context: KeyContext, account: number, keyIndex: number, data: Uint8Array, metadata: SignMetadata): Promise<Uint8Array> {
         // validate data
         if (!this.validateData(data, metadata)) {
-            throw new Error("Invalid data")
+            throw ERROR_BAD_DATA
         }
         
         await ready // libsodium
@@ -177,19 +179,52 @@ export class ContextualCryptoApi {
      * @returns 
      */
     private validateData(message: Uint8Array, metadata: SignMetadata): boolean {
+
+        // Check that decoded doesn't include the following prefixes: TX, MX, progData, Program
+        // These prefixes are reserved for the protocol
+        if (this.hasAlgorandTags(message)) {
+            return false
+        }
+
         let decoded: Buffer
         switch (metadata.encoding) {
             case Encoding.BASE64:
                 decoded = Buffer.from(message.toString(), 'base64')
                 break
+            case Encoding.MSGPACK:
+                decoded = msgpack.decode<Uint8Array>(message) as Buffer
+                break
             default:
                 throw new Error("Invalid encoding")
+        }
+
+        // Check after decoding too
+        // Some one might try to encode a regular transaction with the protocol reserved prefixes
+        if (this.hasAlgorandTags(decoded)) {
+            return false
         }
 
         // validate with schema
         const ajv = new Ajv()
 		const validate = ajv.compile(metadata.schema)
         return validate(decoded)
+    }
+
+    /**
+     * Detect if the message has Algorand protocol specific tags
+     * 
+     * @param message - raw bytes of the message
+     * @returns - true if message has Algorand protocol specific tags, false otherwise
+     */
+    private hasAlgorandTags(message: Uint8Array): boolean {
+        if (message.subarray(0, 2).toString() === "TX" || 
+            message.subarray(0, 2).toString() === "MX" || 
+            message.subarray(0, 8).toString() === "progData" || 
+            message.subarray(0, 7).toString() === "Program") {
+            return true
+        }
+
+        return false
     }
 
 
