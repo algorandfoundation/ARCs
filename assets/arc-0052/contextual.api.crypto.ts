@@ -71,10 +71,10 @@ export class ContextualCryptoApi {
      * @param rootKey - root key in extended format (kL, kR, c). It should be 96 bytes long
      * @param bip44Path - BIP44 path (m / purpose' / coin_type' / account' / change / address_index). The ' indicates that the value is hardened
      * @param isPrivate  - if true, return the private key, otherwise return the public key
-     * @returns 
+     * @returns - The public key of 32 bytes. If isPrivate is true, returns the private key instead.
      */
     private async deriveKey(rootKey: Uint8Array, bip44Path: number[], isPrivate: boolean = true): Promise<Uint8Array> {
-        let derived = deriveChildNodePrivate(Buffer.from(rootKey), bip44Path[0])
+        let derived: Uint8Array = deriveChildNodePrivate(Buffer.from(rootKey), bip44Path[0])
             derived = deriveChildNodePrivate(derived, bip44Path[1])
             derived = deriveChildNodePrivate(derived, bip44Path[2])
             derived = deriveChildNodePrivate(derived, bip44Path[3])

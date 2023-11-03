@@ -108,6 +108,12 @@ describe("Contextual Derivation & Signing", () => {
         })
     })
 
+    it("\(OK) Root Key", async () => {
+        const rootKey: Uint8Array = fromSeed(seed)
+        expect(rootKey.length).toBe(96)
+        expect(Buffer.from(rootKey)).toEqual(Buffer.from("a8ba80028922d9fcfa055c78aede55b5c575bcd8d5a53168edf45f36d9ec8f4694592b4bc892907583e22669ecdf1b0409a9f3bd5549f2dd751b51360909cd05b4b67277d74d4ddb3688daeeb02075482ceb812db8a5757c9e792d14ec791554", "hex"))
+    })
+
     describe("\(Derivations) Context", () => {
             describe("Addresses", () => {
                 describe("Soft Derivations", () => {
@@ -126,10 +132,6 @@ describe("Contextual Derivation & Signing", () => {
                         expect(key).toEqual(new Uint8Array(Buffer.from("8cea8052cfa1fd8cec0b4fad6241a91f2edbfe9f072586f243839174e40a25ef", "hex")))
                     })
 
-                    it("\(OK) Derive m'/44'/283'/3'/0/0 Algorand Address Key", async () => {
-                        const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 3, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("cf8d28a3d41bc656acbfeadb64d06054142c97bee6a987c11d934f84853df866", "hex")))
-                    })
                 })
 
                 describe("Hard Derivations", () => {
@@ -141,6 +143,11 @@ describe("Contextual Derivation & Signing", () => {
                     it("\(OK) Derive m'/44'/283'/2'/0/1 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 2, 1)
                         expect(key).toEqual(new Uint8Array(Buffer.from("400d78302258dc7b3cb56d1a09f85b018e8100865ced0b5cda474c26bbc07c30", "hex")))
+                    })
+
+                    it("\(OK) Derive m'/44'/283'/3'/0/0 Algorand Address Key", async () => {
+                        const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 3, 0)
+                        expect(key).toEqual(new Uint8Array(Buffer.from("cf8d28a3d41bc656acbfeadb64d06054142c97bee6a987c11d934f84853df866", "hex")))
                     })
                 })
             })
