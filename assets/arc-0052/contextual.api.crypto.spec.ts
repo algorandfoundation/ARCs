@@ -1,8 +1,10 @@
-import { CryptoKX, KeyPair, crypto_kx_client_session_keys, crypto_kx_server_session_keys, crypto_scalarmult, crypto_secretbox_NONCEBYTES, crypto_secretbox_easy, crypto_secretbox_open_easy, crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519, crypto_sign_keypair, ready, to_base64 } from "libsodium-wrappers-sumo"
+import { CryptoKX, KeyPair, crypto_kx_client_session_keys, crypto_kx_server_session_keys, crypto_scalarmult, crypto_scalarmult_ed25519_base_noclamp, crypto_secretbox_NONCEBYTES, crypto_secretbox_easy, crypto_secretbox_open_easy, crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519, crypto_sign_keypair, ready, to_base64 } from "libsodium-wrappers-sumo"
 import * as bip39 from "bip39"
 import { randomBytes } from "crypto"
-import { ContextualCryptoApi, ERROR_BAD_DATA, Encoding, KeyContext, SignMetadata } from "./contextual.api.crypto"
+import { ContextualCryptoApi, ERROR_BAD_DATA, Encoding, KeyContext, SignMetadata, harden } from "./contextual.api.crypto"
 import * as msgpack from "algo-msgpack-with-bigint"
+import { fromSeed } from "./bip32-ed25519"
+const libBip32Ed25519 = require('bip32-ed25519')
 
 describe("Contextual Derivation & Signing", () => {
 
@@ -19,6 +21,92 @@ describe("Contextual Derivation & Signing", () => {
     })
 
 	afterEach(() => {})
+
+    describe("\(JS Library) Reference Implementation alignment with known BIP32-Ed25519 JS LIB", () => {
+        it("\(OK) BIP32-Ed25519 derive key m'/44'/283'/0'/0/0", async () => {
+            await ready
+            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
+
+            const rooKey: Uint8Array = fromSeed(seed)
+  
+            let derivedKey: Uint8Array = libBip32Ed25519.derivePrivate(Buffer.from(rooKey), harden(44))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, harden(283))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, harden(0))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, 0)
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, 0)
+
+            const scalar = derivedKey.subarray(0, 32) // scalar == pvtKey
+            const derivedPub: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(scalar) // calculate public key
+            expect(derivedPub).toEqual(key)
+        })
+
+        it("\(OK) BIP32-Ed25519 derive key m'/44'/283'/0'/0/1", async () => {
+            await ready
+            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 1)
+
+            const rooKey: Uint8Array = fromSeed(seed)
+  
+            let derivedKey: Uint8Array = libBip32Ed25519.derivePrivate(Buffer.from(rooKey), harden(44))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, harden(283))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, harden(0))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, 0)
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, 1)
+
+            const scalar = derivedKey.subarray(0, 32) // scalar == pvtKey
+            const derivedPub: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(scalar) // calculate public key
+            expect(derivedPub).toEqual(key)
+        })
+
+        it("\(OK) BIP32-Ed25519 derive PUBLIC key m'/44'/283'/1'/0/1", async () => {
+            await ready
+            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 1, 1)
+
+            const rooKey: Uint8Array = fromSeed(seed)
+  
+            let derivedKey: Uint8Array = libBip32Ed25519.derivePrivate(Buffer.from(rooKey), harden(44))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, harden(283))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, harden(1))
+
+            // ext private => ext public format!
+            const nodeScalar: Uint8Array = derivedKey.subarray(0, 32)
+            const nodePublic: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(nodeScalar)
+            const nodeCC: Uint8Array = derivedKey.subarray(64, 96)
+
+            // [Public][ChainCode]
+            const extPub: Buffer = Buffer.concat([nodePublic, nodeCC])
+            
+            derivedKey = libBip32Ed25519.derivePublic(extPub, 0)
+            derivedKey = libBip32Ed25519.derivePublic(derivedKey, 1)
+
+            const derivedPub = new Uint8Array(derivedKey.subarray(0, 32)) // public key from extended format
+            expect(derivedPub).toEqual(key)
+        })
+
+        it("\(OK) BIP32-Ed25519 derive PUBLIC key m'/44'/0'/1'/0/2", async () => {
+            await ready
+            const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 1, 2)
+
+            const rooKey: Uint8Array = fromSeed(seed)
+  
+            let derivedKey: Uint8Array = libBip32Ed25519.derivePrivate(Buffer.from(rooKey), harden(44))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, harden(0))
+            derivedKey = libBip32Ed25519.derivePrivate(derivedKey, harden(1))
+
+            // ext private => ext public format!
+            const nodeScalar: Uint8Array = derivedKey.subarray(0, 32)
+            const nodePublic: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(nodeScalar)
+            const nodeCC: Uint8Array = derivedKey.subarray(64, 96)
+
+            // [Public][ChainCode]
+            const extPub: Buffer = Buffer.concat([nodePublic, nodeCC])
+            
+            derivedKey = libBip32Ed25519.derivePublic(extPub, 0)
+            derivedKey = libBip32Ed25519.derivePublic(derivedKey, 2)
+
+            const derivedPub = new Uint8Array(derivedKey.subarray(0, 32)) // public key from extended format
+            expect(derivedPub).toEqual(key)
+        })
+    })
 
     describe("\(Derivations) Context", () => {
             describe("Addresses", () => {
