@@ -34,7 +34,8 @@ export interface ChannelKeys {
 export enum Encoding {
     CBOR = "cbor",
     MSGPACK = "msgpack",
-    BASE64 = "base64"
+    BASE64 = "base64",
+    NONE = "none"
 }
 
 export interface SignMetadata {
@@ -55,7 +56,8 @@ function GetBIP44PathFromContext(context: KeyContext, account:number, key_index:
     }
 }
 
-export const ERROR_BAD_DATA: Error = new Error("Invalid Data. Unable to decode or algorand protocol specific tags found")
+export const ERROR_BAD_DATA: Error = new Error("Invalid Data")
+export const ERROR_TAGS_FOUND: Error = new Error("Transactions tags found")
 
 export class ContextualCryptoApi {
 
@@ -128,7 +130,13 @@ export class ContextualCryptoApi {
      * */ 
     async signData(context: KeyContext, account: number, keyIndex: number, data: Uint8Array, metadata: SignMetadata): Promise<Uint8Array> {
         // validate data
-        if (!this.validateData(data, metadata)) {
+        const result: boolean | Error = this.validateData(data, metadata)
+        
+        if (result instanceof Error) { // decoding errors
+            throw result
+        }
+
+        if (!result) { // failed schema validation
             throw ERROR_BAD_DATA
         }
         
@@ -179,36 +187,45 @@ export class ContextualCryptoApi {
      * @param metadata 
      * @returns 
      */
-    private validateData(message: Uint8Array, metadata: SignMetadata): boolean {
+    private validateData(message: Uint8Array, metadata: SignMetadata): boolean | Error {
 
         // Check that decoded doesn't include the following prefixes: TX, MX, progData, Program
         // These prefixes are reserved for the protocol
         if (this.hasAlgorandTags(message)) {
-            return false
+            return ERROR_TAGS_FOUND
         }
 
-        let decoded: Buffer
+        let decoded: Uint8Array
         switch (metadata.encoding) {
             case Encoding.BASE64:
-                decoded = Buffer.from(message.toString(), 'base64')
+                decoded = new Uint8Array(Buffer.from(Buffer.from(message).toString(), 'base64'))
                 break
             case Encoding.MSGPACK:
-                decoded = msgpack.decode<Uint8Array>(message) as Buffer
+                decoded = msgpack.decode<Uint8Array>(message) as Uint8Array
+                break
+
+            case Encoding.NONE:
+                decoded = message
                 break
             default:
                 throw new Error("Invalid encoding")
         }
-
+        
         // Check after decoding too
         // Some one might try to encode a regular transaction with the protocol reserved prefixes
         if (this.hasAlgorandTags(decoded)) {
-            return false
+            return ERROR_TAGS_FOUND
         }
 
         // validate with schema
         const ajv = new Ajv()
 		const validate = ajv.compile(metadata.schema)
-        return validate(decoded)
+
+        const valid = validate(decoded)
+
+        if (!valid) console.log(ajv.errors)
+
+        return valid
     }
 
     /**
@@ -218,10 +235,12 @@ export class ContextualCryptoApi {
      * @returns - true if message has Algorand protocol specific tags, false otherwise
      */
     private hasAlgorandTags(message: Uint8Array): boolean {
-        if (message.subarray(0, 2).toString() === "TX" || 
-            message.subarray(0, 2).toString() === "MX" || 
-            message.subarray(0, 8).toString() === "progData" || 
-            message.subarray(0, 7).toString() === "Program") {
+
+        // Check that decoded doesn't include the following prefixes: TX, MX, progData, Program
+        if (Buffer.from(message.subarray(0, 2)).toString("ascii") === "TX" || 
+            Buffer.from(message.subarray(0, 2)).toString("ascii") === "MX" || 
+            Buffer.from(message.subarray(0, 8)).toString("ascii") === "progData" || 
+            Buffer.from(message.subarray(0, 7)).toString("ascii") === "Program") {
             return true
         }
 

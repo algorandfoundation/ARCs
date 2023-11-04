@@ -1,10 +1,37 @@
 import { CryptoKX, KeyPair, crypto_kx_client_session_keys, crypto_kx_server_session_keys, crypto_scalarmult, crypto_scalarmult_ed25519_base_noclamp, crypto_secretbox_NONCEBYTES, crypto_secretbox_easy, crypto_secretbox_open_easy, crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519, crypto_sign_keypair, ready, to_base64 } from "libsodium-wrappers-sumo"
 import * as bip39 from "bip39"
 import { randomBytes } from "crypto"
-import { ContextualCryptoApi, ERROR_BAD_DATA, Encoding, KeyContext, SignMetadata, harden } from "./contextual.api.crypto"
+import { ContextualCryptoApi, ERROR_BAD_DATA, ERROR_TAGS_FOUND, Encoding, KeyContext, SignMetadata, harden } from "./contextual.api.crypto"
 import * as msgpack from "algo-msgpack-with-bigint"
 import { fromSeed } from "./bip32-ed25519"
+import { sha512_256 } from "js-sha512"
+import base32 from "hi-base32"
+import { JSONSchemaType } from "ajv"
+import { readFileSync } from "fs"
+import path from "path"
 const libBip32Ed25519 = require('bip32-ed25519')
+
+function encodeAddress(publicKey: Buffer): string {
+    const keyHash: string = sha512_256.create().update(publicKey).hex()
+
+    // last 4 bytes of the hash
+    const checksum: string = keyHash.slice(-8)
+
+    return base32.encode(ConcatArrays(publicKey, Buffer.from(checksum, "hex"))).slice(0, 58)
+}
+
+function ConcatArrays(...arrs: ArrayLike<number>[]) {
+    const size = arrs.reduce((sum, arr) => sum + arr.length, 0)
+    const c = new Uint8Array(size)
+
+    let offset = 0
+    for (let i = 0; i < arrs.length; i++) {
+        c.set(arrs[i], offset)
+        offset += arrs[i].length
+    }
+
+    return c
+}
 
 describe("Contextual Derivation & Signing", () => {
 
@@ -184,6 +211,37 @@ describe("Contextual Derivation & Signing", () => {
             })
 
         describe("Signing Typed Data", () => {
+            it("\(OK) Sign authentication challenge of 32 bytes, encoded base 64", async () => {
+                const challenge: Uint8Array = new Uint8Array(randomBytes(32))
+                
+                // read auth schema file for authentication. 32 bytes challenge to sign
+                const authSchema: JSONSchemaType<any> = JSON.parse(readFileSync(path.resolve(__dirname, "schemas/auth.request.json"), "utf8"))
+                const metadata: SignMetadata = { encoding: Encoding.BASE64, schema: authSchema }                
+                const base64Challenge: string = Buffer.from(challenge).toString("base64")
+
+                const encoded: Uint8Array = new Uint8Array(Buffer.from(base64Challenge))
+
+                const signature: Uint8Array = await cryptoService.signData(KeyContext.Address,0, 0, encoded,  metadata)
+                expect(signature).toHaveLength(64)
+
+                const isValid: boolean = await cryptoService.verifyWithPublicKey(signature, encoded, await cryptoService.keyGen(KeyContext.Address, 0, 0))
+                expect(isValid).toBe(true)
+            })
+
+            it ("\(OK) Sign authentication challenge of 32 bytes, no encoding", async () => {
+                const challenge: Uint8Array = new Uint8Array(randomBytes(32))
+
+                // read auth schema file for authentication. 32 bytes challenge to sign
+                const authSchema: JSONSchemaType<any> = JSON.parse(readFileSync(path.resolve(__dirname, "schemas/auth.request.json"), "utf8"))
+                const metadata: SignMetadata = { encoding: Encoding.NONE, schema: authSchema }
+
+                const signature: Uint8Array = await cryptoService.signData(KeyContext.Address,0, 0, challenge,  metadata)
+                expect(signature).toHaveLength(64)
+
+                const isValid: boolean = await cryptoService.verifyWithPublicKey(signature, challenge, await cryptoService.keyGen(KeyContext.Address, 0, 0))
+                expect(isValid).toBe(true)
+            })
+
             it("\(OK) Sign Arbitrary Message against Schem", async () => {
                 const firstKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
     
@@ -234,8 +292,8 @@ describe("Contextual Derivation & Signing", () => {
                         const transaction: Buffer = Buffer.concat([Buffer.from("TX"), msgpack.encode(randomBytes(64))])
                         const metadata: SignMetadata = { encoding: Encoding.BASE64, schema: {} }
     
-                        const encodedTx: Buffer = Buffer.from(transaction.toString('base64'))
-                        expect(cryptoService.signData(KeyContext.Identity,0, 0, encodedTx,  metadata)).rejects.toThrowError(ERROR_BAD_DATA)
+                        const encodedTx: Uint8Array = new Uint8Array(Buffer.from(transaction.toString('base64')))
+                        expect(cryptoService.signData(KeyContext.Identity,0, 0, encodedTx,  metadata)).rejects.toThrowError(ERROR_TAGS_FOUND)
                     })
 
                     it("\(FAIL) [MX] Tag", async () => {
@@ -243,7 +301,7 @@ describe("Contextual Derivation & Signing", () => {
                         const metadata: SignMetadata = { encoding: Encoding.BASE64, schema: {} }
     
                         const encodedTx: Buffer = Buffer.from(transaction.toString('base64'))
-                        expect(cryptoService.signData(KeyContext.Identity,0, 0, encodedTx,  metadata)).rejects.toThrowError(ERROR_BAD_DATA)
+                        expect(cryptoService.signData(KeyContext.Identity,0, 0, encodedTx,  metadata)).rejects.toThrowError(ERROR_TAGS_FOUND)
                     })
 
                     it("\(FAIL) [Program] Tag", async () => {
@@ -251,7 +309,7 @@ describe("Contextual Derivation & Signing", () => {
                         const metadata: SignMetadata = { encoding: Encoding.BASE64, schema: {} }
     
                         const encodedTx: Buffer = Buffer.from(transaction.toString('base64'))
-                        expect(cryptoService.signData(KeyContext.Identity,0, 0, encodedTx,  metadata)).rejects.toThrowError(ERROR_BAD_DATA)
+                        expect(cryptoService.signData(KeyContext.Identity,0, 0, encodedTx,  metadata)).rejects.toThrowError(ERROR_TAGS_FOUND)
                     })
 
                     it("\(FAIL) [progData] Tag", async () => {
@@ -259,32 +317,32 @@ describe("Contextual Derivation & Signing", () => {
                         const metadata: SignMetadata = { encoding: Encoding.BASE64, schema: {} }
     
                         const encodedTx: Buffer = Buffer.from(transaction.toString('base64'))
-                        expect(cryptoService.signData(KeyContext.Identity,0, 0, encodedTx,  metadata)).rejects.toThrowError(ERROR_BAD_DATA)
+                        expect(cryptoService.signData(KeyContext.Identity,0, 0, encodedTx,  metadata)).rejects.toThrowError(ERROR_TAGS_FOUND)
                     })  
                 })
                 
                 it("\(FAIL) [TX] Tag", async () => {
                     const transaction: Buffer = Buffer.concat([Buffer.from("TX"), msgpack.encode(randomBytes(64))])
                     const metadata: SignMetadata = { encoding: Encoding.MSGPACK, schema: {} }
-                    expect(cryptoService.signData(KeyContext.Identity,0, 0, transaction,  metadata)).rejects.toThrowError(ERROR_BAD_DATA)
+                    expect(cryptoService.signData(KeyContext.Identity,0, 0, transaction,  metadata)).rejects.toThrowError(ERROR_TAGS_FOUND)
                 })
 
                 it("\(FAIL) [MX] Tag", async () => {
                     const transaction: Buffer = Buffer.concat([Buffer.from("MX"), msgpack.encode(randomBytes(64))])
                     const metadata: SignMetadata = { encoding: Encoding.MSGPACK, schema: {} }
-                    expect(cryptoService.signData(KeyContext.Identity,0, 0, transaction,  metadata)).rejects.toThrowError(ERROR_BAD_DATA)
+                    expect(cryptoService.signData(KeyContext.Identity,0, 0, transaction,  metadata)).rejects.toThrowError(ERROR_TAGS_FOUND)
                 })
 
                 it("\(FAIL) [Program] Tag", async () => {
                     const transaction: Buffer = Buffer.concat([Buffer.from("Program"), msgpack.encode(randomBytes(64))])
                     const metadata: SignMetadata = { encoding: Encoding.MSGPACK, schema: {} }
-                    expect(cryptoService.signData(KeyContext.Identity,0, 0, transaction,  metadata)).rejects.toThrowError(ERROR_BAD_DATA)
+                    expect(cryptoService.signData(KeyContext.Identity,0, 0, transaction,  metadata)).rejects.toThrowError(ERROR_TAGS_FOUND)
                 })
 
                 it("\(FAIL) [progData] Tag", async () => {
                     const transaction: Buffer = Buffer.concat([Buffer.from("progData"), msgpack.encode(randomBytes(64))])
                     const metadata: SignMetadata = { encoding: Encoding.MSGPACK, schema: {} }
-                    expect(cryptoService.signData(KeyContext.Identity,0, 0, transaction,  metadata)).rejects.toThrowError(ERROR_BAD_DATA)
+                    expect(cryptoService.signData(KeyContext.Identity,0, 0, transaction,  metadata)).rejects.toThrowError(ERROR_TAGS_FOUND)
                 })
             })
 
