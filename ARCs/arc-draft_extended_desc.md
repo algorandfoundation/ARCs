@@ -16,7 +16,9 @@ requires: 4
 This ARC takes the existing JSON description of a contract as described in ARC4 and adds more fields for the purpose of client interaction
 
 ## Motivation
-The description provided by ARC4 is missing a lot of critical information that clients should know when interaction with an app.
+The data provided by [ARC4](./arc-0004.md) is missing a lot of critical information that clients should know when interacting with an app. This means ARC4 is insufficient to generate type-safe clients that provide a superior developer experience.
+
+On the other hand, [ARC32](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0032.md) provides the vast majority of useful information that can be used to [generate typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients), but requires a separate JSON file on top of the ARC4 json file, which adds extra complexity and cognitive overhead.
 
 ## Specification
 ```ts
@@ -130,7 +132,7 @@ interface Contract {
 ```
 
 ## Rationale
-ARC32 essentially addresses the samr problem, but it requires the generation of two seperate JSON files (and ARC32 contains entirely redundant information). The goal of this ARC is to create one JSON schema that is backwards compatible with ARC4 clients. 
+ARC32 essentially addresses the same problem, but it requires the generation of two separate JSON files and the ARC32 JSON file contains the ARC4 JSON file within it (redundant information). The goal of this ARC is to create one JSON schema that is backwards compatible with ARC4 clients, but contains the relevant information needed to automatically generate comprehensive client experiences.
 
 ### State
 
