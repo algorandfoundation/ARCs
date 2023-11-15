@@ -22,10 +22,13 @@ On the other hand, [ARC32](https://github.com/algorandfoundation/ARCs/blob/main/
 
 ## Specification
 ```ts
+/** An ABI-encoded type */
 type ABIType = string
 
+/** The name of a defined struct */
 type StructName = string
 
+/** Raw byteslice without the length prefixed that is specified in ARC4 */
 type AVMBytes = 'bytes'
 
 /** Mapping of named structs to the ABI type of their fields */
