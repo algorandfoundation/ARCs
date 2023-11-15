@@ -22,30 +22,41 @@ On the other hand, [ARC32](https://github.com/algorandfoundation/ARCs/blob/main/
 
 ## Specification
 ```ts
+type ABIType = string
+
+type StructName = string
+
+type AVMBytes = 'bytes'
+
 /** Mapping of named structs to the ABI type of their fields */
 interface StructFields {
-  [name: string]: string | StructFields;
+  [fieldName: string]: ABIType | StructFields;
 }
 
 /** Describes a single key in app storage */
 interface StorageKey {
-  /** The type of the key. Can be ABI type or named struct */
-  keyType: string;
-  /** The type of the value. Can be ABI type or named struct */
-  valueType: string;
-  /** The key itself, as a byte array */
-  key: number[];
+  /** Description of what this storage key holds */
+  desc?: string
+  /** The type of the key */
+  keyType: ABIType | AVMBytes | StructName;
+  /** The type of the value */
+  valueType: ABIType | AVMBytes | StructName;
+  /** The bytes of the key encoded as base64 */
+  key: string;
 }
 
 interface StorageMap {
-  /** The type of the key. Can be ABI type or named struct */
-  keyType: string;
-  /** The type of the value. Can be ABI type or named struct */
-  valueType: string;
-  /** The prefix of the map, as a string */
+  /** Description of what the key-value pairs in this mapping hold */
+  desc?: string
+  /** The type of the keys in the map */
+  keyType: ABIType | AVMBytes | StructName;
+  /** The type of the values in the map */
+  valueType: ABIType | AVMBytes | StructName;
+  /** The prefix of the map, encoded as a utf-8 string */
   prefix: string;
 }
 
+/** Describes a method in the contract. This interface is an extension of the interface described in ARC4 */
 interface Method {
   /** The name of the method */
   name: string;
@@ -54,9 +65,9 @@ interface Method {
   /** The arguments of the method, in order */
   args: Array<{
     /** The type of the argument */
-    type: string;
+    type: ABIType;
     /** If the type is a struct, the name of the struct */
-    struct?: string;
+    struct?: StructName;
     /** Optional, user-friendly name for the argument */
     name?: string;
     /** Optional, user-friendly description for the argument */
@@ -65,9 +76,9 @@ interface Method {
   /** Information about the method's return value */
   returns: {
     /** The type of the return value, or "void" to indicate no return value. */
-    type: string;
+    type: ABIType;
     /** If the type is a struct, the name of the struct */
-    struct?: string;
+    struct?: StructName;
     /** Optional, user-friendly description for the return value */
     desc?: string;
   };
@@ -81,6 +92,7 @@ interface Method {
   readonly: boolean;
 }
 
+/** Describes the entire contract. This interface is an extension of the interface described in ARC4 */
 interface Contract {
   /** A user-friendly name for the contract */
   name: string;
@@ -101,10 +113,11 @@ interface Contract {
     };
   };
   /** Named structs use by the application */
-  structs: StructFields;
+  structs: {[structName: StructName]: StructFields };
   /** All of the methods that the contract implements */
   methods: Method[];
   state: {
+    /** Defines the values that should be used for GlobalNumUint, GlobalNumByteSlice, LocalNumUint, and LocalNumByteSlice when creating the application  */
     schema: {
       global: {
         ints: number;
@@ -127,6 +140,20 @@ interface Contract {
       local: StorageMap[];
       box: StorageMap[];
     };
+  };
+  /** Supported bare actions for the contract. An action is a combination of call/create and an OnComplete */
+  bareActions: {
+    /** OnCompeltes this method allows when appID === 0 */
+    create: ('NoOp' | 'OptIn' | 'DeleteApplication')[];
+    /** OnCompeltes this method allows when appID !== 0 */
+    call: ('NoOp' | 'OptIn' | 'CloseOut' | 'ClearState' | 'UpdateApplication' | 'DeleteApplication')[];
+  };
+  /** The uncompiled TEAL that may contain template variables. MUST be omitted if included as part of ARC23, but otherwise MUST be defined. */
+  source?: {
+    /** The approval program */
+    approval: string
+    /** The clear program */
+    clear: string
   };
 }
 ```
