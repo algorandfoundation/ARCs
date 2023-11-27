@@ -37,7 +37,8 @@ export function fromSeed(seed: Buffer): Uint8Array {
   kL[31] |= 0b01_00_00_00; // the second highest bit of the last byte is set
 
   // chain root code
-  const c: Buffer = createHash("sha256").update(Buffer.concat([new Uint8Array(0x01), seed])).digest();
+  // SHA256(0x01||k)
+  const c: Buffer = createHash("sha256").update(Buffer.concat([new Uint8Array([0x01]), seed])).digest();
   return new Uint8Array(Buffer.concat([kL, kR, c]));
 }
 
