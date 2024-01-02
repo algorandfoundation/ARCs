@@ -61,7 +61,7 @@ N/A
 TODO: Client parsing example
 
 ## Security Considerations
-All ARCs must contain a section that discusses the security implications/considerations relevant to the proposed change. Include information that might be important for security discussions, surfaces risks and can be used throughout the life cycle of the proposal. E.g. include security-relevant design decisions, concerns, important discussions, implementation-specific guidance and pitfalls, an outline of threats and risks and how they are being addressed. ARC submissions missing the "Security Considerations" section will be rejected. An ARC cannot proceed to status "Final" without a Security Considerations discussion deemed sufficient by the reviewers.
+If a client improperly implements parsing, they may mislead users about the mutability of the contract. It is imperative that `intcblock` and `bytecblock` are handled properly and the following opcodes are exactly as specificed in this ARC.
 
 ## Copyright
 Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CCO</a>.
