@@ -23,13 +23,12 @@ The TEAL for an application **MUST** start with the following lines:
 
 ```
 txn ApplicationID
-int 0
->
+!
 int 6
 *
 txn OnCompletion
 +
-switch create_NoOp create_OptIn NOT_IMPLEMENTED NOT_IMPLEMENTED NOT_IMPLEMENTED create_DeleteApplication call_NoOp call_OptIn call_CloseOut NOT_IMPLEMENTED call_UpdateApplication call_DeleteApplication
+switch call_NoOp call_OptIn call_CloseOut NOT_IMPLEMENTED call_UpdateApplication call_DeleteApplication create_NoOp create_OptIn NOT_IMPLEMENTED NOT_IMPLEMENTED NOT_IMPLEMENTED create_DeleteApplication
 NOT_IMPLEMENTED:
 err
 ```
@@ -44,7 +43,7 @@ The `switch` statement in a contract **SHOULD** only include labels until the la
 
 ### Client Parsing
 
-A client **MUST** parse the decompiled TEAL to ensure that the firt ten opcodes match the opcodes specified in the TEAL specification. `intcblock` and `bytecblock` opcodes **MUST** be ignored if they are the first or second opcodes executed.
+A client **MUST** parse the decompiled TEAL to ensure that the firt nine lines match the lines specified in the TEAL specification. `intcblock` and `bytecblock` opcodes **MUST** be ignored if they are the first or second opcodes executed.
 
 The client **MUST** follow the label for a specific action. If that label does not exist in the `switch` opcode OR if it leads to the `err` label, then that action is known to not be supported by the TEAL.
 
