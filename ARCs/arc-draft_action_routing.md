@@ -52,7 +52,7 @@ To support future changes where comments may get added to the decompiled TEAL, c
 The client **MUST** follow the label for a specific action. If that label does not exist in the `switch` opcode OR if it leads to the `err` label, then that action is known to not be supported by the TEAL.
 
 ## Rationale
-Standardizing the initial opcodes of the TEAL program makes it easy for anyone to parse the TEAL, follow a label for a specific action, and and determine whether that action is supported or not. This makes it possible for tools in the ecosystem, such as explorers and wallets, to tell end-users whether apps they are interacting with are mutable or not.
+Standardizing the initial opcodes of the TEAL program makes it easy for anyone to parse the TEAL, follow a label for a specific action, and determine whether that action is supported or not. This makes it possible for tools in the ecosystem, such as explorers and wallets, to tell end-users whether apps they are interacting with are mutable or not.
 
 An alternative approach is to include asserts at the beginning of the program for any OnCompletion that is not supported by the contract, but this leads to a larger program size and potentially opcode cost. This approach also still makes it hard to determine what OnCompletions *are* supported for individual methods.
 
