@@ -12,7 +12,7 @@ requires: 4
 ---
 
 ## Abstract
-This ARC proposes a standard for using stateful applications and rekey transactions to enable account abstraction on Algorand. The abstracted account is controlled by a single stateful application which is the auth address of the abstracted account. Other applications can be used as plugin to provide additional functionality to the abstraction account.
+This ARC proposes a standard for using stateful applications and rekey transactions to enable account abstraction on Algorand. The abstracted account is controlled by a single stateful application which is the auth address of the abstracted account. Other applications can be used as plugin to provide additional functionality to the abstracted account.
 
 ## Motivation
 Manually signing transactions for every dApp interaction can be rather fatiguing for the end-user, which results in a frustrating UX. In some cases, it makes specfific app designs that require a lot of transactions borderline impossible without delegation or an escrow account.
