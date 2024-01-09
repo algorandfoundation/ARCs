@@ -22,6 +22,8 @@ Another common point of friction for end-users in the Algorand ecosystem is ASA 
 ## Specification
 
 ### Definitions
+**External Owned Account (EOA)** - An account that is NOT controlled by a smart contract.
+
 **Abstracted Account** - An account that has functionality beyond a typical keypair-based account.
 
 **Abstracted Account App** - The stateuful application used to control the abstracted account. This app's address is the `auth-addr` of the abstracted account.
@@ -151,7 +153,7 @@ TODO
 ## Rationale
 
 ### App vs Logic Sig
-There have similar propsoals for reducing end-user friction, such as [ARC47](./arc-0047.md) which enables safer usage of delegated logic signatures. The major downside of logic signatures is that they are not 
+There have similar propsoals for reducing end-user friction, such as [ARC47](./arc-0047.md) which enables safer usage of delegated logic signatures. The major downside of logic signatures is that they are not useable by smart contracts. This severely limits composability and potential use cases.
 
 ### Plugins
 TODO
