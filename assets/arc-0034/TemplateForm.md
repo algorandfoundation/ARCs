@@ -41,3 +41,4 @@ A description of the potential benefits that the proposal could bring to the Alg
 
 ## Additional information
 Any other relevant details or documentation that the team would like to include in the proposal.
+>To prevent malicious links and allow front-end to display links properly, **External Links** should be in this format `<a href="https://arc.algorand.foundation/">ARC</a>`
