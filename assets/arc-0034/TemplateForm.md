@@ -41,4 +41,5 @@ A description of the potential benefits that the proposal could bring to the Alg
 
 ## Additional information
 Any other relevant details or documentation that the team would like to include in the proposal.
->To prevent malicious links and allow front-end to display links properly, **External Links** should be in this format `<a href="https://arc.algorand.foundation/">ARC</a>`
+> To prevent malicious links and allow front-end to display links properly, **External Links** should be in this format `<a href="https://arc.algorand.foundation/">ARC</a>`
+> To create a new tab when people click on your links, you can use `target="_blank"` like this `<a href="https://arc.algorand.foundation/" target="_blank" >ARC</a>`
