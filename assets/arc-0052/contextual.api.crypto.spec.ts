@@ -348,68 +348,76 @@ describe("Contextual Derivation & Signing", () => {
 
         })
 
+        describe("ECDH cases", () => {
+            // Making sure Alice & Bob Have different root keys 
+            let bobCryptoService: ContextualCryptoApi
+            beforeEach(() => {
+                let seed: Buffer = Buffer.from(crypto.getRandomValues(new Uint8Array(32)))
+                bobCryptoService = new ContextualCryptoApi(seed)
+            })
 
-        it("\(OK) ECDH", async () => {
-            const aliceKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
-            const bobKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 1)
-
-            const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Address, 0, 0, bobKey)
-            const bobSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Address, 0, 1, aliceKey)
-
-            expect(aliceSharedSecret).toEqual(bobSharedSecret)
-        })
-
-        it("\(OK) ECDH, Encrypt and Decrypt", async () => {
-            const aliceKey: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 0)
-            const bobKey: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 1)
-
-            const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Identity, 0, 0, bobKey)
-            const bobSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Identity, 0, 1, aliceKey)
-
-            expect(aliceSharedSecret).toEqual(bobSharedSecret)
-
-            const message: Uint8Array = new Uint8Array(Buffer.from("Hello World"))
-            const nonce: Uint8Array = randomBytes(crypto_secretbox_NONCEBYTES)
-
-            // encrypt
-            const cipherText: Uint8Array = crypto_secretbox_easy(message, nonce, aliceSharedSecret)
-
-            // decrypt
-            const plainText: Uint8Array = crypto_secretbox_open_easy(cipherText, nonce, bobSharedSecret)
-            expect(plainText).toEqual(message)
-        })
-
-        it("Libsodium example ECDH", async () => {
-            await ready
-            // keypair
-            const alice: KeyPair = crypto_sign_keypair()
-
-            const alicePvtKey: Uint8Array = alice.privateKey
-            const alicePubKey: Uint8Array = alice.publicKey
-
-            const aliceXPvt: Uint8Array = crypto_sign_ed25519_sk_to_curve25519(alicePvtKey)
-            const aliceXPub: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(alicePubKey)
+            it("\(OK) ECDH", async () => {
+                const aliceKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
+                const bobKey: Uint8Array = await bobCryptoService.keyGen(KeyContext.Address, 0, 1)
     
-            // bob
-            const bob: KeyPair = crypto_sign_keypair()
-            
-            const bobPvtKey: Uint8Array = bob.privateKey
-            const bobPubKey: Uint8Array = bob.publicKey
-
-            const bobXPvt: Uint8Array = crypto_sign_ed25519_sk_to_curve25519(bobPvtKey)
-            const bobXPub: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(bobPubKey)
-
-            // shared secret
-            const aliceSecret: Uint8Array = crypto_scalarmult(aliceXPvt, bobXPub)
-            const bobSecret: Uint8Array = crypto_scalarmult(bobXPvt, aliceXPub)
-            expect(aliceSecret).toEqual(bobSecret)
-
-            const aliceSharedSecret: CryptoKX = crypto_kx_client_session_keys(aliceXPub, aliceXPvt, bobXPub)
-            const bobSharedSecret: CryptoKX = crypto_kx_server_session_keys(bobXPub, bobXPvt, aliceXPub)
-
-            // bilateral encryption channels
-            expect(aliceSharedSecret.sharedRx).toEqual(bobSharedSecret.sharedTx)
-            expect(bobSharedSecret.sharedTx).toEqual(aliceSharedSecret.sharedRx)
+                const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Address, 0, 0, bobKey)
+                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Address, 0, 1, aliceKey)
+    
+                expect(aliceSharedSecret).toEqual(bobSharedSecret)
+            })
+    
+            it("\(OK) ECDH, Encrypt and Decrypt", async () => {
+                const aliceKey: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 0)
+                const bobKey: Uint8Array = await bobCryptoService.keyGen(KeyContext.Identity, 0, 1)
+    
+                const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Identity, 0, 0, bobKey)
+                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Identity, 0, 1, aliceKey)
+    
+                expect(aliceSharedSecret).toEqual(bobSharedSecret)
+    
+                const message: Uint8Array = new Uint8Array(Buffer.from("Hello World"))
+                const nonce: Uint8Array = randomBytes(crypto_secretbox_NONCEBYTES)
+    
+                // encrypt
+                const cipherText: Uint8Array = crypto_secretbox_easy(message, nonce, aliceSharedSecret)
+    
+                // decrypt
+                const plainText: Uint8Array = crypto_secretbox_open_easy(cipherText, nonce, bobSharedSecret)
+                expect(plainText).toEqual(message)
+            })
+    
+            it("Libsodium example ECDH", async () => {
+                await ready
+                // keypair
+                const alice: KeyPair = crypto_sign_keypair()
+    
+                const alicePvtKey: Uint8Array = alice.privateKey
+                const alicePubKey: Uint8Array = alice.publicKey
+    
+                const aliceXPvt: Uint8Array = crypto_sign_ed25519_sk_to_curve25519(alicePvtKey)
+                const aliceXPub: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(alicePubKey)
+        
+                // bob
+                const bob: KeyPair = crypto_sign_keypair()
+                
+                const bobPvtKey: Uint8Array = bob.privateKey
+                const bobPubKey: Uint8Array = bob.publicKey
+    
+                const bobXPvt: Uint8Array = crypto_sign_ed25519_sk_to_curve25519(bobPvtKey)
+                const bobXPub: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(bobPubKey)
+    
+                // shared secret
+                const aliceSecret: Uint8Array = crypto_scalarmult(aliceXPvt, bobXPub)
+                const bobSecret: Uint8Array = crypto_scalarmult(bobXPvt, aliceXPub)
+                expect(aliceSecret).toEqual(bobSecret)
+    
+                const aliceSharedSecret: CryptoKX = crypto_kx_client_session_keys(aliceXPub, aliceXPvt, bobXPub)
+                const bobSharedSecret: CryptoKX = crypto_kx_server_session_keys(bobXPub, bobXPvt, aliceXPub)
+    
+                // bilateral encryption channels
+                expect(aliceSharedSecret.sharedRx).toEqual(bobSharedSecret.sharedTx)
+                expect(bobSharedSecret.sharedTx).toEqual(aliceSharedSecret.sharedRx)
+            })
         })
     })
 })
