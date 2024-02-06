@@ -1,43 +1,31 @@
-<script lang="ts" setup>
-import { useDark } from '@vueuse/core'
-import { darkTheme, type GlobalTheme, NConfigProvider, NGlobalStyle, NLayout, NMessageProvider } from 'naive-ui'
-import { ref, onMounted } from 'vue'
+<script setup lang="ts">
+import { usePeraWallet } from '@/utils/hooks/usePeraWallet'
+
+if (import.meta.client) {
+  const { reconnectWallet } = usePeraWallet()
+  await reconnectWallet()
+}
 
 useHead({
-  title: 'Index',
-  titleTemplate: '%s - arc-0031',
+  titleTemplate: '%s | ARC31',
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
     {
       hid: 'description',
       name: 'description',
-      content: 'Nuxt'
+      content:
+        'ARC31 Reference Implementation'
     }
   ],
   link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
 })
-
-const theme = ref<GlobalTheme | null>(null)
-onMounted(() => {
-  const isDark = useDark()
-  if (isDark.value) {
-    theme.value = darkTheme
-  }
-})
 </script>
 
 <template>
-  <Html>
-    <Body>
-      <NConfigProvider :theme="theme">
-        <NMessageProvider>
-          <NLayout>
-            <NuxtLoadingIndicator :height="5" :duration="3000" />
-            <NuxtPage style="width: 100vw; height: 100vh" />
-          </NLayout>
-        </NMessageProvider>
-        <NGlobalStyle />
-      </NConfigProvider>
-    </Body>
-  </Html>
+  <Body>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+    <UNotifications />
+  </Body>
 </template>

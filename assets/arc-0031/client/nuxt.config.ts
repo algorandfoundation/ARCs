@@ -1,44 +1,24 @@
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
-import inject from '@rollup/plugin-inject'
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: [
-    [
-      '@pinia/nuxt',
-      {
-        autoImports: ['defineStore', ['defineStore', 'definePiniaStore']]
-      }
-    ]
-  ],
-  build: {
-    transpile:
-      process.env.NODE_ENV === 'production'
-        ? ['naive-ui', 'vueuc', '@css-render/vue3-ssr', '@juggle/resize-observer']
-        : ['@juggle/resize-observer']
+  // @ts-ignore
+  modules: ['@nuxt/ui'],
+  runtimeConfig: {
+    apiUrl: process.env.NUXT_API_URL,
+    public: {
+      algorandChainId: process.env.NUXT_PUBLIC_ALGORAND_CHAIN_ID
+    }
   },
+  devtools: { enabled: true },
+  devServer: {
+    port: 3001
+  },
+  css: ['normalize.css'],
   vite: {
-    build: {
-      rollupOptions: {
-        plugins: [inject({ Buffer: ['buffer', 'Buffer'] })]
-      }
+    define: {
+      'global.WebSocket': 'globalThis.WebSocket'
     },
-    // in dev mode, vite use `esbuild`, so we should add `node polyfill`
-    optimizeDeps: {
-      include: process.env.NODE_ENV === 'development' ? ['naive-ui', 'vueuc', 'date-fns-tz/esm/formatInTimeZone'] : [],
-      esbuildOptions: {
-        define: {
-          global: 'globalThis'
-        },
-        plugins: [
-          NodeGlobalsPolyfillPlugin({
-            process: true,
-            buffer: true
-          }),
-          NodeModulesPolyfillPlugin()
-        ]
-      }
+    esbuild: {
+      legalComments: 'none'
     }
   }
 })

@@ -1,21 +1,15 @@
-FROM node:16-bullseye
-
+FROM node:20-slim AS base
 WORKDIR /server
-COPY package.json /client/package.json
+
+FROM base AS build
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
 COPY . .
-RUN yarn install \
-  --prefer-offline \
-  --frozen-lockfile \
-  --non-interactive
-  
-ENV SERVICE_NAME=www.servicedomain.com
-ENV SERVICE_DESCRIPTION=www.servicedomain.comdescription
-ENV PORT 3001
-ENV NODE_ENV=production
-EXPOSE 3001
+RUN npm run build
 
-CMD [ "yarn", "build" ]
-
-
-
-
+FROM base AS production
+COPY --from=build /server/dist ./dist
+COPY --from=build /server/node_modules ./node_modules
+COPY --from=build /server/package.json ./package.json
+EXPOSE 3000
+CMD ["npm", "start"]

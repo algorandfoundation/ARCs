@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import { LogOutOutline as SignOutIcon } from '@vicons/ionicons5'
-import { h, toRef, watch } from 'vue'
-import { NButton, NSpace, NText, useMessage } from 'naive-ui'
-import { useAuthStore } from '~~/store/auth'
+import { useAuth } from '@/utils/hooks/useAuth'
 
-const authStore = useAuthStore()
-const { signOut } = authStore
-const message = useMessage()
-watch(toRef(authStore, 'notification'), notification => {
-  if (notification) {
-    message[notification.type](notification.content)
-    authStore.$patch({ notification: null })
-  }
-})
+useHead({ title: 'Home' })
+
+const { address, signOut } = useAuth()
 </script>
 
 <template>
-  <NSpace vertical align="center" justify="center">
-    <NText>www.servicedomain.com</NText>
-    <NText tag="p" style="margin: 0 0 24px 0" type="success" strong>{{ authStore.session?.authAcc }}</NText>
-    <NButton type="success" :render-icon="() => h(SignOutIcon)" icon-placement="right" @click="signOut"
-      >Sign Out</NButton
-    >
-  </NSpace>
+  <div class="flex content-center p-4 justify-center h-screen">
+    <div class="self-center space-y-4 text-center">
+      <div>
+        <p>www.servicedomain.com</p>
+        <p class="text-primary break-all">
+          {{ address }}
+        </p>
+      </div>
+      <UButton
+        icon="i-heroicons-arrow-left-on-rectangle"
+        trailing
+        @click="signOut"
+      >
+        Sign Out
+      </UButton>
+    </div>
+  </div>
 </template>

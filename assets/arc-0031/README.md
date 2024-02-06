@@ -8,42 +8,31 @@ The example shows the entire workflow of authentication using a standalone Algor
 
 ## User registration
 
-Add registered users to the `server/mock/users.json` array. The `nonce` field must be left empty `''`.
+Add registered users to the `server/mock/users.db.json` array. The `nonce` field must be left empty `''`.
 
 ## Run via Docker Compose
 
-From the `client` folder run
+From the root folder run
 
 ```
-docker build -t arc-0031-client .
+cp .env.example .env
+docker compose up --build
 ```
 
-From the `server` folder run
-
-```
-docker build -t arc-0031-server .
-```
-
-From the `arc-0031` folder run
-
-```
-docker-compose up
-```
-
-Visit `localhost:3000`
+Visit `localhost`
 
 ## Run local development environment
 
 ### Requirements
 - `node.js`
-- `yarn`
+- `npm`
 
-From `server` folder run
+From both `client`and `server` folders run
 
 ```
-ln -s .env.example .env.local
-yarn install --frozen-lockfile
-yarn dev
+cp .env.example .env
+npm ci
+npm run dev
 ```
 
-Visit `localhost:3000`
+Visit `localhost:3001`
