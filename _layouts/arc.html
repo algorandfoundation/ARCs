@@ -69,7 +69,7 @@ layout: default
   IEEE specification for reference formatting:
   https://ieee-dataport.org/sites/default/files/analysis/27/IEEE%20Citation%20Guidelines.pdf
   {% endcomment %}
-  <p>{% include authorlist.html authors=page.author %}, "ARC-{{ page.arc | xml_escape }}: {{ page.title | xml_escape }}{% if page.status == "Draft" or page.status == "Last Call" %} [DRAFT]{% endif %}," <em>Algorand Requests for Comments</em>, no. {{ page.arc | xml_escape }}, {{ page.created | date: "%B %Y" }}. [Online serial]. Available: https://algorandfoundation.github.io/ARCS/arc-{{ page.arc | xml_escape }}.</p>
+  <p>{% include authorlist.html authors=page.author %}, "ARC-{{ page.arc | xml_escape }}: {{ page.title | xml_escape }}{% if page.status == "Draft" or page.status == "Last Call" %} [DRAFT]{% endif %}," <em>Algorand Requests for Comments</em>, no. {{ page.arc | xml_escape }}, {{ page.created | date: "%B %Y" }}. [Online serial]. Available: {{site.github.repository_url}}/blob/main/{{page.path}}.</p>
 </div>
 {% comment %}
 Article schema specification:

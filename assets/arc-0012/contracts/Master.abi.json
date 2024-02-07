@@ -1,0 +1,125 @@
+{
+  "name": "Master",
+  "desc": "",
+  "methods": [
+    {
+      "name": "create",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "createVault",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "account",
+          "desc": ""
+        },
+        {
+          "name": "mbrPayment",
+          "type": "pay",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
+      "name": "verifyAxfer",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "account",
+          "desc": ""
+        },
+        {
+          "name": "vaultAxfer",
+          "type": "axfer",
+          "desc": ""
+        },
+        {
+          "name": "vault",
+          "type": "application",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "hasVault",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
+      "name": "getVaultId",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
+      "name": "getVaultAddr",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "address",
+        "desc": ""
+      }
+    },
+    {
+      "name": "deleteVault",
+      "args": [
+        {
+          "name": "vault",
+          "type": "application",
+          "desc": ""
+        },
+        {
+          "name": "creator",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    }
+  ]
+}

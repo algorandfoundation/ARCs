@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "tealscript arc12.ts && pytest tests/",
+    "build": "tealscript arc12.ts",
+    "test": "pytest tests/"
+  },
+  "dependencies": {
+    "@joe-p/tealscript": "0.3.1"
+  }
+}
