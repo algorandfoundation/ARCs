@@ -24,7 +24,7 @@ const v1 = express.Router()
 
 v1.post('/signin/request', (req: Request<never, { authAcc: string }, never, never>, res: Response) => {
   const { authAcc } = req.body
-  if (!authAcc) {
+  if (!authAcc || !algosdk.isValidAddress(authAcc)) {
     return res.sendStatus(400)
   }
 
@@ -52,6 +52,9 @@ v1.post('/signin/verify', async (req: Request<never, { authAcc: string, signedMe
     signedMessageBase64
   } = req.body
   try {
+    if (!authAcc || !algosdk.isValidAddress(authAcc) || !signedMessageBase64) {
+      return res.sendStatus(400)
+    }
     const user = users.find(user => user.authAcc === authAcc)
     if (user) {
       const authMessage: AuthMessage = {
@@ -70,7 +73,6 @@ v1.post('/signin/verify', async (req: Request<never, { authAcc: string, signedMe
       }
     }
   } catch (error) {
-    console.error(error)
     return res.sendStatus(400)
   }
 
