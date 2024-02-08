@@ -3,6 +3,8 @@ import { encode, decode } from '@msgpack/msgpack'
 import { useNotifications } from './useNotifications'
 import { usePeraWallet } from './usePeraWallet'
 
+import { normalizeError } from '@/utils/normalizeError'
+
 export interface AuthMessage {
   /** The domain name of the Verifier */
   domain: string
@@ -25,17 +27,28 @@ export const useAuth = () => {
   const router = useRouter()
 
   const { address, connectWallet, disconnectWallet, signData } = usePeraWallet()
-  const { showNotification } = useNotifications()
+  const { showErrorNotification, showWarningNotification, showSuccessNotification } = useNotifications()
 
   const sessionCookie = useCookie('session', { sameSite: 'strict', maxAge: 60 * 60 * 24 * 365, secure: true })
 
   const authMessage = ref<AuthMessage | null>(null)
   const isConfirmingSignIn = ref(false)
 
-  const signInAbort = () => {
+  const clear = () => {
     disconnectWallet()
+    sessionCookie.value = null
     authMessage.value = null
-    showNotification('SIGN_IN_ABORT')
+    isConfirmingSignIn.value = false
+  }
+
+  const signInAbort = () => {
+    clear()
+    showWarningNotification('Sign in aborted')
+  }
+
+  const signInError = (error: unknown) => {
+    clear()
+    showErrorNotification(normalizeError(error))
   }
 
   const signIn = async () => {
@@ -48,7 +61,11 @@ export const useAuth = () => {
       const authMessageWrapper = decodedMessage as { 'arc31:j': AuthMessage }
       authMessage.value = authMessageWrapper['arc31:j']
     } catch (error) {
-      signInAbort()
+      if ((error as any).data.type === 'CONNECT_MODAL_CLOSED') {
+        signInAbort()
+      } else {
+        signInError(error)
+      }
     }
   }
 
@@ -72,21 +89,21 @@ export const useAuth = () => {
       const session = await new Arc31ApiClient().verify(signedMessageBase64, authMessage.value.authAcc)
       sessionCookie.value = JSON.stringify(session)
       authMessage.value = null
-      showNotification('SIGN_IN_COMPLETE')
       router.push('/')
+      showSuccessNotification('Sign in completed')
     } catch (error) {
-      signInAbort()
-    } finally {
-      isConfirmingSignIn.value = false
+      if ((error as any).data.type === 'SIGN_TRANSACTIONS') {
+        signInAbort()
+      } else {
+        signInError(error)
+      }
     }
   }
 
   const signOut = () => {
     router.push('/signin')
-    disconnectWallet()
-    sessionCookie.value = null
-    authMessage.value = null
-    showNotification('SIGN_OUT_COMPLETE')
+    clear()
+    showSuccessNotification('Sign out completed')
   }
 
   return {
