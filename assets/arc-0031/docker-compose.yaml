@@ -3,17 +3,26 @@ version: '3.8'
 services:
   arc-0031-client:
     image: arc-0031-client:latest
+    build:
+      context: ./client
     environment:
-      NUXT_APP_API_URL: http://arc-0031-server:3001/api
+      NUXT_API_URL: $API_URL
+      NUXT_PUBLIC_ALGORAND_CHAIN_ID: $ALGORAND_CHAIN_ID
     networks:
       - arc-0031
     ports:
-      - '3000:3000'
+      - '80:3000'
     depends_on:
       - arc-0031-server
 
   arc-0031-server:
     image: arc-0031-server:latest
+    build:
+      context: ./server
+    environment:
+      PORT: 3001
+      SERVICE_NAME: $SERVICE_NAME
+      SERVICE_DESCRIPTION: $SERVICE_DESCRIPTION
     networks:
       - arc-0031
     ports:

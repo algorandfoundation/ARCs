@@ -1,15 +1,13 @@
-FROM node:16-bullseye
-
+FROM node:20-slim AS base
 WORKDIR /client
-COPY package.json /client/package.json
+
+FROM base AS build
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
 COPY . .
-RUN yarn install \
-  --prefer-offline \
-  --frozen-lockfile \
-  --non-interactive
-RUN NODE_ENV=production yarn build
+RUN npm run build
 
-ENV NUXT_APP_API_URL=http://localhost:3001/api
+FROM base AS production
+COPY --from=build /client/.output /client/.output
 EXPOSE 3000
-
 ENTRYPOINT ["node", ".output/server/index.mjs"]

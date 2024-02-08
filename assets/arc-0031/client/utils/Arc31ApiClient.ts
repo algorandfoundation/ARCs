@@ -1,15 +1,25 @@
-import { ApiClient, type ApiClientOptions } from './ApiClient'
-import { type Session } from '~~/types'
+import type { Session } from '@/utils/hooks/useAuth'
 
-class Arc31ApiClient extends ApiClient {
-  constructor(baseURL = '/api', options: Partial<ApiClientOptions> = { version: 'v1' }) {
-    super(baseURL, options)
+export class Arc31ApiClient {
+  private apiFetch
+
+  constructor (baseURL: string = '/api/v1') {
+    this.apiFetch = $fetch.create({ baseURL })
   }
 
-  request = (authAcc: string) => this.post<string>('/signin/request', { authAcc })
+  public request = (authAcc: string) => this.apiFetch<string>('/signin/request', {
+    method: 'POST',
+    body: {
+      authAcc
+    }
+  })
 
-  verify = (signedMessageBase64: string, authAcc: string) =>
-    this.post<Session>('/signin/verify', { signedMessageBase64, authAcc })
+  public verify = (signedMessageBase64: string, authAcc: string) =>
+    this.apiFetch<Session>('/signin/verify', {
+      method: 'POST',
+      body: {
+        signedMessageBase64,
+        authAcc
+      }
+    })
 }
-
-export default Arc31ApiClient

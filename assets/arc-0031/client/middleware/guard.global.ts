@@ -1,14 +1,12 @@
-import { useAuthStore } from '~~/store/auth'
+import type { Session } from '@/utils/hooks/useAuth'
 
-export default defineNuxtRouteMiddleware(to => {
-  if (process.server) {
-    const authStore = useAuthStore()
-    const { loadSession } = authStore
-    loadSession()
-    if (!authStore.session && to.path !== '/signin') {
+export default defineNuxtRouteMiddleware((to) => {
+  if (import.meta.server) {
+    const session = useCookie<Session>('session')
+    if (!session.value && to.path !== '/signin') {
       return '/signin'
     }
-    if (authStore.session && to.path === '/signin') {
+    if (session.value && to.path === '/signin') {
       return '/'
     }
   }
