@@ -23,5 +23,3 @@ export class Arc31ApiClient {
       }
     })
 }
-
-export { ApiClientOptions, ApiClient }
