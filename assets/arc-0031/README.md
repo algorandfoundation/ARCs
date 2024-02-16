@@ -36,3 +36,5 @@ npm run dev
 ```
 
 Visit `localhost:3001`
+
+> Reference implementation credits: [deanstef](https://github.com/deanstef) and [mrcointreau](https://github.com/mrcointreau)
