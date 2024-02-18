@@ -7,10 +7,11 @@ export class Arc31ApiClient {
     this.apiFetch = $fetch.create({ baseURL })
   }
 
-  public request = (authAcc: string) => this.apiFetch<string>('/signin/request', {
+  public request = (authAcc: string, chain: string) => this.apiFetch<string>('/signin/request', {
     method: 'POST',
     body: {
-      authAcc
+      authAcc,
+      chain
     }
   })
 
