@@ -1,13 +1,17 @@
-FROM node:20-slim AS base
+FROM node:20-alpine AS base
 WORKDIR /client
 
 FROM base AS build
 COPY package*.json ./
-RUN npm ci && npm cache clean --force
+COPY tsconfig.json ./
+COPY packages/arc31/package*.json ./packages/arc31/
+COPY client/package*.json ./client/
+COPY client/tsconfig.json ./client/
+RUN npm ci
 COPY . .
-RUN npm run build
+RUN npm run build --workspace=arc31 && npm run build --workspace=client
 
 FROM base AS production
-COPY --from=build /client/.output /client/.output
+COPY --from=build /client/client/.output ./.output
 EXPOSE 3000
 ENTRYPOINT ["node", ".output/server/index.mjs"]

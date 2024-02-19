@@ -1,3 +1,5 @@
+import { PeraWalletConnect } from '@perawallet/connect'
+
 import { useEnv } from '@/utils/hooks/useEnv'
 
 enum AlgorandChainId {
@@ -6,8 +8,7 @@ enum AlgorandChainId {
   BetaNet = 416003
 }
 
-export default defineNuxtPlugin(async () => {
-  const { PeraWalletConnect } = await import('@perawallet/connect')
+export default defineNuxtPlugin(() => {
   const env = useEnv()
   const peraWalletClient = new PeraWalletConnect({ chainId: AlgorandChainId[env.client.algorandChainId] })
 

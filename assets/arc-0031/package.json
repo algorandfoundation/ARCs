@@ -1,0 +1,13 @@
+{
+  "name": "arc-0031",
+  "author": "Luca Martini",
+  "workspaces": [
+    "client",
+    "server",
+    "packages/arc31"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=arc31 && npm run build --workspace=server && npm run build --workspace=client",
+    "dev": "npm run dev --workspace=arc31 & npm run dev --workspace=server & npm run dev --workspace=client"
+  }
+}

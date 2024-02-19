@@ -4,7 +4,8 @@ services:
   arc-0031-client:
     image: arc-0031-client:latest
     build:
-      context: ./client
+      context: .
+      dockerfile: client/Dockerfile
     environment:
       NUXT_API_URL: $API_URL
       NUXT_PUBLIC_ALGORAND_CHAIN_ID: $ALGORAND_CHAIN_ID
@@ -18,7 +19,8 @@ services:
   arc-0031-server:
     image: arc-0031-server:latest
     build:
-      context: ./server
+      context: .
+      dockerfile: server/Dockerfile
     environment:
       PORT: 3001
       SERVICE_NAME: $SERVICE_NAME
