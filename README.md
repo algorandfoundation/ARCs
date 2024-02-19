@@ -30,7 +30,7 @@ To install `arcw` and validate the ARCs repository:
 ```console
 git clone git@github.com:algorandfoundation/arcw.git
 cargo install --path=arcw arcw
-arcw /path/to/ARCs
+arcw Path-to-ARCs-Folder/ARCs/ARCs/arc-xxxx.md
 ```
 
 
