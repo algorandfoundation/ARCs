@@ -13,7 +13,6 @@
     "lint:fix": "tsc --noEmit && eslint . --fix"
   },
   "dependencies": {
-    "@msgpack/msgpack": "2.8.0",
     "@t3-oss/env-core": "0.7.1",
     "algosdk": "2.7.0",
     "dotenv": "16.4.1",
