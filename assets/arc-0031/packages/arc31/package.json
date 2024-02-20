@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.0.1",
-  "author": "Luca Martini",
+  "author": "[deanstef](https://github.com/deanstef) and [mrcointreau](https://github.com/mrcointreau)",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",

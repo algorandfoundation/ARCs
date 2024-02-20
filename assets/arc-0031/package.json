@@ -1,6 +1,6 @@
 {
   "name": "arc-0031",
-  "author": "Luca Martini",
+  "author": "[deanstef](https://github.com/deanstef) and [mrcointreau](https://github.com/mrcointreau)",
   "workspaces": [
     "client",
     "server",
