@@ -1,6 +1,6 @@
 import algosdk from 'algosdk'
-import type { AuthMessage } from 'arc31'
-import { encodeAuthMessage } from 'arc31'
+import type { AlgorandChainId, AuthMessage } from 'arc31'
+import { AlgorandGenesisHash, encodeAuthMessage, verifyAuthMessage } from 'arc31'
 import type { Request, Response } from 'express'
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
@@ -10,9 +10,9 @@ import users from '../../mock/users.db'
 
 const v1 = express.Router()
 
-v1.post('/signin/request', (req: Request<never, { authAcc: string }, never, never>, res: Response) => {
-  const { authAcc } = req.body
-  if (!authAcc || !algosdk.isValidAddress(authAcc)) {
+v1.post('/signin/request', (req: Request<never, { authAcc: string, chainId: AlgorandChainId }, never, never>, res: Response) => {
+  const { authAcc, chainId } = req.body
+  if (!authAcc || !algosdk.isValidAddress(authAcc) || !chainId || !Object.keys(AlgorandGenesisHash).includes(chainId)) {
     return res.sendStatus(400)
   }
 
@@ -21,19 +21,21 @@ v1.post('/signin/request', (req: Request<never, { authAcc: string }, never, neve
     return res.sendStatus(401)
   }
 
-  const nonce = uuidv4()
+  const challenge = uuidv4()
   const authMessage: AuthMessage = {
     domain: env.SERVICE_NAME,
     authAcc,
-    nonce,
+    challenge,
+    chainId: AlgorandGenesisHash[chainId],
     desc: env.SERVICE_DESCRIPTION
   }
-  user.nonce = nonce
+  user.challenge = challenge
+  user.chainId = chainId
 
   return res.send(encodeAuthMessage(authMessage))
 })
 
-v1.post('/signin/verify', async (req: Request<never, { authAcc: string, signedMessageBase64: string }, never, never>, res: Response) => {
+v1.post('/signin/verify', (req: Request<never, { authAcc: string, signedMessageBase64: string }, never, never>, res: Response) => {
   const {
     authAcc,
     signedMessageBase64
@@ -47,12 +49,11 @@ v1.post('/signin/verify', async (req: Request<never, { authAcc: string, signedMe
       const authMessage: AuthMessage = {
         domain: env.SERVICE_NAME,
         authAcc,
-        nonce: user.nonce,
+        challenge: user.challenge,
+        chainId: AlgorandGenesisHash[user.chainId],
         desc: env.SERVICE_DESCRIPTION
       }
-      const encodedAuthMessageBytes = Buffer.from(encodeAuthMessage(authMessage), 'base64')
-      const signedMessageBytes = Buffer.from(signedMessageBase64, 'base64')
-      if (await algosdk.verifyBytes(encodedAuthMessageBytes, signedMessageBytes, authAcc)) {
+      if (verifyAuthMessage(authMessage, signedMessageBase64)) {
         const session = { authAcc, accessToken: uuidv4() }
 
         return res.status(200).send(session)

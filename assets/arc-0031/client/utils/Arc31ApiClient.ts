@@ -1,3 +1,5 @@
+import type { AlgorandChainId } from 'arc31'
+
 import type { Session } from '@/utils/hooks/useAuth'
 
 export class Arc31ApiClient {
@@ -7,10 +9,11 @@ export class Arc31ApiClient {
     this.apiFetch = $fetch.create({ baseURL })
   }
 
-  public request = (authAcc: string) => this.apiFetch<string>('/signin/request', {
+  public request = (authAcc: string, chainId: AlgorandChainId) => this.apiFetch<string>('/signin/request', {
     method: 'POST',
     body: {
-      authAcc
+      authAcc,
+      chainId
     }
   })
 

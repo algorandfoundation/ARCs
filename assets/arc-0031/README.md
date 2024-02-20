@@ -8,7 +8,7 @@ The example shows the entire workflow of authentication using a standalone Algor
 
 ## User registration
 
-Add registered users to the `server/mock/users.db.js` array. The `nonce` field must be left empty `''`.
+Add registered users to the `server/mock/users.db.ts` array. The `challenge` field must be left empty `''`.
 
 ## Run via Docker Compose
 

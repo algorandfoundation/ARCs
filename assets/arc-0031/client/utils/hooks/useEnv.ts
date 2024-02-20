@@ -1,3 +1,5 @@
+import type { AlgorandChainId } from 'arc31'
+import { AlgorandGenesisHash } from 'arc31'
 import type { ZodObject, ZodType } from 'zod'
 import { z } from 'zod'
 
@@ -17,7 +19,11 @@ const createEnv = <TClient extends Record<string, ZodType>, TServer extends Reco
 
 export const useEnv = () => createEnv({
   client: {
-    algorandChainId: z.enum(['MainNet', 'TestNet', 'BetaNet'])
+    algorandChainId: (() => {
+      const [firstAlgorandChainId, ...otherAlgorandChainIds] = Object.keys(AlgorandGenesisHash) as AlgorandChainId[]
+
+      return z.enum([firstAlgorandChainId, ...otherAlgorandChainIds])
+    })()
   },
   server: {
     apiUrl: z.string().url()
