@@ -3,7 +3,7 @@ import { useAuth } from '@/utils/hooks/useAuth'
 
 useHead({ title: 'Home' })
 
-const { address, signOut } = useAuth()
+const { session, signOut } = useAuth()
 </script>
 
 <template>
@@ -12,7 +12,7 @@ const { address, signOut } = useAuth()
       <div>
         <p>www.servicedomain.com</p>
         <p class="text-primary break-all">
-          {{ address }}
+          {{ session?.authAcc }}
         </p>
       </div>
       <UButton
