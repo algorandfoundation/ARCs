@@ -19,7 +19,7 @@ export default [
       }
     ],
     plugins: [
-      typescript({ tsconfig: './tsconfig.json' }),
+      typescript({ tsconfig: './tsconfig.build.json' }),
       process.env.NODE_ENV === 'production' ? terser() : esbuild()
     ]
   },

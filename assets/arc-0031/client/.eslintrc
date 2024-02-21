@@ -13,7 +13,10 @@
   "rules": {
     "@typescript-eslint/consistent-type-exports": "error",
     "@typescript-eslint/consistent-type-imports": "error",
-    "@typescript-eslint/indent": ["error", 2]
+    "@typescript-eslint/indent": [
+      "error",
+      2
+    ]
   },
   "overrides": [
     {
