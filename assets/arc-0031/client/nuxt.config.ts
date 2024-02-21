@@ -1,7 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  // @ts-ignore
+  telemetry: false,
   modules: ['@nuxt/ui'],
+  modulesDir: ['../node_modules'],
   runtimeConfig: {
     apiUrl: process.env.NUXT_API_URL,
     public: {

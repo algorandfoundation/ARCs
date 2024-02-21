@@ -1,5 +1,5 @@
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,14 +7,26 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-.DS_Store
+# node_modules
+node_modules/
+
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
 dist
-dist-ssr
-coverage
+
+# Misc files and directories
+.DS_Store
+.fleet
+.idea
 *.local
+
+# Local environment files
 .env
-.env.*.
+.env.*
 !.env.example
 
 # Editor directories and files
