@@ -1,7 +1,7 @@
-import type { AlgorandChainId } from 'arc31'
+import type { AlgorandGenesisHash } from 'arc31'
 
 export interface User {
   authAcc: string
   challenge: string
-  chainId: AlgorandChainId
+  chainId: AlgorandGenesisHash
 }

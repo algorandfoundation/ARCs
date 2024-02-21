@@ -30,7 +30,7 @@ v1.post('/signin/request', (req: Request<never, { authAcc: string, chainId: Algo
     desc: env.SERVICE_DESCRIPTION
   }
   user.challenge = challenge
-  user.chainId = chainId
+  user.chainId = AlgorandGenesisHash[chainId]
 
   return res.send(encodeAuthMessage(authMessage))
 })
@@ -50,7 +50,7 @@ v1.post('/signin/verify', (req: Request<never, { authAcc: string, signedMessageB
         domain: env.SERVICE_NAME,
         authAcc,
         challenge: user.challenge,
-        chainId: AlgorandGenesisHash[user.chainId],
+        chainId: user.chainId,
         desc: env.SERVICE_DESCRIPTION
       }
       if (verifyAuthMessage(authMessage, signedMessageBase64)) {
