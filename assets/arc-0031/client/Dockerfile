@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-WORKDIR /client
+WORKDIR /arc31
 
 FROM base AS build
 COPY package*.json ./
@@ -12,6 +12,6 @@ COPY . .
 RUN npm run build --workspace=arc31 && npm run build --workspace=client
 
 FROM base AS production
-COPY --from=build /client/client/.output ./.output
+COPY --from=build /arc31/client/.output ./.output
 EXPOSE 3000
 ENTRYPOINT ["node", ".output/server/index.mjs"]
