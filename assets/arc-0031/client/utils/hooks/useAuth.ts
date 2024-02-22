@@ -4,11 +4,7 @@ import { encodeAuthMessage, decodeAuthMessage } from 'arc31'
 import { useEnv } from './useEnv'
 import { useNotifications } from './useNotifications'
 import { usePeraWallet } from './usePeraWallet'
-
-export interface Session {
-  authAcc: string
-  accessToken: string
-}
+import { useSessionCookie } from './useSessionCookie'
 
 export const useAuth = () => {
   const router = useRouter()
@@ -18,14 +14,14 @@ export const useAuth = () => {
   const { address, connectWallet, disconnectWallet, signData } = usePeraWallet()
   const { showErrorNotification, showWarningNotification, showSuccessNotification } = useNotifications()
 
-  const sessionCookie = useCookie('session', { sameSite: 'strict', maxAge: 60 * 60 * 24 * 365, secure: true })
+  const sessionCookie = useSessionCookie()
 
   const authMessage = ref<AuthMessage | null>(null)
   const isConfirmingSignIn = ref(false)
 
   const clear = () => {
     disconnectWallet()
-    sessionCookie.value = null
+    sessionCookie.clear()
     authMessage.value = null
     isConfirmingSignIn.value = false
   }
@@ -71,7 +67,7 @@ export const useAuth = () => {
       const signedMessageBase64 = Buffer.from(signedMessageBytes[0]).toString('base64')
       // Verify the signed message and update the session cookie
       const session = await new Arc31ApiClient().verify(signedMessageBase64, authMessage.value.authAcc)
-      sessionCookie.value = JSON.stringify(session)
+      sessionCookie.set(session)
       authMessage.value = null
       router.push('/')
       showSuccessNotification('Sign in completed')
@@ -91,7 +87,7 @@ export const useAuth = () => {
   }
 
   return {
-    address,
+    session: sessionCookie.session,
     authMessage,
     isConfirmingSignIn,
     signInAbort,

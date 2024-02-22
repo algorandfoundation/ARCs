@@ -8,6 +8,20 @@
   ],
   "scripts": {
     "build": "npm run build --workspace=arc31 && npm run build --workspace=server && npm run build --workspace=client",
-    "dev": "npm run dev --workspace=arc31 & npm run dev --workspace=server & npm run dev --workspace=client"
+    "dev": "npm run dev --workspace=arc31 & npm run dev --workspace=server & npm run dev --workspace=client",
+    "lint": "tsc && eslint .",
+    "lint:fix": "tsc && eslint . --fix"
+  },
+  "devDependencies": {
+    "@mrcointreau/eslint-config-typescript": "1.0.1",
+    "@rollup/plugin-terser": "0.4.4",
+    "@rollup/plugin-typescript": "11.1.6",
+    "@types/node": "20.11.16",
+    "eslint": "8.56.0",
+    "rollup": "4.10.0",
+    "rollup-plugin-dts": "6.1.0",
+    "rollup-plugin-esbuild": "6.1.1",
+    "tslib": "2.6.2",
+    "typescript": "5.3.3"
   }
 }

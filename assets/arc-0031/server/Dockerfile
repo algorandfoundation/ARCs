@@ -6,7 +6,7 @@ COPY package*.json ./
 COPY tsconfig.json ./
 COPY packages/arc31/package*.json ./packages/arc31/
 COPY server/package*.json ./server/
-COPY server/tsconfig.json ./server/
+COPY server/tsconfig.build.json ./server/
 RUN npm ci
 COPY . .
 RUN npm run build --workspace=arc31 && npm run build --workspace=server
