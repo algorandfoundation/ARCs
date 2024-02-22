@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { useSessionCookie } from './utils/hooks/useSessionCookie'
+
 import { usePeraWallet } from '@/utils/hooks/usePeraWallet'
 
 if (import.meta.client) {
   const { reconnectWallet } = usePeraWallet()
-  await reconnectWallet()
+  const sessionCookie = useSessionCookie()
+  const address = await reconnectWallet()
+  if (sessionCookie.session.value && !address?.value) {
+    sessionCookie.clear()
+    window.location.reload()
+  }
 }
 
 useHead({

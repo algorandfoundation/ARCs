@@ -6,12 +6,10 @@ export const usePeraWallet = () => {
   const address = useState('address', () => '')
 
   const disconnectWallet = async () => {
-    if (!$peraWalletClient.isConnected) {
-      return
+    if ($peraWalletClient.isConnected) {
+      await $peraWalletClient.disconnect()
+      address.value = ''
     }
-
-    await $peraWalletClient.disconnect()
-    address.value = ''
   }
 
   const connectWallet = async (
@@ -24,15 +22,15 @@ export const usePeraWallet = () => {
   }
 
   const reconnectWallet = async () => {
-    if ($peraWalletClient.isConnected) {
-      return
+    if (!$peraWalletClient.isConnected) {
+      const accounts = await $peraWalletClient.reconnectSession()
+      if (accounts.length) {
+        $peraWalletClient.connector?.on('disconnect', disconnectWallet)
+        address.value = accounts[0]
+      }
     }
 
-    const accounts = await $peraWalletClient.reconnectSession()
-    if (accounts.length) {
-      $peraWalletClient.connector?.on('disconnect', disconnectWallet)
-      address.value = accounts[0]
-    }
+    return address
   }
 
   const signData = (data: PeraWalletArbitraryData[], address: string) =>
