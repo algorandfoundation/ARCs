@@ -13,6 +13,7 @@ status: <Draft, Final, Approved>
 ---
 
 ## Abstract
+### IMPORTANT: THIS TEMPLATE MAY BE MODIFIED UNTIL MARCH 13,2024, DO NOT SUBMIT PROPOSAL WITH THE CURRENT VERSION.
 A brief overview of the proposal and its main objectives.
 
 ## Team
