@@ -283,6 +283,7 @@ export class ContextualCryptoApi {
      * @param account - account number. This value will be hardened as part of BIP44
      * @param keyIndex - key index. This value will be a SOFT derivation as part of BIP44.
      * @param otherPartyPub - raw 32 bytes public key of the other party
+     * @param meFirst - defines the order in which the keys will be considered for the shared secret. If true, our key will be used first, otherwise the other party's key will be used first
      * @returns - raw 32 bytes shared secret
      */
     async ECDH(context: KeyContext, account: number, keyIndex: number, otherPartyPub: Uint8Array, meFirst: boolean): Promise<Uint8Array> {
