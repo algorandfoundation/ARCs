@@ -12,7 +12,9 @@ import {
     crypto_sign,
     crypto_sign_SECRETKEYBYTES,
     crypto_sign_ed25519_sk_to_pk,
-    crypto_scalarmult_ed25519_base
+    crypto_scalarmult_ed25519_base,
+    crypto_generichash,
+    crypto_scalarmult_base
 } from 'libsodium-wrappers-sumo';
 import * as msgpack from "algo-msgpack-with-bigint"
 import Ajv from "ajv"
@@ -283,7 +285,7 @@ export class ContextualCryptoApi {
      * @param otherPartyPub - raw 32 bytes public key of the other party
      * @returns - raw 32 bytes shared secret
      */
-    async ECDH(context: KeyContext, account: number, keyIndex: number, otherPartyPub: Uint8Array): Promise<Uint8Array> {
+    async ECDH(context: KeyContext, account: number, keyIndex: number, otherPartyPub: Uint8Array, meFirst: boolean): Promise<Uint8Array> {
         await ready
 
         const rootKey: Uint8Array = fromSeed(this.seed)
@@ -293,6 +295,19 @@ export class ContextualCryptoApi {
 
         const scalar: Uint8Array = childKey.slice(0, 32)
 
-        return crypto_scalarmult(scalar, crypto_sign_ed25519_pk_to_curve25519(otherPartyPub))
+        // our public key is derived from the private key
+        const ourPub: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(scalar)
+
+        // find common point
+        const sharedPoint: Uint8Array = crypto_scalarmult(scalar, crypto_sign_ed25519_pk_to_curve25519(otherPartyPub))
+
+        let firstKey: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(ourPub)
+        let secondKey: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(otherPartyPub)
+        if (!meFirst) { // swap
+            firstKey = crypto_sign_ed25519_pk_to_curve25519(otherPartyPub)
+            secondKey = crypto_sign_ed25519_pk_to_curve25519(ourPub)
+        }
+
+        return crypto_generichash(32, Buffer.concat([sharedPoint, firstKey, secondKey]))
     }
 }

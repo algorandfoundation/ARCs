@@ -359,9 +359,9 @@ describe("Contextual Derivation & Signing", () => {
             it("\(OK) ECDH", async () => {
                 const aliceKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
                 const bobKey: Uint8Array = await bobCryptoService.keyGen(KeyContext.Address, 0, 1)
-    
-                const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Address, 0, 0, bobKey)
-                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Address, 0, 1, aliceKey)
+
+                const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Address, 0, 0, bobKey, true)
+                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Address, 0, 1, aliceKey, false)
     
                 expect(aliceSharedSecret).toEqual(bobSharedSecret)
             })
@@ -370,8 +370,8 @@ describe("Contextual Derivation & Signing", () => {
                 const aliceKey: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 0)
                 const bobKey: Uint8Array = await bobCryptoService.keyGen(KeyContext.Identity, 0, 1)
     
-                const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Identity, 0, 0, bobKey)
-                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Identity, 0, 1, aliceKey)
+                const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Identity, 0, 0, bobKey, true)
+                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Identity, 0, 1, aliceKey, false)
     
                 expect(aliceSharedSecret).toEqual(bobSharedSecret)
     
