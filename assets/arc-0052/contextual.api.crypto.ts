@@ -7,11 +7,17 @@ import {
     crypto_sign_verify_detached,
     ready,
     crypto_sign_ed25519_pk_to_curve25519,
-    crypto_scalarmult
+    crypto_scalarmult,
+    crypto_sign_detached,
+    crypto_sign,
+    crypto_sign_SECRETKEYBYTES,
+    crypto_sign_ed25519_sk_to_pk,
+    crypto_scalarmult_ed25519_base
 } from 'libsodium-wrappers-sumo';
 import * as msgpack from "algo-msgpack-with-bigint"
 import Ajv from "ajv"
 import { deriveChildNodePrivate, fromSeed } from './bip32-ed25519';
+import { randomBytes } from 'crypto';
 
 
 /**
@@ -94,8 +100,8 @@ export class ContextualCryptoApi {
 
             derived = deriveChildNodePrivate(derived, bip44Path[4])
 
-        const scalar = derived.subarray(0, 32) // scalar == pvtKey
-        return isPrivate ? scalar : crypto_scalarmult_ed25519_base_noclamp(scalar)
+        // const scalar = derived.subarray(0, 32) // scalar == pvtKey
+        return isPrivate ? derived : crypto_scalarmult_ed25519_base_noclamp(derived.subarray(0, 32))
     }
 
     /**

@@ -75,12 +75,17 @@ export function deriveChildNodePrivate(
   const left = new BN(kl, 16, "le").add(new BN(zl.subarray(0, 28), 16, "le").mul(new BN(8))).toArrayLike(Buffer, "le", 32);
   let right = new BN(kr, 16, "le").add(new BN(zr, 16, "le")).toArrayLike(Buffer, "le").slice(0, 32);
 
-  // just padding
-  if (right.length !== 32) {
-    right = Buffer.from(right.toString("hex") + "00", "hex");
-  }
 
-  return Buffer.concat([left, right, chainCode]);
+  const rightBuffer = Buffer.alloc(32);
+  Buffer.from(right).copy(rightBuffer, 0, 0, right.length)
+
+
+  // just padding
+  // if (right.length !== 32) {
+  //   right = Buffer.from(right.toString("hex") + "00", "hex");
+  // }
+
+  return Buffer.concat([left, rightBuffer, chainCode]);
 }
 
 /**
