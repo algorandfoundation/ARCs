@@ -152,8 +152,8 @@ export class ContextualCryptoApi {
         const bip44Path: number[] = GetBIP44PathFromContext(context, account, keyIndex)
         const raw: Uint8Array = await this.deriveKey(rootKey, bip44Path, true)
 
-        const scalar = raw.slice(0, 32);
-        const c = raw.slice(32, 64);
+        const scalar: Uint8Array = raw.slice(0, 32);
+        const c: Uint8Array = raw.slice(32, 64);
 
         // \(1): pubKey = scalar * G (base point, no clamp)
         const publicKey = crypto_scalarmult_ed25519_base_noclamp(scalar);
