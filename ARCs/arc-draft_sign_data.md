@@ -11,6 +11,10 @@ created: 2024-02-28
 requires:  ARC-1.
 ---
 
+# Algorand Wallet Structured Arbitrary Data Signing API
+
+> This ARC is inspired  <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a>.
+
 ## Abstract
 
 WIP
@@ -27,11 +31,11 @@ WIP
 
 The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL NOT**", "**SHOULD**", "**SHOULD NOT**", "**RECOMMENDED**", "**MAY**", and "**OPTIONAL**" in this document are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.
 
+> Comments like this are non-normative
+
 ### Overview
 
 > This section is non-normative
-
-This ARC is implemented following the <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a> to facilitate the integration with wallets already compliant with ARC-1 specifications.
 
 This ARC defines an API for wallets to sign arbitrary data with a `signData(arbData, metadata)` function on a non-empty list of structured `arbData` and `metadata` objects.
 
@@ -256,12 +260,12 @@ export interface StdSigMetadata {
     schema: string;
 
     /**
-    * A string explaining the reason for the data signing.
+    * Optional message explaining the reason for the signature.
     */
-    message: string:
+    message?: string;
 
     /**
-    * The encoding used for the data to sign.
+    * Optional encoding used to represent the signing data.
     */
     encoding?: string;
 }
@@ -271,9 +275,9 @@ export interface StdSigMetadata {
 
 The JSON schema for the structured signing data is represented with the following schema.
 
-The `StdData` object can extend this schema to structure and validate the signing arbitrary data.
+The `StdData` object **MUST** extend this schema to represent structured arbitrary data being signed.
 
-> The signing data JSON schema is inspired by the schema in [EIP-712: Typed structured data hashing and signing proposal.](https://eips.ethereum.org/EIPS/eip-712)
+> The signing data JSON schema is inspired by the schema proposed with [EIP-712: Typed structured data hashing and signing proposal.](https://eips.ethereum.org/EIPS/eip-712)
 >
 > WIP - *highlight the differences*
 
@@ -297,7 +301,9 @@ The `StdData` object can extend this schema to structure and validate the signin
 
 - The `ARCXXXXDomain` object is a string equivalent to `“arcxxxx”` to identify a structured arbitrary data being signed.
 - `additionalProperties` can be used to structure more complex arbitrary data to sign.
-- The data object is a string of arbitrary bytes. It the schema provides additional structured objects, then it **MUST** represent the SHA256 hash of the `additionalProperties`.
+- The data object is a string of arbitrary bytes. If the schema also provides additional structured objects, then the `data` property **MUST** indicate the SHA256 hash of the canonicalized `additionalProperties`.
+
+An example...
 
 #### Error interface `SignDataError`
 
