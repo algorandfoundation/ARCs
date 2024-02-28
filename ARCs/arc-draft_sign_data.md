@@ -8,7 +8,7 @@ status: Draft
 type: Standards Track
 category: Interface
 created: 2024-02-28
-requires:  <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a>.
+requires:  ARC-1.
 ---
 
 ## Abstract
