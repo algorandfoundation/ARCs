@@ -6,9 +6,9 @@ author: Stefano De Angelis (@deanstef)
 discussions-to:  https://forum.algorand.org/t/wallet-council-breakoutgroup-byte-signing/11442
 status: Draft
 type: Standards Track
-category (*only required for Standards Track): Interface
+category: Interface
 created: 2024-02-28
-requires (*optional):  <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a>.
+requires:  <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a>.
 ---
 
 ## Abstract
