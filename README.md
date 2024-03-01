@@ -39,4 +39,3 @@ Here is a dedicated part on the [forum](https://forum.algorand.org/c/arc/19) to 
 To discuss ARCs ideas, see the open [Pull Requests](https://github.com/algorandfoundation/ARCs/pulls) of this repository. 
 
 To discuss ARC drafts, use the corresponding issue in the [issue tracker](https://github.com/algorandfoundation/ARCs/issues).
-webhook
