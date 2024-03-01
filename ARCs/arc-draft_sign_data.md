@@ -13,7 +13,7 @@ requires:  ARC-1.
 
 # Algorand Wallet Structured Arbitrary Data Signing API
 
-> This ARC is inspired  <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a>.
+> This ARC is inspired by <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a>.
 
 ## Abstract
 
@@ -39,9 +39,9 @@ The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL 
 
 This ARC defines an API for wallets to sign arbitrary data with a `signData(arbData, metadata)` function on a non-empty list of structured `arbData` and `metadata` objects.
 
-A `StdSignData` object is used to represent structured arbitrary data to be signed. Those data require a filed `data` that represents a structured byte array to be signed and a filed `signers` that indicates the public keys to be used to sign.
+A `StdSignData` object represents structured arbitrary data that must be signed. Those data include a field `data` that is an array of bytes and a field `signers` for the signing keys.
 
-A `StdSignMetadata` object is used to describe the purpose of the signature request and the type of data to be signed, including the encoding used and the schema.
+A `StdSignMetadata` object describes the signature scope and the type of data being signed, including their encoding and the JSON schema.
 
 `data` is structured according to a JSON Schema provided with the metadata.
 
@@ -62,7 +62,7 @@ There are two possible use cases:
 }
 ```
 
-1. Sign arbitrary data with a secondary public key that the wallet knows (recalling the Algorand Rekey) or a multisig address derived by two or more public keys that the wallet knows (recall the Algorand MultiSig), or a hierarchical deterministic (HD) wallet.
+1. Sign arbitrary data with a secondary public key that the wallet knows (recalling the Algorand Rekey) or a multisig address derived by two or more public keys that the wallet knows (recalling the Algorand MultiSig), or a hierarchical deterministic (HD) wallet. For example:
 
 ```json
 {
@@ -109,13 +109,13 @@ export type SignDataFunction = {
     arbData: StdSignData[],
     metadata: StdSignMetadata[],
 }
-    => Promise<(SignedDataStr)>;
+    => Promise<(SignedData)>;
 ```
 
 - `arbData` is a non-empty array of `StdSigData` objects (defined below)
 - `metadata` is an object parameter that provides additional information on the data being signed (defined below)
 
-The `signData` function returns a `SignedDataStr` object or, in case of error, reject the promise with an error object `SignDataError`.
+The `signData` function returns a `SignedData` object or, in case of error, reject the promise with an error object `SignDataError`.
 
 #### Interface `HDWalletMetadata`
 
@@ -164,7 +164,7 @@ The apostrophe in the numbering convention indicates that hardened derivation is
 
 #### Interface `StdData`
 
-The arbitrary data **MUST** be represented as a canonicalized JSON object in accordance with [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785). The JSON **MUST** be valid with respect the schema provided.
+The arbitrary data **MUST** be represented as a canonicalized JSON object in accordance with <a href="https://www.rfc-editor.org/rfc/rfc8785">RFC 8785</a>. The JSON **MUST** be valid with respect the schema provided.
 
 ```tsx
 export type StdData = string;
@@ -186,22 +186,30 @@ export type Ed25519Pk = string;
 
 #### Interface `SignedDataStr`
 
-`SignedDataStr` is the produced 64-byte array Ed25519 digital signature of the `StdData` message.
+`SignedDataStr` is the produced 64-byte array Ed25519 digital signature of the `StdData` object.
 
 ```tsx
 export type SignedDataStr = string;
 ```
 
-#### Interface `StdSigData`
+#### Interface `SignedData`
+
+A `SignedData` object is a list of `SignedDataStr` representing the signed data. The list must contain all the signatures in case of a multisig.
+
+```tsx
+export type SignedData = SignedDataStr[];
+```
+
+#### Interface `StdSignData`
 
 A `StdSignData` object represents a structured byte array of data to be signed by a wallet.
 
 ```tsx
-export interface StdSigData {
+export interface StdSignData {
     /**
-    * A non-empty list of structured arbitrary data to be signed.
+    * The structured arbitrary data to be signed.
     */
-    data: StdData[];
+    data: StdData;
     
     /**
     * A non-empty list of ed25519 public keys that must sign the data.
@@ -245,10 +253,10 @@ Any extension of this ARC **SHOULD** adopt one of the above `ScopeType` or integ
 
 #### Interface `StdSignMetadata`
 
-A `StdSigMetadata` object specifies metadata of a `StdSigData` object that is being signed.
+A `StdSignMetadata` object specifies metadata of a `StdSignData` object that is being signed.
 
 ```tsx
-export interface StdSigMetadata {
+export interface StdSignMetadata {
     /**
     * The scope value of the sign data request.
     */
@@ -270,6 +278,8 @@ export interface StdSigMetadata {
     encoding?: string;
 }
 ```
+
+If the optional parameter `encoding` is not specified, the `StdData` object should be UTF-8 encoded following the <a href="https://www.rfc-editor.org/rfc/rfc8785">RFC 8785</a>.
 
 ##### Signing Data JSON Schema
 
@@ -307,7 +317,17 @@ An example...
 
 #### Error interface `SignDataError`
 
-The `SignDataError` object follows the same interface as the `SignTxnsError` object defined in [ARC-1](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md) for transaction signing. It also inherits the same status codes, and in addition
+The `SignDataError` object extends the `SignTxnsError` defined in [ARC-1](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md)
+
+```ts
+export interface SignDataError extends Error {
+  code: number;
+  data?: any;
+  failingSignData: (StdSigData | null)[];
+}
+```
+
+`SignDataError` uses the same error codes of `SignTxnsError` as well as the following codes:
 
 | Status Code | Name | Description |
 | --- | --- | --- |
@@ -315,7 +335,80 @@ The `SignDataError` object follows the same interface as the `SignTxnsError` obj
 
 ### Semantic Requirements
 
+The call `signData(arbData, metadata)` **MUST** either return an array `ret` of signed data of the same length of `arbData` or reject the call throwing an error `err`.
+
+> Following [ARC-1](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md) terminology, in this ARC the term **Rejecting** means throwing an error `err.code=4300`.
+
+Upon calling `signData(arbData, metadata)`:
+
+- the length of `arbData` and `metadata` **MUST** be equal, otherwise the wallet **MUST** reject the call with a `4300` error.
+- for each element `i` of `arbData`:
+  - the corresponding metadata **MUST** be `metadata[i]`.
+  - if the encoding `metadata[i].encoding` is present, it **MUST** be used to decode the `arbData[i].data`.
+  - the decoded `arbData[i].data` **MUST** be validated with respect to the JSON schema `metadata[i].data`. If the validation fails, the call **MUST** be rejected with a `4300` error.
+  - the wallet **MUST** ask users for signing confirmation. It **MUST** display the `metadata[i].message` if present, and the structured data being signed following to the `metadata[i].schema`
+    - if the user approves, the `arbData[i].data` **MUST** be signed by `arbData[i].signers` and `ret[i]` MUST be set to the corresponding `SignedDataStr`.
+    - if the user rejects, the call **MUST** fail with error code `4001`.
+
+Note that if any `arbData[i]` cannot be signed for any reason, the wallet **MUST** throw an error, such that
+
+- `err.message` **SHOULD** indicate the reason of the error (e.g. specify that `arbData[i].data` is not a valid JSON object according to `metadata[i].schema`)
+- `err.failingSignData` **SHOULD** return the `StdSignData` object that caused the error, otherwise `null`.
+
+#### Semantic of `StdSignData`
+
+- `data`:
+  - it **MUST** be a valid StdData object, otherwise the wallet MUST reject.
+  - the encoding **MUST** be equal to the value specified by `metadata` if any, otherwise it **MUST** be UTF-8 encoded.
+  - if `data` cannot be decoded into a canonicalized JSON object, the wallet **MUST** reject.
+  - if the decoded `data` does not comply with the JSON schema in `metadata`, the wallet **MUST** reject.
+
+- `signers`:
+
+  - it **MUST** be a list of valid Ed25519Pk objects, otherwise the wallet **MUST** rejct.
+  - the wallet **MAY** transform the `Ed25519Pk` into a valid `AlgorandAddress`.
+  > From <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a>, an `AlgorandAddress` is represented by a 58-character base32 string. It includes the checksum.
+  - if `signers` length is greater than 1:
+    - the wallet **MUST** reject if `msig` is not specified.
+    - the wallet **MUST** reject if signers[0] is not equal to the corresponding `msig`.
+    > For example, in case of Algorand MultiSig the `msig` address resolves by hashing the MultiSig metadata and addresses, as detailed with the <a href="https://github.com/algorandfoundation/specs/blob/master/dev/ledger.md#multisignature">Multisignature specs</a>.
+    - the wallet **MUST** reject if signers is not a subset of `msig.addrs`
+    - the wallet **MUST** try to return a `SignedData` object with all the `SignedDataStr` corresponding to `signers[i]` with `i>0`. If it cannot it SHOULD throw a `4001` error.
+
+  - if `signers` length is 1:
+    - if `msig` is specified, the wallet **MUST** reject.
+    - if `authAddr` is specified the wallet **MUST** reject if `signers[0]` is not equal to `authAddr`.
+    - if `hdPath` is specified, the wallet **MUST** reject if `signers[0]` is not equal to the derived public key with the `hdPath` parameters.
+    - In all cases, the wallet **MUST** only try to return a `SignedData` object with one `SignedDataStr` for `signers[0]`.
+
+- `authAddr`:
+  - The wallet **MAY** not support this field. In that case, it **MUST** throw a 4200 error.
+  - if specified, it **MUST** be a valid `Ed25519Pk` object, otherwise the wallet **MUST** reject.
+  - is specified and supported, the wallet **MUST** try to return a `SignedData` object that includes a `SignedDataStr` for `authAddr`.
+
+- `msig`:
+  - The wallet **MAY** not support this field. In that case, it **MUST** throw a 4200 error.
+  - if specified, it **MUST** be a valid `MultisigMetadata` object, otherwise the wallet **MUST** reject.
+  - if specified and supported, the wallet **MUST** verify that the `msig` address corresponds to `signers[0]`.
+  - If specified and supported, the wallet **MUST** try to return a `SignedData` object with all the `SignedDataStr` it can provide and that the wallet user agrees to provide. If the wallet can produce more signatures than the requested threshold (`msig.threshold`), it **MAY** only provide a `SignedData` object with `msig.threshold` signatures. It is also possible that the wallet cannot provide at least `msig.threshold` signatures (either because the user prevented signing with some keys or because the wallet does not know enough keys). In that case, the returned `SignedData` object will contain only the signatures the wallet can produce. However, the wallet **MUST** provide at least one `SignedDataStr` or throw an error.
+
+- `hdPath`:
+  - The wallet **MAY** not support this field. In that case, it **MUST** throw a `4200` error.
+  - if specified, it **MUST** be a valid `HDWalletMetadata` object, otherwise the wallet **MUST** reject.
+  - if specified and supported, the wallet **MUST** verify that the derivation path resolves to a public key corresponding to `signers[0]`.
+  - if specified and supported, the waller **MUST** try to return a `SignedData` object that includes a `SignedDataStr` for `signers[0]`.
+
+#### Semantic of `StdSignMetadata`
+
 WIP
+
+#### General Validation
+
+Every input of the `signData(arbData, metadata)` must be validated. The validation:
+
+- **SHALL NOT** rely on TypeScript typing as this can be bypassed. Types **MUST** be manually verified.
+
+_- **SHALL NOT** assume the Algorand SDK does any validation, as the Algorand SDK `signBytes` method does not check inputs structure. The only exception for the above rule is for de-serialization of transactions. Once de-serialized, every field of the transaction must be manually validated._
 
 ## Rationale
 
