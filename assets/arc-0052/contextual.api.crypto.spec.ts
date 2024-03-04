@@ -211,24 +211,6 @@ describe("Contextual Derivation & Signing", () => {
             })
 
         describe("Signing Typed Data", () => {
-
-            // it("\(OK) Sign hardcoded data, compare hardcoded signature", async () => {
-            //     const message: Uint8Array = new Uint8Array(Buffer.from("{'text': 'Hello, World'}"))
-                
-            //     // read auth schema file for authentication. 32 bytes challenge to sign
-            //     const msgSchema: JSONSchemaType<any> = JSON.parse(readFileSync(path.resolve(__dirname, "schemas/msg.schema.json"), "utf8"))
-            //     const metadata: SignMetadata = { encoding: Encoding.NONE, schema: msgSchema }
-
-            //     const signature: Uint8Array = await cryptoService.signData(KeyContext.Address, 0, 0, message, metadata)
-            //     expect(signature).toHaveLength(64)
-            //     console.log(signature)
-
-            //     const expectedSignature = Uint8Array.from([137,13,247,162,115,48,233,188,188,81,7,167,158,250,252,66,138,30,3,65,88,209,92,250,43,13,60,193,44,175,87,93,60,73,243,145,170,38,214,152,29,54,61,109,241,24,238,186,159,45,149,15,141,69,118,162,31,148,162,221,29,156,226,1])
-            //     console.log("expected signature:", expectedSignature)
-            //     const isValid: boolean = await cryptoService.verifyWithPublicKey(signature, message, await cryptoService.keyGen(KeyContext.Address, 0, 0))
-            //     expect(isValid).toBe(true)
-            // })
-
             it("\(OK) Sign authentication challenge of 32 bytes, encoded base 64", async () => {
                 const challenge: Uint8Array = new Uint8Array(randomBytes(32))
                 
