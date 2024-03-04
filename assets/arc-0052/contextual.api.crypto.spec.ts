@@ -211,6 +211,24 @@ describe("Contextual Derivation & Signing", () => {
             })
 
         describe("Signing Typed Data", () => {
+
+            // it("\(OK) Sign hardcoded data, compare hardcoded signature", async () => {
+            //     const message: Uint8Array = new Uint8Array(Buffer.from("{'text': 'Hello, World'}"))
+                
+            //     // read auth schema file for authentication. 32 bytes challenge to sign
+            //     const msgSchema: JSONSchemaType<any> = JSON.parse(readFileSync(path.resolve(__dirname, "schemas/msg.schema.json"), "utf8"))
+            //     const metadata: SignMetadata = { encoding: Encoding.NONE, schema: msgSchema }
+
+            //     const signature: Uint8Array = await cryptoService.signData(KeyContext.Address, 0, 0, message, metadata)
+            //     expect(signature).toHaveLength(64)
+            //     console.log(signature)
+
+            //     const expectedSignature = Uint8Array.from([137,13,247,162,115,48,233,188,188,81,7,167,158,250,252,66,138,30,3,65,88,209,92,250,43,13,60,193,44,175,87,93,60,73,243,145,170,38,214,152,29,54,61,109,241,24,238,186,159,45,149,15,141,69,118,162,31,148,162,221,29,156,226,1])
+            //     console.log("expected signature:", expectedSignature)
+            //     const isValid: boolean = await cryptoService.verifyWithPublicKey(signature, message, await cryptoService.keyGen(KeyContext.Address, 0, 0))
+            //     expect(isValid).toBe(true)
+            // })
+
             it("\(OK) Sign authentication challenge of 32 bytes, encoded base 64", async () => {
                 const challenge: Uint8Array = new Uint8Array(randomBytes(32))
                 
@@ -350,37 +368,43 @@ describe("Contextual Derivation & Signing", () => {
 
         describe("ECDH cases", () => {
             // Making sure Alice & Bob Have different root keys 
+            let aliceCryptoService: ContextualCryptoApi
             let bobCryptoService: ContextualCryptoApi
             beforeEach(() => {
-                let seed: Buffer = Buffer.from(crypto.getRandomValues(new Uint8Array(32)))
-                bobCryptoService = new ContextualCryptoApi(seed)
+                aliceCryptoService = new ContextualCryptoApi(bip39.mnemonicToSeedSync("exact remain north lesson program series excess lava material second riot error boss planet brick rotate scrap army riot banner adult fashion casino bamboo", ""))
+                bobCryptoService = new ContextualCryptoApi(bip39.mnemonicToSeedSync("identify length ranch make silver fog much puzzle borrow relax occur drum blue oval book pledge reunion coral grace lamp recall fever route carbon", ""))
             })
 
             it("\(OK) ECDH", async () => {
-                const aliceKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
-                const bobKey: Uint8Array = await bobCryptoService.keyGen(KeyContext.Address, 0, 1)
+                const aliceKey: Uint8Array = await aliceCryptoService.keyGen(KeyContext.Identity, 0, 0)
+                const bobKey: Uint8Array = await bobCryptoService.keyGen(KeyContext.Identity, 0, 0)
 
-                const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Address, 0, 0, bobKey, true)
-                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Address, 0, 1, aliceKey, false)
-    
+                const aliceSharedSecret: Uint8Array = await aliceCryptoService.ECDH(KeyContext.Identity, 0, 0, bobKey, true)
+                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Identity, 0, 0, aliceKey, false)
                 expect(aliceSharedSecret).toEqual(bobSharedSecret)
+
+                const aliceSharedSecret2: Uint8Array = await aliceCryptoService.ECDH(KeyContext.Identity, 0, 0, bobKey, false)
+                const bobSharedSecret2: Uint8Array = await bobCryptoService.ECDH(KeyContext.Identity, 0, 0, aliceKey, true)
+                expect(aliceSharedSecret2).toEqual(bobSharedSecret2)
+                expect(aliceSharedSecret2).not.toEqual(aliceSharedSecret)
+
             })
     
             it("\(OK) ECDH, Encrypt and Decrypt", async () => {
-                const aliceKey: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 0)
-                const bobKey: Uint8Array = await bobCryptoService.keyGen(KeyContext.Identity, 0, 1)
+                const aliceKey: Uint8Array = await aliceCryptoService.keyGen(KeyContext.Identity, 0, 0)
+                const bobKey: Uint8Array = await bobCryptoService.keyGen(KeyContext.Identity, 0, 0)
     
-                const aliceSharedSecret: Uint8Array = await cryptoService.ECDH(KeyContext.Identity, 0, 0, bobKey, true)
-                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Identity, 0, 1, aliceKey, false)
-    
+                const aliceSharedSecret: Uint8Array = await aliceCryptoService.ECDH(KeyContext.Identity, 0, 0, bobKey, true)
+                const bobSharedSecret: Uint8Array = await bobCryptoService.ECDH(KeyContext.Identity, 0, 0, aliceKey, false)
+
                 expect(aliceSharedSecret).toEqual(bobSharedSecret)
     
-                const message: Uint8Array = new Uint8Array(Buffer.from("Hello World"))
-                const nonce: Uint8Array = randomBytes(crypto_secretbox_NONCEBYTES)
+                const message: Uint8Array = new Uint8Array(Buffer.from("Hello, World!"))
+                const nonce: Uint8Array = new Uint8Array([16,197,142,8,174,91,118,244,202,136,43,200,97,242,104,99,42,154,191,32,67,30,6,123])
     
                 // encrypt
                 const cipherText: Uint8Array = crypto_secretbox_easy(message, nonce, aliceSharedSecret)
-    
+                expect(cipherText).toEqual(new Uint8Array([251,7,48,58,57,22,135,152,150,116,242,138,26,155,136,252,163,209,7,34,125,135,218,222,102,45,250,55,34]))
                 // decrypt
                 const plainText: Uint8Array = crypto_secretbox_open_easy(cipherText, nonce, bobSharedSecret)
                 expect(plainText).toEqual(message)

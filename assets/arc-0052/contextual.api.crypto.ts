@@ -286,17 +286,21 @@ export class ContextualCryptoApi {
 
         // our public key is derived from the private key
         const ourPub: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(scalar)
+        
+        // convert from ed25519 to curve25519
+        const ourPubCurve25519: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(ourPub)
+        const otherPartyPubCurve25519: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(otherPartyPub)
 
         // find common point
-        const sharedPoint: Uint8Array = crypto_scalarmult(scalar, crypto_sign_ed25519_pk_to_curve25519(otherPartyPub))
+        const sharedPoint: Uint8Array = crypto_scalarmult(scalar, otherPartyPubCurve25519)
+        
+        let concatenation: Uint8Array
+        if (meFirst) { 
+            concatenation = Buffer.concat([sharedPoint, ourPubCurve25519, otherPartyPubCurve25519])
+        } else {
+            concatenation = Buffer.concat([sharedPoint, otherPartyPubCurve25519, ourPubCurve25519])
 
-        let firstKey: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(ourPub)
-        let secondKey: Uint8Array = crypto_sign_ed25519_pk_to_curve25519(otherPartyPub)
-        if (!meFirst) { // swap
-            firstKey = crypto_sign_ed25519_pk_to_curve25519(otherPartyPub)
-            secondKey = crypto_sign_ed25519_pk_to_curve25519(ourPub)
         }
-
-        return crypto_generichash(32, Buffer.concat([sharedPoint, firstKey, secondKey]))
+        return crypto_generichash(32, new Uint8Array(concatenation))
     }
 }
