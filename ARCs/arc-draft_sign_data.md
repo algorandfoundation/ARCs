@@ -1,5 +1,5 @@
 ---
-arc: <to be assigned>
+arc: 60
 title: Algorand Wallet Structured Arbitrary Data Signing API
 description: API function fot signing structured arbitrary data
 author: Stefano De Angelis (@deanstef)
@@ -170,9 +170,9 @@ The arbitrary data **MUST** be represented as a canonicalized JSON object in acc
 export type StdData = string;
 ```
 
-The `StdData` cannot be a valid Algorand object type like a transaction or a logic signature. It **MUST NOT** be prepended with any reserved Algorand domain separator prefix, as defined in the [Algorand specs](https://github.com/algorandfoundation/specs/blob/master/dev/crypto.md#domain-separation) and in the [Go type HashID](https://github.com/algorand/go-algorand/blob/master/protocol/hash.go#L21).
+The `StdData` must be validated with respect the JSON schema provided with `metadata` (defined below). It cannot be a valid Algorand transaction therefore **MUST NOT** be prepended with a known domain separator `TX` or `TG`.
 
-The `StdData` **MUST** be prepended with the `"arcXXXX"` domain separator, so that wallets can distinguish ARC-xxxx arbitrary data to be signed.
+> Algorand domain separators are defined in the [Algorand specs](https://github.com/algorandfoundation/specs/blob/master/dev/crypto.md#domain-separation) and in the [Go type HashID](https://github.com/algorand/go-algorand/blob/master/protocol/hash.go#L21).
 
 #### Interface `Ed25519Pk`
 
@@ -239,7 +239,7 @@ The `msig` object is defined in [ARC-1](https://github.com/algorandfoundation/AR
 
 #### Enum `ScopeType`
 
-The `ScopeType` enumerates constant strings that specify the specific scope of a byte signature.
+The `ScopeType` enumerates constant strings with the scope of a signing action.
 
 This ARC introduces three scopes for signing arbitrary bytes.
 
@@ -249,7 +249,7 @@ This ARC introduces three scopes for signing arbitrary bytes.
 | IDENTITY | Signature of a structured byte array of data used to prove the identity, e.g. proof of the control on a public key. |
 | LSIG | Signature of a structured Algorand LogicSig program for delegation.  |
 
-Any extension of this ARC **SHOULD** adopt one of the above `ScopeType` or integrate a new one.
+Any extension of this ARC **SHOULD** adopt one of the `ScopeType` above, or introduce a new scope.
 
 #### Interface `StdSignMetadata`
 
@@ -258,7 +258,7 @@ A `StdSignMetadata` object specifies metadata of a `StdSignData` object that is 
 ```tsx
 export interface StdSignMetadata {
     /**
-    * The scope value of the sign data request.
+    * The scope value of the signing data request.
     */
     scope: ScopeType;
 
@@ -295,21 +295,21 @@ The `StdData` object **MUST** extend this schema to represent structured arbitra
 {
     "type": "object",
     "properties": {
-        "ARCXXXDomain": {
+        "ARC60Domain": {
             "type": "string",
-            "description": "The ARC-XXXX domain separator",
+            "description": "The ARC-60 domain separator",
         },
         "data": {
             "type": "string",
             "description": "The bytes to be signed."
         },
     },
-    "required": ["ARCXXXDomain", "data"],
+    "required": ["ARC60Domain", "data"],
     "additionalProperties": true
 }
 ```
 
-- The `ARCXXXXDomain` object is a string equivalent to `“arcxxxx”` to identify a structured arbitrary data being signed.
+- The `ARC60Domain` object indicates the domain separator to adopt. For arbitrary bytes signing it **MUST** be equal to `"arc60"`, as 
 - `additionalProperties` can be used to structure more complex arbitrary data to sign.
 - The data object is a string of arbitrary bytes. If the schema also provides additional structured objects, then the `data` property **MUST** indicate the SHA256 hash of the canonicalized `additionalProperties`.
 
@@ -343,10 +343,10 @@ Upon calling `signData(arbData, metadata)`:
 
 - the length of `arbData` and `metadata` **MUST** be equal, otherwise the wallet **MUST** reject the call with a `4300` error.
 - for each element `i` of `arbData`:
-  - the corresponding metadata **MUST** be `metadata[i]`.
+  - the corresponding metadata **MUST** corrspond to `metadata[i]`.
   - if the encoding `metadata[i].encoding` is present, it **MUST** be used to decode the `arbData[i].data`.
   - the decoded `arbData[i].data` **MUST** be validated with respect to the JSON schema `metadata[i].data`. If the validation fails, the call **MUST** be rejected with a `4300` error.
-  - the wallet **MUST** ask users for signing confirmation. It **MUST** display the `metadata[i].message` if present, and the structured data being signed following to the `metadata[i].schema`
+  - the wallet **MUST** ask users for signing confirmation. It **MUST** display the `metadata[i].message` if present, and the structured data being signed following to the `metadata[i].schema`.
     - if the user approves, the `arbData[i].data` **MUST** be signed by `arbData[i].signers` and `ret[i]` MUST be set to the corresponding `SignedDataStr`.
     - if the user rejects, the call **MUST** fail with error code `4001`.
 
@@ -358,39 +358,39 @@ Note that if any `arbData[i]` cannot be signed for any reason, the wallet **MUST
 #### Semantic of `StdSignData`
 
 - `data`:
-  - it **MUST** be a valid StdData object, otherwise the wallet MUST reject.
-  - the encoding **MUST** be equal to the value specified by `metadata` if any, otherwise it **MUST** be UTF-8 encoded.
+  - it **MUST** be a valid `StdData` object, otherwise the wallet **MUST** reject.
+  - the encoding **MUST** be equal to the value specified with `metadata` if any, otherwise it **MUST** be UTF-8.
   - if `data` cannot be decoded into a canonicalized JSON object, the wallet **MUST** reject.
   - if the decoded `data` does not comply with the JSON schema in `metadata`, the wallet **MUST** reject.
 
 - `signers`:
 
-  - it **MUST** be a list of valid Ed25519Pk objects, otherwise the wallet **MUST** rejct.
+  - it **MUST** be a non-empty list of valid `Ed25519Pk` object, otherwise the wallet **MUST** rejct.
   - the wallet **MAY** transform the `Ed25519Pk` into a valid `AlgorandAddress`.
   > From <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0001.md">ARC-1</a>, an `AlgorandAddress` is represented by a 58-character base32 string. It includes the checksum.
   - if `signers` length is greater than 1:
     - the wallet **MUST** reject if `msig` is not specified.
-    - the wallet **MUST** reject if signers[0] is not equal to the corresponding `msig`.
+    - the wallet **MUST** reject if `signers[0]` is not equal to the corresponding `msig`.
     > For example, in case of Algorand MultiSig the `msig` address resolves by hashing the MultiSig metadata and addresses, as detailed with the <a href="https://github.com/algorandfoundation/specs/blob/master/dev/ledger.md#multisignature">Multisignature specs</a>.
-    - the wallet **MUST** reject if signers is not a subset of `msig.addrs`
-    - the wallet **MUST** try to return a `SignedData` object with all the `SignedDataStr` corresponding to `signers[i]` with `i>0`. If it cannot it SHOULD throw a `4001` error.
+    - the wallet **MUST** reject if `signers` is not a subset of `msig.addrs`.
+    - the wallet **MUST** try to return a `SignedData` object with all the `SignedDataStr` corresponding to `signers[i]` with `i>0`. If it cannot, it **SHOULD** throw a `4001` error.
 
-  - if `signers` length is 1:
+  - if `signers` length is equal to 1:
     - if `msig` is specified, the wallet **MUST** reject.
     - if `authAddr` is specified the wallet **MUST** reject if `signers[0]` is not equal to `authAddr`.
     - if `hdPath` is specified, the wallet **MUST** reject if `signers[0]` is not equal to the derived public key with the `hdPath` parameters.
     - In all cases, the wallet **MUST** only try to return a `SignedData` object with one `SignedDataStr` for `signers[0]`.
 
 - `authAddr`:
-  - The wallet **MAY** not support this field. In that case, it **MUST** throw a 4200 error.
+  - The wallet **MAY** not support this field. In that case, it **MUST** throw a `4200` error.
   - if specified, it **MUST** be a valid `Ed25519Pk` object, otherwise the wallet **MUST** reject.
   - is specified and supported, the wallet **MUST** try to return a `SignedData` object that includes a `SignedDataStr` for `authAddr`.
 
 - `msig`:
-  - The wallet **MAY** not support this field. In that case, it **MUST** throw a 4200 error.
+  - The wallet **MAY** not support this field. In that case, it **MUST** throw a `4200` error.
   - if specified, it **MUST** be a valid `MultisigMetadata` object, otherwise the wallet **MUST** reject.
   - if specified and supported, the wallet **MUST** verify that the `msig` address corresponds to `signers[0]`.
-  - If specified and supported, the wallet **MUST** try to return a `SignedData` object with all the `SignedDataStr` it can provide and that the wallet user agrees to provide. If the wallet can produce more signatures than the requested threshold (`msig.threshold`), it **MAY** only provide a `SignedData` object with `msig.threshold` signatures. It is also possible that the wallet cannot provide at least `msig.threshold` signatures (either because the user prevented signing with some keys or because the wallet does not know enough keys). In that case, the returned `SignedData` object will contain only the signatures the wallet can produce. However, the wallet **MUST** provide at least one `SignedDataStr` or throw an error.
+  - If specified and supported, the wallet **MUST** try to return a `SignedData` object with all the `SignedDataStr` it can provide and that the wallet user agrees to sign with. If the wallet can produce more signatures than the requested threshold (`msig.threshold`), it **MAY** only provide a `SignedData` object with `msig.threshold` signatures. It is also possible that the wallet cannot provide at least `msig.threshold` signatures (either because the user prevented signing with some keys or because the wallet does not know enough keys). In that case, the returned `SignedData` object will contain only the signatures the wallet can produce. However, the wallet **MUST** provide at least one `SignedDataStr` or throw an error.
 
 - `hdPath`:
   - The wallet **MAY** not support this field. In that case, it **MUST** throw a `4200` error.
@@ -400,7 +400,13 @@ Note that if any `arbData[i]` cannot be signed for any reason, the wallet **MUST
 
 #### Semantic of `StdSignMetadata`
 
-WIP
+- `scope`:
+
+- `schema`:
+
+- `message`:
+
+- `encoding`:
 
 #### General Validation
 
