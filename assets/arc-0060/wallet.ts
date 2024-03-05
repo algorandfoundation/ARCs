@@ -50,6 +50,11 @@ const signData: SignDataFunction = async (arbData, metadata) => {
     throw new Error('Invalid input')
   }
 
+  // Check domain separator consistency
+  if (metadata[0].scope === ScopeType.ARBITRARY && !(parsedData.ARC60Domain === "arc60")) {
+    throw new Error('Invalid input')
+  }
+
   // Validate the schema
   const validate = ajv.compile<ARC60SchemaType>(parsedSchema)
   const isValid = validate(parsedData)
