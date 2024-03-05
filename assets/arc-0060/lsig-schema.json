@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "properties": {
+    "ARC60Domain": {
+      "type": "string",
+      "description": "The ARC-60 domain separator"
+    },
+    "data": {
+      "type": "string",
+      "description": "The bytes to be signed."
+    },
+    "LogicSignatureDescription": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string"},
+        "description": { "type": "string" },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "variable": { "type": "string" },
+                "type": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["name", "variable", "type", "description"]
+          }
+        }
+      },
+      "required": ["name", "description", "variables"]
+    },
+    "values": {
+      "type": "object",
+      "additionalProperties": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "number" }
+      ]
+      }
+    },
+    "hash": { "type": "string" }
+  },
+  "required": ["ARC60Domain", "LogicSignatureDescription", "hash"]
+}
