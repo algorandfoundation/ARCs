@@ -1,0 +1,15 @@
+{
+    "type": "object",
+    "properties": {
+      "ARC60Domain": {
+        "type": "string",
+        "description": "The ARC-60 domain separator"
+      },
+      "bytes": {
+        "type": "string",
+        "description": "The bytes to be signed."
+      }
+    },
+    "required": ["ARC60Domain", "data"],
+    "additionalProperties": true
+  }
