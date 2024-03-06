@@ -35,12 +35,12 @@ const metadataMock: StdSignMetadata = {
 // Example of signData function
 const signData: SignDataFunction = async (arbData, metadata) => {
   
-  if (!(arbData.length == metadata.length)) {
+  if (!(arbData === null || metadata === null)) {
     throw new Error('Invalid input')
   }
   
-  const parsedSchema: JSONSchemaType<ARC60SchemaType> = JSON.parse(metadata[0].schema)
-  const parsedData = JSON.parse(arbData[0].data)
+  const parsedSchema: JSONSchemaType<ARC60SchemaType> = JSON.parse(metadata.schema)
+  const parsedData = JSON.parse(arbData.data)
 
   console.log(parsedSchema)
   console.log(parsedData)
@@ -51,7 +51,7 @@ const signData: SignDataFunction = async (arbData, metadata) => {
   }
 
   // Check domain separator consistency
-  if (metadata[0].scope === ScopeType.ARBITRARY && !(parsedData.ARC60Domain === "arc60")) {
+  if (metadata.scope === ScopeType.ARBITRARY && !(parsedData.ARC60Domain === "arc60")) {
     throw new Error('Invalid input')
   }
 
@@ -64,7 +64,7 @@ const signData: SignDataFunction = async (arbData, metadata) => {
   }
 
   // Simulate user approval
-  const userApproval = promptUser(arbData[0].signers[0], metadata[0].message)
+  const userApproval = promptUser(arbData.signers[0], metadata.message)
 
   if (userApproval == ApprovalOption.CONFIRM) {
 
@@ -74,11 +74,11 @@ const signData: SignDataFunction = async (arbData, metadata) => {
     // sign with known private key
     const signatureBytes = nacl.sign(message, signer.secretKey)
     const signature = Buffer.from(signatureBytes).toString('base64')
-    return Promise.resolve([signature])
+    return Promise.resolve(signature)
   }
 
-  else return Promise.resolve([null])
+  else return Promise.resolve(null)
 }
 
-const signedBytes = await signData([arbDataMock], [metadataMock])
+const signedBytes = await signData(arbDataMock, metadataMock)
 console.log(signedBytes)

@@ -18,9 +18,9 @@ export interface StdSignMetadata {
 }
 
 export type SignDataFunction = (
-    arbData: StdSignData[],
-    metadata: StdSignMetadata[],
-) => Promise<(string | null)[]>
+    arbData: StdSignData,
+    metadata: StdSignMetadata,
+) => Promise<(string | null)>
 
 export interface ARC60SchemaType {
     ARC60Domain: string;
@@ -28,6 +28,6 @@ export interface ARC60SchemaType {
 }
 
 export enum ApprovalOption {
-    CONFIRM = "Comfirm",
+    CONFIRM = "Confirm",
     REJECT = "Reject",
 }
