@@ -4,12 +4,7 @@ export enum ScopeType {
   }
 
 export type StdData = string
-export type Ed25519Pk = string
-
-export interface StdSignData {
-    data: StdData;
-    signers: Ed25519Pk[];
-}
+export type Ed25519Pk = Uint8Array
 
 export interface StdSignMetadata {
     scope: ScopeType;
@@ -18,13 +13,14 @@ export interface StdSignMetadata {
 }
 
 export type SignDataFunction = (
-    arbData: StdSignData,
+    data: string,
     metadata: StdSignMetadata,
-) => Promise<(string | null)>
+    signer: Ed25519Pk,
+) => Promise<(Uint8Array | null)>
 
 export interface ARC60SchemaType {
     ARC60Domain: string;
-    bytes: string;
+    bytes: Uint8Array;
 }
 
 export enum ApprovalOption {

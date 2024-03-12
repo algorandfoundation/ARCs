@@ -1,8 +1,9 @@
 import { ApprovalOption } from "./types.js"
 import * as readlineSync from 'readline-sync'
 
-export const promptUser = (signer: string, message?: string): string => {
-    console.log(`You are about to sign bytes with: ${signer}`)
+export const promptUser = (signer: Uint8Array, message?: string): string => {
+    const signerStr = Buffer.from(signer).toString("base64")
+    console.log(`You are about to sign bytes with: ${signerStr}`)
     if (message) {
       console.log(`Signing message: ${message}` )
     }

@@ -6,8 +6,14 @@
         "description": "The ARC-60 domain separator"
       },
       "bytes": {
-        "type": "string",
-        "description": "The bytes to be signed."
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "maxItems": 500
+        },
+        "description": "The byte array to be signed."
       }
     },
     "required": ["ARC60Domain", "data"],

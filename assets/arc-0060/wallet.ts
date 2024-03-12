@@ -1,7 +1,7 @@
 import Ajv, {JSONSchemaType} from 'ajv'
 import { canonicalize } from 'json-canonicalize'
 import nacl from 'tweetnacl'
-import { ARC60SchemaType, ApprovalOption, Ed25519Pk, ScopeType, SignDataFunction, StdData, StdSignData, StdSignMetadata } from './types.js'
+import { ARC60SchemaType, ApprovalOption, Ed25519Pk, ScopeType, SignDataFunction, StdData, StdSignMetadata } from './types.js'
 import { promptUser } from './utility.js'
 import * as arc60Schema from "./simple-schema.json" with { type: "json" }
 
@@ -9,21 +9,17 @@ const ajv = new Ajv()
 let forbiddenDomains = [`TX`, `TG`]
 
 // Signer mock
-const signer = nacl.sign.keyPair()
-const encodedPk: Ed25519Pk = Buffer.from(signer.publicKey).toString('base64')
+const keypair = nacl.sign.keyPair()
+const signerPk: Ed25519Pk = keypair.publicKey
 
 // Structured arbitrary data being signed
 const simpleData = {
   ARC60Domain : "arc60",
-  bytes : "ARC-60 is awesome"
+  bytes : [65, 82, 67, 45, 54, 48, 32, 105, 115, 32, 97, 119, 101, 115, 111, 109, 101] //"ARC-60 is awesome"
 }
 
 const arc60Data: StdData = canonicalize(simpleData)
 
-const arbDataMock: StdSignData = {
-  data: arc60Data,
-  signers: [encodedPk]
-}
 
 // Structured metadata 
 const metadataMock: StdSignMetadata = {
@@ -33,14 +29,14 @@ const metadataMock: StdSignMetadata = {
 }
 
 // Example of signData function
-const signData: SignDataFunction = async (arbData, metadata) => {
+const signData: SignDataFunction = async (data, metadata, signer) => {
   
-  if (!(arbData === null || metadata === null)) {
+  if (data === null || metadata === null || signer === null) {
     throw new Error('Invalid input')
   }
   
   const parsedSchema: JSONSchemaType<ARC60SchemaType> = JSON.parse(metadata.schema)
-  const parsedData = JSON.parse(arbData.data)
+  const parsedData = JSON.parse(data)
 
   console.log(parsedSchema)
   console.log(parsedData)
@@ -64,21 +60,20 @@ const signData: SignDataFunction = async (arbData, metadata) => {
   }
 
   // Simulate user approval
-  const userApproval = promptUser(arbData.signers[0], metadata.message)
+  const userApproval = promptUser(signer, metadata.message)
 
   if (userApproval == ApprovalOption.CONFIRM) {
-
-    // Convert to bytes - for Scope ARBITRARY we just sign the entire StdData object (canonicalized)
-    const message = Buffer.from(canonicalize(parsedData), 'utf-8')
-
     // sign with known private key
-    const signatureBytes = nacl.sign(message, signer.secretKey)
-    const signature = Buffer.from(signatureBytes).toString('base64')
-    return Promise.resolve(signature)
+    const signingBytes = new Uint8Array(parsedData.bytes)
+    const signatureBytes = nacl.sign(signingBytes, keypair.secretKey)
+    return Promise.resolve(signatureBytes)
   }
 
   else return Promise.resolve(null)
 }
 
-const signedBytes = await signData(arbDataMock, metadataMock)
-console.log(signedBytes)
+const signedBytes = await signData(arc60Data, metadataMock, signerPk)
+if (!(signedBytes === null)) {
+  const signature = Buffer.from(signedBytes).toString('base64')
+  console.log(signature)
+}
