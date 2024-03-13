@@ -1,7 +1,7 @@
 import { CryptoKX, KeyPair, crypto_kx_client_session_keys, crypto_kx_server_session_keys, crypto_scalarmult, crypto_scalarmult_ed25519_base_noclamp, crypto_secretbox_NONCEBYTES, crypto_secretbox_easy, crypto_secretbox_open_easy, crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519, crypto_sign_keypair, ready, to_base64 } from "libsodium-wrappers-sumo"
 import * as bip39 from "bip39"
 import { randomBytes } from "crypto"
-import { ContextualCryptoApi, ERROR_BAD_DATA, ERROR_TAGS_FOUND, Encoding, KeyContext, SignMetadata, harden } from "./contextual.api.crypto"
+import { ContextualCryptoApi, ERROR_TAGS_FOUND, Encoding, KeyContext, SignMetadata, harden } from "./contextual.api.crypto"
 import * as msgpack from "algo-msgpack-with-bigint"
 import { fromSeed } from "./bip32-ed25519"
 import { sha512_256 } from "js-sha512"

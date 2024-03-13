@@ -8,19 +8,12 @@ import {
     ready,
     crypto_sign_ed25519_pk_to_curve25519,
     crypto_scalarmult,
-    crypto_sign_detached,
-    crypto_sign,
-    crypto_sign_SECRETKEYBYTES,
-    crypto_sign_ed25519_sk_to_pk,
     crypto_scalarmult_ed25519_base,
     crypto_generichash,
-    crypto_scalarmult_base
 } from 'libsodium-wrappers-sumo';
 import * as msgpack from "algo-msgpack-with-bigint"
 import Ajv from "ajv"
 import { deriveChildNodePrivate, fromSeed } from './bip32-ed25519';
-import { randomBytes } from 'crypto';
-
 
 /**
  * 
@@ -98,7 +91,7 @@ export class ContextualCryptoApi {
 
             // // [Public][ChainCode]
             // const extPub: Uint8Array = new Uint8Array(Buffer.concat([nodePublic, nodeCC]))
-            // const publicKey: Uint8Array = deriveChildNodePublic(extPub, bip44Path[4]).subarray(0, 32)
+            // const publicKey: Uint8Array = deriveChildNodePublic(extPub, bip44Path[4]).subarray(0, 32))
 
             derived = deriveChildNodePrivate(derived, bip44Path[4])
 
@@ -301,6 +294,12 @@ export class ContextualCryptoApi {
             concatenation = Buffer.concat([sharedPoint, otherPartyPubCurve25519, ourPubCurve25519])
 
         }
+
+        // check for adversarial public keys
+        // scalar was being clamped?
+        // dedicated keys for ECDH?
+
+
         return crypto_generichash(32, new Uint8Array(concatenation))
     }
 }
