@@ -11,6 +11,7 @@ focus_area: <Banking,DEX,Defi,Deployment,Education,Gaming,IDE,Identity,Libraries
 open_source: <Yes, No>
 funding_type: <Proactive, Retroactive>
 amount_requested: <Amount (integer) requested in ALGO, it should be at least 10000>
+delivery_date: <project delivery date, in ISO 8601 (yyyy-mm-dd) format>
 status: <Draft, Final, Approved>
 ---
 
