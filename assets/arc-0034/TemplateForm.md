@@ -54,3 +54,4 @@ Any other relevant details or documentation that the team would like to include 
 > To create a new tab when people click on your links, you can use `target="_blank"` like this `<a href="https://arc.algorand.foundation/" target="_blank" >ARC</a>`
 
 Proposals that do not include information on all template sections will be rejected.
+Please, before submitting the grant proposal, review the contract template and ensure you're comfortable with its terms.  <a href="https://drive.google.com/file/d/1bf8sIu6gohU6FvKtEiXLZ5oMd4a1ySdu/view?usp=sharing">Contract Template</a> 
