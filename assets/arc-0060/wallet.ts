@@ -61,6 +61,12 @@ const signData: SignDataFunction = async (data, metadata, signer) => {
     throw new Error('Invalid input')
   }
 
+  // Validate bytes
+  const tag = Buffer.from(parsedData.bytes.slice(0, 2)).toString()
+  if (forbiddenDomains.includes(tag)) {
+    throw new Error('Invalid input')
+  }
+
   // Compute signData
   const signData =  Buffer.from(parsedData.ARC60Domain + parsedData.bytes)
 
@@ -89,7 +95,7 @@ if (!(signedBytes === null)) {
   const verifiedBytes = verifySignature(signedBytes, signerPk)
   if (verifiedBytes != null) {
     const msg = Buffer.from(verifiedBytes).toString('utf-8')
-    console.log(`Verified signature: ${msg}`)
+    console.log(`Verified signature for message: ${msg}`)
   } else {
     throw new Error('Signature cannot be verified.')
   }
