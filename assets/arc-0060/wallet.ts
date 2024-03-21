@@ -61,7 +61,7 @@ const signData: SignDataFunction = async (data, metadata, signer) => {
     throw new Error('Invalid input')
   }
 
-  // Validate bytes
+  // bytes cannot be a transaction
   const tag = Buffer.from(parsedData.bytes.slice(0, 2)).toString()
   if (forbiddenDomains.includes(tag)) {
     throw new Error('Invalid input')
