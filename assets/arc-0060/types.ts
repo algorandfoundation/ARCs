@@ -1,5 +1,5 @@
 export enum ScopeType {
-    ARBITRARY,
+    MSGSIG,
     LSIG,
   }
 
@@ -13,7 +13,7 @@ export interface StdSignMetadata {
 }
 
 export type SignDataFunction = (
-    data: string,
+    data: StdData,
     metadata: StdSignMetadata,
     signer: Ed25519Pk,
 ) => Promise<(Uint8Array | null)>
