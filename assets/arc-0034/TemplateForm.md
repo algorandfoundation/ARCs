@@ -15,6 +15,9 @@ delivery_date: <project delivery date, in ISO 8601 (yyyy-mm-dd) format>
 status: <Draft, Final, Approved>
 ---
 
+>Proposals that do not include information on all template sections will be rejected.
+>Please, before submitting the grant proposal, review the contract template and ensure you're comfortable with its terms.  <a href="https://drive.google.com/file/d/1bf8sIu6gohU6FvKtEiXLZ5oMd4a1ySdu/view?usp=sharing">Contract Template</a> 
+
 ## Abstract
 A summary of the project, including how the Algorand ecosystem would benefit  (proactive)/ has benefitted (retroactive) from its implementation.
 
@@ -53,6 +56,3 @@ A description of the potential benefits that the proposal could bring to the Alg
 Any other relevant details or documentation that the team would like to include in the proposal.
 > To prevent malicious links and allow front-end to display links properly, **External Links** should be in this format `<a href="https://arc.algorand.foundation/">ARC</a>`
 > To create a new tab when people click on your links, you can use `target="_blank"` like this `<a href="https://arc.algorand.foundation/" target="_blank" >ARC</a>`
-
-Proposals that do not include information on all template sections will be rejected.
-Please, before submitting the grant proposal, review the contract template and ensure you're comfortable with its terms.  <a href="https://drive.google.com/file/d/1bf8sIu6gohU6FvKtEiXLZ5oMd4a1ySdu/view?usp=sharing">Contract Template</a> 
