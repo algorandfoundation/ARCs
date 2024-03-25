@@ -35,6 +35,7 @@ A detailed plan for the development and implementation of the proposal.
 
 To enhance clarity and accountability, we're asking proposers to detail the maintenance period, availability, and sustainability plans for their projects. This includes information on potential costs and the duration for which services will be offered at no or reduced cost
 
+### Deliverable
 Proposals must include clear, non-technical descriptions of deliverables. We encourage the use of multimedia (blog/video) to help explain your proposal's benefits to the community. 
 
 Proposals that do not specify deliverables and a process to check deliverables will be rejected.
