@@ -8,12 +8,18 @@ import {
     ready,
     crypto_sign_ed25519_pk_to_curve25519,
     crypto_scalarmult,
+    crypto_sign_detached,
+    crypto_sign,
+    crypto_sign_SECRETKEYBYTES,
+    crypto_sign_ed25519_sk_to_pk,
+    crypto_scalarmult_ed25519_base,
     crypto_generichash,
+    crypto_scalarmult_base
 } from 'libsodium-wrappers-sumo';
 import * as msgpack from "algo-msgpack-with-bigint"
 import Ajv from "ajv"
 import { deriveChildNodePrivate, fromSeed } from './bip32-ed25519';
-import { Transaction, EncodedSignedTransaction } from 'algosdk';
+import { randomBytes } from 'crypto';
 
 
 /**
@@ -34,6 +40,7 @@ export interface ChannelKeys {
 }
 
 export enum Encoding {
+    CBOR = "cbor",
     MSGPACK = "msgpack",
     BASE64 = "base64",
     NONE = "none"
@@ -117,48 +124,6 @@ export class ContextualCryptoApi {
     }
 
     /**
-     * Raw Signing function called by signData and signTransaction
-     *
-     * Ref: https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.6
-     *
-     * Edwards-Curve Digital Signature Algorithm (EdDSA)
-     *
-     * @param bip44Path
-     * - BIP44 path (m / purpose' / coin_type' / account' / change / address_index)
-     * @param data
-     * - data to be signed in raw bytes
-     *
-     * @returns
-     * - signature holding R and S, totally 64 bytes
-     */
-    private async rawSign(bip44Path: number[], data: Uint8Array): Promise<Uint8Array> {
-        await ready // libsodium
-
-        const rootKey: Uint8Array = fromSeed(this.seed)
-        const raw: Uint8Array = await this.deriveKey(rootKey, bip44Path, true)
-
-        const scalar: Uint8Array = raw.slice(0, 32);
-        const c: Uint8Array = raw.slice(32, 64);
-
-        // \(1): pubKey = scalar * G (base point, no clamp)
-        const publicKey = crypto_scalarmult_ed25519_base_noclamp(scalar);
-
-        // \(2): h = hash(c || msg) mod q
-        const r = crypto_core_ed25519_scalar_reduce(crypto_hash_sha512(Buffer.concat([c, data])))
-
-        // \(4):  R = r * G (base point, no clamp)
-        const R = crypto_scalarmult_ed25519_base_noclamp(r)
-
-        // h = hash(R || pubKey || msg) mod q
-        let h = crypto_core_ed25519_scalar_reduce(crypto_hash_sha512(Buffer.concat([R, publicKey, data])));
-
-        // \(5): S = (r + h * k) mod q
-        const S = crypto_core_ed25519_scalar_add(r, crypto_core_ed25519_scalar_mul(h, scalar))
-
-        return Buffer.concat([R, S]);
-    }
-
-    /**
      * Ref: https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.6
      * 
      *  Edwards-Curve Digital Signature Algorithm (EdDSA)
@@ -185,44 +150,29 @@ export class ContextualCryptoApi {
         
         await ready // libsodium
 
+        const rootKey: Uint8Array = fromSeed(this.seed)
         const bip44Path: number[] = GetBIP44PathFromContext(context, account, keyIndex)
+        const raw: Uint8Array = await this.deriveKey(rootKey, bip44Path, true)
 
-        return await this.rawSign(bip44Path, data)
-    }
+        const scalar: Uint8Array = raw.slice(0, 32);
+        const c: Uint8Array = raw.slice(32, 64);
 
-    /**
-     * Sign Algorand transaction
-     * @param context
-     * - context of the key (i.e Address, Identity)
-     * @param account
-     * - account number. This value will be hardened as part of BIP44
-     * @param keyIndex
-     * - key index. This value will be a SOFT derivation as part of BIP44.
-     * @param tx
-     * - Transaction object containing parameters to be signed, e.g. sender, receiver, amount, fee,
-     *
-     * @returns stx
-     * - EncodedSignedTransaction object
-     */
-    async signAlgoTransaction(context: KeyContext, account: number, keyIndex: number, tx: Transaction): Promise<EncodedSignedTransaction> {
-        await ready // libsodium
+        // \(1): pubKey = scalar * G (base point, no clamp)
+        const publicKey = crypto_scalarmult_ed25519_base_noclamp(scalar);
+        
+        // \(2): h = hash(c || msg) mod q
+        const r = crypto_core_ed25519_scalar_reduce(crypto_hash_sha512(Buffer.concat([c, data])))
 
-        const prefixEncodedTx: Uint8Array = new Uint8Array(tx.bytesToSign())
-        const pk = await this.keyGen(context, account, keyIndex)
+        // \(4):  R = r * G (base point, no clamp)
+        const R = crypto_scalarmult_ed25519_base_noclamp(r)
 
-        const bip44Path: number[] = GetBIP44PathFromContext(context, account, keyIndex)
+        // h = hash(R || pubKey || msg) mod q
+        let h = crypto_core_ed25519_scalar_reduce(crypto_hash_sha512(Buffer.concat([R, publicKey, data])));
 
-        const sig =  await this.rawSign(bip44Path, prefixEncodedTx)
+        // \(5): S = (r + h * k) mod q
+        const S = crypto_core_ed25519_scalar_add(r, crypto_core_ed25519_scalar_mul(h, scalar))
 
-        const stx: EncodedSignedTransaction = {
-            sig: Buffer.from(sig),
-            txn: tx.get_obj_for_encoding()
-        }
-
-        if (pk !== tx.from.publicKey) {
-            stx.sgnr = Buffer.from(pk)
-        }
-        return stx
+        return Buffer.concat([R, S]);
     }
 
 
@@ -256,6 +206,12 @@ export class ContextualCryptoApi {
             default:
                 throw new Error("Invalid encoding")
         }
+        
+        // Check after decoding too
+        // Some one might try to encode a regular transaction with the protocol reserved prefixes
+        if (this.hasAlgorandTags(decoded)) {
+            return ERROR_TAGS_FOUND
+        }
 
         // validate with schema
         const ajv = new Ajv()
@@ -276,18 +232,12 @@ export class ContextualCryptoApi {
      */
     private hasAlgorandTags(message: Uint8Array): boolean {
 
-        // Check that decoded doesn't include the following prefixes
-        // Prefixes taken from go-algorand node software code
-        // https://github.com/algorand/go-algorand/blob/master/protocol/hash.go
-        const prefixes: string[] = [
-            "appID","arc","aB","aD","aO","aP","aS","AS","B256","BH","BR","CR","GE","KP","MA","MB",
-            "MX","NIC","NIR","NIV","NPR","OT1","OT2","PF","PL","Program","ProgData","PS","PK","SD",
-            "SpecialAddr","STIB","spc","spm","spp","sps","spv","TE","TG","TL","TX","VO"
-        ]
-        for (const prefix of prefixes) {
-            if (Buffer.from(message.subarray(0, prefix.length)).toString("ascii") === prefix) {
-                return true
-            }
+        // Check that decoded doesn't include the following prefixes: TX, MX, progData, Program
+        if (Buffer.from(message.subarray(0, 2)).toString("ascii") === "TX" || 
+            Buffer.from(message.subarray(0, 2)).toString("ascii") === "MX" || 
+            Buffer.from(message.subarray(0, 8)).toString("ascii") === "progData" || 
+            Buffer.from(message.subarray(0, 7)).toString("ascii") === "Program") {
+            return true
         }
 
         return false
