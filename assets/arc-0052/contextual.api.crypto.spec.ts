@@ -9,18 +9,9 @@ import base32 from "hi-base32"
 import { JSONSchemaType } from "ajv"
 import { readFileSync } from "fs"
 import path from "path"
-import { decodeUnsignedTransaction } from "algosdk"
+import { decodeUnsignedTransaction, encodeAddress } from "algosdk"
 import nacl from "tweetnacl"
 const libBip32Ed25519 = require('bip32-ed25519')
-
-function encodeAddress(publicKey: Buffer): string {
-    const keyHash: string = sha512_256.create().update(publicKey).hex()
-
-    // last 4 bytes of the hash
-    const checksum: string = keyHash.slice(-8)
-
-    return base32.encode(ConcatArrays(publicKey, Buffer.from(checksum, "hex"))).slice(0, 58)
-}
 
 function ConcatArrays(...arrs: ArrayLike<number>[]) {
     const size = arrs.reduce((sum, arr) => sum + arr.length, 0)
@@ -381,6 +372,7 @@ describe("Contextual Derivation & Signing", () => {
                 const tx = decodeUnsignedTransaction(Buffer.from("iaNhbXTNA+ijZmVlzQPoomZ2zgJHknejZ2VurHRlc3RuZXQtdjEuMKJnaMQgSGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiKibHbOAkeWX6NyY3bEIGL+gyt60QVEvoM3pnBDXlBkrkpm53vXiQl2W0a1dqbzo3NuZMQgYv6DK3rRBUS+gzemcENeUGSuSmbne9eJCXZbRrV2pvOkdHlwZaNwYXk=", "base64"))
                 const signed = await cryptoService.signAlgoTransaction(KeyContext.Address, 0, 0, tx)
                 const to_be_signed = tx.bytesToSign()
+                expect(encodeAddress(key)).toEqual("ML7IGK322ECUJPUDG6THAQ26KBSK4STG4555PCIJOZNUNNLWU3Z3ZFXITA")
                 expect(nacl.sign.detached.verify(to_be_signed, signed.sig!, key)).toBe(true)
             })
         })
