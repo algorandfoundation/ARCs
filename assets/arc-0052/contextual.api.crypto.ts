@@ -201,7 +201,7 @@ export class ContextualCryptoApi {
      * - Encoded transaction object
      *
      * @returns stx
-     * - EncodedSignedTransaction object
+     * - Raw bytes signature
      */
     async signAlgoTransaction(context: KeyContext, account: number, keyIndex: number, prefixEncodedTx: Uint8Array): Promise<Uint8Array> {
         await ready // libsodium
