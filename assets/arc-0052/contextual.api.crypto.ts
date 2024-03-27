@@ -200,7 +200,7 @@ export class ContextualCryptoApi {
      * @param prefixEncodedTx
      * - Encoded transaction object
      *
-     * @returns stx
+     * @returns sig
      * - Raw bytes signature
      */
     async signAlgoTransaction(context: KeyContext, account: number, keyIndex: number, prefixEncodedTx: Uint8Array): Promise<Uint8Array> {
