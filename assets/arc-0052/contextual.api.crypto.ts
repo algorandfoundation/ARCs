@@ -13,7 +13,6 @@ import {
 import * as msgpack from "algo-msgpack-with-bigint"
 import Ajv from "ajv"
 import { deriveChildNodePrivate, fromSeed } from './bip32-ed25519';
-import { Transaction, EncodedSignedTransaction } from 'algosdk';
 
 
 /**
@@ -198,31 +197,20 @@ export class ContextualCryptoApi {
      * - account number. This value will be hardened as part of BIP44
      * @param keyIndex
      * - key index. This value will be a SOFT derivation as part of BIP44.
-     * @param tx
-     * - Transaction object containing parameters to be signed, e.g. sender, receiver, amount, fee,
+     * @param prefixEncodedTx
+     * - Encoded transaction object
      *
      * @returns stx
      * - EncodedSignedTransaction object
      */
-    async signAlgoTransaction(context: KeyContext, account: number, keyIndex: number, tx: Transaction): Promise<EncodedSignedTransaction> {
+    async signAlgoTransaction(context: KeyContext, account: number, keyIndex: number, prefixEncodedTx: Uint8Array): Promise<Uint8Array> {
         await ready // libsodium
-
-        const prefixEncodedTx: Uint8Array = new Uint8Array(tx.bytesToSign())
-        const pk = await this.keyGen(context, account, keyIndex)
 
         const bip44Path: number[] = GetBIP44PathFromContext(context, account, keyIndex)
 
         const sig =  await this.rawSign(bip44Path, prefixEncodedTx)
 
-        const stx: EncodedSignedTransaction = {
-            sig: Buffer.from(sig),
-            txn: tx.get_obj_for_encoding()
-        }
-
-        if (pk !== tx.from.publicKey) {
-            stx.sgnr = Buffer.from(pk)
-        }
-        return stx
+        return sig
     }
 
 
