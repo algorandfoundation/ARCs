@@ -16,7 +16,7 @@ status: <Draft, Final, Approved>
 ---
 
 >Proposals that do not include information on all template sections will be rejected.
->Please, before submitting the grant proposal, review the contract template and ensure you're comfortable with its terms.  <a href="https://drive.google.com/file/d/1bf8sIu6gohU6FvKtEiXLZ5oMd4a1ySdu/view?usp=sharing">Contract Template</a> 
+>Please, before submitting the grant proposal, review the contract template and ensure you're comfortable with its terms.  <a href="https://drive.google.com/file/d/1dsKwQGhnS3h_PrSkoidhnvqlX7soLpZ-/view">Contract Template</a> 
 
 ## Abstract
 A summary of the project, including how the Algorand ecosystem would benefit  (proactive)/ has benefitted (retroactive) from its implementation.
