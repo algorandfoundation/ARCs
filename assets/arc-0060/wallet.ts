@@ -19,13 +19,10 @@ const simpleData = {
   bytes : "ARC-60 is awesome"
 }
 
-const arc60Data: StdData = canonicalize(simpleData)
-
-
 // Structured metadata 
 const metadataMock: StdSignMetadata = {
   scope: ScopeType.MSGSIG,
-  schema: canonicalize(arc60Schema),
+  schema: JSON.stringify(arc60Schema),
   message: "This is a simple message signing"
 }
 
@@ -43,6 +40,14 @@ const signData: SignDataFunction = async (data, metadata, signer) => {
   console.log(parsedSchema)
   console.log(parsedData)
 
+  // Validate the schema
+  const validate = ajv.compile<ARC60SchemaType>(parsedSchema)
+  const isValid = validate(parsedData)
+
+  if (!isValid) {
+    throw new Error('Invalid input')
+  }
+
   // Check for forbidden domain separators
   if(forbiddenDomains.includes(parsedData.ARC60Domain)) {
     throw new Error('Invalid input')
@@ -50,14 +55,6 @@ const signData: SignDataFunction = async (data, metadata, signer) => {
 
   // Check domain separator consistency
   if (metadata.scope === ScopeType.MSGSIG && !(allowedDomains.includes(parsedData.ARC60Domain))) {
-    throw new Error('Invalid input')
-  }
-
-  // Validate the schema
-  const validate = ajv.compile<ARC60SchemaType>(parsedSchema)
-  const isValid = validate(parsedData)
-
-  if (!isValid) {
     throw new Error('Invalid input')
   }
 
@@ -87,7 +84,7 @@ function verifySignature(sig: Uint8Array, pk: Ed25519Pk) {
 }
 
 
-const signedBytes = await signData(arc60Data, metadataMock, signerPk)
+const signedBytes = await signData(JSON.stringify(simpleData), metadataMock, signerPk)
 if (!(signedBytes === null)) {
   const signature = Buffer.from(signedBytes).toString('base64')
   console.log(`Signature: ${signature}`)
