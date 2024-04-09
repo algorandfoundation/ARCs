@@ -1,5 +1,4 @@
 import Ajv, {JSONSchemaType} from 'ajv'
-import { canonicalize } from 'json-canonicalize'
 import nacl from 'tweetnacl'
 import { ARC60SchemaType, ApprovalOption, Ed25519Pk, ScopeType, SignDataFunction, StdData, StdSignMetadata } from './types.js'
 import { promptUser } from './utility.js'

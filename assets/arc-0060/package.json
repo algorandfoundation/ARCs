@@ -11,13 +11,12 @@
   "devDependencies": {
     "@types/node": "^20.11.24",
     "@types/readline-sync": "^1.4.8",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.4"
   },
   "dependencies": {
     "ajv": "^8.12.0",
     "algosdk": "^2.5.0",
     "js-sha256": "^0.10.1",
-    "json-canonicalize": "^1.0.6",
     "readline-sync": "^1.4.10",
     "tweetnacl": "^1.0.3"
   }
