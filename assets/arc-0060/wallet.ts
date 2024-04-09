@@ -1,7 +1,7 @@
 import Ajv, {JSONSchemaType} from 'ajv'
 import nacl from 'tweetnacl'
 import { ARC60SchemaType, ApprovalOption, Ed25519Pk, ScopeType, SignDataFunction, StdData, StdSignMetadata } from './types.js'
-import { promptUser } from './utility.js'
+import { promptUser, signingMessage } from './utility.js'
 import * as arc60Schema from "./simple-schema.json" with { type: "json" }
 
 const ajv = new Ajv()
@@ -21,8 +21,7 @@ const simpleData = {
 // Structured metadata 
 const metadataMock: StdSignMetadata = {
   scope: ScopeType.MSGSIG,
-  schema: JSON.stringify(arc60Schema),
-  message: "This is a simple message signing"
+  schema: JSON.stringify(arc60Schema)
 }
 
 // Example of signData function
@@ -66,8 +65,11 @@ const signData: SignDataFunction = async (data, metadata, signer) => {
   // Compute signData
   const signData =  Buffer.from(parsedData.ARC60Domain + parsedData.bytes)
 
+  // Generate message to display
+  const message = signingMessage(metadata.scope, signer, signData)
+
   // Simulate user approval
-  const userApproval = promptUser(signData, signer, metadata.message)
+  const userApproval = promptUser(signData, signer, message)
 
   if (userApproval == ApprovalOption.CONFIRM) {
     // sign with known private key
@@ -84,6 +86,7 @@ function verifySignature(sig: Uint8Array, pk: Ed25519Pk) {
 
 
 const signedBytes = await signData(JSON.stringify(simpleData), metadataMock, signerPk)
+
 if (!(signedBytes === null)) {
   const signature = Buffer.from(signedBytes).toString('base64')
   console.log(`Signature: ${signature}`)

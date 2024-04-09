@@ -9,7 +9,6 @@ export type Ed25519Pk = Uint8Array
 export interface StdSignMetadata {
     scope: ScopeType;
     schema: string;
-    message?: string;
 }
 
 export type SignDataFunction = (
