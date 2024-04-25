@@ -3,7 +3,7 @@ import * as bip39 from "bip39"
 import { randomBytes } from "crypto"
 import { BIP32DerivationType, ContextualCryptoApi, ERROR_TAGS_FOUND, Encoding, KeyContext, SignMetadata, harden } from "./contextual.api.crypto"
 import * as msgpack from "algo-msgpack-with-bigint"
-import { fromSeed } from "./bip32-ed25519"
+import { deriveChildNodePublic, fromSeed } from "./bip32-ed25519"
 import { sha512_256 } from "js-sha512"
 import base32 from "hi-base32"
 import { JSONSchemaType } from "ajv"
@@ -50,8 +50,13 @@ describe("Contextual Derivation & Signing", () => {
 
 	afterEach(() => {})
 
-    // Skipping because we are not diverging from standard BIP32-Ed25519 implementation as we are doing improvements
-    // Keeping tests so we can always go back and check for correctness
+    /**
+     * Testing against other known bip32-ed25519 lib that complies with the BIP32-Ed25519 specification
+     * 
+     * @see BIP32-ed25519 Hierarchical Deterministic Keys over a Non-linear Keyspace (https://acrobat.adobe.com/id/urn:aaid:sc:EU:04fe29b0-ea1a-478b-a886-9bb558a5242a)
+     * 
+     * We call the traditional derivation Khovratovich
+     */
     describe("\(JS Library) Reference Implementation alignment with known BIP32-Ed25519 JS LIB", () => {
         it("\(OK) BIP32-Ed25519 derive key m'/44'/283'/0'/0/0", async () => {
             await ready
@@ -196,7 +201,6 @@ describe("Contextual Derivation & Signing", () => {
                     
                     it("\(OK) Derive m'/44'/0'/0'/0/2 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 2)
-                        console.log("Key", Buffer.from(key).toString("hex"))
                         expect(key).toEqual(new Uint8Array(Buffer.from("88e493675894f0ba8472037da40a61a7ed356fd0f24c312a1ec9bb7c052f5d8c", "hex")))
                     })
                 })
@@ -464,6 +468,51 @@ describe("Contextual Derivation & Signing", () => {
                 expect(aliceSharedSecret.sharedRx).toEqual(bobSharedSecret.sharedTx)
                 expect(bobSharedSecret.sharedTx).toEqual(aliceSharedSecret.sharedRx)
             })
+        })
+    })
+
+    describe("\(deriveNodePublic", () => {
+        it("\(OK) From m'/44'/283'/0'/0 root level (excluding address index) derive N keys with only public information", async () => {
+            
+            // wallet level m'/44'/283'/0'/0 root; node derivation before address_index 
+            const walletRoot: Uint8Array = await cryptoService.deriveKey(fromSeed(seed), [harden(44), harden(283), harden(0), 0], false, BIP32DerivationType.Peikert)
+
+            // should be able to derive all public keys from this root without knowing private information
+            // since these are SOFTLY derived
+            const numPublicKeysToDerive: number = 10
+            for (let i = 0; i < numPublicKeysToDerive; i++) {
+                // assuming in a third party that only has public information
+                // I'm provided with the wallet level m'/44'/283'/0'/0 root [public, chaincode]
+                // no private information is shared
+                // i can SOFTLY derive N public keys / addresses from this root
+                const derivedKey: Uint8Array = new Uint8Array(deriveChildNodePublic(walletRoot, i, BIP32DerivationType.Peikert)) // g == 9
+            
+                // Deriving from my own wallet where i DO have private information
+                const myKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, i, BIP32DerivationType.Peikert)
+                
+                // they should match 
+                // derivedKey.subarray(0, 32) ==  public key (excluding chaincode)
+                expect(derivedKey.slice(0, 32)).toEqual(myKey)
+            }
+        })
+
+        it("\(FAIL) From m'/44'/283'/0'/0' root level (excluding address index) should not be able to derive correct addresses from a hardened derivation", async () => {
+            
+            // wallet level m'/44'/283'/0'/0' root; node derivation before address_index 
+            const walletRoot: Uint8Array = await cryptoService.deriveKey(fromSeed(seed), [harden(44), harden(283), harden(0), harden(0)], false, BIP32DerivationType.Peikert)
+
+
+            const numPublicKeysToDerive: number = 10
+            for (let i = 0; i < numPublicKeysToDerive; i++) {                
+                const derivedKey: Uint8Array = new Uint8Array(deriveChildNodePublic(walletRoot, i, BIP32DerivationType.Peikert)) // g == 9
+            
+                // Deriving from my own wallet where i DO have private information
+                const myKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, i, BIP32DerivationType.Peikert)
+                
+                // they should NOT match  since the `change` level (as part of BIP44) was hardened
+                // derivedKey.subarray(0, 32) ==  public key (excluding chaincode)
+                expect(derivedKey.slice(0, 32)).not.toEqual(myKey)
+            }
         })
     })
 })

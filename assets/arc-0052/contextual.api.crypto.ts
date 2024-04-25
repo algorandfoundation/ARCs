@@ -28,9 +28,11 @@ export enum KeyContext {
 
 export enum BIP32DerivationType {
     // standard Ed25519 bip32 derivations based of: https://acrobat.adobe.com/id/urn:aaid:sc:EU:04fe29b0-ea1a-478b-a886-9bb558a5242a
-    Khovratovich = 0, 
+    // Defines 32 bits to be zeroed from each derived zL
+    Khovratovich = 32, 
     // Derivations based on Peikert's ammendments to the original BIP32-Ed25519
-    Peikert = 1
+    // Picking only 9 bits to be zeroed from each derived zL
+    Peikert = 9
 }
 
 export interface ChannelKeys {
@@ -79,33 +81,23 @@ export class ContextualCryptoApi {
      * @param rootKey - root key in extended format (kL, kR, c). It should be 96 bytes long
      * @param bip44Path - BIP44 path (m / purpose' / coin_type' / account' / change / address_index). The ' indicates that the value is hardened
      * @param isPrivate  - if true, return the private key, otherwise return the public key
-     * @returns - The public key of 32 bytes. If isPrivate is true, returns the private key instead.
+     * @returns - The extended private key (kL, kR, chainCode) or the extended public key (pub, chainCode)
      */
-    private async deriveKey(rootKey: Uint8Array, bip44Path: number[], isPrivate: boolean = true, derivationType: BIP32DerivationType): Promise<Uint8Array> {
+    async deriveKey(rootKey: Uint8Array, bip44Path: number[], isPrivate: boolean = true, derivationType: BIP32DerivationType): Promise<Uint8Array> {
+        await ready // libsodium
 
         // Pick `g`, which is amount of bits zeroed from each derived node
         const g: number = derivationType === BIP32DerivationType.Peikert ? 9 : 32
 
-        let derived: Uint8Array = deriveChildNodePrivate(Buffer.from(rootKey), bip44Path[0], g)
-            derived = deriveChildNodePrivate(derived, bip44Path[1], g)
-            derived = deriveChildNodePrivate(derived, bip44Path[2], g)
-            derived = deriveChildNodePrivate(derived, bip44Path[3], g)
+        for (let i = 0; i < bip44Path.length; i++) {
+            rootKey = deriveChildNodePrivate(rootKey, bip44Path[i], g)
+        }
 
-            // Public Key SOFT derivations are possible without using the private key of the parent node
-            // Could be an implementation choice. 
-            // Example: 
-            // const nodeScalar: Uint8Array = derived.subarray(0, 32)
-            // const nodePublic: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(nodeScalar)
-            // const nodeCC: Uint8Array = derived.subarray(64, 96)
+        if (isPrivate) return rootKey
 
-            // // [Public][ChainCode]
-            // const extPub: Uint8Array = new Uint8Array(Buffer.concat([nodePublic, nodeCC]))
-            // const publicKey: Uint8Array = deriveChildNodePublic(extPub, bip44Path[4]).subarray(0, 32))
-
-            derived = deriveChildNodePrivate(derived, bip44Path[4], g)
-
-        // const scalar = derived.subarray(0, 32) // scalar == pvtKey
-        return isPrivate ? derived : crypto_scalarmult_ed25519_base_noclamp(derived.subarray(0, 32))
+        // extended public key
+        // [public] [nodeCC]
+        return new Uint8Array(Buffer.concat([crypto_scalarmult_ed25519_base_noclamp(rootKey.subarray(0, 32)), rootKey.subarray(64, 96)]))
     }
 
     /**
@@ -122,7 +114,8 @@ export class ContextualCryptoApi {
         const rootKey: Uint8Array = fromSeed(this.seed)
         const bip44Path: number[] = GetBIP44PathFromContext(context, account, keyIndex)
 
-        return await this.deriveKey(rootKey, bip44Path, false, derivationType)
+        const extendedKey: Uint8Array = await this.deriveKey(rootKey, bip44Path, false, derivationType)
+        return extendedKey.subarray(0, 32) // only public key
     }
 
     /**
@@ -147,13 +140,13 @@ export class ContextualCryptoApi {
         const raw: Uint8Array = await this.deriveKey(rootKey, bip44Path, true, derivationType)
 
         const scalar: Uint8Array = raw.slice(0, 32);
-        const c: Uint8Array = raw.slice(32, 64);
+        const kR: Uint8Array = raw.slice(32, 64);
 
         // \(1): pubKey = scalar * G (base point, no clamp)
         const publicKey = crypto_scalarmult_ed25519_base_noclamp(scalar);
 
         // \(2): h = hash(c || msg) mod q
-        const r = crypto_core_ed25519_scalar_reduce(crypto_hash_sha512(Buffer.concat([c, data])))
+        const r = crypto_core_ed25519_scalar_reduce(crypto_hash_sha512(Buffer.concat([kR, data])))
 
         // \(4):  R = r * G (base point, no clamp)
         const R = crypto_scalarmult_ed25519_base_noclamp(r)
