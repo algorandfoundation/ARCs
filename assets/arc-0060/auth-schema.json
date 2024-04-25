@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "ARC60Domain": {
+      "type": "string",
+      "description": "The ARC-60 domain separator"
+    },
+    "bytes": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255,
+        "maxItems": 32
+      },
+      "description": "Challenge to be signed for authentication"
+    }
+  },
+  "required": ["ARC60Domain", "data"]
+}

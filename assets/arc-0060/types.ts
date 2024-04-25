@@ -1,5 +1,5 @@
 export enum ScopeType {
-    MSGSIG,
+    AUTH,
     LSIG,
   }
 
