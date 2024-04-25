@@ -29,8 +29,7 @@
     "js-sha512": "^0.8.0",
     "libsodium-wrappers-sumo": "^0.7.13",
     "ts-custom-error": "^3.2.0",
-    "ts-log": "^2.2.4",
-    "tweetnacl": "1.0.3"
+    "ts-log": "^2.2.4"
   },
   "jest": {
     "moduleFileExtensions": [

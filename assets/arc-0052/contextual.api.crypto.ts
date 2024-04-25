@@ -104,8 +104,6 @@ export class ContextualCryptoApi {
 
             derived = deriveChildNodePrivate(derived, bip44Path[4], g)
 
-            console.log("derived", Buffer.from(derived).toString("hex"))
-
         // const scalar = derived.subarray(0, 32) // scalar == pvtKey
         return isPrivate ? derived : crypto_scalarmult_ed25519_base_noclamp(derived.subarray(0, 32))
     }
