@@ -95,9 +95,10 @@ export function deriveChildNodePrivate(
   const kR: Buffer = Buffer.from(extendedKey.subarray(32, 64));
   const cc: Uint8Array = extendedKey.subarray(64, 96);
 
+  // Steps 1 & 3: Produce Z and child chain code, in accordance with hardening branching logic
   const { z, childChainCode } = index < 0x80000000 ? derivedNonHardened(kL, cc, index) : deriveHardened(kL, kR, cc, index);
 
-  const chainCode = childChainCode.subarray(32, 64);
+  // Step 2: compute child private key
   const zLeft = z.subarray(0, 32); // 32 bytes
   const zRight = z.subarray(32, 64);
 
@@ -139,7 +140,7 @@ export function deriveChildNodePrivate(
   Buffer.from(right).copy(rightBuffer, 0, 0, right.length) // padding with zeros if needed
 
   // return (kL, kR, c)
-  return Buffer.concat([left, rightBuffer, chainCode]);
+  return Buffer.concat([left, rightBuffer, childChainCode]);
 }
 
 /**
@@ -169,7 +170,6 @@ export function deriveChildNodePublic(extendedKey: Uint8Array, index: number, g:
     data[0] = 0x02;
     const z: Buffer = createHmac("sha512", cc).update(data).digest();
     
-    
     // Step 2: Compute child public key
     const zL: Uint8Array = trunc_256_minus_g_bits(z.subarray(0, 32), g)
     
@@ -188,10 +188,10 @@ export function deriveChildNodePublic(extendedKey: Uint8Array, index: number, g:
 
     // Step 3: Compute child chain code
     data[0] = 0x03;
-    const i: Buffer = createHmac("sha512", cc).update(data).digest();
-    const chainCode: Buffer = i.subarray(32, 64);
+    const fullChildChainCode: Buffer = createHmac("sha512", cc).update(data).digest();
+    const childChainCode: Buffer = fullChildChainCode.subarray(32, 64);
 
-    return Buffer.concat([crypto_core_ed25519_add(p, pk), chainCode]);
+    return Buffer.concat([crypto_core_ed25519_add(p, pk), childChainCode]);
 }
 
 /**
@@ -218,7 +218,8 @@ function derivedNonHardened(
   const z: Buffer = createHmac("sha512", cc).update(data).digest();
 
   data[0] = 0x03;
-  const childChainCode: Buffer = createHmac("sha512", cc).update(data).digest();
+  const fullChildChainCode: Buffer = createHmac("sha512", cc).update(data).digest();
+  const childChainCode: Buffer = fullChildChainCode.subarray(32, 64);
 
   return { z, childChainCode };
 }
@@ -247,7 +248,8 @@ function deriveHardened(
   data[0] = 0x00;
   const z: Buffer = createHmac("sha512", cc).update(data).digest();
   data[0] = 0x01;
-  const childChainCode: Buffer = createHmac("sha512", cc).update(data).digest();
+  const fullChildChainCode: Buffer = createHmac("sha512", cc).update(data).digest();
+  const childChainCode: Buffer = fullChildChainCode.subarray(32, 64);
 
   return { z, childChainCode };
 }
