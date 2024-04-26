@@ -164,31 +164,33 @@ export function deriveChildNodePublic(extendedKey: Uint8Array, index: number, g:
     data.writeUInt32LE(index, 1 + 32);
 
     pk.copy(data, 1);
+
+    // Step 1: Compute Z
     data[0] = 0x02;
-        
     const z: Buffer = createHmac("sha512", cc).update(data).digest();
-    data[0] = 0x03;
     
-    const i: Buffer = createHmac("sha512", cc).update(data).digest();
-
-    // Section V. BIP32-Ed25519: Specification; subsection D) Public Child Key Derivation
-    const chainCode: Buffer = i.subarray(32, 64);
     
+    // Step 2: Compute child public key
     const zL: Uint8Array = trunc_256_minus_g_bits(z.subarray(0, 32), g)
-
+    
     // ######################################
     // Standard BIP32-ed25519 derivation
     // #######################################
     // zL = 8 * 28bytesOf(z_left_hand_side)
-
+    
     // ######################################
     // Chris Peikert's ammendment to BIP32-ed25519 derivation
     // #######################################
     // zL = 8 * trunc_256_minus_g_bits (z_left_hand_side, g)
     
     const left = new BN(zL, 16, 'le').mul(new BN(8)).toArrayLike(Buffer, 'le', 32);
-
     const p: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(left);
+
+    // Step 3: Compute child chain code
+    data[0] = 0x03;
+    const i: Buffer = createHmac("sha512", cc).update(data).digest();
+    const chainCode: Buffer = i.subarray(32, 64);
+
     return Buffer.concat([crypto_core_ed25519_add(p, pk), chainCode]);
 }
 
