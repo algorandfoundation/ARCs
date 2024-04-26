@@ -172,7 +172,7 @@ export function deriveChildNodePublic(extendedKey: Uint8Array, index: number, g:
     
     // Step 2: Compute child public key
     const zL: Uint8Array = trunc_256_minus_g_bits(z.subarray(0, 32), g)
-    
+
     // ######################################
     // Standard BIP32-ed25519 derivation
     // #######################################
@@ -182,7 +182,7 @@ export function deriveChildNodePublic(extendedKey: Uint8Array, index: number, g:
     // Chris Peikert's ammendment to BIP32-ed25519 derivation
     // #######################################
     // zL = 8 * trunc_256_minus_g_bits (z_left_hand_side, g)
-    
+
     const left = new BN(zL, 16, 'le').mul(new BN(8)).toArrayLike(Buffer, 'le', 32);
     const p: Uint8Array = crypto_scalarmult_ed25519_base_noclamp(left);
 
