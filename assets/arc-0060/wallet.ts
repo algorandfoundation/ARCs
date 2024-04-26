@@ -1,6 +1,6 @@
 import Ajv, {JSONSchemaType} from 'ajv'
 import nacl from 'tweetnacl'
-import { ARC60SchemaType, ApprovalOption, Ed25519Pk, ScopeType, SignDataFunction, StdData, StdSignMetadata } from './types.js'
+import { ARC60SchemaType, ApprovalOption, Ed25519Pk, ScopeType, SignDataFunction, StdDataStr, StdSigData, StdSignMetadata } from './types.js'
 import { promptUser, signingMessage } from './utility.js'
 import * as arc60Schema from "./auth-schema.json" with { type: "json" }
 
@@ -14,12 +14,19 @@ const keypair = nacl.sign.keyPair()
 const signerPk: Ed25519Pk = keypair.publicKey
 
 // Structured arbitrary data being signed
-const simpleData = {
+const simpleDataJson = {
   ARC60Domain : "arc60",
   bytes : [
     176, 34, 195, 93, 88, 19, 199, 5, 244, 77, 100, 11, 209, 123, 229, 94,
     218, 245, 31, 159, 12, 57, 75, 89, 250, 200, 173, 66, 96, 84, 28, 78
   ]
+}
+
+const simpleData: StdDataStr = JSON.stringify(simpleDataJson)
+
+const signingDataMock: StdSigData = {
+  data: simpleData,
+  signer: signerPk,
 }
 
 // Structured metadata 
@@ -29,8 +36,11 @@ const metadataMock: StdSignMetadata = {
 }
 
 // Example of signData function
-const signData: SignDataFunction = async (data, metadata, signer) => {
+const signData: SignDataFunction = async (signingData, metadata) => {
 
+  const data = signingData.data
+  const signer = signingData.signer
+  
   // Check null values
   if (data === null || metadata === null || signer === null) {
     throw new Error('Invalid input')
@@ -90,7 +100,7 @@ function verifySignature(msg: Uint8Array, sig: Uint8Array, pk: Ed25519Pk) {
 }
 
 
-const signedBytes = await signData(JSON.stringify(simpleData), metadataMock, signerPk)
+const signedBytes = await signData(signingDataMock, metadataMock)
 
 if (!(signedBytes === null)) {
   const signature = Buffer.from(signedBytes).toString('base64')

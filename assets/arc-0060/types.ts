@@ -3,19 +3,34 @@ export enum ScopeType {
     LSIG,
   }
 
-export type StdData = string
+export type StdDataStr = string
 export type Ed25519Pk = Uint8Array
+export type Signature = Uint8Array
+
+export interface HdWalletMetadata {
+    purpose: number;
+    coinType: number;
+    account: number;
+    change: number;
+    addrIdx: number;
+}
+
+export interface StdSigData {
+    data: StdDataStr;
+    signer: Ed25519Pk;
+    hdPath?: HdWalletMetadata;
+}
 
 export interface StdSignMetadata {
     scope: ScopeType;
     schema: string;
+    encoding?: string;
 }
 
 export type SignDataFunction = (
-    data: StdData,
+    signingData: StdSigData,
     metadata: StdSignMetadata,
-    signer: Ed25519Pk,
-) => Promise<(Uint8Array | null)>
+) => Promise<(Signature | null)>
 
 export interface ARC60SchemaType {
     ARC60Domain: string;
