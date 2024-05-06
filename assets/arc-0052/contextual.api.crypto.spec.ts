@@ -154,17 +154,17 @@ describe("Contextual Derivation & Signing", () => {
                 describe("Soft Derivations", () => {
                     it("\(OK) Derive m'/44'/283'/0'/0/0 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("8ad0bbc42326ac64eb4dbbe40a77518a7fc1d39504b618a4dc85f03b3a921a02", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("7bda7ac12627b2c259f1df6875d30c10b35f55b33ad2cc8ea2736eaa3ebcfab9", "hex")))
                     })
                     
                     it("\(OK) Derive m'/44'/283'/0'/0/1 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 1)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("2d3f9e31232bd36e6c0f37597e19c4c0154e58c41bc2b737c7700b683e85d0af", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("5bae8828f111064637ac5061bd63bc4fcfe4a833252305f25eeab9c64ecdf519", "hex")))
                     })
                     
                     it("\(OK) Derive m'/44'/283'/0'/0/2 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, 2)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("96acc17f0c34f6c640d5466988ce59c4da5423b5ec233b7ad2e5c5a3b1b80782", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("00a72635e97cba966529e9bfb4baf4a32d7b8cd2fcd8e2476ce5be1177848cb3", "hex")))
                     })
                     
                 })
@@ -172,17 +172,17 @@ describe("Contextual Derivation & Signing", () => {
                 describe("Hard Derivations", () => {
                     it("\(OK) Derive m'/44'/283'/1'/0/0 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 1, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("fd56577456794efb91e05dc947d26d4864b346d139dfa8fff9b0e1def84b9078", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("358d8c4382992849a764438e02b1c45c2ca4e86bbcfe10fd5b963f3610012bc9", "hex")))
                     })
                     
                     it("\(OK) Derive m'/44'/283'/2'/0/1 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 2, 1)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("aa03d62057744f4422d70c3a421deae838d8f7546a15f2ada59287569911144c", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("1f0f75fbbca12b22523973191061b2f96522740e139a3420c730717ac5b0dfc0", "hex")))
                     })
                     
                     it("\(OK) Derive m'/44'/283'/3'/0/0 Algorand Address Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 3, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("303718c23846fdd0f7d9cded69d95c5a72fbb1ccbbea50c865c00c050bb0e68b", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("f035316f915b342ea5fe78dccb59d907b93805732219d436a1bd8488ff4e5b1b", "hex")))
                     })
                 })
             })
@@ -191,29 +191,29 @@ describe("Contextual Derivation & Signing", () => {
                 describe("Soft Derivations", () => {
                     it("\(OK) Derive m'/44'/0'/0'/0/0 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("844cda69c4ef7c212befaa6733f5e3c0317fc173cb9f14c6cf66a48263e722ec", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("ff8b1863ef5e40d0a48c245f26a6dbdf5da94dc75a1851f51d8a04e547bd5f5a", "hex")))
                     })
                     
                     it("\(OK) Derive m'/44'/0'/0'/0/1 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 1)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("a8c6de4e6d2672ad5a804994cf6e481ea7c2c3b1cedc5f51c63b2d0819d503f0", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("2b46c2af0890493e486049d456509a0199e565b41a5fb622f0ea4b9337bd2b97", "hex")))
                     })
                     
                     it("\(OK) Derive m'/44'/0'/0'/0/2 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 0, 2)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("88e493675894f0ba8472037da40a61a7ed356fd0f24c312a1ec9bb7c052f5d8c", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("2713f135f19ef3dcfca73cb536b1e077b1165cd0b7bedbef709447319ff0016d", "hex")))
                     })
                 })
                 
                 describe("Hard Derivations", () => {
                     it("\(OK) Derive m'/44'/0'/1'/0/0 Identity Key", async () => {
                         const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 1, 0)
-                        expect(key).toEqual(new Uint8Array(Buffer.from("c120ac324985009294f2546463f922a55cd93fb1d209929828d2a952c4581760", "hex")))
+                        expect(key).toEqual(new Uint8Array(Buffer.from("232847ae1bb95babcaa50c8033fab98f59e4b4ad1d89ac523a90c830e4ceee4a", "hex")))
                     })
                     
                     it("\(OK) Derive m'/44'/0'/2'/0/1 Identity Key", async () => {
-                        const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 2, 1)              
-                        expect(key).toEqual(new Uint8Array(Buffer.from("82ccd181c1d533828a77218bdff0329966dc506084d5b87a0f2eb6678e53cb21", "hex")))
+                        const key: Uint8Array = await cryptoService.keyGen(KeyContext.Identity, 2, 1)
+                        expect(key).toEqual(new Uint8Array(Buffer.from("8f68b6572860d84e8a41e38db1c8c692ded5eb291846f2e5bbfde774a9c6d16e", "hex")))
                     })
                 })
             })
@@ -430,7 +430,10 @@ describe("Contextual Derivation & Signing", () => {
                 // encrypt
                 const cipherText: Uint8Array = crypto_secretbox_easy(message, nonce, aliceSharedSecret)
 
-                expect(cipherText).toEqual(new Uint8Array([158, 107, 5,  77, 134, 215, 212, 90, 192,  34, 131,  39, 160, 252, 74, 194, 129,  54, 249, 113, 128, 241, 213, 244,  98,  55,  46, 233, 7]))
+                // log cipherText uint8array
+                console.log("cipherText", cipherText)
+
+                expect(cipherText).toEqual(new Uint8Array([20, 107, 126, 154, 152, 197, 252, 227, 148,  39, 245, 136, 233,  10, 199,  20, 219,   3,  53,   2, 113, 6, 190,  21, 193, 119,  43,  44, 230]))
                 // decrypt
                 const plainText: Uint8Array = crypto_secretbox_open_easy(cipherText, nonce, bobSharedSecret)
                 expect(plainText).toEqual(message)

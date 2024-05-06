@@ -54,22 +54,25 @@ export function trunc_256_minus_g_bits(array: Uint8Array, g: number): Uint8Array
     throw new Error("Number of bits to zero must be between 0 and 256.");
   }
 
+  // make a copy of array
+  const truncated = new Uint8Array(array);
+
   let remainingBits = g;
 
   // Start from the last byte and move backward
-  for (let i = array.length - 1; i >= 0 && remainingBits > 0; i--) {
+  for (let i = truncated.length - 1; i >= 0 && remainingBits > 0; i--) {
       if (remainingBits >= 8) {
           // If more than 8 bits remain to be zeroed, zero the entire byte
-          array[i] = 0;
+          truncated[i] = 0;
           remainingBits -= 8;
       } else {
-          // Zero only the required bits in the last affected byte
-          array[i] &= ~(0xFF >> (8 - remainingBits)); // Mask to zero only the last remainingBits
+          // Zero out the most significant bits
+          truncated[i] &= (0xFF >> remainingBits)
           break;
       }
   }
 
-  return array
+  return truncated
 }
 
 /**
@@ -128,13 +131,13 @@ export function deriveChildNodePrivate(
 
   // zL = kL + 8 * truncated(z_left_hand_side)
   // Big Integers + little Endianess
-  const klBigNum = new BN(kL, 16, "le")
+  const klBigNum = new BN(kL, 16, 'le')
   const big8 = new BN(8);
-  const zlBigNum = new BN(zL, 16, "le");
+  const zlBigNum = new BN(zL, 16, 'le');
 
-  const left = klBigNum.add(zlBigNum.mul(big8)).toArrayLike(Buffer, "le", 32);
+  const left = klBigNum.add(zlBigNum.mul(big8)).toArrayLike(Buffer, 'le', 32);
 
-  let right = new BN(kR, 16, "le").add(new BN(zRight, 16, "le")).toArrayLike(Buffer, "le").slice(0, 32);
+  let right = new BN(kR, 16, 'le').add(new BN(zRight, 16, 'le')).toArrayLike(Buffer, 'le').slice(0, 32);
   
   const rightBuffer = Buffer.alloc(32);
   Buffer.from(right).copy(rightBuffer, 0, 0, right.length) // padding with zeros if needed
