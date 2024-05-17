@@ -19,7 +19,7 @@ const simpleDataJson = {
   bytes : [
     176, 34, 195, 93, 88, 19, 199, 5, 244, 77, 100, 11, 209, 123, 229, 94,
     218, 245, 31, 159, 12, 57, 75, 89, 250, 200, 173, 66, 96, 84, 28, 78
-  ]
+  ] // TODO: must be base64
 }
 
 const simpleData: StdDataStr = JSON.stringify(simpleDataJson)
