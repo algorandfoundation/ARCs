@@ -15,7 +15,7 @@ export interface HdWalletMetadata {
     addrIdx: number;
 }
 
-export interface StdSigData {
+export interface StdSignData {
     data: StdDataStr;
     signer: Ed25519Pk;
     hdPath?: HdWalletMetadata;
@@ -28,7 +28,7 @@ export interface StdSignMetadata {
 }
 
 export type SignDataFunction = (
-    signingData: StdSigData,
+    signingData: StdSignData,
     metadata: StdSignMetadata,
 ) => Promise<(Signature | null)>
 

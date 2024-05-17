@@ -1,13 +1,13 @@
 import Ajv, {JSONSchemaType} from 'ajv'
 import nacl from 'tweetnacl'
-import { ARC60SchemaType, ApprovalOption, Ed25519Pk, ScopeType, SignDataFunction, StdDataStr, StdSigData, StdSignMetadata } from './types.js'
+import { ARC60SchemaType, ApprovalOption, Ed25519Pk, ScopeType, SignDataFunction, StdDataStr, StdSignData, StdSignMetadata } from './types.js'
 import { promptUser, signingMessage } from './utility.js'
 import * as arc60Schema from "./auth-schema.json" with { type: "json" }
 
 const ajv = new Ajv()
 let forbiddenDomains = ["TX", "TG"]
 let allowedDomains = ["", "arc60"]
-let mockMsg = "arc60176,34,195,93,88,19,199,5,244,77,100,11,209,123,229,94,218,245,31,159,12,57,75,89,250,200,173,66,96,84,28,78"
+let mockMsg = "arc60176,34,195,92,88,19,199,5,244,77,96,7,209,123,229,94,218,245,31,159,12,57,75,89,250,201,173,66,96,84,28,78"
 
 // Signer mock
 const keypair = nacl.sign.keyPair()
@@ -16,15 +16,12 @@ const signerPk: Ed25519Pk = keypair.publicKey
 // Structured arbitrary data being signed
 const simpleDataJson = {
   ARC60Domain : "arc60",
-  bytes : [
-    176, 34, 195, 93, 88, 19, 199, 5, 244, 77, 100, 11, 209, 123, 229, 94,
-    218, 245, 31, 159, 12, 57, 75, 89, 250, 200, 173, 66, 96, 84, 28, 78
-  ] // TODO: must be base64
+  bytes : "sCLDXFgTxwX0TWAH0XvlXtr1H58MOUtZ+smtQmBUHE4=" // 32 bytes challenge encoded base64
 }
 
 const simpleData: StdDataStr = JSON.stringify(simpleDataJson)
 
-const signingDataMock: StdSigData = {
+const signingDataMock: StdSignData = {
   data: simpleData,
   signer: signerPk,
 }
@@ -51,6 +48,13 @@ const signData: SignDataFunction = async (signingData, metadata) => {
 
   console.log(parsedSchema)
   console.log(parsedData)
+
+  // Decode bytes according to ScopeType - default encoding is base64
+  if (!metadata.encoding && metadata.scope === ScopeType.AUTH) {
+    const base64Bytes = parsedData.bytes
+    const bytes = Array.from(Buffer.from(base64Bytes, 'base64'))
+    parsedData.bytes = bytes
+  }
 
   // Validate the schema
   const validate = ajv.compile<ARC60SchemaType>(parsedSchema)
