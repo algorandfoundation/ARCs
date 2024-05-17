@@ -6,7 +6,7 @@ import * as arc60Schema from "./auth-schema.json" with { type: "json" }
 
 const ajv = new Ajv()
 let forbiddenDomains = ["TX", "TG"]
-let allowedDomains = ["", "arc60"]
+let allowedDomains = ["", "arc60", "Program"]
 let mockMsg = "arc60176,34,195,92,88,19,199,5,244,77,96,7,209,123,229,94,218,245,31,159,12,57,75,89,250,201,173,66,96,84,28,78"
 
 // Signer mock
@@ -65,6 +65,14 @@ const signData: SignDataFunction = async (signingData, metadata) => {
   }
 
   // Check for forbidden domain separators
+  if (metadata.scope != ScopeType.LSIG) {
+    forbiddenDomains.push("Program")  // "Program" only allowed for ScopeType = LSIG
+    allowedDomains.pop()
+  }
+
+  console.log(forbiddenDomains)
+  console.log(allowedDomains)
+
   if(forbiddenDomains.includes(parsedData.ARC60Domain)) {
     throw new Error('Invalid input')
   }
@@ -74,9 +82,11 @@ const signData: SignDataFunction = async (signingData, metadata) => {
     throw new Error('Invalid input')
   }
 
-  // bytes cannot be a transaction
+  // bytes cannot be a valid transaction or program
   const tag = Buffer.from(parsedData.bytes.slice(0, 2)).toString()
-  if (forbiddenDomains.includes(tag)) {
+  const prog_prefix = Buffer.from(parsedData.bytes.slice(0, 7)).toString() // "Program"
+  console.log(prog_prefix)
+  if (forbiddenDomains.includes(tag) || forbiddenDomains.includes(prog_prefix)) {
     throw new Error('Invalid input')
   }
 
