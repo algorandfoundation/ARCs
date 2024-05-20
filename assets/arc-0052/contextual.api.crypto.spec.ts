@@ -488,7 +488,7 @@ describe("Contextual Derivation & Signing", () => {
                 // I'm provided with the wallet level m'/44'/283'/0'/0 root [public, chaincode]
                 // no private information is shared
                 // i can SOFTLY derive N public keys / addresses from this root
-                const derivedKey: Uint8Array = new Uint8Array(deriveChildNodePublic(walletRoot, i, BIP32DerivationType.Peikert)) // g == 9
+                const derivedKey: Uint8Array = new Uint8Array(await deriveChildNodePublic(walletRoot, i, BIP32DerivationType.Peikert)) // g == 9
             
                 // Deriving from my own wallet where i DO have private information
                 const myKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, i, BIP32DerivationType.Peikert)
@@ -507,7 +507,7 @@ describe("Contextual Derivation & Signing", () => {
 
             const numPublicKeysToDerive: number = 10
             for (let i = 0; i < numPublicKeysToDerive; i++) {                
-                const derivedKey: Uint8Array = new Uint8Array(deriveChildNodePublic(walletRoot, i, BIP32DerivationType.Peikert)) // g == 9
+                const derivedKey: Uint8Array = new Uint8Array(await deriveChildNodePublic(walletRoot, i, BIP32DerivationType.Peikert)) // g == 9
             
                 // Deriving from my own wallet where i DO have private information
                 const myKey: Uint8Array = await cryptoService.keyGen(KeyContext.Address, 0, i, BIP32DerivationType.Peikert)

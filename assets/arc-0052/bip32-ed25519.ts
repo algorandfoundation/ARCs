@@ -1,9 +1,12 @@
 import { createHash, createHmac } from "crypto";
+import { read } from "fs";
 import {
     crypto_core_ed25519_add,
-  crypto_scalarmult_ed25519_base_noclamp
+  crypto_scalarmult_ed25519_base_noclamp,
+  ready
 } from "libsodium-wrappers-sumo";
 var BN = require("bn.js");
+import * as util from 'util'
 
 /**
  *
@@ -89,11 +92,13 @@ export function trunc_256_minus_g_bits(array: Uint8Array, g: number): Uint8Array
  * @param g - Defines how many bits to zero in the left 32 bytes of the child key. Standard BIP32-ed25519 derivations use 32 bits. 
  * @returns - (kL, kR, c) where kL is the left 32 bytes of the child key (the new scalar), kR is the right 32 bytes of the child key, and c is the chain code. Total 96 bytes
  */
-export function deriveChildNodePrivate(
+export async function deriveChildNodePrivate(
   extendedKey: Uint8Array,
   index: number, 
   g: number = 9
-): Uint8Array {
+): Promise<Uint8Array> {
+  await ready // wait for libsodium to be ready
+
   const kL: Buffer = Buffer.from(extendedKey.subarray(0, 32));
   const kR: Buffer = Buffer.from(extendedKey.subarray(32, 64));
   const cc: Uint8Array = extendedKey.subarray(64, 96);
@@ -133,7 +138,12 @@ export function deriveChildNodePrivate(
   // Big Integers + little Endianess
   const klBigNum = new BN(kL, 16, 'le')
   const big8 = new BN(8);
-  const zlBigNum = new BN(zL, 16, 'le');
+  const zlBigNum = new BN(zL, 16, 'le')
+
+  const zlBigNumMul8 = klBigNum.add(zlBigNum.mul(big8))
+
+  // check size of zlBigNumMul8
+  if (zlBigNumMul8.toArrayLike(Buffer, 'le', 32).length != 32) console.log(util.inspect(zlBigNumMul8), { colors: true, depth: null }))
 
   const left = klBigNum.add(zlBigNum.mul(big8)).toArrayLike(Buffer, 'le', 32);
 
@@ -143,7 +153,7 @@ export function deriveChildNodePrivate(
   Buffer.from(right).copy(rightBuffer, 0, 0, right.length) // padding with zeros if needed
 
   // return (kL, kR, c)
-  return Buffer.concat([left, rightBuffer, childChainCode]);
+  return new Uint8Array(Buffer.concat([left, rightBuffer, childChainCode]))
 }
 
 /**
@@ -158,7 +168,7 @@ export function deriveChildNodePrivate(
  * @param g - Defines how many bits to zero in the left 32 bytes of the child key. Standard BIP32-ed25519 derivations use 32 bits. 
  * @returns - 64 bytes, being the 32 bytes of the child key (the new public key) followed by the 32 bytes of the chain code
  */
-export function deriveChildNodePublic(extendedKey: Uint8Array, index: number, g: number = 9): Uint8Array {
+export async function deriveChildNodePublic(extendedKey: Uint8Array, index: number, g: number = 9): Promise<Uint8Array> {
     if (index > 0x80000000) throw new Error('can not derive public key with harden')
 
     const pk: Buffer = Buffer.from(extendedKey.subarray(0, 32))
@@ -194,7 +204,7 @@ export function deriveChildNodePublic(extendedKey: Uint8Array, index: number, g:
     const fullChildChainCode: Buffer = createHmac("sha512", cc).update(data).digest();
     const childChainCode: Buffer = fullChildChainCode.subarray(32, 64);
 
-    return Buffer.concat([crypto_core_ed25519_add(p, pk), childChainCode]);
+    return new Uint8Array(Buffer.concat([crypto_core_ed25519_add(p, pk), childChainCode]))
 }
 
 /**

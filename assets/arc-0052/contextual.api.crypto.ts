@@ -90,7 +90,7 @@ export class ContextualCryptoApi {
         const g: number = derivationType === BIP32DerivationType.Peikert ? 9 : 32
 
         for (let i = 0; i < bip44Path.length; i++) {
-            rootKey = deriveChildNodePrivate(rootKey, bip44Path[i], g)
+            rootKey = await deriveChildNodePrivate(rootKey, bip44Path[i], g)
         }
 
         if (isPrivate) return rootKey
