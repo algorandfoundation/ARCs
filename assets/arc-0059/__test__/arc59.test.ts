@@ -13,7 +13,8 @@ async function sendAsset(
   sender: string,
   signer: algosdk.Account,
   receiver: string,
-  algorand: algokit.AlgorandClient
+  algorand: algokit.AlgorandClient,
+  sendAlgoForNewAccount = false
 ) {
   const arc59RouterAddress = (await appClient.appClient.getAppReference()).appAddress;
 
@@ -62,6 +63,12 @@ async function sendAsset(
 
   /** The address of the receiver's inbox */
   const inboxAddress = (await appClient.compose().arc59GetInbox({ receiver }, { boxes }).simulate()).returns[0];
+
+  if (sendAlgoForNewAccount) {
+    composer.addTransaction(
+      await algorand.transactions.payment({ sender, receiver, amount: algokit.microAlgos(201_000) })
+    );
+  }
   await composer
     .arc59SendAsset(
       { axfer, receiver },
@@ -177,5 +184,19 @@ describe('Arc59', () => {
     await sendAsset(appClient, newAsset, alice.addr, alice, bob.addr, algorand);
 
     await appClient.arc59Reject({ asa: newAsset }, { sender: bob, sendParams: { fee: algokit.algos(0.003) } });
+  });
+
+  test('claim from 0-ALGO account', async () => {
+    const { algorand } = fixture;
+    const receiver = algorand.account.random();
+
+    await sendAsset(appClient, assetOne, alice.addr, alice, receiver.addr, algorand, true);
+
+    await algorand.send.assetOptIn({ assetId: assetOne, sender: receiver.addr });
+    await appClient.arc59Claim({ asa: assetOne }, { sender: receiver, sendParams: { fee: algokit.algos(0.003) } });
+
+    const receiverAssetInfo = await algorand.account.getAssetInformation(receiver.addr, assetOne);
+
+    expect(receiverAssetInfo.balance).toBe(1n);
   });
 });
