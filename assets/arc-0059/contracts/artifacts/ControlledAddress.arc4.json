@@ -1,0 +1,13 @@
+{
+  "name": "ControlledAddress",
+  "desc": "",
+  "methods": [
+    {
+      "name": "new",
+      "args": [],
+      "returns": {
+        "type": "address"
+      }
+    }
+  ]
+}
