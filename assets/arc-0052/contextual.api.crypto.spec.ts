@@ -3,7 +3,7 @@ import * as bip39 from "bip39"
 import { randomBytes } from "crypto"
 import { BIP32DerivationType, ContextualCryptoApi, ERROR_TAGS_FOUND, Encoding, KeyContext, SignMetadata, harden } from "./contextual.api.crypto"
 import * as msgpack from "algo-msgpack-with-bigint"
-import { deriveChildNodePublic, fromSeed } from "./bip32-ed25519"
+import { deriveChildNodePrivate, deriveChildNodePublic, fromSeed } from "./bip32-ed25519"
 import { sha512_256 } from "js-sha512"
 import base32 from "hi-base32"
 import { JSONSchemaType } from "ajv"
@@ -471,6 +471,40 @@ describe("Contextual Derivation & Signing", () => {
                 expect(aliceSharedSecret.sharedRx).toEqual(bobSharedSecret.sharedTx)
                 expect(bobSharedSecret.sharedTx).toEqual(aliceSharedSecret.sharedRx)
             })
+        })
+    })
+
+    describe("\(deriveNodePrivate)", () => {
+        it("\(FAIL) Should fail if during derivation scalar >= 2^255", async () => {
+            await ready // libsodium ready
+
+            const rootKey = fromSeed(seed)
+            // 44'/283'/0'/0
+            const bip44Path = [harden(44), harden(283), harden(0), 0, 0]
+
+            await ready // libsodium
+
+            // Pick `g`, which is amount of bits zeroed from each derived node
+            const g: number = 9
+
+            // 44'
+            let derivationNode: Uint8Array = await deriveChildNodePrivate(rootKey, bip44Path[0], g)
+            // 283'
+            derivationNode = await deriveChildNodePrivate(derivationNode, bip44Path[1], g)
+            // 0'
+            derivationNode = await deriveChildNodePrivate(derivationNode, bip44Path[2], g)
+            // 0
+            derivationNode = await deriveChildNodePrivate(derivationNode, bip44Path[3], g)
+            // 0
+            derivationNode = await deriveChildNodePrivate(derivationNode, bip44Path[4], g)
+    
+            for (let i = 0; i < 19; i++) {
+                derivationNode = await deriveChildNodePrivate(derivationNode, 0, g)
+            }
+
+            // for the seed in this test, we know where the scalar breaks (>= 2 ^ 255)
+            // expect error at the 20th level for this known seed
+            expect(deriveChildNodePrivate(derivationNode, 0, g)).rejects.toThrow("zL * 8 is larger than 2^255, which is not safe")
         })
     })
 

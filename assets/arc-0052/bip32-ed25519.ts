@@ -142,8 +142,11 @@ export async function deriveChildNodePrivate(
 
   const zlBigNumMul8 = klBigNum.add(zlBigNum.mul(big8))
 
-  // check size of zlBigNumMul8
-  if (zlBigNumMul8.toArrayLike(Buffer, 'le', 32).length != 32) console.log(util.inspect(zlBigNumMul8), { colors: true, depth: null }))
+  // check if zlBigNumMul8 is equal or larger than 2^255
+  if (zlBigNumMul8.cmp(new BN(2).pow(new BN(255))) >= 0) { 
+    console.log(util.inspect(zlBigNumMul8), { colors: true, depth: null })
+    throw new Error('zL * 8 is larger than 2^255, which is not safe')
+  }
 
   const left = klBigNum.add(zlBigNum.mul(big8)).toArrayLike(Buffer, 'le', 32);
 
