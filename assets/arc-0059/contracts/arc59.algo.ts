@@ -15,6 +15,8 @@ type SendAssetInfo = {
   routerOptedIn: boolean;
   /** Whether the receiver is already directly opted in to the asset or not */
   receiverOptedIn: boolean;
+  /** The amount of ALGO the receiver would currently need to claim the asset */
+  receiverAlgoNeededForClaim: uint64;
 };
 
 class ControlledAddress extends Contract {
@@ -81,10 +83,24 @@ export class ARC59 extends Contract {
   arc59_getSendAssetInfo(receiver: Address, asset: AssetID): SendAssetInfo {
     const routerOptedIn = this.app.address.isOptedInToAsset(asset);
     const receiverOptedIn = receiver.isOptedInToAsset(asset);
-    const info: SendAssetInfo = { itxns: 1, mbr: 0, routerOptedIn: routerOptedIn, receiverOptedIn: receiverOptedIn };
+    const info: SendAssetInfo = {
+      itxns: 1,
+      mbr: 0,
+      routerOptedIn: routerOptedIn,
+      receiverOptedIn: receiverOptedIn,
+      receiverAlgoNeededForClaim: 0,
+    };
 
     if (receiverOptedIn) return info;
 
+    const algoNeededToClaim = receiver.minBalance + globals.assetOptInMinBalance + globals.minTxnFee;
+
+    // Determine how much ALGO the receiver needs to claim the asset
+    if (receiver.balance < algoNeededToClaim) {
+      info.receiverAlgoNeededForClaim += algoNeededToClaim - receiver.balance;
+    }
+
+    // Add mbr and transaction for opting the router in
     if (!routerOptedIn) {
       info.mbr += globals.assetOptInMinBalance;
       info.itxns += 1;
@@ -131,10 +147,11 @@ export class ARC59 extends Contract {
    *
    * @param receiver The address to send the asset to
    * @param axfer The asset transfer to this app
+   * @param additionalReceiverFunds The amount of ALGO to send to the receiver/inbox in addition to the MBR
    *
    * @returns The address that the asset was sent to (either the receiver or their inbox)
    */
-  arc59_sendAsset(axfer: AssetTransferTxn, receiver: Address): Address {
+  arc59_sendAsset(axfer: AssetTransferTxn, receiver: Address, additionalReceiverFunds: uint64): Address {
     verifyAssetTransferTxn(axfer, {
       assetReceiver: this.app.address,
     });
@@ -147,11 +164,25 @@ export class ARC59 extends Contract {
         xferAsset: axfer.xferAsset,
       });
 
+      if (additionalReceiverFunds !== 0) {
+        sendPayment({
+          receiver: receiver,
+          amount: additionalReceiverFunds,
+        });
+      }
+
       return receiver;
     }
 
     const inboxExisted = this.inboxes(receiver).exists;
     const inbox = this.arc59_getOrCreateInbox(receiver);
+
+    if (additionalReceiverFunds !== 0) {
+      sendPayment({
+        receiver: inbox,
+        amount: additionalReceiverFunds,
+      });
+    }
 
     if (!inbox.isOptedInToAsset(axfer.xferAsset)) {
       let inboxMbrDelta = globals.assetOptInMinBalance;
@@ -240,5 +271,18 @@ export class ARC59 extends Contract {
    */
   arc59_getInbox(receiver: Address): Address {
     return this.inboxes(receiver).exists ? this.inboxes(receiver).value : globals.zeroAddress;
+  }
+
+  /** Claim any extra algo from the inbox */
+  arc59_claimAlgo() {
+    const inbox = this.inboxes(this.txn.sender).value;
+
+    assert(inbox.balance - inbox.minBalance !== 0);
+
+    sendPayment({
+      sender: inbox,
+      receiver: this.txn.sender,
+      amount: inbox.balance - inbox.minBalance,
+    });
   }
 }

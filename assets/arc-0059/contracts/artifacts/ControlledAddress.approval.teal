@@ -37,7 +37,7 @@ switch *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_IMPLEMENTED *NOT_
 new:
 	proto 0 1
 
-	// contracts/arc59.algo.ts:23
+	// contracts/arc59.algo.ts:25
 	// sendPayment({
 	//       rekeyTo: this.txn.sender,
 	//     })
@@ -45,7 +45,7 @@ new:
 	int pay
 	itxn_field TypeEnum
 
-	// contracts/arc59.algo.ts:24
+	// contracts/arc59.algo.ts:26
 	// rekeyTo: this.txn.sender
 	txn Sender
 	itxn_field RekeyTo
@@ -57,7 +57,7 @@ new:
 	// Submit inner transaction
 	itxn_submit
 
-	// contracts/arc59.algo.ts:27
+	// contracts/arc59.algo.ts:29
 	// return this.app.address;
 	global CurrentApplicationAddress
 	retsub

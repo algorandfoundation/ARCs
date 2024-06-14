@@ -54,7 +54,7 @@
         }
       ],
       "returns": {
-        "type": "(uint64,uint64,bool,bool)",
+        "type": "(uint64,uint64,bool,bool,uint64)",
         "desc": "Returns the following information for sending an asset:The number of itxns required, the MBR required, whether the router is opted in, and whether the receiver is opted in"
       }
     },
@@ -71,6 +71,11 @@
           "name": "receiver",
           "type": "address",
           "desc": "The address to send the asset to"
+        },
+        {
+          "name": "additionalReceiverFunds",
+          "type": "uint64",
+          "desc": "The amount of ALGO to send to the receiver/inbox in addition to the MBR"
         }
       ],
       "returns": {
@@ -119,6 +124,14 @@
       "returns": {
         "type": "address",
         "desc": "Zero address if the receiver does not yet have an inbox, otherwise the inbox address"
+      }
+    },
+    {
+      "name": "arc59_claimAlgo",
+      "desc": "Claim any extra algo from the inbox",
+      "args": [],
+      "returns": {
+        "type": "void"
       }
     },
     {
