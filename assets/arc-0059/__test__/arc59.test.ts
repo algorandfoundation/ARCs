@@ -22,8 +22,7 @@ async function arc59SendAsset(
   assetId: bigint,
   sender: string,
   receiver: string,
-  algorand: algokit.AlgorandClient,
-  sendAlgoForNewAccount = false
+  algorand: algokit.AlgorandClient
 ) {
   // Get the address of the ARC59 router
   const arc59RouterAddress = (await appClient.appClient.getAppReference()).appAddress;
@@ -33,7 +32,7 @@ async function arc59SendAsset(
   // mbr - The minimum balance that must be sent to the router
   // routerOptedIn - Whether the router has opted in to the asset
   // receiverOptedIn - Whether the receiver has opted in to the asset
-  const [itxns, mbr, routerOptedIn, receiverOptedIn] = (
+  const [itxns, mbr, routerOptedIn, receiverOptedIn, receiverAlgoNeededForClaim] = (
     await appClient.arc59GetSendAssetInfo({ asset: assetId, receiver })
   ).return!;
 
@@ -52,15 +51,17 @@ async function arc59SendAsset(
   // Create a composer to form an atomic transaction group
   const composer = appClient.compose();
 
+  const signer = algorand.account.getSigner(sender);
+
   // If the MBR is non-zero, send the MBR to the router
-  if (mbr) {
+  if (mbr || receiverAlgoNeededForClaim) {
     const mbrPayment = await algorand.transactions.payment({
       sender,
       receiver: arc59RouterAddress,
-      amount: algokit.microAlgos(Number(mbr)),
+      amount: algokit.microAlgos(Number(mbr + receiverAlgoNeededForClaim)),
     });
 
-    composer.addTransaction({ txn: mbrPayment, signer: algorand.account.getSigner(sender) });
+    composer.addTransaction({ txn: mbrPayment, signer });
   }
 
   // If the router is not opted in, add a call to arc59OptRouterIn to do so
@@ -72,14 +73,6 @@ async function arc59SendAsset(
   /** The address of the receiver's inbox */
   const inboxAddress = (await appClient.compose().arc59GetInbox({ receiver }, { boxes }).simulate()).returns[0];
 
-  // If enabled, send 201_000 uALGO to the receiver so they can claim the asset with a 0-ALGO balance
-  // 100_000 for account MBR, 100_000 for ASA MBR, 1_000 for the txn fee to call arc59_claim
-  if (sendAlgoForNewAccount) {
-    composer.addTransaction(
-      await algorand.transactions.payment({ sender, receiver, amount: algokit.microAlgos(201_000) })
-    );
-  }
-
   // The transfer of the asset to the router
   const axfer = await algorand.transactions.assetTransfer({
     sender,
@@ -88,10 +81,13 @@ async function arc59SendAsset(
     amount: 1n,
   });
 
+  // An extra itxn is if we are also sending ALGO for the receiver claim
+  const totalItxns = itxns + (receiverAlgoNeededForClaim === 0n ? 0n : 1n);
+
   composer.arc59SendAsset(
-    { axfer, receiver },
+    { axfer, receiver, additionalReceiverFunds: receiverAlgoNeededForClaim },
     {
-      sendParams: { fee: algokit.microAlgos(1000 + 1000 * Number(itxns)) },
+      sendParams: { fee: algokit.microAlgos(1000 + 1000 * Number(totalItxns)) },
       boxes, // The receiver's pubkey
       // Always good to include both accounts here, even if we think only the receiver is needed. This is to help protect against race conditions within a block.
       accounts: [receiver, inboxAddress],
@@ -130,6 +126,22 @@ async function arc59Claim(appClient: Arc59Client, assetId: bigint, claimer: stri
     // Do nothing
   }
 
+  const inbox = (
+    await appClient.compose().arc59GetInbox({ receiver: claimer }).simulate({ allowUnnamedResources: true })
+  ).returns[0];
+
+  let totalTxns = 3;
+
+  // If the inbox has extra ALGO, claim it
+  const inboxInfo = await algorand.account.getInformation(inbox);
+  if (inboxInfo.minBalance < inboxInfo.amount) {
+    totalTxns += 2;
+    composer.arc59ClaimAlgo(
+      {},
+      { sender: algorand.account.getAccount(claimer), sendParams: { fee: algokit.algos(0) } }
+    );
+  }
+
   // If the claimer hasn't already opted in, add a transaction to do so
   if (!claimerOptedIn) {
     composer.addTransaction({
@@ -140,7 +152,7 @@ async function arc59Claim(appClient: Arc59Client, assetId: bigint, claimer: stri
 
   composer.arc59Claim(
     { asa: assetId },
-    { sender: algorand.account.getAccount(claimer), sendParams: { fee: algokit.algos(0.003) } }
+    { sender: algorand.account.getAccount(claimer), sendParams: { fee: algokit.microAlgos(1000 * totalTxns) } }
   );
 
   await composer.execute();
@@ -249,7 +261,7 @@ describe('Arc59', () => {
     const { algorand } = fixture;
     const receiver = algorand.account.random();
 
-    await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand, true);
+    await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand);
 
     await arc59Claim(appClient, assetOne, receiver.addr, algorand);
 
