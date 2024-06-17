@@ -55,7 +55,7 @@
       ],
       "returns": {
         "type": "(uint64,uint64,bool,bool,uint64)",
-        "desc": "Returns the following information for sending an asset:The number of itxns required, the MBR required, whether the router is opted in, and whether the receiver is opted in"
+        "desc": "Returns the following information for sending an asset:The number of itxns required, the MBR required, whether the router is opted in, whether the receiver is opted in,and how much ALGO the receiver would need to claim the asset"
       }
     },
     {

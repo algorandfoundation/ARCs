@@ -78,7 +78,8 @@ export class ARC59 extends Contract {
    * @param asset The asset to send
    *
    * @returns Returns the following information for sending an asset:
-   * The number of itxns required, the MBR required, whether the router is opted in, and whether the receiver is opted in
+   * The number of itxns required, the MBR required, whether the router is opted in, whether the receiver is opted in,
+   * and how much ALGO the receiver would need to claim the asset
    */
   arc59_getSendAssetInfo(receiver: Address, asset: AssetID): SendAssetInfo {
     const routerOptedIn = this.app.address.isOptedInToAsset(asset);
