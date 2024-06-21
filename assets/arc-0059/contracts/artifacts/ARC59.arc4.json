@@ -1,0 +1,138 @@
+{
+  "name": "ARC59",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "desc": "Deploy ARC59 contract",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "arc59_optRouterIn",
+      "desc": "Opt the ARC59 router into the ASA. This is required before this app can be used to send the ASA to anyone.",
+      "args": [
+        {
+          "name": "asa",
+          "type": "uint64",
+          "desc": "The ASA to opt into"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "arc59_getOrCreateInbox",
+      "desc": "Gets the existing inbox for the receiver or creates a new one if it does not exist",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "address",
+          "desc": "The address to get or create the inbox for"
+        }
+      ],
+      "returns": {
+        "type": "address",
+        "desc": "The inbox address"
+      }
+    },
+    {
+      "name": "arc59_getSendAssetInfo",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "address",
+          "desc": "The address to send the asset to"
+        },
+        {
+          "name": "asset",
+          "type": "uint64",
+          "desc": "The asset to send"
+        }
+      ],
+      "returns": {
+        "type": "(uint64,uint64,bool,bool,uint64)",
+        "desc": "Returns the following information for sending an asset:The number of itxns required, the MBR required, whether the router is opted in, whether the receiver is opted in,and how much ALGO the receiver would need to claim the asset"
+      }
+    },
+    {
+      "name": "arc59_sendAsset",
+      "desc": "Send an asset to the receiver",
+      "args": [
+        {
+          "name": "axfer",
+          "type": "axfer",
+          "desc": "The asset transfer to this app"
+        },
+        {
+          "name": "receiver",
+          "type": "address",
+          "desc": "The address to send the asset to"
+        },
+        {
+          "name": "additionalReceiverFunds",
+          "type": "uint64",
+          "desc": "The amount of ALGO to send to the receiver/inbox in addition to the MBR"
+        }
+      ],
+      "returns": {
+        "type": "address",
+        "desc": "The address that the asset was sent to (either the receiver or their inbox)"
+      }
+    },
+    {
+      "name": "arc59_claim",
+      "desc": "Claim an ASA from the inbox",
+      "args": [
+        {
+          "name": "asa",
+          "type": "uint64",
+          "desc": "The ASA to claim"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "arc59_reject",
+      "desc": "Reject the ASA by closing it out to the ASA creator. Always sends two inner transactions.All non-MBR ALGO balance in the inbox will be sent to the caller.",
+      "args": [
+        {
+          "name": "asa",
+          "type": "uint64",
+          "desc": "The ASA to reject"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "arc59_getInbox",
+      "desc": "Get the inbox address for the given receiver",
+      "args": [
+        {
+          "name": "receiver",
+          "type": "address",
+          "desc": "The receiver to get the inbox for"
+        }
+      ],
+      "returns": {
+        "type": "address",
+        "desc": "Zero address if the receiver does not yet have an inbox, otherwise the inbox address"
+      }
+    },
+    {
+      "name": "arc59_claimAlgo",
+      "desc": "Claim any extra algo from the inbox",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ]
+}
