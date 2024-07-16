@@ -71,8 +71,8 @@ in this document are to be interpreted as described in [RFC 2119](https://datatr
 ### ABI Method
 
 A compliant ASA, whose circulating supply definition conforms to this ARC, **MUST**
-implement the following method on an Application (referred as _Circulating Supply App_
-in this specification):
+implement the following method on an Application (referred as _Circulating Supply
+App_ in this specification):
 
 ```json
 {
@@ -197,10 +197,10 @@ App ID as [ARC-2](https://arc.algorand.foundation/ARCs/arc-0002) `AssetConfig` t
 note field, as follows:
 
 - The `<dapp-name>` **MUST** be equal to `arc62`;
-- The **RECOMMENDED** `<data-format>` are [MsgPack](https://msgpack.org/) (`m`) or [JSON](https://www.json.org/json-en.html)
-(`j`);
-- The `<data>` **MUST** specify `application-id` equal to the Circulating Supply App
-ID.
+- The **RECOMMENDED** `<data-format>` are [MsgPack](https://msgpack.org/) (`m`)
+or [JSON](https://www.json.org/json-en.html) (`j`);
+- The `<data>` **MUST** specify `application-id` equal to the Circulating Supply
+App ID.
 
 **WARNING**: To preserve the existing ASA RBAC (e.g. Manager Address, Freeze Address,
 etc.) it is necessary to **include all the existing role addresses** in the `AssetConfig`.
