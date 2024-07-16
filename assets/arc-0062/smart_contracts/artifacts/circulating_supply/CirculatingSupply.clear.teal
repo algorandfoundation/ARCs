@@ -1,0 +1,7 @@
+#pragma version 10
+
+smart_contracts.circulating_supply.contract.CirculatingSupply.clear_state_program:
+    // smart_contracts/circulating_supply/contract.py:11
+    // class CirculatingSupply(ARC4Contract):
+    int 1
+    return

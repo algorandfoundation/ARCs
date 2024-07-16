@@ -1,0 +1,64 @@
+[tool.poetry]
+name = "asa-circulating-supply"
+version = "0.1.0"
+description = "Algorand smart contracts"
+authors = ["cusma <cosimo.bassi@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+algokit-utils = "^2.3.0"
+python-dotenv = "^1.0.0"
+algorand-python = "^1.0.0"
+algorand-python-testing = "^0.2.1"
+
+[tool.poetry.group.dev.dependencies]
+algokit-client-generator = "^1.1.3"
+black = {extras = ["d"], version = "*"}
+ruff = "^0.5.2"
+mypy = "*"
+pytest = "*"
+pytest-cov = "*"
+pip-audit = "*"
+pre-commit = "*"
+puyapy = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "ANN", "UP", "N", "C4", "B", "A", "YTT", "W", "FBT", "Q", "RUF", "I"]
+ignore = [
+  "ANN101", # no type for self
+  "ANN102", # no type for cls
+]
+unfixable = ["B", "RUF"]
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+suppress-none-returning = true
+
+[tool.pytest.ini_options]
+pythonpath = ["smart_contracts", "tests"]
+
+[tool.mypy]
+files = "smart_contracts/"
+python_version = "3.12"
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+strict_equality = true
+strict_concatenate = true
+disallow_any_unimported = true
+disallow_any_expr = true
+disallow_any_decorated = true
+disallow_any_explicit = true
