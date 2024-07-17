@@ -16,7 +16,7 @@ def test_pass_set_asset(
     assert asset == asset_circulating_supply_client.get_global_state().asset_id
 
 
-def test_fail_unauthorized(
+def test_fail_unauthorized_manager(
     circulating_supply_client: CirculatingSupplyClient,
     asset_creator: AddressAndSigner,
     asset: int,
@@ -27,6 +27,23 @@ def test_fail_unauthorized(
             transaction_parameters=OnCompleteCallParameters(
                 sender=asset_creator.address,
                 signer=asset_creator.signer,
+                # TODO: Foreign resources should be auto-populated
+                foreign_assets=[asset],
+            ),
+        )
+
+
+def test_fail_unauthorized_already_set(
+    asset_circulating_supply_client: CirculatingSupplyClient,
+    asset_manager: AddressAndSigner,
+    asset: int,
+) -> None:
+    with pytest.raises(LogicError, match=err.UNAUTHORIZED):  # type: ignore
+        asset_circulating_supply_client.set_asset(
+            asset_id=asset,
+            transaction_parameters=OnCompleteCallParameters(
+                sender=asset_manager.address,
+                signer=asset_manager.signer,
                 # TODO: Foreign resources should be auto-populated
                 foreign_assets=[asset],
             ),
