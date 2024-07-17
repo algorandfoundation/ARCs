@@ -60,7 +60,7 @@
     },
     "contract": {
         "name": "CirculatingSupply",
-        "desc": "ARC-XXXX Reference Implementation",
+        "desc": "ARC-62 Reference Implementation",
         "methods": [
             {
                 "name": "set_asset",

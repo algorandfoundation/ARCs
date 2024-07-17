@@ -134,7 +134,7 @@ _APP_SPEC_JSON = r"""{
             }
         ],
         "networks": {},
-        "desc": "ARC-XXXX Reference Implementation"
+        "desc": "ARC-62 Reference Implementation"
     },
     "bare_call_config": {
         "no_op": "CREATE"
@@ -423,7 +423,7 @@ class Composer:
 
 
 class CirculatingSupplyClient:
-    """ARC-XXXX Reference Implementation
+    """ARC-62 Reference Implementation
     
     A class for interacting with the CirculatingSupply app providing high productivity and
     strongly typed methods to deploy and call the app"""

@@ -9,7 +9,7 @@ from . import config as cfg
 
 
 class CirculatingSupply(ARC4Contract):
-    """ARC-XXXX Reference Implementation"""
+    """ARC-62 Reference Implementation"""
 
     def __init__(self) -> None:
         # Global State
