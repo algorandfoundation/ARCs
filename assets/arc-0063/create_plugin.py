@@ -1,21 +1,16 @@
-from algosdk import mnemonic, transaction, encoding, util, constants
-from algosdk.v2client import algod, indexer
-from algosdk.transaction import  AssetTransferTxn, AssetCloseOutTxn
-from algosdk.transaction import LogicSigTransaction
+from algosdk import mnemonic, transaction, encoding, util, constants, v2client, error
 from pyteal import Txn, And, TxnType, Int,Global, compileTeal, Mode
 import base64
-from nacl.signing import SigningKey
-import nacl.encoding
+import nacl
 import hashlib
-
 import json
 
 algod_address = "http://localhost:4001"  # Adjust if using a different port
 algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-client = algod.AlgodClient(algod_token, algod_address)
+client = v2client.algod.AlgodClient(algod_token, algod_address)
 indexer_address = "http://localhost:8980"  # Adjust if using a different port
 indexer_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-indexer = indexer.IndexerClient(indexer_token, indexer_address)
+indexer = v2client.indexer.IndexerClient(indexer_token, indexer_address)
 sp = client.suggested_params()
 
 def generate_32bytes_from_addresses(addr1, addr2, sk):
@@ -23,7 +18,7 @@ def generate_32bytes_from_addresses(addr1, addr2, sk):
     combined_signed = util.sign_bytes(combined.encode(), sk)
     hash_digest = hashlib.sha256(combined_signed.encode()).digest()
     seed = hash_digest[:32]
-    sk = SigningKey(seed,encoder=nacl.encoding.RawEncoder)
+    sk = nacl.signing.SigningKey(seed,encoder=nacl.encoding.RawEncoder)
     vk = sk.verify_key
     a = encoding.encode_address(vk.encode())
     return  base64.b64encode(sk.encode() + vk.encode()).decode(), a
@@ -64,34 +59,38 @@ raw_signed = nacl.bindings.crypto_sign(message, secret_key)
 crypto_sign_BYTES = nacl.bindings.crypto_sign_BYTES
 signature = nacl.encoding.RawEncoder.encode(raw_signed[:crypto_sign_BYTES])
 plug_in_public_sig = base64.b64encode(signature).decode()
-    #******************** REKEY PLUG_IN TO _ ****************************# #Alice for testing purposes but should be 0 address
-ptxn = transaction.PaymentTxn(
-    bob_addr, sp, plug_in_addr, int(1e5 + 1e3)
-).sign(bob_sk)
-txid = client.send_transaction(ptxn)
-results = transaction.wait_for_confirmation(client, txid, 4)
-print(f"Result confirmed in round: {results['confirmed-round']}")
 
-rekey_txn = transaction.PaymentTxn(
-    plug_in_addr, sp, plug_in_addr, 0, rekey_to=alice_addr
-)
-signed_rekey = rekey_txn.sign(plug_in_sk)
-txid = client.send_transaction(signed_rekey)
-result = transaction.wait_for_confirmation(client, txid, 4)
-print(f"Rekey transaction confirmed in round {result['confirmed-round']}")
+rekey_info = indexer.search_transactions_by_address(plug_in_addr, rekey_to=True)["transactions"]
+if len(rekey_info) == 0:
+    pass
+        #******************** REKEY PLUG_IN TO 0 ADDRESS ****************************# 
 
+    ptxn = transaction.PaymentTxn(
+        bob_addr, sp, plug_in_addr, int(1e5 + 1e3)
+    ).sign(bob_sk)
+    txid = client.send_transaction(ptxn)
+    results = transaction.wait_for_confirmation(client, txid, 4)
 
+    print(f"Result confirmed in round: {results['confirmed-round']}")
+    zero_msig = transaction.Multisig(1,1,[constants.ZERO_ADDRESS])
+    rekey_txn = transaction.PaymentTxn(
+        plug_in_addr, sp, plug_in_addr, 0, rekey_to=zero_msig.address()
+    )
+    signed_rekey = rekey_txn.sign(plug_in_sk)
+    txid = client.send_transaction(signed_rekey)
 
     #********************* MSIG VAULT  Generation **************************************#
-bob_vault_msig = transaction.Multisig(1,1,[bob_addr, lsig.address(), plug_in_addr])
+bob_vault_msig = transaction.Multisig(
+    1,
+    1,
+    [bob_addr, lsig.address(), plug_in_addr]
+)
 
 
 print("Bob vault addresses : ", bob_vault_msig.address()) #NUVYGSZCMMH65PGYGPRB63JNZMMIKT6ROK5HNM3BKVKLSNL77FTB7DKMJU
 for i in bob_vault_msig.subsigs:
     print("Bob vault address: ", encoding.encode_address(i.public_key), base64.b64encode(i.public_key))
 
-
-# print(int(client.account_info(bob_vault_msig.address())["amount"]))
 
 if int(client.account_info(bob_vault_msig.address())["amount"]) < 2e5:
     #********************FUND BOB MSIG VAULT****************************#
@@ -103,7 +102,7 @@ if int(client.account_info(bob_vault_msig.address())["amount"]) < 2e5:
     "vault": bob_vault_msig.address(),
     })
     ptxn = transaction.PaymentTxn(
-        bob_addr, sp, bob_vault_msig.address(), int(1e6), note=f"arc_63:j:{note_field}"
+        bob_addr, sp, bob_vault_msig.address(), int(1e6), note=f"arc_xx:j:{note_field}"
     ).sign(bob_sk)
     txid = client.send_transaction(ptxn)
     results = transaction.wait_for_confirmation(client, txid, 4)
@@ -127,7 +126,7 @@ print(f'Alice created 10 ASA: {a_id}')
 
 
     #******************** MSIG VAULT OPT IN ****************************#
-optin_txn = AssetTransferTxn(
+optin_txn = transaction.AssetTransferTxn(
     sender=bob_vault_msig.address(),
     sp=sp,
     receiver=bob_vault_msig.address(),
@@ -135,8 +134,10 @@ optin_txn = AssetTransferTxn(
     index=a_id,
 )
 lsig.lsig.msig = bob_vault_msig
-lsig.lsig.msig.subsigs[2].signature = base64.b64decode(plug_in_public_sig) # signature from plug_in_public
-lstx = LogicSigTransaction(optin_txn, lsig)
+lsig.append_to_multisig(plug_in_sk)
+
+assert (lsig.lsig.msig.subsigs[2].signature ==  base64.b64decode(plug_in_public_sig)) # signature from plug_in_public
+lstx = transaction.LogicSigTransaction(optin_txn, lsig)
 
 
 
@@ -155,7 +156,7 @@ bob_vault_msig = transaction.Multisig(
 )
 print(transaction.LogicSigAccount(program).address())
 
-optout_txn = AssetCloseOutTxn(
+optout_txn = transaction.AssetCloseOutTxn(
     sender=bob_vault_msig.address(),
     sp=sp,
     receiver=bob_vault_msig.address(),
@@ -171,12 +172,3 @@ print(f"Sent Msig Vault Opt-out with txid: {optout_txn}")
 results = transaction.wait_for_confirmation(client, optout_txn, 4)
 print(f"Result confirmed in round: {results['confirmed-round']}")
 print(f"{bob_vault_msig.address()} Opted - Out {a_id}")
-
-    #********************REKEY BACK************************#
-rekey_back_txn = transaction.PaymentTxn(
-    plug_in_addr, sp, plug_in_addr, 0, rekey_to=plug_in_addr, close_remainder_to=bob_addr
-)
-signed_rekey_back = rekey_back_txn.sign(alice_sk)
-txid = client.send_transaction(signed_rekey_back)
-result = transaction.wait_for_confirmation(client, txid, 4)
-print(f"Rekey back transaction confirmed in round {result['confirmed-round']}")
