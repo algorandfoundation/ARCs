@@ -77,16 +77,23 @@ class CirculatingSupply(ARC4Contract):
         reserve_balance = (
             UInt64(0)
             if asset.reserve == Global.zero_address
+            or not asset.reserve.is_opted_in(asset)
             else asset.balance(asset.reserve)
         )
         burned_balance = (
-            UInt64(0) if burned == Global.zero_address else asset.balance(burned)
+            UInt64(0)
+            if burned == Global.zero_address or not burned.is_opted_in(asset)
+            else asset.balance(burned)
         )
         locked_balance = (
-            UInt64(0) if locked == Global.zero_address else asset.balance(locked)
+            UInt64(0)
+            if locked == Global.zero_address or not locked.is_opted_in(asset)
+            else asset.balance(locked)
         )
         generic_balance = (
-            UInt64(0) if generic == Global.zero_address else asset.balance(generic)
+            UInt64(0)
+            if generic == Global.zero_address or not generic.is_opted_in(asset)
+            else asset.balance(generic)
         )
         return (
             asset.total
