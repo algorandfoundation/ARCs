@@ -247,13 +247,13 @@ arc62_get_circulating_supply:
     byte ""
     dupn 2
     // smart_contracts/circulating_supply/contract.py:86
-    // burned = Account(self.not_circulating_label_1.value.bytes)
+    // not_circulating_1 = Account(self.not_circulating_label_1.value.bytes)
     int 0
     // smart_contracts/circulating_supply/contract.py:27
     // Address(), key=cfg.NOT_CIRCULATING_LABEL_1
     byte "burned"
     // smart_contracts/circulating_supply/contract.py:86
-    // burned = Account(self.not_circulating_label_1.value.bytes)
+    // not_circulating_1 = Account(self.not_circulating_label_1.value.bytes)
     app_global_get_ex
     swap
     dup
@@ -264,13 +264,13 @@ arc62_get_circulating_supply:
     ==
     assert // Address length is 32 bytes
     // smart_contracts/circulating_supply/contract.py:87
-    // locked = Account(self.not_circulating_label_2.value.bytes)
+    // not_circulating_2 = Account(self.not_circulating_label_2.value.bytes)
     int 0
     // smart_contracts/circulating_supply/contract.py:30
     // Address(), key=cfg.NOT_CIRCULATING_LABEL_2
     byte "locked"
     // smart_contracts/circulating_supply/contract.py:87
-    // locked = Account(self.not_circulating_label_2.value.bytes)
+    // not_circulating_2 = Account(self.not_circulating_label_2.value.bytes)
     app_global_get_ex
     swap
     dup
@@ -281,13 +281,13 @@ arc62_get_circulating_supply:
     ==
     assert // Address length is 32 bytes
     // smart_contracts/circulating_supply/contract.py:88
-    // generic = Account(self.not_circulating_label_3.value.bytes)
+    // not_circulating_3 = Account(self.not_circulating_label_3.value.bytes)
     int 0
     // smart_contracts/circulating_supply/contract.py:33
     // Address(), key=cfg.NOT_CIRCULATING_LABEL_3
     byte "generic"
     // smart_contracts/circulating_supply/contract.py:88
-    // generic = Account(self.not_circulating_label_3.value.bytes)
+    // not_circulating_3 = Account(self.not_circulating_label_3.value.bytes)
     app_global_get_ex
     swap
     dup
@@ -354,11 +354,16 @@ arc62_get_circulating_supply_ternary_false@3:
 
 arc62_get_circulating_supply_ternary_merge@4:
     // smart_contracts/circulating_supply/contract.py:100
-    // if burned == Global.zero_address or not burned.is_opted_in(asset)
+    // if not_circulating_1 == Global.zero_address
     frame_dig 3
     global ZeroAddress
     ==
+    // smart_contracts/circulating_supply/contract.py:100-101
+    // if not_circulating_1 == Global.zero_address
+    // or not not_circulating_1.is_opted_in(asset)
     bnz arc62_get_circulating_supply_ternary_true@6
+    // smart_contracts/circulating_supply/contract.py:101
+    // or not not_circulating_1.is_opted_in(asset)
     frame_dig 3
     frame_dig -1
     asset_holding_get AssetBalance
@@ -373,8 +378,8 @@ arc62_get_circulating_supply_ternary_true@6:
     b arc62_get_circulating_supply_ternary_merge@8
 
 arc62_get_circulating_supply_ternary_false@7:
-    // smart_contracts/circulating_supply/contract.py:101
-    // else asset.balance(burned)
+    // smart_contracts/circulating_supply/contract.py:102
+    // else asset.balance(not_circulating_1)
     frame_dig 3
     frame_dig -1
     asset_holding_get AssetBalance
@@ -382,12 +387,17 @@ arc62_get_circulating_supply_ternary_false@7:
     frame_bury 0
 
 arc62_get_circulating_supply_ternary_merge@8:
-    // smart_contracts/circulating_supply/contract.py:105
-    // if locked == Global.zero_address or not locked.is_opted_in(asset)
+    // smart_contracts/circulating_supply/contract.py:106
+    // if not_circulating_2 == Global.zero_address
     frame_dig 4
     global ZeroAddress
     ==
+    // smart_contracts/circulating_supply/contract.py:106-107
+    // if not_circulating_2 == Global.zero_address
+    // or not not_circulating_2.is_opted_in(asset)
     bnz arc62_get_circulating_supply_ternary_true@10
+    // smart_contracts/circulating_supply/contract.py:107
+    // or not not_circulating_2.is_opted_in(asset)
     frame_dig 4
     frame_dig -1
     asset_holding_get AssetBalance
@@ -395,15 +405,15 @@ arc62_get_circulating_supply_ternary_merge@8:
     bnz arc62_get_circulating_supply_ternary_false@11
 
 arc62_get_circulating_supply_ternary_true@10:
-    // smart_contracts/circulating_supply/contract.py:104
+    // smart_contracts/circulating_supply/contract.py:105
     // UInt64(0)
     int 0
     frame_bury 1
     b arc62_get_circulating_supply_ternary_merge@12
 
 arc62_get_circulating_supply_ternary_false@11:
-    // smart_contracts/circulating_supply/contract.py:106
-    // else asset.balance(locked)
+    // smart_contracts/circulating_supply/contract.py:108
+    // else asset.balance(not_circulating_2)
     frame_dig 4
     frame_dig -1
     asset_holding_get AssetBalance
@@ -411,12 +421,17 @@ arc62_get_circulating_supply_ternary_false@11:
     frame_bury 1
 
 arc62_get_circulating_supply_ternary_merge@12:
-    // smart_contracts/circulating_supply/contract.py:110
-    // if generic == Global.zero_address or not generic.is_opted_in(asset)
+    // smart_contracts/circulating_supply/contract.py:112
+    // if not_circulating_3 == Global.zero_address
     frame_dig 5
     global ZeroAddress
     ==
+    // smart_contracts/circulating_supply/contract.py:112-113
+    // if not_circulating_3 == Global.zero_address
+    // or not not_circulating_3.is_opted_in(asset)
     bnz arc62_get_circulating_supply_ternary_true@14
+    // smart_contracts/circulating_supply/contract.py:113
+    // or not not_circulating_3.is_opted_in(asset)
     frame_dig 5
     frame_dig -1
     asset_holding_get AssetBalance
@@ -424,58 +439,58 @@ arc62_get_circulating_supply_ternary_merge@12:
     bnz arc62_get_circulating_supply_ternary_false@15
 
 arc62_get_circulating_supply_ternary_true@14:
-    // smart_contracts/circulating_supply/contract.py:109
+    // smart_contracts/circulating_supply/contract.py:111
     // UInt64(0)
     int 0
     b arc62_get_circulating_supply_ternary_merge@16
 
 arc62_get_circulating_supply_ternary_false@15:
-    // smart_contracts/circulating_supply/contract.py:111
-    // else asset.balance(generic)
+    // smart_contracts/circulating_supply/contract.py:114
+    // else asset.balance(not_circulating_3)
     frame_dig 5
     frame_dig -1
     asset_holding_get AssetBalance
     assert // account opted into asset
 
 arc62_get_circulating_supply_ternary_merge@16:
-    // smart_contracts/circulating_supply/contract.py:114
+    // smart_contracts/circulating_supply/contract.py:117
     // asset.total
     frame_dig -1
     asset_params_get AssetTotal
     assert // asset exists
-    // smart_contracts/circulating_supply/contract.py:114-115
+    // smart_contracts/circulating_supply/contract.py:117-118
     // asset.total
     // - reserve_balance
     frame_dig 2
     -
-    // smart_contracts/circulating_supply/contract.py:114-116
+    // smart_contracts/circulating_supply/contract.py:117-119
     // asset.total
     // - reserve_balance
-    // - burned_balance
+    // - not_circulating_balance_1
     frame_dig 0
     -
-    // smart_contracts/circulating_supply/contract.py:114-117
+    // smart_contracts/circulating_supply/contract.py:117-120
     // asset.total
     // - reserve_balance
-    // - burned_balance
-    // - locked_balance
+    // - not_circulating_balance_1
+    // - not_circulating_balance_2
     frame_dig 1
     -
-    // smart_contracts/circulating_supply/contract.py:114-118
+    // smart_contracts/circulating_supply/contract.py:117-121
     // asset.total
     // - reserve_balance
-    // - burned_balance
-    // - locked_balance
-    // - generic_balance
+    // - not_circulating_balance_1
+    // - not_circulating_balance_2
+    // - not_circulating_balance_3
     swap
     -
-    // smart_contracts/circulating_supply/contract.py:113-119
+    // smart_contracts/circulating_supply/contract.py:116-122
     // return (
     //     asset.total
     //     - reserve_balance
-    //     - burned_balance
-    //     - locked_balance
-    //     - generic_balance
+    //     - not_circulating_balance_1
+    //     - not_circulating_balance_2
+    //     - not_circulating_balance_3
     // )
     frame_bury 0
     retsub

@@ -109,7 +109,7 @@ def test_fail_invalid_label(
     with pytest.raises(LogicError, match=err.INVALID_LABEL):  # type: ignore
         asset_circulating_supply_client.set_not_circulating_address(
             address=not_circulating_balance_1.address,
-            label="spam",
+            label=cfg.NOT_CIRCULATING_LABEL_1 + "spam",
             transaction_parameters=OnCompleteCallParameters(
                 sender=asset_manager.address,
                 signer=asset_manager.signer,

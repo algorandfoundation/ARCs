@@ -83,9 +83,9 @@ class CirculatingSupply(ARC4Contract):
             ASA circulating supply
         """
         asset = Asset(asset_id)
-        burned = Account(self.not_circulating_label_1.value.bytes)
-        locked = Account(self.not_circulating_label_2.value.bytes)
-        generic = Account(self.not_circulating_label_3.value.bytes)
+        not_circulating_1 = Account(self.not_circulating_label_1.value.bytes)
+        not_circulating_2 = Account(self.not_circulating_label_2.value.bytes)
+        not_circulating_3 = Account(self.not_circulating_label_3.value.bytes)
         # Preconditions
         assert asset_id == self.asset_id, err.INVALID_ASSET_ID
         # Effects
@@ -95,25 +95,28 @@ class CirculatingSupply(ARC4Contract):
             or not asset.reserve.is_opted_in(asset)
             else asset.balance(asset.reserve)
         )
-        burned_balance = (
+        not_circulating_balance_1 = (
             UInt64(0)
-            if burned == Global.zero_address or not burned.is_opted_in(asset)
-            else asset.balance(burned)
+            if not_circulating_1 == Global.zero_address
+            or not not_circulating_1.is_opted_in(asset)
+            else asset.balance(not_circulating_1)
         )
-        locked_balance = (
+        not_circulating_balance_2 = (
             UInt64(0)
-            if locked == Global.zero_address or not locked.is_opted_in(asset)
-            else asset.balance(locked)
+            if not_circulating_2 == Global.zero_address
+            or not not_circulating_2.is_opted_in(asset)
+            else asset.balance(not_circulating_2)
         )
-        generic_balance = (
+        not_circulating_balance_3 = (
             UInt64(0)
-            if generic == Global.zero_address or not generic.is_opted_in(asset)
-            else asset.balance(generic)
+            if not_circulating_3 == Global.zero_address
+            or not not_circulating_3.is_opted_in(asset)
+            else asset.balance(not_circulating_3)
         )
         return (
             asset.total
             - reserve_balance
-            - burned_balance
-            - locked_balance
-            - generic_balance
+            - not_circulating_balance_1
+            - not_circulating_balance_2
+            - not_circulating_balance_3
         )
