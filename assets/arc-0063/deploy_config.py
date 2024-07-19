@@ -98,8 +98,6 @@ def deploy(
         on_update=algokit_utils.OnUpdate.AppendApp,
     )
 
-    owner_vault_msig = transaction.Multisig(1, 1, [owner_addr, app_client.app_address])
-
     teal_program = f"""
     #pragma version 10
     txn TypeEnum
@@ -131,7 +129,9 @@ def deploy(
     if False:
         plug_in_sk, plug_in_addr = account.generate_account()
     else:
-        plug_in_sk = "Cq9JfCTzMp9bSKVNxuF2YsNm0fS9RsshOVbN6I8Av5zbhEH2I1Qd8UN6UhgOfD1REDY9/pNjPy+D++ib2xTAAg=="
+        plug_in_sk = """
+            Cq9JfCTzMp9bSKVNxuF2YsNm0fS9RsshOVbN6I8Av5zbhEH2I1Qd8UN6UhgOfD1REDY9/pNjPy+D++ib2xTAAg==
+        """
         plug_in_addr = "3OCED5RDKQO7CQ32KIMA47B5KEIDMPP6SNRT6L4D7PUJXWYUYABBZG56JE"
         # ******************** Plug_IN_Signer Public Signature   *********************#
     _, secret_key = nacl.bindings.crypto_sign_seed_keypair(
@@ -168,27 +168,15 @@ def deploy(
             owner_vault_msig.address(),
             int(1e6)
         )
-        # ******************** Fund Signer before rekey ADDRESS **********************#
 
-        ptxn_signer = transaction.PaymentTxn(
-            owner_addr, sp, plug_in_addr, int(1e5 + 1e3)
-        )
-        # ******************** REKEY PLUG_IN TO 0 ADDRESS       **********************#
+        transaction.assign_group_id([ptxn_app, ptxn_vault])
 
-        zero_msig = transaction.Multisig(1, 1, [constants.ZERO_ADDRESS])
-        rekey_txn = transaction.PaymentTxn(
-            plug_in_addr, sp, plug_in_addr, 0, rekey_to=zero_msig.address()
-        )
-        transaction.assign_group_id([ptxn_app, ptxn_vault, ptxn_signer, rekey_txn])
-
-        ptxn_app
         signed_ptxn_app = ptxn_app.sign(owner_sk)
         signed_ptxn_vault = ptxn_vault.sign(owner_sk)
-        signed_ptxn_signer = ptxn_signer.sign(owner_sk)
 
-        signed_rekey = rekey_txn.sign(plug_in_sk)
-
-        signed_group = [signed_ptxn_app, signed_ptxn_vault, signed_ptxn_signer, signed_rekey]
+        signed_group = [
+            signed_ptxn_app, signed_ptxn_vault
+        ]
         logger.info(signed_group)
         txid = algod_client.send_transactions(signed_group)
         result: Dict[str, Any] = transaction.wait_for_confirmation(

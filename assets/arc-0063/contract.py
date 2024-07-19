@@ -21,6 +21,6 @@ class SmartApp(ARC4Contract):
         self.db[account] = sig
         return self.db[account] == sig
 
-    @abimethod()
+    @abimethod(readonly=True)
     def get_public_sig(self, account: Account) -> String:
         return self.db[account]
