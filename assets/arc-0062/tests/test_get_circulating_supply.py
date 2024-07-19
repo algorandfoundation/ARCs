@@ -20,35 +20,35 @@ def test_pass_get_circulating_supply(
     asset_manager: AddressAndSigner,
     asset: int,
     reserve_with_balance: AddressAndSigner,
-    burning_with_balance: AddressAndSigner,
-    locking_with_balance: AddressAndSigner,
-    generic_not_circulating_with_balance: AddressAndSigner,
+    not_circulating_balance_1: AddressAndSigner,
+    not_circulating_balance_2: AddressAndSigner,
+    not_circulating_balance_3: AddressAndSigner,
 ) -> None:
     total: int = algorand_client.client.algod.asset_info(asset)["params"]["total"]  # type: ignore
     reserve_balance: int = get_asset_balance(
         algorand_client, reserve_with_balance.address, asset
     )
-    burned_balance: int = get_asset_balance(
-        algorand_client, burning_with_balance.address, asset
+    nc_balance_1: int = get_asset_balance(
+        algorand_client, not_circulating_balance_1.address, asset
     )
-    locked_balance: int = get_asset_balance(
-        algorand_client, locking_with_balance.address, asset
+    nc_balance_2: int = get_asset_balance(
+        algorand_client, not_circulating_balance_2.address, asset
     )
-    generic_balance: int = get_asset_balance(
-        algorand_client, generic_not_circulating_with_balance.address, asset
+    nc_balance_3: int = get_asset_balance(
+        algorand_client, not_circulating_balance_3.address, asset
     )
 
     print("\nASA Total: ", total)
     print("Reserve Balance: ", reserve_balance)
-    print("Burned Balance: ", burned_balance)
-    print("Locked Balance: ", locked_balance)
-    print("Generic Not-Circulating Balance: ", generic_balance)
+    print(f"{cfg.NOT_CIRCULATING_LABEL_1.capitalize()} Balance: ", nc_balance_1)
+    print(f"{cfg.NOT_CIRCULATING_LABEL_2.capitalize()} Balance: ", nc_balance_2)
+    print(f"{cfg.NOT_CIRCULATING_LABEL_3.capitalize()} Balance: ", nc_balance_3)
 
     not_circulating_addresses = [
         reserve_with_balance.address,
-        burning_with_balance.address,
-        locking_with_balance.address,
-        generic_not_circulating_with_balance.address,
+        not_circulating_balance_1.address,
+        not_circulating_balance_2.address,
+        not_circulating_balance_3.address,
     ]
 
     circulating_supply = asset_circulating_supply_client.arc62_get_circulating_supply(
@@ -62,14 +62,14 @@ def test_pass_get_circulating_supply(
     assert circulating_supply == total - reserve_balance
 
     asset_circulating_supply_client.set_not_circulating_address(
-        address=burning_with_balance.address,
-        label=cfg.BURNED,
+        address=not_circulating_balance_1.address,
+        label=cfg.NOT_CIRCULATING_LABEL_1,
         transaction_parameters=OnCompleteCallParameters(
             sender=asset_manager.address,
             signer=asset_manager.signer,
             # TODO: Foreign resources should be auto-populated
             foreign_assets=[asset],
-            accounts=[burning_with_balance.address],
+            accounts=[not_circulating_balance_1.address],
         ),
     )
     circulating_supply = asset_circulating_supply_client.arc62_get_circulating_supply(
@@ -80,17 +80,17 @@ def test_pass_get_circulating_supply(
             accounts=not_circulating_addresses,
         ),
     ).return_value
-    assert circulating_supply == total - reserve_balance - burned_balance
+    assert circulating_supply == total - reserve_balance - nc_balance_1
 
     asset_circulating_supply_client.set_not_circulating_address(
-        address=locking_with_balance.address,
-        label=cfg.LOCKED,
+        address=not_circulating_balance_2.address,
+        label=cfg.NOT_CIRCULATING_LABEL_2,
         transaction_parameters=OnCompleteCallParameters(
             sender=asset_manager.address,
             signer=asset_manager.signer,
             # TODO: Foreign resources should be auto-populated
             foreign_assets=[asset],
-            accounts=[locking_with_balance.address],
+            accounts=[not_circulating_balance_2.address],
         ),
     )
     circulating_supply = asset_circulating_supply_client.arc62_get_circulating_supply(
@@ -101,19 +101,17 @@ def test_pass_get_circulating_supply(
             accounts=not_circulating_addresses,
         ),
     ).return_value
-    assert (
-        circulating_supply == total - reserve_balance - burned_balance - locked_balance
-    )
+    assert circulating_supply == total - reserve_balance - nc_balance_1 - nc_balance_2
 
     asset_circulating_supply_client.set_not_circulating_address(
-        address=generic_not_circulating_with_balance.address,
-        label=cfg.GENERIC,
+        address=not_circulating_balance_3.address,
+        label=cfg.NOT_CIRCULATING_LABEL_3,
         transaction_parameters=OnCompleteCallParameters(
             sender=asset_manager.address,
             signer=asset_manager.signer,
             # TODO: Foreign resources should be auto-populated
             foreign_assets=[asset],
-            accounts=[generic_not_circulating_with_balance.address],
+            accounts=[not_circulating_balance_3.address],
         ),
     )
     circulating_supply = asset_circulating_supply_client.arc62_get_circulating_supply(
@@ -126,7 +124,7 @@ def test_pass_get_circulating_supply(
     ).return_value
     assert (
         circulating_supply
-        == total - reserve_balance - burned_balance - locked_balance - generic_balance
+        == total - reserve_balance - nc_balance_1 - nc_balance_2 - nc_balance_3
     )
     print("Circulating Supply: ", circulating_supply)
 
@@ -163,27 +161,27 @@ def test_pass_closed_address(
     asset_creator: AddressAndSigner,
     asset_manager: AddressAndSigner,
     reserve_with_balance: AddressAndSigner,
-    burning_with_balance: AddressAndSigner,
+    not_circulating_balance_1: AddressAndSigner,
     asset: int,
 ) -> None:
     total: int = algorand_client.client.algod.asset_info(asset)["params"]["total"]  # type: ignore
 
     asset_circulating_supply_client.set_not_circulating_address(
-        address=burning_with_balance.address,
-        label=cfg.BURNED,
+        address=not_circulating_balance_1.address,
+        label=cfg.NOT_CIRCULATING_LABEL_1,
         transaction_parameters=OnCompleteCallParameters(
             sender=asset_manager.address,
             signer=asset_manager.signer,
             # TODO: Foreign resources should be auto-populated
             foreign_assets=[asset],
-            accounts=[burning_with_balance.address],
+            accounts=[not_circulating_balance_1.address],
         ),
     )
 
     algorand_client.send.asset_transfer(
         AssetTransferParams(
-            sender=burning_with_balance.address,
-            signer=burning_with_balance.signer,
+            sender=not_circulating_balance_1.address,
+            signer=not_circulating_balance_1.signer,
             asset_id=asset,
             amount=0,
             receiver=asset_creator.address,
@@ -207,7 +205,7 @@ def test_pass_closed_address(
         transaction_parameters=OnCompleteCallParameters(
             # TODO: Foreign resources should be auto-populated
             foreign_assets=[asset],
-            accounts=[reserve_with_balance.address, burning_with_balance.address],
+            accounts=[reserve_with_balance.address, not_circulating_balance_1.address],
         ),
     ).return_value
     assert circulating_supply == total

@@ -1,6 +1,15 @@
 # ruff: noqa: B011
 
-from algopy import Account, ARC4Contract, Asset, Global, String, Txn, UInt64
+from algopy import (
+    Account,
+    ARC4Contract,
+    Asset,
+    Global,
+    GlobalState,
+    String,
+    Txn,
+    UInt64,
+)
 from algopy.arc4 import Address, abimethod
 
 import smart_contracts.errors.std_errors as err
@@ -14,9 +23,15 @@ class CirculatingSupply(ARC4Contract):
     def __init__(self) -> None:
         # Global State
         self.asset_id = UInt64()
-        self.burned = Address()
-        self.locked = Address()
-        self.generic = Address()
+        self.not_circulating_label_1 = GlobalState(
+            Address(), key=cfg.NOT_CIRCULATING_LABEL_1
+        )
+        self.not_circulating_label_2 = GlobalState(
+            Address(), key=cfg.NOT_CIRCULATING_LABEL_2
+        )
+        self.not_circulating_label_3 = GlobalState(
+            Address(), key=cfg.NOT_CIRCULATING_LABEL_3
+        )
 
     @abimethod()
     def set_asset(self, asset_id: UInt64) -> None:
@@ -39,7 +54,7 @@ class CirculatingSupply(ARC4Contract):
 
         Args:
             address: Address to assign to the label to
-            label: Label selector ("burned", "locked", "generic")
+            label: Not-circulating label selector
         """
         asset = Asset(self.asset_id)
         # Preconditions
@@ -47,12 +62,12 @@ class CirculatingSupply(ARC4Contract):
         assert Account(address.bytes).is_opted_in(asset), err.NOT_OPTED_IN
         # Effects
         match label:
-            case cfg.BURNED:
-                self.burned = address
-            case cfg.LOCKED:
-                self.locked = address
-            case cfg.GENERIC:
-                self.generic = address
+            case cfg.NOT_CIRCULATING_LABEL_1:
+                self.not_circulating_label_1.value = address
+            case cfg.NOT_CIRCULATING_LABEL_2:
+                self.not_circulating_label_2.value = address
+            case cfg.NOT_CIRCULATING_LABEL_3:
+                self.not_circulating_label_3.value = address
             case _:
                 assert False, err.INVALID_LABEL
 
@@ -68,9 +83,9 @@ class CirculatingSupply(ARC4Contract):
             ASA circulating supply
         """
         asset = Asset(asset_id)
-        burned = Account(self.burned.bytes)
-        locked = Account(self.locked.bytes)
-        generic = Account(self.generic.bytes)
+        burned = Account(self.not_circulating_label_1.value.bytes)
+        locked = Account(self.not_circulating_label_2.value.bytes)
+        generic = Account(self.not_circulating_label_3.value.bytes)
         # Preconditions
         assert asset_id == self.asset_id, err.INVALID_ASSET_ID
         # Effects

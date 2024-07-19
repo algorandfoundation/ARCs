@@ -25,9 +25,9 @@ from smart_contracts.artifacts.circulating_supply.circulating_supply_client impo
 INITIAL_FUNDS = 100_000_000
 ASA_TOTAL = 1000
 RESERVE_BALANCE = 420
-BURNED_BALANCE = 69
-LOCKED_BALANCE = 42
-GENERIC_BALANCE = 4
+NOT_CIRCULATING_BALANCE_1 = 69
+NOT_CIRCULATING_BALANCE_2 = 42
+NOT_CIRCULATING_BALANCE_3 = 4
 
 
 def get_asset_balance(
@@ -131,7 +131,7 @@ def asset_reserve(algorand_client: AlgorandClient) -> AddressAndSigner:
 
 
 @pytest.fixture(scope="session")
-def asset_burning(algorand_client: AlgorandClient) -> AddressAndSigner:
+def not_circulating_address_1(algorand_client: AlgorandClient) -> AddressAndSigner:
     acct = algorand_client.account.random()
 
     ensure_funded(
@@ -145,7 +145,7 @@ def asset_burning(algorand_client: AlgorandClient) -> AddressAndSigner:
 
 
 @pytest.fixture(scope="session")
-def asset_locking(algorand_client: AlgorandClient) -> AddressAndSigner:
+def not_circulating_address_2(algorand_client: AlgorandClient) -> AddressAndSigner:
     acct = algorand_client.account.random()
 
     ensure_funded(
@@ -159,7 +159,7 @@ def asset_locking(algorand_client: AlgorandClient) -> AddressAndSigner:
 
 
 @pytest.fixture(scope="session")
-def asset_generic_not_circulating(algorand_client: AlgorandClient) -> AddressAndSigner:
+def not_circulating_address_3(algorand_client: AlgorandClient) -> AddressAndSigner:
     acct = algorand_client.account.random()
 
     ensure_funded(
@@ -222,16 +222,16 @@ def reserve_with_balance(
 
 
 @pytest.fixture(scope="function")
-def burning_with_balance(
+def not_circulating_balance_1(
     algorand_client: AlgorandClient,
     asset_creator: AddressAndSigner,
-    asset_burning: AddressAndSigner,
+    not_circulating_address_1: AddressAndSigner,
     asset: int,
 ) -> AddressAndSigner:
     algorand_client.send.asset_opt_in(
         AssetOptInParams(
-            sender=asset_burning.address,
-            signer=asset_burning.signer,
+            sender=not_circulating_address_1.address,
+            signer=not_circulating_address_1.signer,
             asset_id=asset,
         )
     )
@@ -240,28 +240,28 @@ def burning_with_balance(
             sender=asset_creator.address,
             signer=asset_creator.signer,
             asset_id=asset,
-            amount=BURNED_BALANCE,
-            receiver=asset_burning.address,
+            amount=NOT_CIRCULATING_BALANCE_1,
+            receiver=not_circulating_address_1.address,
         )
     )
     assert (
-        get_asset_balance(algorand_client, asset_burning.address, asset)
-        == BURNED_BALANCE
+        get_asset_balance(algorand_client, not_circulating_address_1.address, asset)
+        == NOT_CIRCULATING_BALANCE_1
     )
-    return asset_burning
+    return not_circulating_address_1
 
 
 @pytest.fixture(scope="function")
-def locking_with_balance(
+def not_circulating_balance_2(
     algorand_client: AlgorandClient,
     asset_creator: AddressAndSigner,
-    asset_locking: AddressAndSigner,
+    not_circulating_address_2: AddressAndSigner,
     asset: int,
 ) -> AddressAndSigner:
     algorand_client.send.asset_opt_in(
         AssetOptInParams(
-            sender=asset_locking.address,
-            signer=asset_locking.signer,
+            sender=not_circulating_address_2.address,
+            signer=not_circulating_address_2.signer,
             asset_id=asset,
         )
     )
@@ -270,28 +270,28 @@ def locking_with_balance(
             sender=asset_creator.address,
             signer=asset_creator.signer,
             asset_id=asset,
-            amount=LOCKED_BALANCE,
-            receiver=asset_locking.address,
+            amount=NOT_CIRCULATING_BALANCE_2,
+            receiver=not_circulating_address_2.address,
         )
     )
     assert (
-        get_asset_balance(algorand_client, asset_locking.address, asset)
-        == LOCKED_BALANCE
+        get_asset_balance(algorand_client, not_circulating_address_2.address, asset)
+        == NOT_CIRCULATING_BALANCE_2
     )
-    return asset_locking
+    return not_circulating_address_2
 
 
 @pytest.fixture(scope="function")
-def generic_not_circulating_with_balance(
+def not_circulating_balance_3(
     algorand_client: AlgorandClient,
     asset_creator: AddressAndSigner,
-    asset_generic_not_circulating: AddressAndSigner,
+    not_circulating_address_3: AddressAndSigner,
     asset: int,
 ) -> AddressAndSigner:
     algorand_client.send.asset_opt_in(
         AssetOptInParams(
-            sender=asset_generic_not_circulating.address,
-            signer=asset_generic_not_circulating.signer,
+            sender=not_circulating_address_3.address,
+            signer=not_circulating_address_3.signer,
             asset_id=asset,
         )
     )
@@ -300,15 +300,15 @@ def generic_not_circulating_with_balance(
             sender=asset_creator.address,
             signer=asset_creator.signer,
             asset_id=asset,
-            amount=GENERIC_BALANCE,
-            receiver=asset_generic_not_circulating.address,
+            amount=NOT_CIRCULATING_BALANCE_3,
+            receiver=not_circulating_address_3.address,
         )
     )
     assert (
-        get_asset_balance(algorand_client, asset_generic_not_circulating.address, asset)
-        == GENERIC_BALANCE
+        get_asset_balance(algorand_client, not_circulating_address_3.address, asset)
+        == NOT_CIRCULATING_BALANCE_3
     )
-    return asset_generic_not_circulating
+    return not_circulating_address_3
 
 
 @pytest.fixture(scope="function")

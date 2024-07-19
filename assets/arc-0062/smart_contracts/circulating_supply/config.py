@@ -1,6 +1,6 @@
 from typing import Final
 
 # Roles
-BURNED: Final[str] = "burned"
-LOCKED: Final[str] = "locked"
-GENERIC: Final[str] = "generic"
+NOT_CIRCULATING_LABEL_1: Final[str] = "burned"
+NOT_CIRCULATING_LABEL_2: Final[str] = "locked"
+NOT_CIRCULATING_LABEL_3: Final[str] = "generic"

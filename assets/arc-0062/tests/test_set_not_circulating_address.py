@@ -14,72 +14,69 @@ def test_pass_set_not_circulating_address(
     asset_circulating_supply_client: CirculatingSupplyClient,
     asset_manager: AddressAndSigner,
     asset: int,
-    burning_with_balance: AddressAndSigner,
-    locking_with_balance: AddressAndSigner,
-    generic_not_circulating_with_balance: AddressAndSigner,
+    not_circulating_balance_1: AddressAndSigner,
+    not_circulating_balance_2: AddressAndSigner,
+    not_circulating_balance_3: AddressAndSigner,
 ) -> None:
     asset_circulating_supply_client.set_not_circulating_address(
-        address=burning_with_balance.address,
-        label=cfg.BURNED,
+        address=not_circulating_balance_1.address,
+        label=cfg.NOT_CIRCULATING_LABEL_1,
         transaction_parameters=OnCompleteCallParameters(
             sender=asset_manager.address,
             signer=asset_manager.signer,
             # TODO: Foreign resources should be auto-populated
             foreign_assets=[asset],
-            accounts=[burning_with_balance.address],
+            accounts=[not_circulating_balance_1.address],
         ),
     )
 
     asset_circulating_supply_client.set_not_circulating_address(
-        address=locking_with_balance.address,
-        label=cfg.LOCKED,
+        address=not_circulating_balance_2.address,
+        label=cfg.NOT_CIRCULATING_LABEL_2,
         transaction_parameters=OnCompleteCallParameters(
             sender=asset_manager.address,
             signer=asset_manager.signer,
             # TODO: Foreign resources should be auto-populated
             foreign_assets=[asset],
-            accounts=[locking_with_balance.address],
+            accounts=[not_circulating_balance_2.address],
         ),
     )
 
     asset_circulating_supply_client.set_not_circulating_address(
-        address=generic_not_circulating_with_balance.address,
-        label=cfg.GENERIC,
+        address=not_circulating_balance_3.address,
+        label=cfg.NOT_CIRCULATING_LABEL_3,
         transaction_parameters=OnCompleteCallParameters(
             sender=asset_manager.address,
             signer=asset_manager.signer,
             # TODO: Foreign resources should be auto-populated
             foreign_assets=[asset],
-            accounts=[generic_not_circulating_with_balance.address],
+            accounts=[not_circulating_balance_3.address],
         ),
     )
 
     state = asset_circulating_supply_client.get_global_state()
 
-    assert encode_address(state.burned.as_bytes) == burning_with_balance.address  # type: ignore
-    assert encode_address(state.locked.as_bytes) == locking_with_balance.address  # type: ignore
-    assert (
-        encode_address(state.generic.as_bytes)  # type: ignore
-        == generic_not_circulating_with_balance.address
-    )
+    assert encode_address(state.not_circulating_label_1.as_bytes) == not_circulating_balance_1.address  # type: ignore
+    assert encode_address(state.not_circulating_label_2.as_bytes) == not_circulating_balance_2.address  # type: ignore
+    assert encode_address(state.not_circulating_label_3.as_bytes) == not_circulating_balance_3.address  # type: ignore
 
 
 def test_fail_unauthorized(
     asset_circulating_supply_client: CirculatingSupplyClient,
     asset_creator: AddressAndSigner,
     asset: int,
-    burning_with_balance: AddressAndSigner,
+    not_circulating_balance_1: AddressAndSigner,
 ) -> None:
     with pytest.raises(LogicError, match=err.UNAUTHORIZED):  # type: ignore
         asset_circulating_supply_client.set_not_circulating_address(
-            address=burning_with_balance.address,
-            label=cfg.BURNED,
+            address=not_circulating_balance_1.address,
+            label=cfg.NOT_CIRCULATING_LABEL_1,
             transaction_parameters=OnCompleteCallParameters(
                 sender=asset_creator.address,
                 signer=asset_creator.signer,
                 # TODO: Foreign resources should be auto-populated
                 foreign_assets=[asset],
-                accounts=[burning_with_balance.address],
+                accounts=[not_circulating_balance_1.address],
             ),
         )
 
@@ -92,7 +89,7 @@ def test_fail_not_opted_in(
     with pytest.raises(LogicError, match=err.NOT_OPTED_IN):  # type: ignore
         asset_circulating_supply_client.set_not_circulating_address(
             address=asset_manager.address,
-            label=cfg.BURNED,
+            label=cfg.NOT_CIRCULATING_LABEL_1,
             transaction_parameters=OnCompleteCallParameters(
                 sender=asset_manager.address,
                 signer=asset_manager.signer,
@@ -107,17 +104,17 @@ def test_fail_invalid_label(
     asset_circulating_supply_client: CirculatingSupplyClient,
     asset_manager: AddressAndSigner,
     asset: int,
-    burning_with_balance: AddressAndSigner,
+    not_circulating_balance_1: AddressAndSigner,
 ) -> None:
     with pytest.raises(LogicError, match=err.INVALID_LABEL):  # type: ignore
         asset_circulating_supply_client.set_not_circulating_address(
-            address=burning_with_balance.address,
+            address=not_circulating_balance_1.address,
             label="spam",
             transaction_parameters=OnCompleteCallParameters(
                 sender=asset_manager.address,
                 signer=asset_manager.signer,
                 # TODO: Foreign resources should be auto-populated
                 foreign_assets=[asset],
-                accounts=[burning_with_balance.address],
+                accounts=[not_circulating_balance_1.address],
             ),
         )
