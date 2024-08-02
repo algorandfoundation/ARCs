@@ -13,9 +13,9 @@ algorand-python = "^1.0.0"
 algorand-python-testing = "^0.2.1"
 
 [tool.poetry.group.dev.dependencies]
-algokit-client-generator = "^1.1.3"
+algokit-client-generator = "^1.1.6"
 black = {extras = ["d"], version = "*"}
-ruff = "^0.5.2"
+ruff = "^0.5.5"
 mypy = "*"
 pytest = "*"
 pytest-cov = "*"

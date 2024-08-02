@@ -71,6 +71,7 @@
                         "desc": "ASA ID of the circulating supply"
                     }
                 ],
+                "readonly": false,
                 "returns": {
                     "type": "void"
                 },
@@ -90,6 +91,7 @@
                         "desc": "Not-circulating label selector"
                     }
                 ],
+                "readonly": false,
                 "returns": {
                     "type": "void"
                 },
@@ -104,6 +106,7 @@
                         "desc": "ASA ID of the circulating supply"
                     }
                 ],
+                "readonly": true,
                 "returns": {
                     "type": "uint64",
                     "desc": "ASA circulating supply"
