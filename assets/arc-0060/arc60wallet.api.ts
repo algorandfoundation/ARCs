@@ -177,7 +177,7 @@ export class Arc60WalletApi {
             default:
                 throw ERROR_FAILED_DECODING;
         }
-        
+
         // validate against schema
         switch(metadata.scope) {
 
