@@ -21,7 +21,7 @@ def test_fail_unauthorized_manager(
     asset_creator: AddressAndSigner,
     asset: int,
 ) -> None:
-    with pytest.raises(LogicError, match=err.UNAUTHORIZED):  # type: ignore
+    with pytest.raises(LogicError, match=err.UNAUTHORIZED):
         circulating_supply_client.set_asset(
             asset_id=asset,
             transaction_parameters=OnCompleteCallParameters(
@@ -38,7 +38,7 @@ def test_fail_unauthorized_already_set(
     asset_manager: AddressAndSigner,
     asset: int,
 ) -> None:
-    with pytest.raises(LogicError, match=err.UNAUTHORIZED):  # type: ignore
+    with pytest.raises(LogicError, match=err.UNAUTHORIZED):
         asset_circulating_supply_client.set_asset(
             asset_id=asset,
             transaction_parameters=OnCompleteCallParameters(

@@ -1,31 +1,5 @@
 repos:
 
-  # YAML
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
-
-      - id: check-yaml
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-
-  # Markdown
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.41.0
-    hooks:
-
-      - id: markdownlint
-        args: [ "--fix" ]
-
-  # Checkov
-  - repo: https://github.com/bridgecrewio/checkov.git
-    rev: 3.2.190
-    hooks:
-      - id: checkov
-        files: .+
-        verbose: false
-
-
   - repo: local
     hooks:
 

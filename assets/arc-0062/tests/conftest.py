@@ -76,7 +76,7 @@ def deployer(algorand_client: AlgorandClient) -> AddressAndSigner:
 def circulating_supply_client(
     algod_client: AlgodClient, indexer_client: IndexerClient, deployer: AddressAndSigner
 ) -> CirculatingSupplyClient:
-    config.configure(debug=True)
+    config.configure(debug=False)
 
     client = CirculatingSupplyClient(
         algod_client=algod_client,

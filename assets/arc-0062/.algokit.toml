@@ -33,8 +33,7 @@ test = { commands = [
   'poetry run pytest',
 ], description = 'Run smart contract tests' }
 audit = { commands = [
-  'poetry export --without=dev -o requirements.txt',
-  'poetry run pip-audit -r requirements.txt',
+  'poetry run pip-audit',
 ], description = 'Audit with pip-audit' }
 lint = { commands = [
   'poetry run black --check --diff .',
