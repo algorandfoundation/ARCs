@@ -52,18 +52,26 @@ for file in arc-*.md; do
     fi
 
     # 2. Replace links like [ARC-1](./arc-0001.md) with [ARC-1](/standards/arcs/arc-0001)
-    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]+)\.md\)|(/standards/arcs/arc-000\1)|g' "$file"
+    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]{4})\.md\)|(/standards/arcs/arc-\1)|g' "$file"
     if [[ $? -ne 0 ]]; then
       echo "Failed to update links in $file"
       continue
     fi
 
-    # 3. Handle anchors like [ARC-1](./arc-0001.md#interface-signtxnsopts) -> [ARC-1](/standards/arcs/arc-0001#interface-signtxnsopts)
-    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]+)\.md(\#[a-zA-Z0-9-]+)?\)|(/standards/arcs/arc-000\1\2)|g' "$file"
+    # 3. Replace links like [here](../assets/arc-0062) with [here](https://github.com/algorandfoundation/ARCs/tree/main/assets/arc-0062)
+    sed -i $SED_INLINE -E 's|\(\.\./assets/arc-([0-9]{4})\)|\(https://github.com/algorandfoundation/ARCs/tree/main/assets/arc-\1\)|g' "$file"
+    if [[ $? -ne 0 ]]; then
+      echo "Failed to update asset links in $file"
+      continue
+    fi
+
+    # 3a. Handle anchors like [ARC-1](./arc-0001.md#interface-signtxnsopts) -> [ARC-1](/standards/arcs/arc-0001#interface-signtxnsopts)
+    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]{4})\.md(\#[a-zA-Z0-9_-]+)?\)|(/standards/arcs/arc-\1\2)|g' "$file"
     if [[ $? -ne 0 ]]; then
       echo "Failed to update anchored links in $file"
       continue
     fi
+
 
     # 4. Ensure exactly one blank line between the end of the front matter and the Abstract section
     sed -i $SED_INLINE -E '/^---$/,/^## Abstract$/ { /^\s*$/d; }' "$file"
@@ -116,6 +124,8 @@ sidebar:\\
       echo "Failed to replace '../assets' in $file"
       continue
     fi
+
+
   else
     echo "No markdown files found matching pattern 'arc-*.md'"
   fi
