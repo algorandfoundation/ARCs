@@ -13,7 +13,7 @@ jobs:
   save-pr:
     name: Save PR Number
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Save PR number
         env:
@@ -34,28 +34,28 @@ jobs:
   htmlproofer:
     name: HTMLProofer
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout ARC Repository
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      
+
       - name: Install OpenSSL
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
-    
+
       - name: Install Ruby
         uses: ruby/setup-ruby@0a29871fe2b0200a17a4497bae54fe5df0d973aa
         with:
           ruby-version: 2.6.0
           bundler-cache: true
-        
+
       - name: Build Website
         run: |
           bundle exec jekyll doctor
           bundle exec jekyll build
-      
+
       - name: HTML Proofer
         run: bundle exec htmlproofer ./_site --check-html --check-opengraph --report-missing-names --log-level=:debug --assume-extension --empty-alt-ignore --timeframe=6w --disable-external
-      
+
       - name: DNS Validator
         run: bundle exec github-pages health-check
 
@@ -88,3 +88,27 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           unchecked: 0000
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v4
+
+      # Get a list of files changed in the PR
+      - name: Get list of changed files
+        id: changed_files
+        run: |
+          # Get the list of files changed in the PR and store it in a variable
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD > changed_files.txt
+          # Filter files to only include the ones in ARCs directory and save them to another file
+          grep '^ARCs/' changed_files.txt || echo "No files in ARCs changed" > changed_arcs_files.txt
+
+      # Run the typo check only on changed files in ARCs directory
+      - name: Check Typos
+        if: success() && steps.changed_files.outputs.changed_arcs_files != ''
+        uses: crate-ci/typos@master
+        with:
+          files: $(cat changed_arcs_files.txt)
+        continue-on-error: true # Ensure typos don't fail the job, just display warnings
