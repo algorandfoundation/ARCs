@@ -1,0 +1,5 @@
+#pragma version 10
+
+smart_contracts.circulating_supply.contract.CirculatingSupply.clear_state_program:
+    int 1
+    return
