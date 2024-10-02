@@ -51,8 +51,8 @@ for file in arc-*.md; do
       continue
     fi
 
-    # 2. Replace links like [ARC-1](./arc-0001.md) with [ARC-1](/standards/arcs/arc-0001)
-    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]{4})\.md\)|(/standards/arcs/arc-\1)|g' "$file"
+    # 2. Replace links like [ARC-1](./arc-0001.md) or [ARC-1](arc-0001.md) with [ARC-1](/standards/arcs/arc-0001)
+    sed -i $SED_INLINE -E 's|\(\.?/arc-([0-9]{4})\.md\)|(/standards/arcs/arc-\1)|g' "$file"
     if [[ $? -ne 0 ]]; then
       echo "Failed to update links in $file"
       continue
@@ -65,8 +65,8 @@ for file in arc-*.md; do
       continue
     fi
 
-    # 3a. Handle anchors like [ARC-1](./arc-0001.md#interface-signtxnsopts) -> [ARC-1](/standards/arcs/arc-0001#interface-signtxnsopts)
-    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]{4})\.md(\#[a-zA-Z0-9_-]+)?\)|(/standards/arcs/arc-\1\2)|g' "$file"
+    # 3a. Handle anchors like [ARC-1](./arc-0001.md#interface-signtxnsopts) or [ARC-1](arc-0001.md#interface-signtxnsopts)
+    sed -i $SED_INLINE -E 's|\(\.?/arc-([0-9]{4})\.md(\#[a-zA-Z0-9_-]+)?\)|(/standards/arcs/arc-\1\2)|g' "$file"
     if [[ $? -ne 0 ]]; then
       echo "Failed to update anchored links in $file"
       continue

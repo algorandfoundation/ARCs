@@ -3,7 +3,6 @@
 # Exit if any command fails
 set -e
 
-
 # Define directories and files
 SRC_DIR="_devportal/content"
 TEMPLATE_FILE="_devportal/scripts/index_template.md"
@@ -38,11 +37,14 @@ for file in "$SRC_DIR"/arc-*.md; do
   description=$(extract_field "$file" "description")
   status=$(extract_field "$file" "status")
 
-  # Prepare the formatted output for each ARC in an HTML row
+  # Format the ARC number to be 4 digits only for the href
+  arc_href=$(printf "%04d" "$arc")
+
+  # Prepare the formatted output for each ARC in an HTML row, adding / to hrefs and keeping ARC number as-is elsewhere
   arc_output="<tr>
-    <td><a href=\"/standards/arcs/$arc\" style='display: block; text-decoration: none; color: inherit;'>$arc</a></td>
-    <td><a href=\"/standards/arcs/$arc\" style='display: block; text-decoration: none; color: inherit;'>$title</a></td>
-    <td><a href=\"/standards/arcs/$arc\" style='display: block; text-decoration: none; color: inherit;'>$description</a></td>
+    <td><a href=\"/standards/arcs/$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$arc</a></td>
+    <td><a href=\"/standards/arcs/$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$title</a></td>
+    <td><a href=\"/standards/arcs/$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$description</a></td>
   </tr>"
 
   # Group the ARCs by status
@@ -62,9 +64,12 @@ for file in "$SRC_DIR"/arc-*.md; do
     "Draft")
       draft_arcs+=("$arc_output")
       ;;
-    "Stagnant")
-      stagnant_arcs+=("$arc_output")
-      ;;
+      "Stagnant")
+        stagnant_arcs+=("$arc_output")
+        ;;
+    "Deprecated")
+        deprecated_arcs+=("$arc_output")
+        ;;
     "Review")
       review_arcs+=("$arc_output")
       ;;
@@ -114,6 +119,7 @@ sed '/<ArcsList>/,$d' "$TEMPLATE_FILE" > "$OUTPUT_FILE"
   generate_arcs_table "Final Arcs" "${final_arcs[@]}"
   generate_arcs_table "Last Call Arcs" "${last_call_arcs[@]}"
   generate_arcs_table "Withdrawn Arcs" "${withdrawn_arcs[@]}"
+  generate_arcs_table "Deprecated Arcs" "${deprecated_arcs[@]}"
   generate_arcs_table "Draft Arcs" "${draft_arcs[@]}"
   generate_arcs_table "Stagnant Arcs" "${stagnant_arcs[@]}"
   generate_arcs_table "Review Arcs" "${review_arcs[@]}"
