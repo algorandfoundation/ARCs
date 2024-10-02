@@ -48,6 +48,7 @@ jobs:
           find _devportal/content -type f -exec touch {} \;
 
       # Step 8: Commit and push changes if there are any
+      # Step 8: Commit, merge main, and push changes if there are any
       - name: Commit and push changes
         run: |
           git add -A  # Ensure all changes are staged
@@ -58,8 +59,18 @@ jobs:
             git commit -m "Auto-update ARC content and headers"
             BRANCH_NAME="devportal"
             # Check if the branch exists in the remote
-            if git ls-remote --exit-code origin "$BRANCH_NAME"; then
-              echo "Branch $BRANCH_NAME exists."
+            if git ls-remote --exit-code --heads origin "$BRANCH_NAME"; then
+              echo "Branch $BRANCH_NAME exists on the remote. Checking it out."
+              git checkout "$BRANCH_NAME"
+              echo "Merging main into $BRANCH_NAME."
+              git fetch origin main  # Fetch latest changes from main
+              git merge origin/main  # Merge main into devportal
+
+              # Check if there are conflicts
+              if [[ $? -ne 0 ]]; then
+                echo "Merge conflicts detected. Please resolve them before proceeding."
+                exit 1
+              fi
             else
               echo "Branch $BRANCH_NAME does not exist. Creating it."
               git checkout -b "$BRANCH_NAME"
