@@ -54,15 +54,25 @@ for file in arc-*.md; do
     # 2 Step 1: Remove leading './' from links like ./arc-0001.md or ./arc-0001.md#interface-signtxnsopts
     sed -i $SED_INLINE -E 's|\(\./arc-([0-9]{1,4})\.md(\#[a-zA-Z0-9_-]+)?\)|\(arc-\1.md\2)|g' "$file"
     if [[ $? -ne 0 ]]; then
-      echo "Failed to remove leading './' in links in $file"
-      continue
+    echo "Failed to remove leading './' in links in $file"
+    continue
     fi
 
     # 2 Step 2: Replace all arc-XXXX.md links with /standards/arcs/arc-XXXX
     sed -i $SED_INLINE -E 's|\(arc-([0-9]{1,4})\.md(\#[a-zA-Z0-9_-]+)?\)|\(/standards/arcs/arc-\1\2)|g' "$file"
     if [[ $? -ne 0 ]]; then
-      echo "Failed to update links to /standards/arcs/ in $file"
-      continue
+    echo "Failed to update links to /standards/arcs/ in $file"
+    continue
+    fi
+
+    # Following commands if the file is arc-0000.md
+    if [[ "$file" == "arc-0000.md" ]]; then
+        # Replace [ARC-0](/standards/arcs/arc-0000) with [ARC-0](./arc-0000.md)
+        sed -i $SED_INLINE -E 's|\[ARC-0\]\(/standards/arcs/arc-0000\)|\[ARC-0\]\(./arc-0000.md\)|g' "$file"
+        if [[ $? -ne 0 ]]; then
+        echo "Failed to update the specific link in $file"
+        continue
+        fi
     fi
 
     # 3. Replace links like [here](../assets/arc-0062) with [here](https://github.com/algorandfoundation/ARCs/tree/main/assets/arc-0062)
