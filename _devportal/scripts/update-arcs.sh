@@ -1,13 +1,6 @@
 #!/bin/bash
-
-# Detect the OS and set the appropriate sed inline flag
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS
-  SED_INLINE="''"
-else
   # Linux
   SED_INLINE=""
-fi
 
 # Define source and destination directories
 SRC_DIR="ARCs"
@@ -51,22 +44,22 @@ cd "$DEST_DIR" || { echo "Directory not found: $DEST_DIR"; exit 1; }
 
 for file in arc-*.md; do
   if [[ -f "$file" ]]; then
-    # # 1. Remove the first header (and any preceding blank lines)
+    # 1. Remove the first header (and any preceding blank lines)
     sed -i $SED_INLINE '/^---$/,/^---$/!{/^# /d;}' "$file"
     if [[ $? -ne 0 ]]; then
       echo "Failed to remove header in $file"
       continue
     fi
 
-    # 2. Replace links like [ARC-1](./arc-0001.md) with [ARC-1](../arc-0001)
-    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]+)\.md\)|(\.\./arc-\1)|g' "$file"
+    # 2. Replace links like [ARC-1](./arc-0001.md) with [ARC-1](/standards/arcs/arc-0001)
+    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]+)\.md\)|(/standards/arcs/arc-000\1)|g' "$file"
     if [[ $? -ne 0 ]]; then
       echo "Failed to update links in $file"
       continue
     fi
 
-    # 3. Handle anchors like [ARC-1](./arc-0001.md#interface-signtxnsopts) -> [ARC-1](../arc-0001#interface-signtxnsopts)
-    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]+)\.md(\#[a-zA-Z0-9-]+)?\)|(\.\./arc-\1\2)|g' "$file"
+    # 3. Handle anchors like [ARC-1](./arc-0001.md#interface-signtxnsopts) -> [ARC-1](/standards/arcs/arc-0001#interface-signtxnsopts)
+    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]+)\.md(\#[a-zA-Z0-9-]+)?\)|(/standards/arcs/arc-000\1\2)|g' "$file"
     if [[ $? -ne 0 ]]; then
       echo "Failed to update anchored links in $file"
       continue
@@ -117,6 +110,12 @@ sidebar:\\
       continue
     fi
 
+    #6. Replace '../assets' with 'https://raw.githubusercontent.com/algorandfoundation/ARCs/main/assets'
+    sed -i $SED_INLINE "s|\(\.\./assets\)|https://raw.githubusercontent.com/algorandfoundation/ARCs/main/assets|g" "$file"
+    if [[ $? -ne 0 ]]; then
+      echo "Failed to replace '../assets' in $file"
+      continue
+    fi
   else
     echo "No markdown files found matching pattern 'arc-*.md'"
   fi
