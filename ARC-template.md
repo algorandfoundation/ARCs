@@ -7,6 +7,7 @@ discussions-to: <URL>
 status: Draft
 type: <Standards Track, Meta, or Informational>
 category (*only required for Standards Track): <Interface, or ARC>
+subcategory: <General, Asa, Application, Explorer or Wallet>
 created: <date created on, in ISO 8601 (yyyy-mm-dd) format>
 requires (*optional): <ARC number(s)>
 ---
@@ -15,7 +16,7 @@ This is the suggested template for new ARCs.
 
 Note that an ARC number will be assigned by an editor. When opening a pull request to submit your ARC, please use an abbreviated title in the filename, `arc-draft_title_abbrev.md`.
 
-The title should be 44 characters or less. It should not repeat the ARC number in title, irrespective of the category. 
+The title should be 44 characters or less. It should not repeat the ARC number in title, irrespective of the category.
 
 ## Abstract
 Abstract is a multi-sentence (short paragraph) technical summary. This should be a very terse and human-readable version of the specification section. Someone should be able to read only the abstract to get the gist of what this specification does.

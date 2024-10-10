@@ -1,0 +1,67 @@
+name: Create Dev Portal Content
+
+on:
+  push:
+    branches:
+      - main # Trigger on changes to the main branch
+    paths:
+      - "ARCs/**" # Only run when files in the ARCs directory are changed
+
+jobs:
+  updateDevportal:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set execute permission for the scripts and create the content directory if needed
+      - name: Make scripts executable
+        run: |
+          chmod +x _devportal/scripts/update-arcs.sh
+          chmod +x _devportal/scripts/update-guideline.sh
+          chmod +x _devportal/scripts/update-index.sh
+          mkdir -p _devportal/content
+
+      # Step 3: Set up Git identity
+      - name: Set up Git user
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+
+      # Step 4: Run update-arcs.sh script
+      - name: Run update-arcs.sh
+        run: _devportal/scripts/update-arcs.sh
+
+      # Step 5: Run update-guideline.sh script
+      - name: Run update-guideline.sh
+        run: _devportal/scripts/update-guideline.sh
+
+      # Step 6: Run update-index.sh script
+      - name: Run update-index.sh
+        run: _devportal/scripts/update-index.sh
+
+      # Step 7: Force changes to be recognized by Git
+      - name: Touch modified files
+        run: |
+          find _devportal/content -type f -exec touch {} \;
+
+      # Step 8: Commit and force push changes to devportal
+      - name: Commit and force push changes to devportal
+        run: |
+          git add -A  # Ensure all changes are staged
+          git add -f _devportal/content/*
+          git commit -m "Auto-update ARC content and headers"
+          BRANCH_NAME="devportal"
+
+          # Check if the branch exists on the remote
+          if git ls-remote --exit-code --heads origin "$BRANCH_NAME"; then
+            echo "Branch $BRANCH_NAME exists on the remote. Force pushing updates."
+            git push origin main:"$BRANCH_NAME" --force  # Corrected force push from main to devportal
+          else
+            echo "Branch $BRANCH_NAME does not exist. Creating it and pushing."
+            git push origin main:"$BRANCH_NAME" --force  # Create the branch and force push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
