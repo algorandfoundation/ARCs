@@ -8,6 +8,7 @@ import {
 } from 'libsodium-wrappers-sumo'
 
 import * as crypto from 'crypto'
+import { canonify } from '@truestamp/canonify';
 
 /**
  * Helper types
@@ -193,6 +194,11 @@ export class Arc60WalletApi {
                     throw ERROR_BAD_JSON;
                 }
 
+                const canonifiedClientDataJson = canonify(clientDataJson);
+                if (!canonifiedClientDataJson) {
+                    throw ERROR_BAD_JSON
+                }
+
                 const domain: string = signingData.domain ?? (() => { throw ERROR_MISSING_DOMAIN })()
                 const authenticatorData: Uint8Array = signingData.authenticationData ?? (() => { throw ERROR_MISSING_AUTHENTICATION_DATA })()
 
@@ -207,8 +213,8 @@ export class Arc60WalletApi {
                 if(Buffer.compare(authenticatorData.slice(0, 32), rp_id_hash) !== 0) {
                     throw ERROR_FAILED_DOMAIN_AUTH;
                 }
-
-                const clientDataJsonHash: Buffer = crypto.createHash('sha256').update(JSON.stringify(clientDataJson)).digest();
+                
+                const clientDataJsonHash: Buffer = crypto.createHash('sha256').update(canonifiedClientDataJson).digest();
                 const authenticatorDataHash: Buffer = crypto.createHash('sha256').update(authenticatorData).digest();
 
                 // Concatenate clientDataJsonHash and authenticatorData

@@ -26,6 +26,7 @@
     "typescript": "^5.4.4"
   },
   "dependencies": {
+    "@truestamp/canonify": "^2.1.0",
     "ajv": "^8.12.0",
     "avj": "^0.0.0",
     "js-sha256": "^0.10.1",

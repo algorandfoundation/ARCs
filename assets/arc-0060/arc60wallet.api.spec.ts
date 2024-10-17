@@ -1,6 +1,7 @@
 import { randomBytes, createHash } from "crypto"
 import { Arc60WalletApi, CAIP122, ERROR_BAD_JSON, ERROR_FAILED_DECODING, ERROR_FAILED_DOMAIN_AUTH, ERROR_INVALID_SCOPE, ERROR_INVALID_SIGNER, ERROR_MISSING_AUTHENTICATION_DATA, ERROR_MISSING_DOMAIN, FIDO2ClientData, ScopeType, StdSigData, StdSigDataResponse } from "./arc60wallet.api"
 import { crypto_sign_verify_detached, ready } from "libsodium-wrappers-sumo"
+import { canonify } from "@truestamp/canonify"
 const { AlgorandEncoder } = require('@algorandfoundation/algo-models')
 
 jest.setTimeout(20000)
@@ -142,7 +143,7 @@ describe('ARC60 TEST SUITE', () => {
                 const authenticationData: Uint8Array = new Uint8Array(createHash('sha256').update(caip122Request.domain).digest())
 
                 const signData: StdSigData = {
-                    data: Buffer.from(JSON.stringify(caip122Request)).toString('base64'),
+                    data: Buffer.from(canonify(caip122Request) || '').toString('base64'),
                     signer: publicKey,
                     domain: caip122Request.domain, // should be same as origin / authenticationData
                     // random unique id, to help RP / Client match requests
@@ -154,7 +155,7 @@ describe('ARC60 TEST SUITE', () => {
                 expect(signResponse).toBeDefined()
 
                 // hash of clientDataJson
-                const clientDataJsonHash: Buffer = createHash('sha256').update(JSON.stringify(caip122Request)).digest();
+                const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(caip122Request) || '').digest();
                 const authenticatorDataHash: Buffer = createHash('sha256').update(authenticationData).digest();
 
                 // payload to sign concatenation of clientDataJsonHash || authenticationData
@@ -209,7 +210,7 @@ describe('ARC60 TEST SUITE', () => {
                 const authData: Uint8Array = new Uint8Array(Buffer.concat([rpHash, Buffer.from([flags]), Buffer.from([0, 0, 0, 0])]))
 
                 const signData: StdSigData = {
-                    data: Buffer.from(JSON.stringify(fido2Request)).toString('base64'),
+                    data: Buffer.from(canonify(fido2Request) || '').toString('base64'),
                     signer: publicKey,
                     domain: "webauthn.io", // should be same as origin / authenticationData
                     // random unique id, to help RP / Client match requests
@@ -223,7 +224,7 @@ describe('ARC60 TEST SUITE', () => {
                 // To Verify
 
                 // hash of clientDataJson
-                const clientDataJsonHash: Buffer = createHash('sha256').update(JSON.stringify(fido2Request)).digest();
+                const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(fido2Request) || '').digest();
                 const authenticatorDataHash: Buffer = createHash('sha256').update(authData).digest();
 
                 // payload to sign concatenation of clientDataJsonHash || authData
@@ -248,7 +249,7 @@ describe('ARC60 TEST SUITE', () => {
             const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData: StdSigData = {
-                data: Buffer.from(JSON.stringify(clientDataJson)).toString('base64'),
+                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 domain: "arc60.io", // should be same as origin / authenticationData
                 // random unique id, to help RP / Client match requests
@@ -260,7 +261,7 @@ describe('ARC60 TEST SUITE', () => {
             expect(signResponse).toBeDefined()
 
             // hash of clientDataJson
-            const clientDataJsonHash: Buffer = createHash('sha256').update(JSON.stringify(clientDataJson)).digest();
+            const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(clientDataJson) || '').digest();
             const authenticatorDataHash: Buffer = createHash('sha256').update(authenticationData).digest();
 
             // payload to sign concatenation of clientDataJsonHash || authenticationData
@@ -302,7 +303,7 @@ describe('ARC60 TEST SUITE', () => {
             const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData: StdSigData = {
-                data: Buffer.from(JSON.stringify(clientDataJson)).toString('base64'),
+                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 domain: "<bad domain>", // should be same as origin / authenticationData
                 // random unique id, to help RP / Client match requests
@@ -326,7 +327,7 @@ describe('ARC60 TEST SUITE', () => {
             const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData = {
-                data: Buffer.from(JSON.stringify(clientDataJson)).toString('base64'),
+                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 // random unique id, to help RP / Client match requests
                 requestId: Buffer.from(randomBytes(32)).toString('base64'),
@@ -347,7 +348,7 @@ describe('ARC60 TEST SUITE', () => {
             const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData = {
-                data: Buffer.from(JSON.stringify(clientDataJson)).toString('base64'),
+                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 domain: "arc60.io",
             }
