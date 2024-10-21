@@ -3,7 +3,7 @@ arc: 79
 title: URI scheme, App NoOp call extension
 description: A specification for encoding NoOp Application call Transactions in a URI format.
 author: MG (@emg110)
-discussions-to: 
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/319
 status: Last Call
 last-call-deadline: 2024-10-30
 type: Standards Track
