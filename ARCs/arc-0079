@@ -101,7 +101,7 @@ Note: Here in the second example, the fee is omitted from the URI (due to being 
 
 ## Rationale
 
-Algorand application NoOp method calls cover the majority of application transactions on Algorand and have a wide range of use-cases. For offline or not directly connected implementations of such calls in certain conditions where the runtime knows exactly what application needs to be called and using which arguments and arrays, the base ARC26 standard needed to be extended to support. This ARC provides that extension for ARC-26.
+Algorand application NoOp method calls cover the majority of application transactions on Algorand and have a wide range of use-cases. For offline or not directly connected implementations of such calls in certain conditions where the runtime knows exactly what application needs to be called and using which arguments and arrays, the base ARC-26 standard needed to be extended to support. This ARC provides that extension for ARC-26.
 
 ## Security Considerations
 
