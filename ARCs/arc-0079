@@ -1,0 +1,112 @@
+---
+arc: 79
+title: URI scheme, App NoOp call extension
+description: A specification for encoding NoOp Application call Transactions in a URI format.
+author: MG (@emg110)
+discussions-to: 
+status: Last Call
+last-call-deadline: 2024-10-30
+type: Standards Track
+category: Interface
+sub-category: General
+created: 2024-09-11
+extends: 26
+---
+
+## Abstract
+NoOp calls are Generic application calls to execute the Algorand smart contract ApprovalPrograms.
+
+This URI specification represents an extension to the base Algorand URI encoding standard ([ARC-26](./arc-0026.md)) that specifies encoding of application NoOp transactions into <a href="https://www.rfc-editor.org/rfc/rfc3986">RFC 3986</a> standard URIs.
+
+## Specification
+
+### General format
+
+As in [ARC-26](./arc-0026.md), URIs follow the general format for URIs as set forth in <a href="https://www.rfc-editor.org/rfc/rfc3986">RFC 3986</a>. The path component consists of an Algorand address, and the query component provides additional transaction parameters.
+
+Elements of the query component may contain characters outside the valid range. These are encoded differently depending on their expected character set. The text components (note, xnote) must first be encoded according to UTF-8, and then each octet of the corresponding UTF-8 sequence must be percent-encoded as described in RFC 3986. The binary components (args, refs, etc.) must be encoded with base64url as specified in <a href="https://www.rfc-editor.org/rfc/rfc4648.html#section-5">RFC 4648 section 5</a>.
+
+### ABNF Grammar
+
+```
+algorandurn     = "algorand://" algorandaddress [ "?" noopparams ]
+algorandaddress = *base32
+noopparams      = noopparam [ "&" noopparams ]
+noopparam       = [ typeparam / appparam /  methodparam / argparam / boxparam / assetarrayparam / accountarrayparam / apparrayparam / feeparam / otherparam ]
+typeparam       = "type=appl"
+appparam        = "app=" *digit
+methodparam     = "method=" *qchar
+boxparam        = "box=" *qbase64url
+argparam        = "arg=" (*qchar | *digit)
+feeparam        = "fee=" *digit
+accountparam    = "account=" *qchar
+assetparam      = "asset=" *digit
+noteparam       = (xnote | note)
+xnote           = "xnote=" *qchar
+note            = "note=" *qchar
+otherparam      = qchar *qchar [ "=" *qchar ]
+```
+
+- "qchar" corresponds to valid characters of an RFC 3986 URI query component, excluding the "=" and "&" characters, which this specification takes as separators.
+- "qbase64url" corresponds to valid characters of "base64url" encoding, as defined in <a href="https://www.rfc-editor.org/rfc/rfc4648.html#section-5">RFC 4648 section 5</a>
+- All params from the base [ARC-26](./arc-0026.md) standard, are supported and usable if fit the NoOp application call context (e.g. note)
+- As in the base [ARC-26](./arc-0026.md) standard, the scheme component ("algorand:") is case-insensitive, and implementations must accept any combination of uppercase and lowercase letters. The rest of the URI is case-sensitive, including the query parameter keys.
+
+### Query Keys
+
+- address: Algorand address of transaction sender
+
+- type: fixed to "appl". Used to disambiguate the transaction type from the base [ARC-26](./arc-0026.md) standard and other possible extensions
+
+- app: The first reference is sed to specify the called application (Algorand Smart Contract) ID and is mandatory. extra references are optional and will be used in the Application NoOp call's foreign applications array. 
+
+- method: Specify the full method expression (e.g "example_method(uint64,uint64)void").
+
+- arg: specify args used for calling NoOp method, to be encoded within URI.
+
+- box: Box references to be used in Application NoOp method call box array.
+
+- asset: Asset reference to be used in Application NoOp method call foreign assets array.
+
+- account: Account or nfd address to be used in Application NoOp method call foreign accounts array.
+
+- xnote: As in [ARC-26](./arc-0026.md). A URL-encoded notes field value that must not be modifiable by the user when displayed to users.
+
+- note: As in [ARC-26](./arc-0026.md). A URL-encoded default notes field value that the the user interface may optionally make editable by the user.
+
+- fee: Optional. An optional static fee to set for the transaction in microAlgos.
+
+- (others): optional, for future extensions
+
+### Template URI vs actionable URI
+
+If the URI is constructed for templating only so that other dApps, wallets or protocols could use it by templating the Algorand account, then the account address in URI must be ZeroAddress ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"). Since ZeroAddress cannot initiate any action this approach is considered non-vulnerable and secure.
+
+### Example
+
+Call claim(uint64,uint64)byte[] method on contract 11111111 paying a fee of 10000 micro ALGO from an specific address
+
+```
+algorand://TMTAD6N22HCS2LKH7677L2KFLT3PAQWY6M4JFQFXQS32ECBFC23F57RYX4?app=11111111&method=claim(uint64,uint64)byte[]&arg=20000&arg=474567&asset=45&fee=10000
+```
+
+Call the same claim(uint64,uint64)byte[] method on contract 11111111 paying a default 1000 micro algo fee
+
+```
+algorand://TMTAD6N22HCS2LKH7677L2KFLT3PAQWY6M4JFQFXQS32ECBFC23F57RYX4?app=11111111&method=claim(uint64,uint64)byte[]&arg=20000&arg=474567&asset=45&app=22222222&app=33333333
+```
+
+Note: Here in the second example, the fee is omitted from the URI (due to being set to the minimum 1,000 microAlgos), also two app references have been added to foreign applications array of transaction.
+
+
+## Rationale
+
+Algorand application NoOp method calls cover the majority of application transactions on Algorand and have a wide range of use-cases. For offline or not directly connected implementations of such calls in certain conditions where the runtime knows exactly what application needs to be called and using which arguments and arrays, the base ARC26 standard needed to be extended to support. This ARC provides that extension for ARC-26.
+
+## Security Considerations
+
+None.
+
+## Copyright
+
+Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CCO</a>.
