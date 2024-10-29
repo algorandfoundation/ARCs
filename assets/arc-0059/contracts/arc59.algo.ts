@@ -101,7 +101,7 @@ export class ARC59 extends Contract {
 
     // Determine how much ALGO the receiver needs to claim the asset
     if (receiver.balance < algoNeededToClaim) {
-      info.receiverAlgoNeededForClaim += algoNeededToClaim - receiver.balance;
+      info.receiverAlgoNeededForClaim = algoNeededToClaim - receiver.balance;
     }
 
     // Add mbr and transaction for opting the router in

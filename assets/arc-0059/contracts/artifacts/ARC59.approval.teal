@@ -315,22 +315,16 @@ arc59_getSendAssetInfo:
 
 	// *if2_consequent
 	// contracts/arc59.algo.ts:104
-	// info.receiverAlgoNeededForClaim += algoNeededToClaim - receiver.balance
+	// info.receiverAlgoNeededForClaim = algoNeededToClaim - receiver.balance
 	frame_dig 2 // info: SendAssetInfo
 	store 255 // full array
 	load 255 // full array
 	int 17
-	frame_dig 2 // info: SendAssetInfo
-	store 255 // full array
-	load 255 // full array
-	extract 17 8
-	btoi
 	frame_dig 3 // algoNeededToClaim: uint64
 	frame_dig -1 // receiver: Address
 	acct_params_get AcctBalance
 	pop
 	-
-	+
 	itob
 	replace3
 	frame_bury 2 // info: SendAssetInfo
