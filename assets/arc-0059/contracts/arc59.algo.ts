@@ -17,6 +17,8 @@ type SendAssetInfo = {
   receiverOptedIn: boolean;
   /** The amount of ALGO the receiver would currently need to claim the asset */
   receiverAlgoNeededForClaim: uint64;
+  /** The amount of ALGO the receiver would need if their balance dropped to 0 */
+  receiverAlgoNeededForWorstCaseClaim: uint64;
 };
 
 class ControlledAddress extends Contract {
@@ -90,6 +92,7 @@ export class ARC59 extends Contract {
       routerOptedIn: routerOptedIn,
       receiverOptedIn: receiverOptedIn,
       receiverAlgoNeededForClaim: 0,
+      receiverAlgoNeededForWorstCaseClaim: globals.minBalance + globals.assetOptInMinBalance + globals.minTxnFee,
     };
 
     if (receiverOptedIn) return info;

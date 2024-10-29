@@ -214,11 +214,21 @@ describe('Arc59', () => {
   test('Brand new account getSendAssetInfo', async () => {
     const res = await appClient.arc59GetSendAssetInfo({ asset: assetOne, receiver: algosdk.generateAccount().addr });
 
-    const itxns = res.return![0];
-    const mbr = res.return![1];
+    const [
+      itxns,
+      mbr,
+      routerOptedIn,
+      receiverOptedIn,
+      receiverAlgoNeededForClaim,
+      receiverAlgoNeededForWorstCaseClaim,
+    ] = res.return!;
 
     expect(itxns).toBe(5n);
     expect(mbr).toBe(228_100n);
+    expect(routerOptedIn).toBe(true);
+    expect(receiverOptedIn).toBe(false);
+    expect(receiverAlgoNeededForClaim).toBe(201_000n);
+    expect(receiverAlgoNeededForWorstCaseClaim).toBe(201_000n);
   });
 
   test('Brand new account sendAsset', async () => {
