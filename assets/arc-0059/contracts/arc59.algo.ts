@@ -140,6 +140,19 @@ export class ARC59 extends Contract {
       }
     }
 
+    // If the inbox has extra ALGO, we need to account for that extra ALGO but also account for how much is used to claim the asset
+    if (inbox.balance > inbox.minBalance && info.receiverAlgoNeededForClaim !== 0) {
+      /**
+       * The total amount of ALGO needed up-front by the account when they claim the asset
+       * Add 1 txn for the upfront opt-in, 1 txn for the claim, 2 txns for the ALGO claim
+       */
+      const algoConsumedByClaim = globals.assetOptInMinBalance + (info.itxns + 4) * globals.minTxnFee;
+      const inboxAlgoAvailable = inbox.balance - inbox.minBalance - algoConsumedByClaim;
+      if (inboxAlgoAvailable < info.receiverAlgoNeededForClaim) {
+        info.receiverAlgoNeededForClaim -= inboxAlgoAvailable;
+      }
+    }
+
     return info;
   }
 

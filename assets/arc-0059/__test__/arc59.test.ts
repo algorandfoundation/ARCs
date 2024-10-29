@@ -5,7 +5,11 @@ import algosdk from 'algosdk';
 import { Arc59Client } from '../contracts/clients/Arc59Client';
 
 const fixture = algorandFixture();
-algokit.Config.configure({ populateAppCallResources: true });
+algokit.Config.configure({
+  populateAppCallResources: true,
+  // eslint-disable-next-line no-console
+  logger: { error: () => console.error, debug: () => {}, warn: console.warn, info: () => {}, verbose: () => {} },
+});
 
 /**
  * Send an asset to a receiver using the ARC59 router
@@ -263,6 +267,36 @@ describe('Arc59', () => {
 
     await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand);
 
+    await arc59Claim(appClient, assetOne, receiver.addr, algorand);
+
+    const receiverAssetInfo = await algorand.account.getAssetInformation(receiver.addr, assetOne);
+
+    expect(receiverAssetInfo.balance).toBe(1n);
+  });
+
+  test('two claims from 0-ALGO account', async () => {
+    const { algorand } = fixture;
+    const receiver = algorand.account.random();
+    await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand);
+    await arc59SendAsset(appClient, assetTwo, alice.addr, receiver.addr, algorand);
+
+    await arc59Claim(appClient, assetOne, receiver.addr, algorand);
+    await arc59Claim(appClient, assetTwo, receiver.addr, algorand);
+
+    const receiverAssetInfoOne = await algorand.account.getAssetInformation(receiver.addr, assetOne);
+    const receiverAssetInfoTwo = await algorand.account.getAssetInformation(receiver.addr, assetTwo);
+
+    expect(receiverAssetInfoOne.balance).toBe(1n);
+    expect(receiverAssetInfoTwo.balance).toBe(1n);
+  });
+
+  test('claim from abnormal ALGO balance', async () => {
+    const { algorand } = fixture;
+    const receiver = algorand.account.random();
+
+    await algorand.send.payment({ sender: alice.addr, receiver: receiver.addr, amount: algokit.microAlgos(123_456) });
+
+    await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand);
     await arc59Claim(appClient, assetOne, receiver.addr, algorand);
 
     const receiverAssetInfo = await algorand.account.getAssetInformation(receiver.addr, assetOne);
