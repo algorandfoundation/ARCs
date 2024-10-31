@@ -150,7 +150,9 @@ export class ARC59 extends Contract {
        * Add 1 txn for the upfront opt-in, 1 txn for the claim, 2 txns for the ALGO claim
        */
       const algoConsumedByClaim = globals.assetOptInMinBalance + (info.itxns + 4) * globals.minTxnFee;
-      const inboxAlgoAvailable = inbox.balance - inbox.minBalance - algoConsumedByClaim;
+      let inboxAlgoAvailable = inbox.balance > inbox.minBalance ? inbox.balance - inbox.minBalance : 0;
+      inboxAlgoAvailable = inboxAlgoAvailable > algoConsumedByClaim ? inboxAlgoAvailable - algoConsumedByClaim : 0;
+
       if (inboxAlgoAvailable < info.receiverAlgoNeededForClaim) {
         info.receiverAlgoNeededForClaim -= inboxAlgoAvailable;
       }

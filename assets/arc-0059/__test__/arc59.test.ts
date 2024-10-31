@@ -19,7 +19,6 @@ algokit.Config.configure({
  * @param sender The address of the sender
  * @param receiver The address of the receiver
  * @param algorand The AlgorandClient instance to use to send transactions
- * @param sendAlgoForNewAccount Whether to send 201_000 uALGO to the receiver so they can claim the asset with a 0-ALGO balance
  */
 async function arc59SendAsset(
   appClient: Arc59Client,
@@ -312,5 +311,23 @@ describe('Arc59', () => {
     const receiverAssetInfo = await algorand.account.getAssetInformation(receiver.addr, assetOne);
 
     expect(receiverAssetInfo.balance).toBe(1n);
+  });
+
+  test('arc59GetSendAssetInfo with small amount of ALGO in inbox', async () => {
+    const { algorand } = fixture;
+    const receiver = algorand.account.random();
+
+    await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand);
+    await arc59Claim(appClient, assetOne, receiver.addr, algorand);
+
+    const inbox = (await appClient.arc59GetInbox({ receiver: receiver.addr })).return!;
+
+    await algorand.send.payment({
+      sender: alice.addr,
+      receiver: inbox,
+      amount: algokit.microAlgos(1),
+    });
+
+    await appClient.arc59GetSendAssetInfo({ asset: assetTwo, receiver: receiver.addr });
   });
 });
