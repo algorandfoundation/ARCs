@@ -836,42 +836,6 @@ arc59_sendAsset:
 
 	// *if11_condition
 	// contracts/arc59.algo.ts:199
-	// additionalReceiverFunds !== 0
-	frame_dig -3 // additionalReceiverFunds: uint64
-	int 0
-	!=
-	bz *if11_end
-
-	// *if11_consequent
-	// contracts/arc59.algo.ts:200
-	// sendPayment({
-	//         receiver: inbox,
-	//         amount: additionalReceiverFunds,
-	//       })
-	itxn_begin
-	int pay
-	itxn_field TypeEnum
-
-	// contracts/arc59.algo.ts:201
-	// receiver: inbox
-	frame_dig 1 // inbox: address
-	itxn_field Receiver
-
-	// contracts/arc59.algo.ts:202
-	// amount: additionalReceiverFunds
-	frame_dig -3 // additionalReceiverFunds: uint64
-	itxn_field Amount
-
-	// Fee field not set, defaulting to 0
-	int 0
-	itxn_field Fee
-
-	// Submit inner transaction
-	itxn_submit
-
-*if11_end:
-	// *if12_condition
-	// contracts/arc59.algo.ts:206
 	// !inbox.isOptedInToAsset(axfer.xferAsset)
 	frame_dig 1 // inbox: address
 	frame_dig -1 // axfer: AssetTransferTxn
@@ -880,32 +844,32 @@ arc59_sendAsset:
 	swap
 	pop
 	!
-	bz *if12_end
+	bz *if11_end
 
-	// *if12_consequent
-	// contracts/arc59.algo.ts:207
+	// *if11_consequent
+	// contracts/arc59.algo.ts:200
 	// inboxMbrDelta = globals.assetOptInMinBalance
 	global AssetOptInMinBalance
 	frame_bury 2 // inboxMbrDelta: uint64
 
-	// *if13_condition
-	// contracts/arc59.algo.ts:208
+	// *if12_condition
+	// contracts/arc59.algo.ts:201
 	// !inboxExisted
 	frame_dig 0 // inboxExisted: bool
 	!
-	bz *if13_end
+	bz *if12_end
 
-	// *if13_consequent
-	// contracts/arc59.algo.ts:208
+	// *if12_consequent
+	// contracts/arc59.algo.ts:201
 	// inboxMbrDelta += globals.minBalance
 	frame_dig 2 // inboxMbrDelta: uint64
 	global MinBalance
 	+
 	frame_bury 2 // inboxMbrDelta: uint64
 
-*if13_end:
-	// *if14_condition
-	// contracts/arc59.algo.ts:211
+*if12_end:
+	// *if13_condition
+	// contracts/arc59.algo.ts:204
 	// inbox.balance < inbox.minBalance + inboxMbrDelta
 	frame_dig 1 // inbox: address
 	acct_params_get AcctBalance
@@ -916,10 +880,10 @@ arc59_sendAsset:
 	frame_dig 2 // inboxMbrDelta: uint64
 	+
 	<
-	bz *if14_end
+	bz *if13_end
 
-	// *if14_consequent
-	// contracts/arc59.algo.ts:212
+	// *if13_consequent
+	// contracts/arc59.algo.ts:205
 	// sendPayment({
 	//           receiver: inbox,
 	//           amount: inboxMbrDelta,
@@ -928,12 +892,12 @@ arc59_sendAsset:
 	int pay
 	itxn_field TypeEnum
 
-	// contracts/arc59.algo.ts:213
+	// contracts/arc59.algo.ts:206
 	// receiver: inbox
 	frame_dig 1 // inbox: address
 	itxn_field Receiver
 
-	// contracts/arc59.algo.ts:214
+	// contracts/arc59.algo.ts:207
 	// amount: inboxMbrDelta
 	frame_dig 2 // inboxMbrDelta: uint64
 	itxn_field Amount
@@ -945,8 +909,8 @@ arc59_sendAsset:
 	// Submit inner transaction
 	itxn_submit
 
-*if14_end:
-	// contracts/arc59.algo.ts:219
+*if13_end:
+	// contracts/arc59.algo.ts:212
 	// sendAssetTransfer({
 	//         sender: inbox,
 	//         assetReceiver: inbox,
@@ -957,22 +921,22 @@ arc59_sendAsset:
 	int axfer
 	itxn_field TypeEnum
 
-	// contracts/arc59.algo.ts:220
+	// contracts/arc59.algo.ts:213
 	// sender: inbox
 	frame_dig 1 // inbox: address
 	itxn_field Sender
 
-	// contracts/arc59.algo.ts:221
+	// contracts/arc59.algo.ts:214
 	// assetReceiver: inbox
 	frame_dig 1 // inbox: address
 	itxn_field AssetReceiver
 
-	// contracts/arc59.algo.ts:222
+	// contracts/arc59.algo.ts:215
 	// assetAmount: 0
 	int 0
 	itxn_field AssetAmount
 
-	// contracts/arc59.algo.ts:223
+	// contracts/arc59.algo.ts:216
 	// xferAsset: axfer.xferAsset
 	frame_dig -1 // axfer: AssetTransferTxn
 	gtxns XferAsset
@@ -985,8 +949,8 @@ arc59_sendAsset:
 	// Submit inner transaction
 	itxn_submit
 
-*if12_end:
-	// contracts/arc59.algo.ts:228
+*if11_end:
+	// contracts/arc59.algo.ts:221
 	// sendAssetTransfer({
 	//       assetReceiver: inbox,
 	//       assetAmount: axfer.assetAmount,
@@ -996,18 +960,18 @@ arc59_sendAsset:
 	int axfer
 	itxn_field TypeEnum
 
-	// contracts/arc59.algo.ts:229
+	// contracts/arc59.algo.ts:222
 	// assetReceiver: inbox
 	frame_dig 1 // inbox: address
 	itxn_field AssetReceiver
 
-	// contracts/arc59.algo.ts:230
+	// contracts/arc59.algo.ts:223
 	// assetAmount: axfer.assetAmount
 	frame_dig -1 // axfer: AssetTransferTxn
 	gtxns AssetAmount
 	itxn_field AssetAmount
 
-	// contracts/arc59.algo.ts:231
+	// contracts/arc59.algo.ts:224
 	// xferAsset: axfer.xferAsset
 	frame_dig -1 // axfer: AssetTransferTxn
 	gtxns XferAsset
@@ -1020,6 +984,42 @@ arc59_sendAsset:
 	// Submit inner transaction
 	itxn_submit
 
+	// *if14_condition
+	// contracts/arc59.algo.ts:227
+	// additionalReceiverFunds !== 0
+	frame_dig -3 // additionalReceiverFunds: uint64
+	int 0
+	!=
+	bz *if14_end
+
+	// *if14_consequent
+	// contracts/arc59.algo.ts:228
+	// sendPayment({
+	//         receiver: inbox,
+	//         amount: additionalReceiverFunds,
+	//       })
+	itxn_begin
+	int pay
+	itxn_field TypeEnum
+
+	// contracts/arc59.algo.ts:229
+	// receiver: inbox
+	frame_dig 1 // inbox: address
+	itxn_field Receiver
+
+	// contracts/arc59.algo.ts:230
+	// amount: additionalReceiverFunds
+	frame_dig -3 // additionalReceiverFunds: uint64
+	itxn_field Amount
+
+	// Fee field not set, defaulting to 0
+	int 0
+	itxn_field Fee
+
+	// Submit inner transaction
+	itxn_submit
+
+*if14_end:
 	// contracts/arc59.algo.ts:234
 	// return inbox;
 	frame_dig 1 // inbox: address

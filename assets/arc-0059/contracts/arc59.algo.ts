@@ -196,13 +196,6 @@ export class ARC59 extends Contract {
     const inboxExisted = this.inboxes(receiver).exists;
     const inbox = this.arc59_getOrCreateInbox(receiver);
 
-    if (additionalReceiverFunds !== 0) {
-      sendPayment({
-        receiver: inbox,
-        amount: additionalReceiverFunds,
-      });
-    }
-
     if (!inbox.isOptedInToAsset(axfer.xferAsset)) {
       let inboxMbrDelta = globals.assetOptInMinBalance;
       if (!inboxExisted) inboxMbrDelta += globals.minBalance;
@@ -230,6 +223,13 @@ export class ARC59 extends Contract {
       assetAmount: axfer.assetAmount,
       xferAsset: axfer.xferAsset,
     });
+
+    if (additionalReceiverFunds !== 0) {
+      sendPayment({
+        receiver: inbox,
+        amount: additionalReceiverFunds,
+      });
+    }
 
     return inbox;
   }
