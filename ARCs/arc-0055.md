@@ -1,0 +1,540 @@
+---
+arc: 55
+title: On-Chain storage/transfer for Multisig
+description: A smart contract that stores transactions and signatures for simplified multisignature use on Algorand.
+author: Steve Ferrigno (@nullun)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/254
+status: Final
+type: Standards Track
+category: Interface
+sub-category: Wallet
+created: 2023-10-16
+requires: 4, 28
+---
+
+## Abstract
+
+This ARC proposes the utilization of on-chain smart contracts to facilitate the storage and transfer of Algorand multisignature metadata, transactions, and corresponding signatures for the respective multisignature sub-accounts.
+
+## Motivation
+
+Multisignature (multisig) accounts play a crucial role in enhancing security and control within the Algorand ecosystem. However, the management of multisig accounts often involves intricate off-chain coordination and the distribution of transactions among authorized signers. There exists a pressing need for a more streamlined and simplified approach to multisig utilization, along with an efficient transaction signing workflow.
+
+## Specification
+
+The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL NOT**", "**SHOULD**", "**SHOULD NOT**", "**RECOMMENDED**", "**MAY**", and "**OPTIONAL**" in this document are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.
+
+### ABI
+
+A compliant smart contract, conforming to this ARC, **MUST** implement the following interface:
+
+```json
+{
+  "name": "ARC-55",
+  "desc": "On-Chain Msig App",
+  "methods": [
+    {
+      "name": "arc55_getThreshold",
+      "desc": "Retrieve the signature threshold required for the multisignature to be submitted",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "uint64",
+        "desc": "Multisignature threshold"
+      }
+    },
+    {
+      "name": "arc55_getAdmin",
+      "desc": "Retrieves the admin address, responsible for calling arc55_setup",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "address",
+        "desc": "Admin address"
+      }
+    },
+    {
+      "name": "arc55_nextTransactionGroup",
+      "readonly": true,
+      "args": [],
+      "returns": {
+        "type": "uint64",
+        "desc": "Next expected Transaction Group nonce"
+      }
+    },
+    {
+      "name": "arc55_getTransaction",
+      "desc": "Retrieve a transaction from a given transaction group",
+      "readonly": true,
+      "args": [
+        {
+          "name": "transactionGroup",
+          "type": "uint64",
+          "desc": "Transaction Group nonce"
+        },
+        {
+          "name": "transactionIndex",
+          "type": "uint8",
+          "desc": "Index of transaction within group"
+        }
+      ],
+      "returns": {
+        "type": "byte[]",
+        "desc": "A single transaction at the specified index for the transaction group nonce"
+      }
+    },
+    {
+      "name": "arc55_getSignatures",
+      "desc": "Retrieve a list of signatures for a given transaction group nonce and address",
+      "readonly": true,
+      "args": [
+        {
+          "name": "transactionGroup",
+          "type": "uint64",
+          "desc": "Transaction Group nonce"
+        },
+        {
+          "name": "signer",
+          "type": "address",
+          "desc": "Address you want to retrieve signatures for"
+        }
+      ],
+      "returns": {
+        "type": "byte[64][]",
+        "desc": "Array of signatures"
+      }
+    },
+    {
+      "name": "arc55_getSignerByIndex",
+      "desc": "Find out which address is at this index of the multisignature",
+      "readonly": true,
+      "args": [
+        {
+          "name": "index",
+          "type": "uint64",
+          "desc": "Address at this index of the multisignature"
+        }
+      ],
+      "returns": {
+        "type": "address",
+        "desc": "Address at index"
+      }
+    },
+    {
+      "name": "arc55_isSigner",
+      "desc": "Check if an address is a member of the multisignature",
+      "readonly": true,
+      "args": [
+        {
+          "name": "address",
+          "type": "address",
+          "desc": "Address to check is a signer"
+        }
+      ],
+      "returns": {
+        "type": "bool",
+        "desc": "True if address is a signer"
+      }
+    },
+    {
+      "name": "arc55_mbrSigIncrease",
+      "desc": "Calculate the minimum balance requirement for storing a signature",
+      "readonly": true,
+      "args": [
+        {
+          "name": "signaturesSize",
+          "type": "uint64",
+          "desc": "Size (in bytes) of the signatures to store"
+        }
+      ],
+      "returns": {
+        "type": "uint64",
+        "desc": "Minimum balance requirement increase"
+      }
+    },
+    {
+      "name": "arc55_mbrTxnIncrease",
+      "desc": "Calculate the minimum balance requirement for storing a transaction",
+      "readonly": true,
+      "args": [
+        {
+          "name": "transactionSize",
+          "type": "uint64",
+          "desc": "Size (in bytes) of the transaction to store"
+        }
+      ],
+      "returns": {
+        "type": "uint64",
+        "desc": "Minimum balance requirement increase"
+      }
+    },
+    {
+      "name": "arc55_setup",
+      "desc": "Setup On-Chain Msig App. This can only be called whilst no transaction groups have been created.",
+      "args": [
+        {
+          "name": "threshold",
+          "type": "uint8",
+          "desc": "Initial multisig threshold, must be greater than 0"
+        },
+        {
+          "name": "addresses",
+          "type": "address[]",
+          "desc": "Array of addresses that make up the multisig"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "arc55_newTransactionGroup",
+      "desc": "Generate a new transaction group nonce for holding pending transactions",
+      "args": [],
+      "returns": {
+        "type": "uint64",
+        "desc": "transactionGroup Transaction Group nonce"
+      }
+    },
+    {
+      "name": "arc55_addTransaction",
+      "desc": "Add a transaction to an existing group. Only one transaction should be included per call",
+      "args": [
+        {
+          "name": "costs",
+          "type": "pay",
+          "desc": "Minimum Balance Requirement for associated box storage costs: (2500) + (400 * (9 + transaction.length))"
+        },
+        {
+          "name": "transactionGroup",
+          "type": "uint64",
+          "desc": "Transaction Group nonce"
+        },
+        {
+          "name": "index",
+          "type": "uint8",
+          "desc": "Transaction position within atomic group to add"
+        },
+        {
+          "name": "transaction",
+          "type": "byte[]",
+          "desc": "Transaction to add"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "events": [
+        {
+          "name": "TransactionAdded",
+          "args": [
+            {
+              "name": "transactionGroup",
+              "type": "uint64"
+            },
+            {
+              "name": "transactionIndex",
+              "type": "uint8"
+            }
+          ],
+          "desc": "Emitted when a new transaction is added to a transaction group"
+        }
+      ]
+    },
+    {
+      "name": "arc55_addTransactionContinued",
+      "args": [
+        {
+          "name": "transaction",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "arc55_removeTransaction",
+      "desc": "Remove transaction from the app. The MBR associated with the transaction will be returned to the transaction sender.",
+      "args": [
+        {
+          "name": "transactionGroup",
+          "type": "uint64",
+          "desc": "Transaction Group nonce"
+        },
+        {
+          "name": "index",
+          "type": "uint8",
+          "desc": "Transaction position within atomic group to remove"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "events": [
+        {
+          "name": "TransactionRemoved",
+          "args": [
+            {
+              "name": "transactionGroup",
+              "type": "uint64"
+            },
+            {
+              "name": "transactionIndex",
+              "type": "uint8"
+            }
+          ],
+          "desc": "Emitted when a transaction has been removed from a transaction group"
+        }
+      ]
+    },
+    {
+      "name": "arc55_setSignatures",
+      "desc": "Set signatures for a particular transaction group. Signatures must be included as an array of byte-arrays",
+      "args": [
+        {
+          "name": "costs",
+          "type": "pay",
+          "desc": "Minimum Balance Requirement for associated box storage costs: (2500) + (400 * (40 + signatures.length))"
+        },
+        {
+          "name": "transactionGroup",
+          "type": "uint64",
+          "desc": "Transaction Group nonce"
+        },
+        {
+          "name": "signatures",
+          "type": "byte[64][]",
+          "desc": "Array of signatures"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "events": [
+        {
+          "name": "SignatureSet",
+          "args": [
+            {
+              "name": "transactionGroup",
+              "type": "uint64"
+            },
+            {
+              "name": "signer",
+              "type": "address"
+            }
+          ],
+          "desc": "Emitted when a new signature is added to a transaction group"
+        }
+      ]
+    },
+    {
+      "name": "arc55_clearSignatures",
+      "desc": "Clear signatures for an address. Be aware this only removes it from the current state of the ledger, and indexers will still know and could use your signature",
+      "args": [
+        {
+          "name": "transactionGroup",
+          "type": "uint64",
+          "desc": "Transaction Group nonce"
+        },
+        {
+          "name": "address",
+          "type": "address",
+          "desc": "Address whose signatures to clear"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "events": [
+        {
+          "name": "SignatureSet",
+          "args": [
+            {
+              "name": "transactionGroup",
+              "type": "uint64"
+            },
+            {
+              "name": "signer",
+              "type": "address"
+            }
+          ],
+          "desc": "Emitted when a new signature is added to a transaction group"
+        }
+      ]
+    },
+    {
+      "name": "createApplication",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "TransactionAdded",
+      "args": [
+        {
+          "name": "transactionGroup",
+          "type": "uint64"
+        },
+        {
+          "name": "transactionIndex",
+          "type": "uint8"
+        }
+      ],
+      "desc": "Emitted when a new transaction is added to a transaction group"
+    },
+    {
+      "name": "TransactionRemoved",
+      "args": [
+        {
+          "name": "transactionGroup",
+          "type": "uint64"
+        },
+        {
+          "name": "transactionIndex",
+          "type": "uint8"
+        }
+      ],
+      "desc": "Emitted when a transaction has been removed from a transaction group"
+    },
+    {
+      "name": "SignatureSet",
+      "args": [
+        {
+          "name": "transactionGroup",
+          "type": "uint64"
+        },
+        {
+          "name": "signer",
+          "type": "address"
+        }
+      ],
+      "desc": "Emitted when a new signature is added to a transaction group"
+    },
+    {
+      "name": "SignatureCleared",
+      "args": [
+        {
+          "name": "transactionGroup",
+          "type": "uint64"
+        },
+        {
+          "name": "signer",
+          "type": "address"
+        }
+      ],
+      "desc": "Emitted when a signature has been removed from a transaction group"
+    }
+  ]
+}
+```
+
+### Usage
+
+The deployment of an [ARC-55](./arc-0055.md)-compliant contract is not covered by the ARC and is instead left to the implementer for their own use-case. An internal function `arc55_setAdmin` **SHOULD** be used to initialize an address which will be administering the setup. If left unset, then the admin defaults to the creator address. Once the application exists on-chain it must be setup before it can be used. The ARC-55 admin is responsible for setting up the multisignature metadata using the `arc55_setup(uint8,address[])void` method, and passing in details about the signature threshold and signer accounts that will make up the multisignature address. After successful deployment and configuration, the application ID **SHOULD** be distributed among the involved parties (signers) as a one-time off-chain exchange. The setup process may be called multiple times to correct any changes to the multisignature metadata, as long as no one has created a new transaction group nonce. Once a transaction group nonce has been generated, the metadata is immutable.
+
+Before any transactions or signatures can be stored, a new "transaction group nonce" must be generated using the `arc55_newTransactionGroup()uint64` method. This returns a unique value which **MUST** be used for all further [ARC-55](./arc-0055.md) interactions. This nonce value allows multiple pending transactions groups to be available simultaneously under the same contract deployment. Do note confuse this value with a transaction group hash. It's entirely possible to add multiple non-grouped, or multiple different groups into a single transaction group nonce, up to a limit of 255 transactions. However it's unlikely ARC-55 clients will facilitate this.
+
+Using a transaction group nonce, the admin or any signer **MAY** add transactions one at a time to that transaction group by providing the transaction data and the index of that transaction within the group using `arc55_addTransaction(pay,uint64,uint8,byte[])void`. A mandatory payment transaction **MUST** be included before the application call and will contain any minimum balance requirements as a result of storing the transaction data. When adding transactions the index **MUST** start at 0. Once a transaction has successfully be used or is no longer needed, any signer **MAY** remove the transaction data from the group using the `arc55_removeTransaction(uint64,uint8)void` method. This will result in the minimum balance requirement being freed up and being sent to the transaction sender.
+
+Signers **MAY** provide their signature for a particular transaction group by using the `arc55_setSignatures(pay,uint64,byte[64][])void` method. This requires paying the minimum balance requirement used to store their signature and will be returned to them once their signature is removed. Any signer **MAY** also remove their own or others signatures from the contract using the `arc55_clearSignatures(uint64)void` method, however this may not prevent someone from using that signature. Once a signature has been shared publicly, anyone can use it assuming they meet the signature threshold to submit the transaction.
+
+Once a transaction receives enough signatures to meet the threshold and falls within the valid rounds of the transaction, anyone **MAY** construct the multisignature transaction, by including all the signatures and submitting it to the network. Subsequently, participants **SHOULD** now clear the signatures and transaction data from the contract.
+
+Whilst it's not part of the ARC, an [ARC-55](./arc-0055.md)-compliant contract **MAY** be destroyed once it is no longer needed. The process **SHOULD** be performed by the admin and/or application creator, by first reclaiming any outstanding Algo funds by removing transactions and clearing signatures, which avoids permanently locking Algo on the network. Then issuing the `DeleteApplication` call and closing out the application address. It's important to note that destroying the application does not render the multisignature account inaccessible, as a new deployment with the same multisignature metadata can be configured and used.
+
+Below is a typical expected lifecycle:
+
+ * Creator deploys an ARC-55 compliant smart contract.
+ * Admin performs setup: Setting threshold to 2, and including 2 signer addresses.
+ * Either signer can now generate a new transaction group.
+ * Either signer can add a new transaction to sign to the transaction group, providing the MBR.
+ * Signer 1 provides their signatures to the transaction group, providing their MBR.
+ * Signer 2 provides their signatures to the transaction group, providing their MBR.
+ * Anyone can now submit the transaction to the network.
+ * Either signer can now clear the signatures of each signer, refunding their MBR to each account.
+ * Either signer can remove the transaction since it's now committed to the network, refunding the MBR to the transaction sender.
+
+### Storage
+
+```
+   n = Transaction group nonce (uint64)
+   i = Transaction index within group (uint8)
+addr = signers address (byte[32])
+```
+
+| Type   | Key               | Value   | Description                                                    |
+|--------|-------------------|---------|----------------------------------------------------------------|
+| Global | `arc55_threshold` | uint64  | The multisig signature threshold                               |
+| Global | `arc55_nonce`     | uint64  | The ARC-55 transaction group nonce                             |
+| Global | `arc55_admin`     | Address | The admin responsible for calling `arc55_setup`                |
+| Box    | n+i               | byte[]  | The ith transaction data for the nth transaction group nonce   |
+| Box    | n+addr            | byte[]  | The signatures for the nth transaction group                   |
+| Global | uint8             | Address | The signer address index for the multisig                      |
+| Global | Address           | uint64  | The number of times this signer appears in the multisig        |
+
+Whilst the data can be read directly from the applications storage, there are also read-only method for use with Algod's simulate to retrieve the data. Below is a summary of each piece of data, how and where it's stored, and it's associated method call.
+
+#### Threshold
+
+The threshold is stored in global state of the application as a uint64 value. It's immutable after setup and the first transaction group nonce has been generated.
+
+The associated read-only method is `arc55_getThreshold()uint64`, which will return the signature threshold for the multisignature account.
+
+#### Multisig Signer Addresses
+
+A multisignature address is made up of one or more addresses. The contract stores these addresses in global state twice. Once as the positional index, and a second time to identify how many times they're being used. This allows for simpler on-chain processing within the smart contract to identify 1) if the account is used, and 2) where the account should be used when reconstructing the multisignature.
+
+Their are two associated read-only methods for obtaining and checking multisignature signer addresses. To retrieve a list of index addresses, you **SHOULD** use `arc55_getSignerByIndex(uint64)address`, which will return the signer address at the given multisignature index. This can be done incrementally until you reach the end of the available indexes. To check if an address is a signer for the multisignature account, you **SHOULD** use `arc55_isSigner(address)boolean`, which will return a `true` or `false` value.
+
+#### Transactions
+
+All transactions are stored individually within boxes, where the name of the box are separately identified by their related transaction group nonce. The box names are a concatenation of a uint64 and a uint8, representing the transaction group nonce and transaction index. This allows off-chain services to list all boxes belonging to an application and can quickly group and identify how many transaction groups and transactions are available.
+
+The associated read-only method is `arc55_getTransaction(uint64,uint8)byte[]`, which will return the transaction for a given transaction group nonce and transaction index. Note: To retrieve data larger than 1024 bytes, simulate must be called with `AllowMoreLogging` set to true.
+
+Example
+Group Transaction Nonce: `1` (uint64)
+Transaction Index: `0` (uint8)
+Hex: `000000000000000100`
+Box name: `AAAAAAAAAAEA` (base64)
+
+#### Signatures
+
+Signers store their signatures in a single box per transaction group nonce. Where multiple signatures **MUST** be concatenated together in the same order as the transactions within the group. The box name is made up of the transaction group nonce and the signers public key. Which is later used when removing the signatures, to identify where to refund the minimum balance requirement to.
+
+The associated read-only method is `arc55_getSignatures(uint64,address)byte[64][]`, which will return the signatures for a given transaction group nonce and signer address.
+
+Example
+Group Transaction Nonce: `1` (uint64)
+Signer: `ALICE7Y2JOFGG2VGUC64VINB75PI56O6M2XW233KG2I3AIYJFUD4QMYTJM` (address)
+Hex: `000000000000000102d0227f1a4b8a636aa6a0bdcaa1a1ff5e8ef9de66af6d6f6a3691b023092d07`
+Box name: `AAAAAAAAAAEC0CJ/GkuKY2qmoL3KoaH/Xo753mavbW9qNpGwIwktBw==` (base64)
+
+## Rationale
+
+Establishing individual deployments for distinct user groups, as opposed to relying on a singular instance accessible to all, presents numerous advantages. Initially, this approach facilitates the implementation and expansion of functionalities well beyond the scope initially envisioned by the ARC. It enables the integration of entirely customized smart contracts that adhere to [ARC-55](./arc-0055.md) while avoiding being constrained by it.
+
+Furthermore, in the context of third-party infrastructures, the management of numerous boxes for a singular monolithic application can become increasingly cumbersome over time. In contrast, empowering small groups to create their own multisig applications, they can subscribe exclusively to their unique application ID streamlining the monitoring of it for new transactions and signatures.
+
+### Limitations and Design Decisions
+
+The available transaction size is the most critical limitation within this implementation. For transactions larger than 2048 bytes (the maximum application argument size), additional transactions using the method `arc55_addTransactionContinued(byte[])void` can be used and sent within the same group as the `arc55_addTransaction(pay,uint64,uint8,byte[])void` call. This will allow the storing of up to 4096 bytes per transaction. Note: The minimum balance requirement must be paid in full by the preceding payment transaction of the `addTransaction` call.
+
+This ARC inherently promotes transparency of transactions and signers. If an additional layer of anonymity is required, an extension to this ARC **SHOULD** be proposed, outlining how to store and share encrypted data.
+
+The current design necessitates that all transactions within the group be exclusively signed by the constituents of the multisig account. If a group transaction requires a separate signature from another account or a logicsig, this design does not support it. An extension to this ARC **SHOULD** be considered to address such scenarios.
+
+## Reference Implementation
+
+A TEALScript reference implementation is available at <a href="https://github.com/nullun/arc55-msig-app">`github.com/nullun/arc55-msig-app`</a>. This version has been written as an inheritable class, so can be included on top of an existing project to give you an ARC-55-compliant interface. It is encouraged for others to implement this standard in their preferred smart contract language of choice and even extend the capabilities whilst adhering to the provided ABI specification.
+
+## Security Considerations
+
+This ARC's design solely involves storing existing data structures and does not have the capability to create or use multisignature accounts. Therefore, the security implications are minimal. End users are expected to review each transaction before generating a signature for it. If a smart contract implementing this ARC lacks proper security checks, the worst-case scenario would involve incorrect transactions and invalid signatures being stored on-chain, along with the potential loss of the minimum balance requirement from the application account.
+
+## Copyright
+Copyright and related rights waived via <a href="https://creativecommons.org/publicdomain/zero/1.0/">CCO</a>.
