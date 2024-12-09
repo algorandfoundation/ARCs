@@ -5,7 +5,11 @@ import algosdk from 'algosdk';
 import { Arc59Client } from '../contracts/clients/Arc59Client';
 
 const fixture = algorandFixture();
-algokit.Config.configure({ populateAppCallResources: true });
+algokit.Config.configure({
+  populateAppCallResources: true,
+  // eslint-disable-next-line no-console
+  logger: { error: () => console.error, debug: () => {}, warn: console.warn, info: () => {}, verbose: () => {} },
+});
 
 /**
  * Send an asset to a receiver using the ARC59 router
@@ -15,7 +19,6 @@ algokit.Config.configure({ populateAppCallResources: true });
  * @param sender The address of the sender
  * @param receiver The address of the receiver
  * @param algorand The AlgorandClient instance to use to send transactions
- * @param sendAlgoForNewAccount Whether to send 201_000 uALGO to the receiver so they can claim the asset with a 0-ALGO balance
  */
 async function arc59SendAsset(
   appClient: Arc59Client,
@@ -210,11 +213,21 @@ describe('Arc59', () => {
   test('Brand new account getSendAssetInfo', async () => {
     const res = await appClient.arc59GetSendAssetInfo({ asset: assetOne, receiver: algosdk.generateAccount().addr });
 
-    const itxns = res.return![0];
-    const mbr = res.return![1];
+    const [
+      itxns,
+      mbr,
+      routerOptedIn,
+      receiverOptedIn,
+      receiverAlgoNeededForClaim,
+      receiverAlgoNeededForWorstCaseClaim,
+    ] = res.return!;
 
     expect(itxns).toBe(5n);
     expect(mbr).toBe(228_100n);
+    expect(routerOptedIn).toBe(true);
+    expect(receiverOptedIn).toBe(false);
+    expect(receiverAlgoNeededForClaim).toBe(201_000n);
+    expect(receiverAlgoNeededForWorstCaseClaim).toBe(201_000n);
   });
 
   test('Brand new account sendAsset', async () => {
@@ -268,5 +281,53 @@ describe('Arc59', () => {
     const receiverAssetInfo = await algorand.account.getAssetInformation(receiver.addr, assetOne);
 
     expect(receiverAssetInfo.balance).toBe(1n);
+  });
+
+  test('two claims from 0-ALGO account', async () => {
+    const { algorand } = fixture;
+    const receiver = algorand.account.random();
+    await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand);
+    await arc59SendAsset(appClient, assetTwo, alice.addr, receiver.addr, algorand);
+
+    await arc59Claim(appClient, assetOne, receiver.addr, algorand);
+    await arc59Claim(appClient, assetTwo, receiver.addr, algorand);
+
+    const receiverAssetInfoOne = await algorand.account.getAssetInformation(receiver.addr, assetOne);
+    const receiverAssetInfoTwo = await algorand.account.getAssetInformation(receiver.addr, assetTwo);
+
+    expect(receiverAssetInfoOne.balance).toBe(1n);
+    expect(receiverAssetInfoTwo.balance).toBe(1n);
+  });
+
+  test('claim from abnormal ALGO balance', async () => {
+    const { algorand } = fixture;
+    const receiver = algorand.account.random();
+
+    await algorand.send.payment({ sender: alice.addr, receiver: receiver.addr, amount: algokit.microAlgos(123_456) });
+
+    await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand);
+    await arc59Claim(appClient, assetOne, receiver.addr, algorand);
+
+    const receiverAssetInfo = await algorand.account.getAssetInformation(receiver.addr, assetOne);
+
+    expect(receiverAssetInfo.balance).toBe(1n);
+  });
+
+  test('arc59GetSendAssetInfo with small amount of ALGO in inbox', async () => {
+    const { algorand } = fixture;
+    const receiver = algorand.account.random();
+
+    await arc59SendAsset(appClient, assetOne, alice.addr, receiver.addr, algorand);
+    await arc59Claim(appClient, assetOne, receiver.addr, algorand);
+
+    const inbox = (await appClient.arc59GetInbox({ receiver: receiver.addr })).return!;
+
+    await algorand.send.payment({
+      sender: alice.addr,
+      receiver: inbox,
+      amount: algokit.microAlgos(1),
+    });
+
+    await appClient.arc59GetSendAssetInfo({ asset: assetTwo, receiver: receiver.addr });
   });
 });
