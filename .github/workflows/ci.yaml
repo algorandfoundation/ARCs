@@ -13,7 +13,7 @@ jobs:
   save-pr:
     name: Save PR Number
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Save PR number
         env:
@@ -34,28 +34,28 @@ jobs:
   htmlproofer:
     name: HTMLProofer
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout ARC Repository
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      
+
       - name: Install OpenSSL
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
-    
+
       - name: Install Ruby
         uses: ruby/setup-ruby@0a29871fe2b0200a17a4497bae54fe5df0d973aa
         with:
           ruby-version: 2.6.0
           bundler-cache: true
-        
+
       - name: Build Website
         run: |
           bundle exec jekyll doctor
           bundle exec jekyll build
-      
+
       - name: HTML Proofer
         run: bundle exec htmlproofer ./_site --check-html --check-opengraph --report-missing-names --log-level=:debug --assume-extension --empty-alt-ignore --timeframe=6w --disable-external
-      
+
       - name: DNS Validator
         run: bundle exec github-pages health-check
 
