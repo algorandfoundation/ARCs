@@ -33,7 +33,7 @@ def test_pass_destroy(
     assert smart_asa.unit_name.as_str == ""
     assert smart_asa.name.as_str == ""
     assert smart_asa.url.as_str == ""
-    # assert smart_asa.metadata_hash.as_bytes == bytes(HASH_LEN)  # FIXME: Once default init is enabled
+    assert smart_asa.metadata_hash.as_bytes == b""
     assert encode_address(smart_asa.manager_addr.as_bytes) == ZERO_ADDRESS
     assert encode_address(smart_asa.reserve_addr.as_bytes) == ZERO_ADDRESS
     assert encode_address(smart_asa.freeze_addr.as_bytes) == ZERO_ADDRESS

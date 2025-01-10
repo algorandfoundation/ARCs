@@ -43,7 +43,7 @@ def test_pass_asset_config(
     assert state.unit_name.as_str == ASA_CONFIG.unit_name
     assert state.name.as_str == ASA_CONFIG.name
     assert state.url.as_str == ASA_CONFIG.url
-    # assert state.metadata_hash.as_bytes == ASA_CONFIG.metadata_hash  # FIXME: Once default init is enabled
+    assert state.metadata_hash.as_bytes == ASA_CONFIG.metadata_hash
     assert encode_address(state.manager_addr.as_bytes) == ASA_CONFIG.manager_addr
     assert encode_address(state.reserve_addr.as_bytes) == ASA_CONFIG.reserve_addr
     assert encode_address(state.freeze_addr.as_bytes) == ASA_CONFIG.freeze_addr

@@ -13,7 +13,7 @@ def test_pass_create(smart_asa_client_no_asset: SmartAsaClient) -> None:
     assert state.unit_name.as_str == ""
     assert state.name.as_str == ""
     assert state.url.as_str == ""
-    # assert state.metadata_hash.as_bytes == bytes(HASH_LEN)  # FIXME: Once default init is enabled
+    assert state.metadata_hash.as_bytes == b""
     assert encode_address(state.manager_addr.as_bytes) == ZERO_ADDRESS
     assert encode_address(state.reserve_addr.as_bytes) == ZERO_ADDRESS
     assert encode_address(state.freeze_addr.as_bytes) == ZERO_ADDRESS

@@ -34,7 +34,7 @@ class ASAConfig:
     unit_name: str = "TST"
     name: str = "Test"
     url: str = "ipfs://..."
-    metadata_hash: bytes = bytes(32)
+    metadata_hash: bytes = b"SmartASA"
 
     def dictify(self) -> dict:
         return asdict(self)  # type: ignore
