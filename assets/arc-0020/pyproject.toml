@@ -1,0 +1,77 @@
+[tool.poetry]
+package-mode = false
+name = "arc-20"
+version = "0.1.0"
+description = "Smart ASA reference implementation"
+license = "MIT"
+authors = ["cusma <cosimo.bassi@algorand.foundation>"]
+maintainers = ["cusma <cosimo.bassi@gmail.com>"]
+readme = ["README.md"]
+documentation = "https://arc.algorand.foundation/ARCs/arc-0020"
+# repository = ...
+keywords = ["algorand", "blockchain", "tokenization"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+algokit-utils = "^2.4.0"
+python-dotenv = "^1.0.0"
+algorand-python = "^2.3.0"
+algorand-python-testing = "^0.4.1"
+
+[tool.poetry.group.dev.dependencies]
+algokit-client-generator = "^1.1.7"
+black = {extras = ["d"], version = "24.10.0"}
+ruff = "^0.8.6"
+mypy = "==1.11.2"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+pytest-sugar = "^1.0.0"
+pip-audit = "^2.7.3"
+pre-commit = "^4.0.1"
+puyapy = "^4.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "ANN", "UP", "N", "C4", "B", "A", "YTT", "W", "FBT", "Q", "RUF", "I"]
+ignore = [
+  "ANN101", # no type for self
+  "ANN102", # no type for cls
+]
+unfixable = ["B", "RUF"]
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+suppress-none-returning = true
+
+[tool.pytest.ini_options]
+pythonpath = ["smart_contracts", "tests"]
+
+[tool.mypy]
+files = "smart_contracts/"
+python_version = "3.12"
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+strict_equality = true
+extra_checks = true
+disallow_any_unimported = true
+disallow_any_expr = true
+disallow_any_decorated = true
+disallow_any_explicit = true
+untyped_calls_exclude = ["algosdk"]
+# Remove if you prefer to use mypy's default behavior against 
+# untyped algosdk types
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_any_expr = false
