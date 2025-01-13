@@ -45,7 +45,7 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.3.0
+          ruby-version: 2.6.0
           bundler-cache: true
 
       - name: Build Website
