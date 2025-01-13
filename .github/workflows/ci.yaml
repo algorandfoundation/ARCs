@@ -37,15 +37,15 @@ jobs:
 
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@v4
 
       - name: Install OpenSSL
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
 
       - name: Install Ruby
-        uses: ruby/setup-ruby@0a29871fe2b0200a17a4497bae54fe5df0d973aa
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.0
+          ruby-version: 3.3.0
           bundler-cache: true
 
       - name: Build Website
