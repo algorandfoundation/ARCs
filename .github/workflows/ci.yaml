@@ -123,8 +123,15 @@ jobs:
 
           # Debug: Check git diff output
           echo "Git diff output between $base_branch and $current_branch:"
-          git diff --name-status "origin/$base_branch" || exit 0
+          git diff --name-status "origin/$base_branch" > diff_output.txt
 
+          # Check if any contract.py file exists in the diff
+          if ! grep -q '^A\|^R.*assets/[^/]+/smart_contracts/[^/]+/contract\.py$' diff_output.txt; then
+            echo "No matching 'contract.py' files found in the 'assets' folder. Skipping further processing."
+            echo "path=" >> $GITHUB_ENV
+            echo "::set-output name=path::"
+            exit 0
+          fi
           # Extract added or renamed files matching the pattern
           file=$(git diff --name-status "origin/$base_branch" | grep -E '^A|R' | sed -n 's/^[A-Z][0-9]*[[:space:]]\+\([^[:space:]]\+\)$/\1/p' | grep -E '^assets/[^/]+/smart_contracts/[^/]+/contract\.py$' | head -n 1)
 
