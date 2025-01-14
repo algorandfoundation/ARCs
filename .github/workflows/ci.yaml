@@ -111,34 +111,51 @@ jobs:
 
           # Ensure the base branch is fetched
           echo "Fetching base branch: $base_branch"
-          git fetch origin "$base_branch"
+          git fetch origin "$base_branch" || exit 0
 
           # Ensure we are on the current branch
           echo "Switching to current branch: $current_branch"
-          git checkout "$current_branch"
+          git checkout "$current_branch" || exit 0
 
           # Debug: Check if both branches are available
           echo "Available branches:"
-          git branch -a
+          git branch -a || exit 0
 
           # Debug: Check git diff output
           echo "Git diff output between $base_branch and $current_branch:"
-          git diff --name-status "origin/$base_branch"
+          git diff --name-status "origin/$base_branch" > diff_output.txt
+          cat diff_output.txt
+          contract_file=$(grep -E '^(A|R).*assets/[^/]+/smart_contracts/[^/]+/contract\.py$' diff_output.txt || echo "")
 
+          if [ -z "$contract_file" ]; then
+            echo "No matching 'contract.py' files found in the 'assets' folder. Skipping further processing."
+            echo "path="
+            exit 0
+          fi
+
+          echo "Found a match!"
+          # Check if any contract.py file exists in the diff
+          if ! grep -q '^A\|^R.*assets/[^/]+/smart_contracts/[^/]+/contract\.py$' diff_output.txt; then
+            echo "No matching 'contract.py' files found in the 'assets' folder. Skipping further processing."
+            echo "path=" >> $GITHUB_ENV
+            echo "::set-output name=path::"
+            exit 0
+          fi
           # Extract added or renamed files matching the pattern
           file=$(git diff --name-status "origin/$base_branch" | grep -E '^A|R' | sed -n 's/^[A-Z][0-9]*[[:space:]]\+\([^[:space:]]\+\)$/\1/p' | grep -E '^assets/[^/]+/smart_contracts/[^/]+/contract\.py$' | head -n 1)
 
           # Debug: Check filtered file
           echo "Filtered file: $file"
 
-          # If a match is found, extract the parent directory at the desired level
+          # Handle no matches found
           if [ -n "$file" ]; then
+            # Extract the parent directory at the desired level
             path=$(echo "$file" | sed -E 's|(assets/[^/]+)/.*|\1|')
             echo "Found path: $path"
             echo "path=$path" >> $GITHUB_ENV
             echo "::set-output name=path::$path"
           else
-            echo "No matching files found."
+            echo "No matching files found. Skipping further processing."
             echo "path=" >> $GITHUB_ENV
             echo "::set-output name=path::"
           fi
