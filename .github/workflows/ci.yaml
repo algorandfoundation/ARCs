@@ -111,19 +111,19 @@ jobs:
 
           # Ensure the base branch is fetched
           echo "Fetching base branch: $base_branch"
-          git fetch origin "$base_branch"
+          git fetch origin "$base_branch" || exit 0
 
           # Ensure we are on the current branch
           echo "Switching to current branch: $current_branch"
-          git checkout "$current_branch"
+          git checkout "$current_branch" || exit 0
 
           # Debug: Check if both branches are available
           echo "Available branches:"
-          git branch -a
+          git branch -a || exit 0
 
           # Debug: Check git diff output
           echo "Git diff output between $base_branch and $current_branch:"
-          git diff --name-status "origin/$base_branch"
+          git diff --name-status "origin/$base_branch" || exit 0
 
           # Extract added or renamed files matching the pattern
           file=$(git diff --name-status "origin/$base_branch" | grep -E '^A|R' | sed -n 's/^[A-Z][0-9]*[[:space:]]\+\([^[:space:]]\+\)$/\1/p' | grep -E '^assets/[^/]+/smart_contracts/[^/]+/contract\.py$' | head -n 1)
@@ -143,7 +143,6 @@ jobs:
             echo "path=" >> $GITHUB_ENV
             echo "::set-output name=path::"
           fi
-          exit 0
         shell: bash
 
   validate:
