@@ -124,7 +124,16 @@ jobs:
           # Debug: Check git diff output
           echo "Git diff output between $base_branch and $current_branch:"
           git diff --name-status "origin/$base_branch" > diff_output.txt
+          cat diff_output.txt
+          contract_file=$(grep -E '^(A|R).*assets/[^/]+/smart_contracts/[^/]+/contract\.py$' diff_output.txt || echo "")
 
+          if [ -z "$contract_file" ]; then
+            echo "No matching 'contract.py' files found in the 'assets' folder. Skipping further processing."
+            echo "path="
+            exit 0
+          fi
+
+          echo "Found a match!"
           # Check if any contract.py file exists in the diff
           if ! grep -q '^A\|^R.*assets/[^/]+/smart_contracts/[^/]+/contract\.py$' diff_output.txt; then
             echo "No matching 'contract.py' files found in the 'assets' folder. Skipping further processing."
