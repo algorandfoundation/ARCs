@@ -88,3 +88,85 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           unchecked: 0000
+
+  check-path:
+    name: Check for New Files
+    runs-on: ubuntu-latest
+    outputs:
+      target_path: ${{ steps.check_new_files.outputs.path }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Identify Target Path
+        id: check_new_files
+        run: |
+          # Extract added or renamed files matching the pattern
+          file=$(git diff --name-status origin/main | grep -E '^A|R' | sed -n 's/^[A-Z][0-9]*[[:space:]]\+\([^[:space:]]\+\)$/\1/p' | grep -E '^assets/[^/]+/smart_contracts/[^/]+/contract\.py$' | head -n 1)
+          
+          # If a match is found, extract its parent directory
+          if [ -n "$file" ]; then
+            path=$(dirname "$file")
+            echo "::set-output name=path::$path"
+          else
+            echo "::set-output name=path::"
+          fi
+
+  validate:
+    name: Validate
+    needs: check-path
+    if: needs.check-path.outputs.target_path != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Change Working Directory
+        run: cd ${{ needs.check-path.outputs.target_path }}
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install algokit
+        run: pipx install algokit
+
+      - name: Start LocalNet
+        run: algokit localnet start
+
+      - name: Bootstrap dependencies
+        run: algokit project bootstrap all
+
+      - name: Configure git
+        shell: bash
+        run: |
+          git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
+
+      - name: Audit python dependencies
+        run: algokit project run audit
+
+      - name: Lint and format python dependencies
+        run: algokit project run lint
+
+      - name: Run tests
+        shell: bash
+        run: |
+          set -o pipefail
+          algokit project run test
+
+      - name: Build smart contracts
+        run: algokit project run build
+
+      - name: Scan TEAL files for issues
+        run: algokit project run audit-teal
+
+      - name: Check output stability of the smart contracts
+        run: algokit project run ci-teal-diff
+
+      - name: Run deployer against LocalNet
+        run: algokit project deploy localnet
