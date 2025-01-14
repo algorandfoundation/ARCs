@@ -131,17 +131,19 @@ jobs:
           # Debug: Check filtered file
           echo "Filtered file: $file"
 
-          # If a match is found, extract the parent directory at the desired level
+          # Handle no matches found
           if [ -n "$file" ]; then
+            # Extract the parent directory at the desired level
             path=$(echo "$file" | sed -E 's|(assets/[^/]+)/.*|\1|')
             echo "Found path: $path"
             echo "path=$path" >> $GITHUB_ENV
             echo "::set-output name=path::$path"
           else
-            echo "No matching files found."
+            echo "No matching files found. Skipping further processing."
             echo "path=" >> $GITHUB_ENV
             echo "::set-output name=path::"
           fi
+          exit 0
         shell: bash
 
   validate:
