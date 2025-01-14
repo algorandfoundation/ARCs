@@ -12,14 +12,12 @@
     "fix": "eslint . --ext .ts --fix"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-utils": "^6.0.2",
-    "@algorandfoundation/tealscript": "^0.90.3",
-    "algosdk": "^2.7.0"
+    "@algorandfoundation/algokit-utils": "^8.0.1",
+    "@algorandfoundation/tealscript": "0.90.4",
+    "algosdk": "^3.0.0"
   },
   "devDependencies": {
-    "@algorandfoundation/algokit-client-generator": "^2.3.1",
     "@jest/globals": "^29.5.0",
-    "@joe-p/algokit-generate-component": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.0.0",
     "dotenv": "^16.4.5",

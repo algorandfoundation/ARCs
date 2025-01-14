@@ -17,6 +17,8 @@ type SendAssetInfo = {
   receiverOptedIn: boolean;
   /** The amount of ALGO the receiver would currently need to claim the asset */
   receiverAlgoNeededForClaim: uint64;
+  /** The amount of ALGO the receiver would need if their balance dropped to 0 */
+  receiverAlgoNeededForWorstCaseClaim: uint64;
 };
 
 class ControlledAddress extends Contract {
@@ -90,6 +92,7 @@ export class ARC59 extends Contract {
       routerOptedIn: routerOptedIn,
       receiverOptedIn: receiverOptedIn,
       receiverAlgoNeededForClaim: 0,
+      receiverAlgoNeededForWorstCaseClaim: globals.minBalance + globals.assetOptInMinBalance + globals.minTxnFee,
     };
 
     if (receiverOptedIn) return info;
@@ -98,7 +101,7 @@ export class ARC59 extends Contract {
 
     // Determine how much ALGO the receiver needs to claim the asset
     if (receiver.balance < algoNeededToClaim) {
-      info.receiverAlgoNeededForClaim += algoNeededToClaim - receiver.balance;
+      info.receiverAlgoNeededForClaim = algoNeededToClaim - receiver.balance;
     }
 
     // Add mbr and transaction for opting the router in
@@ -140,6 +143,21 @@ export class ARC59 extends Contract {
       }
     }
 
+    // If the inbox has extra ALGO, we need to account for that extra ALGO but also account for how much is used to claim the asset
+    if (inbox.balance > inbox.minBalance && info.receiverAlgoNeededForClaim !== 0) {
+      /**
+       * The total amount of ALGO needed up-front by the account when they claim the asset
+       * Add 1 txn for the upfront opt-in, 1 txn for the claim, 2 txns for the ALGO claim
+       */
+      const algoConsumedByClaim = globals.assetOptInMinBalance + (info.itxns + 4) * globals.minTxnFee;
+      let inboxAlgoAvailable = inbox.balance > inbox.minBalance ? inbox.balance - inbox.minBalance : 0;
+      inboxAlgoAvailable = inboxAlgoAvailable > algoConsumedByClaim ? inboxAlgoAvailable - algoConsumedByClaim : 0;
+
+      if (inboxAlgoAvailable < info.receiverAlgoNeededForClaim) {
+        info.receiverAlgoNeededForClaim -= inboxAlgoAvailable;
+      }
+    }
+
     return info;
   }
 
@@ -178,13 +196,6 @@ export class ARC59 extends Contract {
     const inboxExisted = this.inboxes(receiver).exists;
     const inbox = this.arc59_getOrCreateInbox(receiver);
 
-    if (additionalReceiverFunds !== 0) {
-      sendPayment({
-        receiver: inbox,
-        amount: additionalReceiverFunds,
-      });
-    }
-
     if (!inbox.isOptedInToAsset(axfer.xferAsset)) {
       let inboxMbrDelta = globals.assetOptInMinBalance;
       if (!inboxExisted) inboxMbrDelta += globals.minBalance;
@@ -212,6 +223,13 @@ export class ARC59 extends Contract {
       assetAmount: axfer.assetAmount,
       xferAsset: axfer.xferAsset,
     });
+
+    if (additionalReceiverFunds !== 0) {
+      sendPayment({
+        receiver: inbox,
+        amount: additionalReceiverFunds,
+      });
+    }
 
     return inbox;
   }
