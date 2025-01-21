@@ -272,7 +272,43 @@ describe('ARC60 TEST SUITE', () => {
             expect(crypto_sign_verify_detached(signResponse.signature, payloadToSign, publicKey)).toBeTruthy()
         })
 
+        it('(OK) Signing AUTH requests without requestId', async () => {
+            const challenge: Uint8Array = new Uint8Array(randomBytes(32))
+            const authenticationData: Uint8Array = new Uint8Array(createHash('sha256').update("arc60.io").digest()) 
+
+            const clientDataJson = {
+                "type": "arc60.create",
+                "challenge": Buffer.from(challenge).toString('base64'),
+                "origin": "https://arc60.io"
+            }
+
+            const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
+
+            const signData: StdSigData = {
+                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
+                signer: publicKey,
+                domain: "arc60.io", // should be same as origin / authenticationData
+                authenticationData: authenticationData
+            }
+
+            const signResponse: StdSigDataResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
+            expect(signResponse).toBeDefined()
+
+            // hash of clientDataJson
+            const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(clientDataJson) || '').digest();
+            const authenticatorDataHash: Buffer = createHash('sha256').update(authenticationData).digest();
+
+            // payload to sign concatenation of clientDataJsonHash || authenticationData
+            const payloadToSign: Buffer = Buffer.concat([clientDataJsonHash, authenticatorDataHash])
+
+            // verify signature 
+            await ready //libsodium
+            expect(crypto_sign_verify_detached(signResponse.signature, payloadToSign, publicKey)).toBeTruthy()
+        })
+
+
         it('(FAILS) Tries to sign with bad json', async () => {
+            const challenge: Uint8Array = new Uint8Array(randomBytes(32))
             const authenticationData: Uint8Array = new Uint8Array(createHash('sha256').update("arc60.io").digest()) 
 
             const clientDataJson = "{ bad json"

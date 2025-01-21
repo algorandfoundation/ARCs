@@ -88,7 +88,7 @@ export interface StdSigData {
     signer: Uint8Array;
     domain: string;
     authenticationData: Uint8Array;
-    requestId: string;
+    requestId?: string;
     hdPath?: HDWalletMetadata;
     signature?: Uint8Array;
 }
