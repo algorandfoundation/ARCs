@@ -47,26 +47,21 @@ jobs:
         run: |
           find _devportal/content -type f -exec touch {} \;
 
-      # Step 8: Commit and push changes if there are any
-      - name: Commit and push changes
+      # Step 8: Commit and force push changes to devportal
+      - name: Commit and force push changes to devportal
         run: |
           git add -A  # Ensure all changes are staged
           git add -f _devportal/content/*
-          echo "Git status before commit:"
-          git status  # Display git status for debugging
-          if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Auto-update ARC content and headers"
-            BRANCH_NAME="devportal"
-            # Check if the branch exists in the remote
-            if git ls-remote --exit-code origin "$BRANCH_NAME"; then
-              echo "Branch $BRANCH_NAME exists."
-            else
-              echo "Branch $BRANCH_NAME does not exist. Creating it."
-              git checkout -b "$BRANCH_NAME"
-            fi
-            git push origin "$BRANCH_NAME"
+          git commit -m "Auto-update ARC content and headers"
+          BRANCH_NAME="devportal"
+
+          # Check if the branch exists on the remote
+          if git ls-remote --exit-code --heads origin "$BRANCH_NAME"; then
+            echo "Branch $BRANCH_NAME exists on the remote. Force pushing updates."
+            git push origin main:"$BRANCH_NAME" --force  # Corrected force push from main to devportal
           else
-            echo "No changes to commit."
+            echo "Branch $BRANCH_NAME does not exist. Creating it and pushing."
+            git push origin main:"$BRANCH_NAME" --force  # Create the branch and force push
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

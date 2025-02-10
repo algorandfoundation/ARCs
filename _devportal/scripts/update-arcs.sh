@@ -1,13 +1,6 @@
 #!/bin/bash
-
-# Detect the OS and set the appropriate sed inline flag
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS
-  SED_INLINE="''"
-else
   # Linux
   SED_INLINE=""
-fi
 
 # Define source and destination directories
 SRC_DIR="ARCs"
@@ -51,26 +44,46 @@ cd "$DEST_DIR" || { echo "Directory not found: $DEST_DIR"; exit 1; }
 
 for file in arc-*.md; do
   if [[ -f "$file" ]]; then
-    # # 1. Remove the first header (and any preceding blank lines)
+    # 1. Remove the first header (and any preceding blank lines)
     sed -i $SED_INLINE '/^---$/,/^---$/!{/^# /d;}' "$file"
     if [[ $? -ne 0 ]]; then
       echo "Failed to remove header in $file"
       continue
     fi
 
-    # 2. Replace links like [ARC-1](./arc-0001.md) with [ARC-1](../arc-0001)
-    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]+)\.md\)|(\.\./arc-\1)|g' "$file"
+    # 2 Step 1: Remove leading './' from links like ./arc-0001.md or ./arc-0001.md#interface-signtxnsopts
+    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]{1,4})\.md(\#[a-zA-Z0-9_-]+)?\)|\(arc-\1.md\2)|g' "$file"
     if [[ $? -ne 0 ]]; then
-      echo "Failed to update links in $file"
+    echo "Failed to remove leading './' in links in $file"
+    continue
+    fi
+
+    # 2 Step 2: Replace all arc-XXXX.md links with /standards/arcs/arc-XXXX
+    sed -i $SED_INLINE -E 's|\(arc-([0-9]{1,4})\.md(\#[a-zA-Z0-9_-]+)?\)|\(/standards/arcs/arc-\1\2)|g' "$file"
+    if [[ $? -ne 0 ]]; then
+    echo "Failed to update links to /standards/arcs/ in $file"
+    continue
+    fi
+
+    # Following commands if the file is arc-0000.md
+    if [[ "$file" == "arc-0000.md" ]]; then
+        # Replace [ARC-0](/standards/arcs/arc-0000) with [ARC-0](./arc-0000.md)
+        sed -i $SED_INLINE -E 's|\[ARC-0\]\(/standards/arcs/arc-0000\)|\[ARC-0\]\(./arc-0000.md\)|g' "$file"
+        if [[ $? -ne 0 ]]; then
+        echo "Failed to update the specific link in $file"
+        continue
+        fi
+    fi
+
+    # 3. Replace links like [here](../assets/arc-0062) with [here](https://github.com/algorandfoundation/ARCs/tree/main/assets/arc-0062)
+    sed -i $SED_INLINE -E 's|\(\.\./assets/arc-([0-9]{4})\)|\(https://github.com/algorandfoundation/ARCs/tree/main/assets/arc-\1\)|g' "$file"
+    if [[ $? -ne 0 ]]; then
+      echo "Failed to update asset links in $file"
       continue
     fi
 
-    # 3. Handle anchors like [ARC-1](./arc-0001.md#interface-signtxnsopts) -> [ARC-1](../arc-0001#interface-signtxnsopts)
-    sed -i $SED_INLINE -E 's|\(\./arc-([0-9]+)\.md(\#[a-zA-Z0-9-]+)?\)|(\.\./arc-\1\2)|g' "$file"
-    if [[ $? -ne 0 ]]; then
-      echo "Failed to update anchored links in $file"
-      continue
-    fi
+
+
 
     # 4. Ensure exactly one blank line between the end of the front matter and the Abstract section
     sed -i $SED_INLINE -E '/^---$/,/^## Abstract$/ { /^\s*$/d; }' "$file"
@@ -116,6 +129,14 @@ sidebar:\\
       echo "Failed to add sidebar information in $file"
       continue
     fi
+
+    #6. Replace '../assets' with 'https://raw.githubusercontent.com/algorandfoundation/ARCs/main/assets'
+    sed -i $SED_INLINE "s|\(\.\./assets\)|https://raw.githubusercontent.com/algorandfoundation/ARCs/main/assets|g" "$file"
+    if [[ $? -ne 0 ]]; then
+      echo "Failed to replace '../assets' in $file"
+      continue
+    fi
+
 
   else
     echo "No markdown files found matching pattern 'arc-*.md'"

@@ -50,6 +50,10 @@ Welcome to the Algorand ARCs (Algorand Request for Comments) page. Here you'll f
     proposal.
   </li>
   <li>
+    <strong>Deprecated</strong> - This ARC has been deprecated.
+    It has been replaced by another one or is now obsolete.
+  </li>
+  <li>
     <strong>Living</strong> - A special status for ARCs that are designed to be
     continually updated and not reach a state of finality.
   </li>
