@@ -1,0 +1,32 @@
+{
+  "name": "partkey-integrity-hash",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "example": "tsx example/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tsconfig/node20": "=20.1.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "algosdk": "^2.6.0",
+    "base64-js": "=1.5.1",
+    "hi-base32": "=0.5.1",
+    "js-sha512": "=0.9.0"
+  }
+}
