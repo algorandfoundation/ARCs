@@ -13,8 +13,9 @@ npm run build
 
 Built files will be in `dist/`
 
-## Run example
+## Run Tests
 
 ```
-npm run example
+npm run test
 ```
+
