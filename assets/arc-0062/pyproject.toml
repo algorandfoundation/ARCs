@@ -7,15 +7,15 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-algokit-utils = "^2.3.0"
+algokit-utils = "^3.0.1"
 python-dotenv = "^1.0.0"
-algorand-python = "^2.1.0"
-algorand-python-testing = "^0.4.1"
+algorand-python = "^2.7.0"
+algorand-python-testing = "^0.5.0"
 
 [tool.poetry.group.dev.dependencies]
-algokit-client-generator = "^1.1.6"
+algokit-client-generator = "^2.0.1b2"
 black = {extras = ["d"], version = "*"}
-ruff = "^0.6.8"
+ruff = "^0.9.7"
 mypy = "*"
 pytest = "*"
 pytest-cov = "*"

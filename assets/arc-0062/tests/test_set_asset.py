@@ -1,50 +1,40 @@
 import pytest
-from algokit_utils import LogicError, OnCompleteCallParameters
-from algokit_utils.beta.account_manager import AddressAndSigner
+from algokit_utils import CommonAppCallParams, LogicError, SigningAccount
 
 from smart_contracts.artifacts.circulating_supply.circulating_supply_client import (
     CirculatingSupplyClient,
+    SetAssetArgs,
 )
 from smart_contracts.errors import std_errors as err
 
 
 def test_pass_set_asset(
     asset_circulating_supply_client: CirculatingSupplyClient,
-    asset_manager: AddressAndSigner,
+    asset_manager: SigningAccount,
     asset: int,
 ) -> None:
-    assert asset == asset_circulating_supply_client.get_global_state().asset_id
+    assert asset == asset_circulating_supply_client.state.global_state.asset_id
 
 
 def test_fail_unauthorized_manager(
     circulating_supply_client: CirculatingSupplyClient,
-    asset_creator: AddressAndSigner,
+    asset_creator: SigningAccount,
     asset: int,
 ) -> None:
     with pytest.raises(LogicError, match=err.UNAUTHORIZED):
-        circulating_supply_client.set_asset(
-            asset_id=asset,
-            transaction_parameters=OnCompleteCallParameters(
-                sender=asset_creator.address,
-                signer=asset_creator.signer,
-                # TODO: Foreign resources should be auto-populated
-                foreign_assets=[asset],
-            ),
+        circulating_supply_client.send.set_asset(
+            args=SetAssetArgs(asset_id=asset),
+            params=CommonAppCallParams(sender=asset_creator.address),
         )
 
 
 def test_fail_unauthorized_already_set(
     asset_circulating_supply_client: CirculatingSupplyClient,
-    asset_manager: AddressAndSigner,
+    asset_manager: SigningAccount,
     asset: int,
 ) -> None:
     with pytest.raises(LogicError, match=err.UNAUTHORIZED):
-        asset_circulating_supply_client.set_asset(
-            asset_id=asset,
-            transaction_parameters=OnCompleteCallParameters(
-                sender=asset_manager.address,
-                signer=asset_manager.signer,
-                # TODO: Foreign resources should be auto-populated
-                foreign_assets=[asset],
-            ),
+        asset_circulating_supply_client.send.set_asset(
+            args=SetAssetArgs(asset_id=asset),
+            params=CommonAppCallParams(sender=asset_manager.address),
         )

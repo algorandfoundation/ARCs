@@ -1,0 +1,25 @@
+{
+  "version": 3,
+  "sources": [],
+  "mappings": ";;;",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "algopy.arc4.ARC4Contract.clear_state_program",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "pushint 1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "3": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}
