@@ -19,11 +19,12 @@ from smart_contracts.artifacts.circulating_supply.circulating_supply_client impo
 )
 
 INITIAL_FUNDS: Final[AlgoAmount] = AlgoAmount.from_algo(100)
-ASA_TOTAL = 1000
-RESERVE_BALANCE = 420
-NOT_CIRCULATING_BALANCE_1 = 69
-NOT_CIRCULATING_BALANCE_2 = 42
-NOT_CIRCULATING_BALANCE_3 = 4
+ASA_TOTAL: Final[int] = 1000
+RESERVE_BALANCE: Final[int] = 420
+NOT_CIRCULATING_BALANCE_1: Final[int] = 69
+NOT_CIRCULATING_BALANCE_2: Final[int] = 42
+NOT_CIRCULATING_BALANCE_3: Final[int] = 4
+APP_URI: Final[str] = "algorand://app/"
 
 
 @pytest.fixture(scope="session")
@@ -132,6 +133,7 @@ def asset(
     asset_creator: SigningAccount,
     asset_manager: SigningAccount,
     asset_reserve: SigningAccount,
+    circulating_supply_client: CirculatingSupplyClient,
 ) -> int:
     return algorand.send.asset_create(
         AssetCreateParams(
@@ -140,6 +142,7 @@ def asset(
             total=ASA_TOTAL,
             manager=asset_manager.address,
             reserve=asset_reserve.address,
+            url=APP_URI + str(circulating_supply_client.app_id),
         )
     ).asset_id
 
