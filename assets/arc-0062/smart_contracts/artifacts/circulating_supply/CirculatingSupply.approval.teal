@@ -1,75 +1,69 @@
 #pragma version 10
+#pragma typetrack false
 
-smart_contracts.circulating_supply.contract.CirculatingSupply.approval_program:
+// smart_contracts.circulating_supply.contract.CirculatingSupply.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0 1 32
+    bytecblock "asset_id" "burned" "locked" "generic"
     txn ApplicationID
-    bnz main_entrypoint@2
-    callsub __init__
+    bnz main_after_if_else@2
+    // smart_contracts/circulating_supply/contract.py:24-25
+    // # Global State
+    // self.asset_id = UInt64()
+    bytec_0 // "asset_id"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/circulating_supply/contract.py:27
+    // Address(), key=cfg.NOT_CIRCULATING_LABEL_1
+    bytec_1 // "burned"
+    global ZeroAddress
+    // smart_contracts/circulating_supply/contract.py:26-28
+    // self.not_circulating_label_1 = GlobalState(
+    //     Address(), key=cfg.NOT_CIRCULATING_LABEL_1
+    // )
+    app_global_put
+    // smart_contracts/circulating_supply/contract.py:30
+    // Address(), key=cfg.NOT_CIRCULATING_LABEL_2
+    bytec_2 // "locked"
+    global ZeroAddress
+    // smart_contracts/circulating_supply/contract.py:29-31
+    // self.not_circulating_label_2 = GlobalState(
+    //     Address(), key=cfg.NOT_CIRCULATING_LABEL_2
+    // )
+    app_global_put
+    // smart_contracts/circulating_supply/contract.py:33
+    // Address(), key=cfg.NOT_CIRCULATING_LABEL_3
+    bytec_3 // "generic"
+    global ZeroAddress
+    // smart_contracts/circulating_supply/contract.py:32-34
+    // self.not_circulating_label_3 = GlobalState(
+    //     Address(), key=cfg.NOT_CIRCULATING_LABEL_3
+    // )
+    app_global_put
 
-main_entrypoint@2:
-    callsub __puya_arc4_router__
+main_after_if_else@2:
+    // smart_contracts/circulating_supply/contract.py:20
+    // class CirculatingSupply(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@8
+    pushbytess 0x709b80a8 0x0b62c728 0x5cc2c535 // method "set_asset(uint64)void", method "set_not_circulating_address(address,string)void", method "arc62_get_circulating_supply(uint64)uint64"
+    txna ApplicationArgs 0
+    match main_set_asset_route@5 main_set_not_circulating_address_route@6 main_arc62_get_circulating_supply_route@7
+
+main_after_if_else@10:
+    // smart_contracts/circulating_supply/contract.py:20
+    // class CirculatingSupply(ARC4Contract):
+    intc_0 // 0
     return
 
-
-// smart_contracts.circulating_supply.contract.CirculatingSupply.__puya_arc4_router__() -> uint64:
-__puya_arc4_router__:
-    // smart_contracts/circulating_supply/contract.py:20
-    // class CirculatingSupply(ARC4Contract):
-    proto 0 1
-    txn NumAppArgs
-    bz __puya_arc4_router___bare_routing@7
-    method "set_asset(uint64)void"
-    method "set_not_circulating_address(address,string)void"
-    method "arc62_get_circulating_supply(uint64)uint64"
-    txna ApplicationArgs 0
-    match __puya_arc4_router___set_asset_route@2 __puya_arc4_router___set_not_circulating_address_route@3 __puya_arc4_router___arc62_get_circulating_supply_route@4
-    int 0
-    retsub
-
-__puya_arc4_router___set_asset_route@2:
-    // smart_contracts/circulating_supply/contract.py:36
-    // @abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is NoOp
-    txn ApplicationID
-    assert // is not creating
-    // smart_contracts/circulating_supply/contract.py:20
-    // class CirculatingSupply(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
-    // smart_contracts/circulating_supply/contract.py:36
-    // @abimethod()
-    callsub set_asset
-    int 1
-    retsub
-
-__puya_arc4_router___set_not_circulating_address_route@3:
-    // smart_contracts/circulating_supply/contract.py:50
-    // @abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is NoOp
-    txn ApplicationID
-    assert // is not creating
-    // smart_contracts/circulating_supply/contract.py:20
-    // class CirculatingSupply(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    extract 2 0
-    // smart_contracts/circulating_supply/contract.py:50
-    // @abimethod()
-    callsub set_not_circulating_address
-    int 1
-    retsub
-
-__puya_arc4_router___arc62_get_circulating_supply_route@4:
+main_arc62_get_circulating_supply_route@7:
     // smart_contracts/circulating_supply/contract.py:74
     // @abimethod(readonly=True)
     txn OnCompletion
     !
-    assert // OnCompletion is NoOp
+    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // is not creating
+    assert // can only call when not creating
     // smart_contracts/circulating_supply/contract.py:20
     // class CirculatingSupply(ARC4Contract):
     txna ApplicationArgs 1
@@ -78,29 +72,60 @@ __puya_arc4_router___arc62_get_circulating_supply_route@4:
     // @abimethod(readonly=True)
     callsub arc62_get_circulating_supply
     itob
-    byte 0x151f7c75
+    pushbytes 0x151f7c75
     swap
     concat
     log
-    int 1
-    retsub
+    intc_1 // 1
+    return
 
-__puya_arc4_router___bare_routing@7:
+main_set_not_circulating_address_route@6:
+    // smart_contracts/circulating_supply/contract.py:50
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/circulating_supply/contract.py:20
+    // class CirculatingSupply(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    extract 2 0
+    // smart_contracts/circulating_supply/contract.py:50
+    // @abimethod()
+    callsub set_not_circulating_address
+    intc_1 // 1
+    return
+
+main_set_asset_route@5:
+    // smart_contracts/circulating_supply/contract.py:36
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/circulating_supply/contract.py:20
+    // class CirculatingSupply(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // smart_contracts/circulating_supply/contract.py:36
+    // @abimethod()
+    callsub set_asset
+    intc_1 // 1
+    return
+
+main_bare_routing@8:
     // smart_contracts/circulating_supply/contract.py:20
     // class CirculatingSupply(ARC4Contract):
     txn OnCompletion
-    bnz __puya_arc4_router___after_if_else@11
+    bnz main_after_if_else@10
     txn ApplicationID
     !
-    assert // is creating
-    int 1
-    retsub
-
-__puya_arc4_router___after_if_else@11:
-    // smart_contracts/circulating_supply/contract.py:20
-    // class CirculatingSupply(ARC4Contract):
-    int 0
-    retsub
+    assert // can only call when creating
+    intc_1 // 1
+    return
 
 
 // smart_contracts.circulating_supply.contract.CirculatingSupply.set_asset(asset_id: uint64) -> void:
@@ -118,16 +143,12 @@ set_asset:
     assert // asset exists
     ==
     bz set_asset_bool_false@3
-    int 0
-    byte "asset_id"
+    intc_0 // 0
+    bytec_0 // "asset_id"
     app_global_get_ex
     assert // check self.asset_id exists
     bnz set_asset_bool_false@3
-    int 1
-    b set_asset_bool_merge@4
-
-set_asset_bool_false@3:
-    int 0
+    intc_1 // 1
 
 set_asset_bool_merge@4:
     // smart_contracts/circulating_supply/contract.py:45-46
@@ -137,10 +158,14 @@ set_asset_bool_merge@4:
     // smart_contracts/circulating_supply/contract.py:47-48
     // # Effects
     // self.asset_id = asset_id
-    byte "asset_id"
+    bytec_0 // "asset_id"
     frame_dig -1
     app_global_put
     retsub
+
+set_asset_bool_false@3:
+    intc_0 // 0
+    b set_asset_bool_merge@4
 
 
 // smart_contracts.circulating_supply.contract.CirculatingSupply.set_not_circulating_address(address: bytes, label: bytes) -> void:
@@ -151,26 +176,24 @@ set_not_circulating_address:
     proto 2 0
     // smart_contracts/circulating_supply/contract.py:59
     // asset = Asset(self.asset_id)
-    int 0
-    byte "asset_id"
+    intc_0 // 0
+    bytec_0 // "asset_id"
     app_global_get_ex
     assert // check self.asset_id exists
     // smart_contracts/circulating_supply/contract.py:60-61
     // # Preconditions
     // assert Txn.sender == asset.manager, err.UNAUTHORIZED
     txn Sender
-    swap
-    dup
+    dig 1
     asset_params_get AssetManager
     assert // asset exists
-    uncover 2
     ==
     assert // Unauthorized
     // smart_contracts/circulating_supply/contract.py:62
     // assert Account(address.bytes).is_opted_in(asset), err.NOT_OPTED_IN
     frame_dig -2
     len
-    int 32
+    intc_2 // 32
     ==
     assert // Address length is 32 bytes
     frame_dig -2
@@ -180,13 +203,13 @@ set_not_circulating_address:
     assert // Not Opted-In
     // smart_contracts/circulating_supply/contract.py:65
     // case cfg.NOT_CIRCULATING_LABEL_1:
-    byte "burned"
+    bytec_1 // "burned"
     // smart_contracts/circulating_supply/contract.py:67
     // case cfg.NOT_CIRCULATING_LABEL_2:
-    byte "locked"
+    bytec_2 // "locked"
     // smart_contracts/circulating_supply/contract.py:69
     // case cfg.NOT_CIRCULATING_LABEL_3:
-    byte "generic"
+    bytec_3 // "generic"
     // smart_contracts/circulating_supply/contract.py:63-72
     // # Effects
     // match label:
@@ -204,30 +227,28 @@ set_not_circulating_address:
     // assert False, err.INVALID_LABEL
     err // Invalid Label
 
-set_not_circulating_address_switch_case_0@1:
-    // smart_contracts/circulating_supply/contract.py:66
-    // self.not_circulating_label_1.value = address
-    byte "burned"
+set_not_circulating_address_switch_case_2@3:
+    // smart_contracts/circulating_supply/contract.py:70
+    // self.not_circulating_label_3.value = address
+    bytec_3 // "generic"
     frame_dig -2
     app_global_put
-    b set_not_circulating_address_switch_case_next@5
+    retsub
 
 set_not_circulating_address_switch_case_1@2:
     // smart_contracts/circulating_supply/contract.py:68
     // self.not_circulating_label_2.value = address
-    byte "locked"
+    bytec_2 // "locked"
     frame_dig -2
     app_global_put
-    b set_not_circulating_address_switch_case_next@5
+    retsub
 
-set_not_circulating_address_switch_case_2@3:
-    // smart_contracts/circulating_supply/contract.py:70
-    // self.not_circulating_label_3.value = address
-    byte "generic"
+set_not_circulating_address_switch_case_0@1:
+    // smart_contracts/circulating_supply/contract.py:66
+    // self.not_circulating_label_1.value = address
+    bytec_1 // "burned"
     frame_dig -2
     app_global_put
-
-set_not_circulating_address_switch_case_next@5:
     retsub
 
 
@@ -237,52 +258,52 @@ arc62_get_circulating_supply:
     // @abimethod(readonly=True)
     // def arc62_get_circulating_supply(self, asset_id: UInt64) -> UInt64:
     proto 1 1
-    byte ""
+    pushbytes ""
     dupn 2
     // smart_contracts/circulating_supply/contract.py:86
     // not_circulating_1 = Account(self.not_circulating_label_1.value.bytes)
-    int 0
-    byte "burned"
+    intc_0 // 0
+    bytec_1 // "burned"
     app_global_get_ex
     swap
     dup
     uncover 2
     assert // check self.not_circulating_label_1 exists
     len
-    int 32
+    intc_2 // 32
     ==
     assert // Address length is 32 bytes
     // smart_contracts/circulating_supply/contract.py:87
     // not_circulating_2 = Account(self.not_circulating_label_2.value.bytes)
-    int 0
-    byte "locked"
+    intc_0 // 0
+    bytec_2 // "locked"
     app_global_get_ex
     swap
     dup
     uncover 2
     assert // check self.not_circulating_label_2 exists
     len
-    int 32
+    intc_2 // 32
     ==
     assert // Address length is 32 bytes
     // smart_contracts/circulating_supply/contract.py:88
     // not_circulating_3 = Account(self.not_circulating_label_3.value.bytes)
-    int 0
-    byte "generic"
+    intc_0 // 0
+    bytec_3 // "generic"
     app_global_get_ex
     swap
     dup
     uncover 2
     assert // check self.not_circulating_label_3 exists
     len
-    int 32
+    intc_2 // 32
     ==
     assert // Address length is 32 bytes
     // smart_contracts/circulating_supply/contract.py:89-90
     // # Preconditions
     // assert asset_id == self.asset_id, err.INVALID_ASSET_ID
-    int 0
-    byte "asset_id"
+    intc_0 // 0
+    bytec_0 // "asset_id"
     app_global_get_ex
     assert // check self.asset_id exists
     frame_dig -1
@@ -312,19 +333,7 @@ arc62_get_circulating_supply:
 arc62_get_circulating_supply_ternary_true@2:
     // smart_contracts/circulating_supply/contract.py:93
     // UInt64(0)
-    int 0
-    frame_bury 2
-    b arc62_get_circulating_supply_ternary_merge@4
-
-arc62_get_circulating_supply_ternary_false@3:
-    // smart_contracts/circulating_supply/contract.py:96
-    // else asset.balance(asset.reserve)
-    frame_dig -1
-    asset_params_get AssetReserve
-    assert // asset exists
-    frame_dig -1
-    asset_holding_get AssetBalance
-    assert // account opted into asset
+    intc_0 // 0
     frame_bury 2
 
 arc62_get_circulating_supply_ternary_merge@4:
@@ -348,17 +357,7 @@ arc62_get_circulating_supply_ternary_merge@4:
 arc62_get_circulating_supply_ternary_true@6:
     // smart_contracts/circulating_supply/contract.py:99
     // UInt64(0)
-    int 0
-    frame_bury 0
-    b arc62_get_circulating_supply_ternary_merge@8
-
-arc62_get_circulating_supply_ternary_false@7:
-    // smart_contracts/circulating_supply/contract.py:102
-    // else asset.balance(not_circulating_1)
-    frame_dig 3
-    frame_dig -1
-    asset_holding_get AssetBalance
-    assert // account opted into asset
+    intc_0 // 0
     frame_bury 0
 
 arc62_get_circulating_supply_ternary_merge@8:
@@ -382,17 +381,7 @@ arc62_get_circulating_supply_ternary_merge@8:
 arc62_get_circulating_supply_ternary_true@10:
     // smart_contracts/circulating_supply/contract.py:105
     // UInt64(0)
-    int 0
-    frame_bury 1
-    b arc62_get_circulating_supply_ternary_merge@12
-
-arc62_get_circulating_supply_ternary_false@11:
-    // smart_contracts/circulating_supply/contract.py:108
-    // else asset.balance(not_circulating_2)
-    frame_dig 4
-    frame_dig -1
-    asset_holding_get AssetBalance
-    assert // account opted into asset
+    intc_0 // 0
     frame_bury 1
 
 arc62_get_circulating_supply_ternary_merge@12:
@@ -416,16 +405,7 @@ arc62_get_circulating_supply_ternary_merge@12:
 arc62_get_circulating_supply_ternary_true@14:
     // smart_contracts/circulating_supply/contract.py:111
     // UInt64(0)
-    int 0
-    b arc62_get_circulating_supply_ternary_merge@16
-
-arc62_get_circulating_supply_ternary_false@15:
-    // smart_contracts/circulating_supply/contract.py:114
-    // else asset.balance(not_circulating_3)
-    frame_dig 5
-    frame_dig -1
-    asset_holding_get AssetBalance
-    assert // account opted into asset
+    intc_0 // 0
 
 arc62_get_circulating_supply_ternary_merge@16:
     // smart_contracts/circulating_supply/contract.py:117
@@ -470,43 +450,43 @@ arc62_get_circulating_supply_ternary_merge@16:
     frame_bury 0
     retsub
 
+arc62_get_circulating_supply_ternary_false@15:
+    // smart_contracts/circulating_supply/contract.py:114
+    // else asset.balance(not_circulating_3)
+    frame_dig 5
+    frame_dig -1
+    asset_holding_get AssetBalance
+    assert // account opted into asset
+    b arc62_get_circulating_supply_ternary_merge@16
 
-// smart_contracts.circulating_supply.contract.CirculatingSupply.__init__() -> void:
-__init__:
-    // smart_contracts/circulating_supply/contract.py:23
-    // def __init__(self) -> None:
-    proto 0 0
-    // smart_contracts/circulating_supply/contract.py:24-25
-    // # Global State
-    // self.asset_id = UInt64()
-    byte "asset_id"
-    int 0
-    app_global_put
-    // smart_contracts/circulating_supply/contract.py:27
-    // Address(), key=cfg.NOT_CIRCULATING_LABEL_1
-    byte "burned"
-    global ZeroAddress
-    // smart_contracts/circulating_supply/contract.py:26-28
-    // self.not_circulating_label_1 = GlobalState(
-    //     Address(), key=cfg.NOT_CIRCULATING_LABEL_1
-    // )
-    app_global_put
-    // smart_contracts/circulating_supply/contract.py:30
-    // Address(), key=cfg.NOT_CIRCULATING_LABEL_2
-    byte "locked"
-    global ZeroAddress
-    // smart_contracts/circulating_supply/contract.py:29-31
-    // self.not_circulating_label_2 = GlobalState(
-    //     Address(), key=cfg.NOT_CIRCULATING_LABEL_2
-    // )
-    app_global_put
-    // smart_contracts/circulating_supply/contract.py:33
-    // Address(), key=cfg.NOT_CIRCULATING_LABEL_3
-    byte "generic"
-    global ZeroAddress
-    // smart_contracts/circulating_supply/contract.py:32-34
-    // self.not_circulating_label_3 = GlobalState(
-    //     Address(), key=cfg.NOT_CIRCULATING_LABEL_3
-    // )
-    app_global_put
-    retsub
+arc62_get_circulating_supply_ternary_false@11:
+    // smart_contracts/circulating_supply/contract.py:108
+    // else asset.balance(not_circulating_2)
+    frame_dig 4
+    frame_dig -1
+    asset_holding_get AssetBalance
+    assert // account opted into asset
+    frame_bury 1
+    b arc62_get_circulating_supply_ternary_merge@12
+
+arc62_get_circulating_supply_ternary_false@7:
+    // smart_contracts/circulating_supply/contract.py:102
+    // else asset.balance(not_circulating_1)
+    frame_dig 3
+    frame_dig -1
+    asset_holding_get AssetBalance
+    assert // account opted into asset
+    frame_bury 0
+    b arc62_get_circulating_supply_ternary_merge@8
+
+arc62_get_circulating_supply_ternary_false@3:
+    // smart_contracts/circulating_supply/contract.py:96
+    // else asset.balance(asset.reserve)
+    frame_dig -1
+    asset_params_get AssetReserve
+    assert // asset exists
+    frame_dig -1
+    asset_holding_get AssetBalance
+    assert // account opted into asset
+    frame_bury 2
+    b arc62_get_circulating_supply_ternary_merge@4

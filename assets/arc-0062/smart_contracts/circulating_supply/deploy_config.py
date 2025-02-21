@@ -1,30 +1,24 @@
 import logging
 
 import algokit_utils
-from algosdk.v2client.algod import AlgodClient
-from algosdk.v2client.indexer import IndexerClient
 
 logger = logging.getLogger(__name__)
 
 
 # define deployment behaviour based on supplied app spec
-def deploy(
-    algod_client: AlgodClient,
-    indexer_client: IndexerClient,
-    app_spec: algokit_utils.ApplicationSpecification,
-    deployer: algokit_utils.Account,
-) -> None:
+def deploy() -> None:
     from smart_contracts.artifacts.circulating_supply.circulating_supply_client import (
-        CirculatingSupplyClient,
+        CirculatingSupplyFactory,
     )
 
-    app_client = CirculatingSupplyClient(
-        algod_client,
-        creator=deployer,
-        indexer_client=indexer_client,
+    algorand = algokit_utils.AlgorandClient.from_environment()
+    deployer = algorand.account.from_environment("DEPLOYER")
+
+    factory = algorand.client.get_typed_app_factory(
+        CirculatingSupplyFactory, default_sender=deployer.address
     )
 
-    app_client.deploy(
+    app_client, _ = factory.deploy(
         on_schema_break=algokit_utils.OnSchemaBreak.AppendApp,
         on_update=algokit_utils.OnUpdate.AppendApp,
     )
