@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@v4
 
       - name: Run CodeSpell
         uses: codespell-project/actions-codespell@2391250ab05295bddd51e36a8c6295edb6343b0e
@@ -81,7 +81,7 @@ jobs:
 
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@v4
 
       - uses: algorandfoundation/arcw-action@dist
         id: arcw
