@@ -141,17 +141,18 @@ jobs:
           # Search for contract.py within the identified arc folder
           contract_file=$(find "$arc_folder/smart_contracts" -type f -name "contract.py" 2>/dev/null | head -n 1)
 
-          if [ -n "$contract_file" ]; then
-            # Extract the parent directory at the desired level
-            path=$(echo "$contract_file" | sed -E 's|(assets/[^/]+)/.*|\1|')
-            echo "Found path: $path"
-            echo "path=$path" >> $GITHUB_ENV
-            echo "::set-output name=path::$path"
-          else
-            echo "No 'contract.py' found in the modified 'assets/arc-xxxx/' folder. Skipping further processing."
+          if [ -z "$contract_file" ]; then
+            echo "No 'contract.py' found in the modified '$arc_folder' folder. Skipping further processing."
             echo "path=" >> $GITHUB_ENV
             echo "::set-output name=path::"
+            exit 0
           fi
+
+          # Extract the parent directory at the desired level
+          path=$(echo "$contract_file" | sed -E 's|(assets/[^/]+)/.*|\1|')
+          echo "Found path: $path"
+          echo "path=$path" >> $GITHUB_ENV
+          echo "::set-output name=path::$path"
       
         shell: bash
 
