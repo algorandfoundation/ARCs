@@ -138,6 +138,12 @@ jobs:
 
           echo "Detected modified folder: $arc_folder"
 
+          # Ensure smart_contracts directory exists before searching
+          if [ ! -d "$arc_folder/smart_contracts" ]; then
+              echo "No smart_contracts directory found in '$arc_folder'. Skipping processing."
+              exit 0
+          fi
+
           # Search for contract.py within the identified arc folder
           contract_file=$(find "$arc_folder/smart_contracts" -type f -name "contract.py" 2>/dev/null | head -n 1)
 
