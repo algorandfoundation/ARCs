@@ -8,7 +8,7 @@ import {
 } from 'libsodium-wrappers-sumo'
 
 import * as crypto from 'crypto'
-import { canonify } from '@truestamp/canonify';
+const truestamp = require("@truestamp/canonify")
 
 /**
  * Helper types
@@ -89,7 +89,7 @@ export interface StdSigData {
     domain: string;
     authenticationData: Uint8Array;
     requestId?: string;
-    hdPath?: HDWalletMetadata;
+    hdPath?: string;
     signature?: Uint8Array;
 }
 
@@ -194,7 +194,7 @@ export class Arc60WalletApi {
                     throw ERROR_BAD_JSON;
                 }
 
-                const canonifiedClientDataJson = canonify(clientDataJson);
+                const canonifiedClientDataJson = truestamp.canonify(clientDataJson);
                 if (!canonifiedClientDataJson) {
                     throw ERROR_BAD_JSON
                 }

@@ -9,7 +9,7 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "declaration": true,
-    "moduleResolution": "node",
+    "module": "CommonJS",
     "outDir": "./dist",
     "target": "ES2022",
   }

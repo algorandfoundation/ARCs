@@ -1,19 +1,49 @@
 import { randomBytes, createHash } from "crypto"
-import { Arc60WalletApi, CAIP122, ERROR_BAD_JSON, ERROR_FAILED_DECODING, ERROR_FAILED_DOMAIN_AUTH, ERROR_INVALID_SCOPE, ERROR_INVALID_SIGNER, ERROR_MISSING_AUTHENTICATION_DATA, ERROR_MISSING_DOMAIN, FIDO2ClientData, ScopeType, StdSigData, StdSigDataResponse } from "./arc60wallet.api"
+import HID from "node-hid";
 import { crypto_sign_verify_detached, ready } from "libsodium-wrappers-sumo"
-import { canonify } from "@truestamp/canonify"
+const truestamp = require("@truestamp/canonify")
 const { AlgorandEncoder } = require('@algorandfoundation/algo-models')
+import { Arc60WalletApi, CAIP122, ERROR_BAD_JSON, ERROR_FAILED_DECODING, ERROR_FAILED_DOMAIN_AUTH, ERROR_INVALID_SCOPE, ERROR_INVALID_SIGNER, ERROR_MISSING_AUTHENTICATION_DATA, ERROR_MISSING_DOMAIN, FIDO2ClientData, ScopeType, StdSigData, StdSigDataResponse } from "./arc60wallet.api";
+import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
+import { AlgorandApp, ResponseAddress } from '@zondax/ledger-algorand'
 
-jest.setTimeout(20000)
+// ********************************************************************************************************************
+// *************************** FLAG TO RUN TESTS AGAINST A CONNECTED LEDGER DEVICE ************************************
+// ********************************************************************************************************************
+
+// Set USE_LEDGER to true to run tests against a connected ledger device
+// Make sure the Algorand app in ledger device is open and connected before running the tests
+// If USE_LEDGER is set to false, the tests will run against the Arc60WalletApi class
+const USE_LEDGER = false
+
+jest.setTimeout(60000)
 
 describe('ARC60 TEST SUITE', () => {
 
     let arc60wallet: Arc60WalletApi
     let seed: Uint8Array
 
-    beforeEach(() => {
+    let ledgerApp: AlgorandApp
+    let transport: TransportNodeHid
+
+    beforeEach(async () => {
+        if (USE_LEDGER) {
+                // var devices = await HID.devicesAsync();
+                // // log
+                // console.log(devices)
+
+            transport = await TransportNodeHid.open(null)
+            ledgerApp = new (AlgorandApp)(transport)
+        }
+
         seed = new Uint8Array(Buffer.from("b12e7cb8127d8fd07b03893f1aaa743bb737cff749ebac7f9af62b376f4494cc", 'hex'))
         arc60wallet = new Arc60WalletApi(seed);
+    })
+
+    afterEach(async () => {
+        if (USE_LEDGER) {
+            await transport.close()
+        }
     })
 
     // describe group for rawSign
@@ -95,8 +125,14 @@ describe('ARC60 TEST SUITE', () => {
                 authenticationData: new Uint8Array(createHash('sha256').update("arc60.io").digest())
             }
 
-            // bad scope
-            expect(arc60wallet.signData(signData, { scope: ScopeType.UNKNOWN, encoding: 'base64' })).rejects.toThrow(ERROR_INVALID_SCOPE)
+            if(USE_LEDGER) {
+                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                const pubBuf = response.publicKey
+
+                expect(ledgerApp.signData({ ...signData as StdSigData, signer: pubBuf }, { scope: ScopeType.UNKNOWN, encoding: 'base64' })).rejects.toThrow(ERROR_INVALID_SCOPE)
+            } else {
+                expect(arc60wallet.signData(signData, { scope: ScopeType.UNKNOWN, encoding: 'base64' })).rejects.toThrow(ERROR_INVALID_SCOPE)
+            }
         })
     })
 
@@ -104,7 +140,7 @@ describe('ARC60 TEST SUITE', () => {
 
         describe('CAIP-122', () => {
             it('(OK) Signing CAIP-122 requests', async () => {
-                const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
+                let publicKey: Uint8Array | Buffer | string = await Arc60WalletApi.getPublicKey(seed)
 
                 const caip122Request: CAIP122 = {
                     domain: "arc60.io",
@@ -143,19 +179,30 @@ describe('ARC60 TEST SUITE', () => {
                 const authenticationData: Uint8Array = new Uint8Array(createHash('sha256').update(caip122Request.domain).digest())
 
                 const signData: StdSigData = {
-                    data: Buffer.from(canonify(caip122Request) || '').toString('base64'),
+                    data: Buffer.from(truestamp.canonify(caip122Request) || '').toString('base64'),
                     signer: publicKey,
                     domain: caip122Request.domain, // should be same as origin / authenticationData
                     // random unique id, to help RP / Client match requests
                     requestId: Buffer.from(randomBytes(32)).toString('base64'),
-                    authenticationData: authenticationData
+                    authenticationData: authenticationData,
+                    hdPath: "m/44'/283'/0'/0/0"
                 }
 
-                const signResponse: StdSigDataResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
+                let signResponse: StdSigDataResponse
+                if(USE_LEDGER) {
+                    const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                    const pubBuf = response.publicKey
+                    
+                    signResponse = await ledgerApp.signData({ ...signData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'base64' })
+                    publicKey = new Uint8Array(Buffer.from(pubBuf.toString(), 'hex'))
+                } else {
+                    signResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
+                }
+
                 expect(signResponse).toBeDefined()
 
                 // hash of clientDataJson
-                const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(caip122Request) || '').digest();
+                const clientDataJsonHash: Buffer = createHash('sha256').update(truestamp.canonify(caip122Request) || '').digest();
                 const authenticatorDataHash: Buffer = createHash('sha256').update(authenticationData).digest();
 
                 // payload to sign concatenation of clientDataJsonHash || authenticationData
@@ -172,7 +219,7 @@ describe('ARC60 TEST SUITE', () => {
                 const seed: Uint8Array = new Uint8Array(Buffer.from("F20xGg5EBNo9ykzwP4B8/HX+woSoBHnUbFcxQNOVURg=", 'base64'))
 
                 // get public key 
-                const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
+                let publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
                 // create arc60 wallet for specific seed
                 const arc60wallet: Arc60WalletApi = new Arc60WalletApi(seed);
@@ -210,7 +257,7 @@ describe('ARC60 TEST SUITE', () => {
                 const authData: Uint8Array = new Uint8Array(Buffer.concat([rpHash, Buffer.from([flags]), Buffer.from([0, 0, 0, 0])]))
 
                 const signData: StdSigData = {
-                    data: Buffer.from(canonify(fido2Request) || '').toString('base64'),
+                    data: Buffer.from(truestamp.canonify(fido2Request) || '').toString('base64'),
                     signer: publicKey,
                     domain: "webauthn.io", // should be same as origin / authenticationData
                     // random unique id, to help RP / Client match requests
@@ -218,13 +265,23 @@ describe('ARC60 TEST SUITE', () => {
                     authenticationData: authData
                 }
 
-                const signResponse: StdSigDataResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
+                let signResponse: StdSigDataResponse
+                if(USE_LEDGER) {
+                    const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                    const pubBuf = response.publicKey
+                    
+                    signResponse = await ledgerApp.signData({ ...signData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'base64' })
+                    publicKey = new Uint8Array(Buffer.from(pubBuf.toString(), 'hex'))
+                } else {
+                    signResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
+                }
+
                 expect(signResponse).toBeDefined()
 
                 // To Verify
 
                 // hash of clientDataJson
-                const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(fido2Request) || '').digest();
+                const clientDataJsonHash: Buffer = createHash('sha256').update(truestamp.canonify(fido2Request) || '').digest();
                 const authenticatorDataHash: Buffer = createHash('sha256').update(authData).digest();
 
                 // payload to sign concatenation of clientDataJsonHash || authData
@@ -246,10 +303,10 @@ describe('ARC60 TEST SUITE', () => {
                 "origin": "https://arc60.io"
             }
 
-            const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
+            let publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData: StdSigData = {
-                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
+                data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 domain: "arc60.io", // should be same as origin / authenticationData
                 // random unique id, to help RP / Client match requests
@@ -257,11 +314,21 @@ describe('ARC60 TEST SUITE', () => {
                 authenticationData: authenticationData
             }
 
-            const signResponse: StdSigDataResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
+            let signResponse: StdSigDataResponse
+            if(USE_LEDGER) {
+                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                const pubBuf = response.publicKey
+                
+                signResponse = await ledgerApp.signData({ ...signData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'base64' })
+                publicKey = new Uint8Array(Buffer.from(pubBuf.toString(), 'hex'))
+            } else {
+                signResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
+            }
+
             expect(signResponse).toBeDefined()
 
             // hash of clientDataJson
-            const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(clientDataJson) || '').digest();
+            const clientDataJsonHash: Buffer = createHash('sha256').update(truestamp.canonify(clientDataJson) || '').digest();
             const authenticatorDataHash: Buffer = createHash('sha256').update(authenticationData).digest();
 
             // payload to sign concatenation of clientDataJsonHash || authenticationData
@@ -282,20 +349,29 @@ describe('ARC60 TEST SUITE', () => {
                 "origin": "https://arc60.io"
             }
 
-            const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
+            let publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData: StdSigData = {
-                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
+                data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 domain: "arc60.io", // should be same as origin / authenticationData
                 authenticationData: authenticationData
             }
+            let signResponse: StdSigDataResponse
+            if(USE_LEDGER) {
+                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                const pubBuf = response.publicKey
+                
+                signResponse = await ledgerApp.signData({ ...signData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'base64' })
+                publicKey = new Uint8Array(Buffer.from(pubBuf.toString(), 'hex'))
+            } else {
+                signResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
+            }
 
-            const signResponse: StdSigDataResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
             expect(signResponse).toBeDefined()
 
             // hash of clientDataJson
-            const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(clientDataJson) || '').digest();
+            const clientDataJsonHash: Buffer = createHash('sha256').update(truestamp.canonify(clientDataJson) || '').digest();
             const authenticatorDataHash: Buffer = createHash('sha256').update(authenticationData).digest();
 
             // payload to sign concatenation of clientDataJsonHash || authenticationData
@@ -323,7 +399,14 @@ describe('ARC60 TEST SUITE', () => {
                 authenticationData: authenticationData
             }
 
-            expect(arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_BAD_JSON)
+            if(USE_LEDGER) {
+                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                const pubBuf = response.publicKey
+                
+               expect(ledgerApp.signData({ ...signData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_BAD_JSON)
+            } else {
+                expect(arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_BAD_JSON)
+            }
         })
 
         it('(FAILS) Tries to sign with bad json schema', async () => {
@@ -339,7 +422,7 @@ describe('ARC60 TEST SUITE', () => {
             const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData: StdSigData = {
-                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
+                data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 domain: "<bad domain>", // should be same as origin / authenticationData
                 // random unique id, to help RP / Client match requests
@@ -347,7 +430,14 @@ describe('ARC60 TEST SUITE', () => {
                 authenticationData: authenticationData
             }
 
-            expect(arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_FAILED_DOMAIN_AUTH)
+            if(USE_LEDGER) {
+                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                const pubBuf = response.publicKey
+                
+                expect(ledgerApp.signData({ ...signData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_FAILED_DOMAIN_AUTH)
+            } else {
+                expect(arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_FAILED_DOMAIN_AUTH)
+            }
         })
 
         it('(FAILS) Is missing domain', async () => {
@@ -363,14 +453,21 @@ describe('ARC60 TEST SUITE', () => {
             const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData = {
-                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
+                data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 // random unique id, to help RP / Client match requests
                 requestId: Buffer.from(randomBytes(32)).toString('base64'),
                 authenticationData: authenticationData
             }
 
-            expect(arc60wallet.signData(signData as StdSigData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_MISSING_DOMAIN)
+            if(USE_LEDGER) {
+                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                const pubBuf = response.publicKey
+                
+                expect(ledgerApp.signData({ ...signData as StdSigData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_MISSING_DOMAIN)
+            } else {
+                expect(arc60wallet.signData(signData as StdSigData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_MISSING_DOMAIN)
+            }
         })
 
         it('(FAILS) Is missing authenticationData', async () => {
@@ -384,12 +481,19 @@ describe('ARC60 TEST SUITE', () => {
             const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
 
             const signData = {
-                data: Buffer.from(canonify(clientDataJson) || '').toString('base64'),
+                data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
                 signer: publicKey,
                 domain: "arc60.io",
             }
 
-            expect(arc60wallet.signData(signData as StdSigData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_MISSING_AUTHENTICATION_DATA)
+            if(USE_LEDGER) {
+                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                const pubBuf = response.publicKey
+                
+                expect(ledgerApp.signData({ ...signData as StdSigData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_MISSING_AUTHENTICATION_DATA)
+            } else {
+                expect(arc60wallet.signData(signData as StdSigData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_MISSING_AUTHENTICATION_DATA)
+            }
         })
     })
 
@@ -407,7 +511,11 @@ describe('ARC60 TEST SUITE', () => {
                 authenticationData: new Uint8Array(createHash('sha256').update("arc60.io").digest())
             }
 
-            expect(arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_INVALID_SIGNER)
+            if(USE_LEDGER) {
+                expect(ledgerApp.signData({ ...signData as StdSigData }, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_INVALID_SIGNER)
+            } else {
+                expect(arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })).rejects.toThrow(ERROR_INVALID_SIGNER)
+            }
         })
     })
 
@@ -426,7 +534,14 @@ describe('ARC60 TEST SUITE', () => {
                 authenticationData: new Uint8Array(createHash('sha256').update("arc60.io").digest())
             }
 
-            expect(arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'unknown' })).rejects.toThrow(ERROR_FAILED_DECODING)
+            if(USE_LEDGER) {
+                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
+                const pubBuf = response.publicKey
+
+                expect(ledgerApp.signData({ ...signData as StdSigData, signer: pubBuf }, { scope: ScopeType.AUTH, encoding: 'unknown' })).rejects.toThrow(ERROR_FAILED_DECODING)
+            } else {
+                expect(arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'unknown' })).rejects.toThrow(ERROR_FAILED_DECODING)
+            }
         })
     })
 })
