@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest --verbose --runInBand",
+    "test": "jest --verbose --runInBand --testPathIgnorePatterns=ledger",
+    "test:ledger": "jest --verbose --runInBand --testPathPattern=ledger",
     "test:cov": "jest --coverage"
   },
   "author": "Stefano De Angelis",
@@ -20,7 +21,7 @@
     "@types/node": "^20.11.24",
     "@types/readline-sync": "^1.4.8",
     "@types/ws": "^8.5.14",
-    "@zondax/ledger-algorand":"0.0.1",
+    "@zondax/ledger-algorand":"1.0.3",
     "algo-msgpack-with-bigint": "^2.1.1",
     "axios": "^1.6.8",
     "hi-base32": "^0.5.1",

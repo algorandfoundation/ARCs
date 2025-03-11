@@ -55,7 +55,6 @@ Done in 3.08s.
 
 ## To run tests against a real Ledger device
 
-- Change the flag `USE_LEDGER` in the `arc60wallet.api.spec.ts` file to `true` and run the tests.
 - Connect your Ledger device
 - Open the Algorand app on your Ledger device
-- Run the tests using `yarn test`
+- Run the tests using `yarn test:ledger`
