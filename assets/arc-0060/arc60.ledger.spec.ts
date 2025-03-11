@@ -201,7 +201,7 @@ describe('ARC60 TEST SUITE', () => {
             expect(crypto_sign_verify_detached(signResponse.signature, payloadToSign, publicKey)).toBeTruthy()
         })
 
-        it.skip('(OK) Signing AUTH requests without requestId', async () => {
+        it('(OK) Signing AUTH requests without requestId', async () => {
             const challenge: Uint8Array = new Uint8Array(randomBytes(32))
             const authenticationData: Uint8Array = new Uint8Array(createHash('sha256').update("arc60.io").digest()) 
 
