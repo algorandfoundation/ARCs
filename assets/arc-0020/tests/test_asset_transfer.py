@@ -1,125 +1,134 @@
 import pytest
-from algokit_utils import LogicError, OnCompleteCallParameters
-from algokit_utils.beta.account_manager import AddressAndSigner
+from algokit_utils import AlgoAmount, CommonAppCallParams, LogicError, SigningAccount
 
 import smart_contracts.errors as err
-from smart_contracts.artifacts.smart_asa.smart_asa_client import SmartAsaClient
-
-from . import utils
+from smart_contracts.artifacts.smart_asa.smart_asa_client import (
+    AccountFreezeArgs,
+    AssetFreezeArgs,
+    AssetTransferArgs,
+    GetCirculatingSupplyArgs,
+    SmartAsaClient,
+)
 
 
 class TestMint:
     @pytest.mark.parametrize("asa_config", [False], indirect=True)
     def test_pass_as_reserve(
         self,
-        reserve: AddressAndSigner,
+        reserve: SigningAccount,
         smart_asa_client: SmartAsaClient,
-        receiver: AddressAndSigner,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
+        smart_asa = smart_asa_client.state.global_state
         assert (
-            smart_asa_client.get_circulating_supply(
-                asset=smart_asa.smart_asa_id
-            ).return_value
+            smart_asa_client.send.get_circulating_supply(
+                GetCirculatingSupplyArgs(asset=smart_asa.smart_asa_id)
+            ).abi_return
             == 0
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client, receiver.address, smart_asa.smart_asa_id
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                receiver, smart_asa.smart_asa_id
+            ).balance
             == 0
         )
-        sp = smart_asa_client.algod_client.suggested_params()
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
-        smart_asa_client.asset_transfer(
-            xfer_asset=smart_asa.smart_asa_id,
-            asset_amount=smart_asa.total,
-            asset_sender=smart_asa_client.app_address,
-            asset_receiver=receiver.address,
-            transaction_parameters=OnCompleteCallParameters(
-                suggested_params=sp,
+        smart_asa_client.send.asset_transfer(
+            AssetTransferArgs(
+                xfer_asset=smart_asa.smart_asa_id,
+                asset_amount=smart_asa.total,
+                asset_sender=smart_asa_client.app_address,
+                asset_receiver=receiver.address,
+            ),
+            params=CommonAppCallParams(
+                static_fee=AlgoAmount.from_micro_algo(sp.fee),
                 signer=reserve.signer,
                 sender=reserve.address,
             ),
         )
         assert (
-            smart_asa_client.get_circulating_supply(
-                asset=smart_asa.smart_asa_id
-            ).return_value
+            smart_asa_client.send.get_circulating_supply(
+                GetCirculatingSupplyArgs(asset=smart_asa.smart_asa_id)
+            ).abi_return
             == smart_asa.total
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client, receiver.address, smart_asa.smart_asa_id
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                receiver, smart_asa.smart_asa_id
+            ).balance
             == smart_asa.total
         )
 
     def test_pass_as_reserve_and_clawback(
         self,
         smart_asa_client: SmartAsaClient,
-        reserve_and_clawback: AddressAndSigner,
-        receiver: AddressAndSigner,
+        reserve_and_clawback: SigningAccount,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
+        smart_asa = smart_asa_client.state.global_state
         assert (
-            smart_asa_client.get_circulating_supply(
-                asset=smart_asa.smart_asa_id
-            ).return_value
+            smart_asa_client.send.get_circulating_supply(
+                GetCirculatingSupplyArgs(asset=smart_asa.smart_asa_id)
+            ).abi_return
             == 0
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client, receiver.address, smart_asa.smart_asa_id
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                receiver, smart_asa.smart_asa_id
+            ).balance
             == 0
         )
-        sp = smart_asa_client.algod_client.suggested_params()
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
-        smart_asa_client.asset_transfer(
-            xfer_asset=smart_asa.smart_asa_id,
-            asset_amount=smart_asa.total,
-            asset_sender=smart_asa_client.app_address,
-            asset_receiver=receiver.address,
-            transaction_parameters=OnCompleteCallParameters(
-                suggested_params=sp,
+        smart_asa_client.send.asset_transfer(
+            AssetTransferArgs(
+                xfer_asset=smart_asa.smart_asa_id,
+                asset_amount=smart_asa.total,
+                asset_sender=smart_asa_client.app_address,
+                asset_receiver=receiver.address,
+            ),
+            params=CommonAppCallParams(
+                static_fee=AlgoAmount.from_micro_algo(sp.fee),
                 signer=reserve_and_clawback.signer,
                 sender=reserve_and_clawback.address,
             ),
         )
         assert (
-            smart_asa_client.get_circulating_supply(
-                asset=smart_asa.smart_asa_id
-            ).return_value
+            smart_asa_client.send.get_circulating_supply(
+                GetCirculatingSupplyArgs(asset=smart_asa.smart_asa_id),
+            ).abi_return
             == smart_asa.total
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client, receiver.address, smart_asa.smart_asa_id
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                receiver, smart_asa.smart_asa_id
+            ).balance
             == smart_asa.total
         )
 
     def test_fail_unauthorized(
         self,
-        eve: AddressAndSigner,
+        eve: SigningAccount,
         smart_asa_client: SmartAsaClient,
-        receiver: AddressAndSigner,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.UNAUTHORIZED_RESERVE):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=smart_asa_client.app_address,
-                asset_receiver=receiver.address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=smart_asa_client.app_address,
+                    asset_receiver=receiver.address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=eve.signer,
                     sender=eve.address,
                 ),
@@ -127,22 +136,24 @@ class TestMint:
 
     def test_fail_as_clawback(
         self,
-        clawback: AddressAndSigner,
+        clawback: SigningAccount,
         smart_asa_client: SmartAsaClient,
-        receiver: AddressAndSigner,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.UNAUTHORIZED_RESERVE):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=smart_asa_client.app_address,
-                asset_receiver=receiver.address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=smart_asa_client.app_address,
+                    asset_receiver=receiver.address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=clawback.signer,
                     sender=clawback.address,
                 ),
@@ -154,22 +165,24 @@ class TestMint:
     @pytest.mark.parametrize("asa_config", [True], indirect=True)
     def test_fail_frozen_receiver(
         self,
-        reserve: AddressAndSigner,
+        reserve: SigningAccount,
         smart_asa_client: SmartAsaClient,
-        receiver: AddressAndSigner,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.RECEIVER_FROZEN):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=smart_asa_client.app_address,
-                asset_receiver=receiver.address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=smart_asa_client.app_address,
+                    asset_receiver=receiver.address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=reserve.signer,
                     sender=reserve.address,
                 ),
@@ -178,21 +191,23 @@ class TestMint:
     @pytest.mark.parametrize("asa_config", [False], indirect=True)
     def test_fail_self_minting(
         self,
-        reserve: AddressAndSigner,
+        reserve: SigningAccount,
         smart_asa_client: SmartAsaClient,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.SELF_MINT):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=smart_asa_client.app_address,
-                asset_receiver=smart_asa_client.app_address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=smart_asa_client.app_address,
+                    asset_receiver=smart_asa_client.app_address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=reserve.signer,
                     sender=reserve.address,
                 ),
@@ -200,22 +215,24 @@ class TestMint:
 
     def test_fail_over_minting(
         self,
-        reserve: AddressAndSigner,
+        reserve: SigningAccount,
         smart_asa_client: SmartAsaClient,
-        receiver: AddressAndSigner,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.OVER_MINT):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total + 1,
-                asset_sender=smart_asa_client.app_address,
-                asset_receiver=receiver.address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total + 1,
+                    asset_sender=smart_asa_client.app_address,
+                    asset_receiver=receiver.address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=reserve.signer,
                     sender=reserve.address,
                 ),
@@ -225,119 +242,116 @@ class TestMint:
 class TestBurn:
     @pytest.mark.parametrize("asa_config", [False], indirect=True)
     def test_pass_as_reserve(
-        self, smart_asa_client: SmartAsaClient, reserve_with_supply: AddressAndSigner
+        self, smart_asa_client: SmartAsaClient, reserve_with_supply: SigningAccount
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
+        smart_asa = smart_asa_client.state.global_state
         assert (
-            smart_asa_client.get_circulating_supply(
-                asset=smart_asa.smart_asa_id
-            ).return_value
+            smart_asa_client.send.get_circulating_supply(
+                GetCirculatingSupplyArgs(asset=smart_asa.smart_asa_id)
+            ).abi_return
             == smart_asa.total
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client,
-                reserve_with_supply.address,
-                smart_asa.smart_asa_id,
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                reserve_with_supply, smart_asa.smart_asa_id
+            ).balance
             == smart_asa.total
         )
-        sp = smart_asa_client.algod_client.suggested_params()
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
-        smart_asa_client.asset_transfer(
-            xfer_asset=smart_asa.smart_asa_id,
-            asset_amount=smart_asa.total,
-            asset_sender=reserve_with_supply.address,
-            asset_receiver=smart_asa_client.app_address,
-            transaction_parameters=OnCompleteCallParameters(
-                suggested_params=sp,
+        smart_asa_client.send.asset_transfer(
+            AssetTransferArgs(
+                xfer_asset=smart_asa.smart_asa_id,
+                asset_amount=smart_asa.total,
+                asset_sender=reserve_with_supply.address,
+                asset_receiver=smart_asa_client.app_address,
+            ),
+            params=CommonAppCallParams(
+                static_fee=AlgoAmount.from_micro_algo(sp.fee),
                 signer=reserve_with_supply.signer,
                 sender=reserve_with_supply.address,
             ),
         )
         assert (
-            smart_asa_client.get_circulating_supply(
-                asset=smart_asa.smart_asa_id
-            ).return_value
+            smart_asa_client.send.get_circulating_supply(
+                GetCirculatingSupplyArgs(asset=smart_asa.smart_asa_id)
+            ).abi_return
             == 0
         )
-
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client,
-                reserve_with_supply.address,
-                smart_asa.smart_asa_id,
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                reserve_with_supply, smart_asa.smart_asa_id
+            ).balance
             == 0
         )
 
     def test_pass_as_reserve_and_clawback(
         self,
         smart_asa_client: SmartAsaClient,
-        reserve_and_clawback: AddressAndSigner,
-        account_with_supply: AddressAndSigner,
+        reserve_and_clawback: SigningAccount,
+        account_with_supply: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
+        smart_asa = smart_asa_client.state.global_state
         assert (
-            smart_asa_client.get_circulating_supply(
-                asset=smart_asa.smart_asa_id
-            ).return_value
+            smart_asa_client.send.get_circulating_supply(
+                GetCirculatingSupplyArgs(asset=smart_asa.smart_asa_id)
+            ).abi_return
             == smart_asa.total
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client,
-                account_with_supply.address,
-                smart_asa.smart_asa_id,
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                account_with_supply, smart_asa.smart_asa_id
+            ).balance
             == smart_asa.total
         )
-        sp = smart_asa_client.algod_client.suggested_params()
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
-        smart_asa_client.asset_transfer(
-            xfer_asset=smart_asa.smart_asa_id,
-            asset_amount=smart_asa.total,
-            asset_sender=account_with_supply.address,
-            asset_receiver=smart_asa_client.app_address,
-            transaction_parameters=OnCompleteCallParameters(
-                suggested_params=sp,
+        smart_asa_client.send.asset_transfer(
+            AssetTransferArgs(
+                xfer_asset=smart_asa.smart_asa_id,
+                asset_amount=smart_asa.total,
+                asset_sender=account_with_supply.address,
+                asset_receiver=smart_asa_client.app_address,
+            ),
+            params=CommonAppCallParams(
+                static_fee=AlgoAmount.from_micro_algo(sp.fee),
                 signer=reserve_and_clawback.signer,
                 sender=reserve_and_clawback.address,
             ),
         )
         assert (
-            smart_asa_client.get_circulating_supply(
-                asset=smart_asa.smart_asa_id
-            ).return_value
+            smart_asa_client.send.get_circulating_supply(
+                GetCirculatingSupplyArgs(asset=smart_asa.smart_asa_id)
+            ).abi_return
             == 0
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client,
-                account_with_supply.address,
-                smart_asa.smart_asa_id,
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                account_with_supply, smart_asa.smart_asa_id
+            ).balance
             == 0
         )
 
     @pytest.mark.parametrize("asa_config", [False], indirect=True)
     def test_fail_unauthorized(
-        self, smart_asa_client: SmartAsaClient, account_with_supply: AddressAndSigner
+        self, smart_asa_client: SmartAsaClient, account_with_supply: SigningAccount
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.UNAUTHORIZED_RESERVE):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=account_with_supply.address,
-                asset_receiver=smart_asa_client.app_address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=account_with_supply.address,
+                    asset_receiver=smart_asa_client.app_address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=account_with_supply.signer,
                     sender=account_with_supply.address,
                 ),
@@ -347,21 +361,23 @@ class TestBurn:
     def test_fail_as_clawback(
         self,
         smart_asa_client: SmartAsaClient,
-        clawback: AddressAndSigner,
-        account_with_supply: AddressAndSigner,
+        clawback: SigningAccount,
+        account_with_supply: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.UNAUTHORIZED_RESERVE):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=account_with_supply.address,
-                asset_receiver=smart_asa_client.app_address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=account_with_supply.address,
+                    asset_receiver=smart_asa_client.app_address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=clawback.signer,
                     sender=clawback.address,
                 ),
@@ -377,21 +393,23 @@ class TestBurn:
     def test_fail_clawback_burn(
         self,
         smart_asa_client: SmartAsaClient,
-        reserve: AddressAndSigner,
-        account_with_supply: AddressAndSigner,
+        reserve: SigningAccount,
+        account_with_supply: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.CLAWBACK_BURN):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=account_with_supply.address,
-                asset_receiver=smart_asa_client.app_address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=account_with_supply.address,
+                    asset_receiver=smart_asa_client.app_address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=reserve.signer,
                     sender=reserve.address,
                 ),
@@ -403,51 +421,49 @@ class TestClawback:
     def test_pass(
         self,
         smart_asa_client: SmartAsaClient,
-        clawback: AddressAndSigner,
-        account_with_supply: AddressAndSigner,
-        receiver: AddressAndSigner,
+        clawback: SigningAccount,
+        account_with_supply: SigningAccount,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
+        smart_asa = smart_asa_client.state.global_state
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client,
-                account_with_supply.address,
-                smart_asa.smart_asa_id,
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                account_with_supply, smart_asa.smart_asa_id
+            ).balance
             == smart_asa.total
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client, receiver.address, smart_asa.smart_asa_id
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                receiver, smart_asa.smart_asa_id
+            ).balance
             == 0
         )
-        sp = smart_asa_client.algod_client.suggested_params()
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
-        smart_asa_client.asset_transfer(
-            xfer_asset=smart_asa.smart_asa_id,
-            asset_amount=smart_asa.total,
-            asset_sender=account_with_supply.address,
-            asset_receiver=receiver.address,
-            transaction_parameters=OnCompleteCallParameters(
-                suggested_params=sp,
+        smart_asa_client.send.asset_transfer(
+            AssetTransferArgs(
+                xfer_asset=smart_asa.smart_asa_id,
+                asset_amount=smart_asa.total,
+                asset_sender=account_with_supply.address,
+                asset_receiver=receiver.address,
+            ),
+            params=CommonAppCallParams(
+                static_fee=AlgoAmount.from_micro_algo(sp.fee),
                 signer=clawback.signer,
                 sender=clawback.address,
             ),
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client,
-                account_with_supply.address,
-                smart_asa.smart_asa_id,
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                account_with_supply, smart_asa.smart_asa_id
+            ).balance
             == 0
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client, receiver.address, smart_asa.smart_asa_id
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                receiver, smart_asa.smart_asa_id
+            ).balance
             == smart_asa.total
         )
 
@@ -461,22 +477,24 @@ class TestClawback:
     def test_fail_unauthorized(
         self,
         smart_asa_client: SmartAsaClient,
-        eve: AddressAndSigner,
-        account_with_supply: AddressAndSigner,
-        receiver: AddressAndSigner,
+        eve: SigningAccount,
+        account_with_supply: SigningAccount,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.UNAUTHORIZED_CLAWBACK):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=account_with_supply.address,
-                asset_receiver=receiver.address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=account_with_supply.address,
+                    asset_receiver=receiver.address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=eve.signer,
                     sender=eve.address,
                 ),
@@ -488,50 +506,48 @@ class TestRegularTransfer:
     def test_pass_transfer(
         self,
         smart_asa_client: SmartAsaClient,
-        account_with_supply: AddressAndSigner,
-        receiver: AddressAndSigner,
+        account_with_supply: SigningAccount,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa = smart_asa_client.get_global_state()
+        smart_asa = smart_asa_client.state.global_state
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client,
-                account_with_supply.address,
-                smart_asa.smart_asa_id,
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                account_with_supply, smart_asa.smart_asa_id
+            ).balance
             == smart_asa.total
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client, receiver.address, smart_asa.smart_asa_id
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                receiver, smart_asa.smart_asa_id
+            ).balance
             == 0
         )
-        sp = smart_asa_client.algod_client.suggested_params()
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
-        smart_asa_client.asset_transfer(
-            xfer_asset=smart_asa.smart_asa_id,
-            asset_amount=smart_asa.total,
-            asset_sender=account_with_supply.address,
-            asset_receiver=receiver.address,
-            transaction_parameters=OnCompleteCallParameters(
-                suggested_params=sp,
+        smart_asa_client.send.asset_transfer(
+            AssetTransferArgs(
+                xfer_asset=smart_asa.smart_asa_id,
+                asset_amount=smart_asa.total,
+                asset_sender=account_with_supply.address,
+                asset_receiver=receiver.address,
+            ),
+            params=CommonAppCallParams(
+                static_fee=AlgoAmount.from_micro_algo(sp.fee),
                 signer=account_with_supply.signer,
                 sender=account_with_supply.address,
             ),
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client,
-                account_with_supply.address,
-                smart_asa.smart_asa_id,
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                account_with_supply, smart_asa.smart_asa_id
+            ).balance
             == 0
         )
         assert (
-            utils.get_account_asset_balance(
-                smart_asa_client.algod_client, receiver.address, smart_asa.smart_asa_id
-            )
+            smart_asa_client.algorand.asset.get_account_information(
+                receiver, smart_asa.smart_asa_id
+            ).balance
             == smart_asa.total
         )
 
@@ -554,30 +570,34 @@ class TestRegularTransfer:
     def test_fail_global_frozen(
         self,
         smart_asa_client: SmartAsaClient,
-        freeze: AddressAndSigner,
-        account_with_supply: AddressAndSigner,
-        receiver: AddressAndSigner,
+        freeze: SigningAccount,
+        account_with_supply: SigningAccount,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa_client.asset_freeze(
-            freeze_asset=smart_asa_client.get_global_state().smart_asa_id,
-            asset_frozen=True,
-            transaction_parameters=OnCompleteCallParameters(
+        smart_asa_client.send.asset_freeze(
+            AssetFreezeArgs(
+                freeze_asset=smart_asa_client.state.global_state.smart_asa_id,
+                asset_frozen=True,
+            ),
+            params=CommonAppCallParams(
                 signer=freeze.signer,
                 sender=freeze.address,
             ),
         )
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.GLOBAL_FROZEN):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=account_with_supply.address,
-                asset_receiver=receiver.address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=account_with_supply.address,
+                    asset_receiver=receiver.address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=account_with_supply.signer,
                     sender=account_with_supply.address,
                 ),
@@ -587,31 +607,35 @@ class TestRegularTransfer:
     def test_fail_frozen_sender(
         self,
         smart_asa_client: SmartAsaClient,
-        freeze: AddressAndSigner,
-        account_with_supply: AddressAndSigner,
-        receiver: AddressAndSigner,
+        freeze: SigningAccount,
+        account_with_supply: SigningAccount,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa_client.account_freeze(
-            freeze_asset=smart_asa_client.get_global_state().smart_asa_id,
-            freeze_account=account_with_supply.address,
-            asset_frozen=True,
-            transaction_parameters=OnCompleteCallParameters(
+        smart_asa_client.send.account_freeze(
+            AccountFreezeArgs(
+                freeze_asset=smart_asa_client.state.global_state.smart_asa_id,
+                freeze_account=account_with_supply.address,
+                asset_frozen=True,
+            ),
+            params=CommonAppCallParams(
                 signer=freeze.signer,
                 sender=freeze.address,
             ),
         )
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.SENDER_FROZEN):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=account_with_supply.address,
-                asset_receiver=receiver.address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=account_with_supply.address,
+                    asset_receiver=receiver.address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=account_with_supply.signer,
                     sender=account_with_supply.address,
                 ),
@@ -621,31 +645,35 @@ class TestRegularTransfer:
     def test_fail_frozen_receiver(
         self,
         smart_asa_client: SmartAsaClient,
-        freeze: AddressAndSigner,
-        account_with_supply: AddressAndSigner,
-        receiver: AddressAndSigner,
+        freeze: SigningAccount,
+        account_with_supply: SigningAccount,
+        receiver: SigningAccount,
     ) -> None:
-        smart_asa_client.account_freeze(
-            freeze_asset=smart_asa_client.get_global_state().smart_asa_id,
-            freeze_account=receiver.address,
-            asset_frozen=True,
-            transaction_parameters=OnCompleteCallParameters(
+        smart_asa_client.send.account_freeze(
+            AccountFreezeArgs(
+                freeze_asset=smart_asa_client.state.global_state.smart_asa_id,
+                freeze_account=receiver.address,
+                asset_frozen=True,
+            ),
+            params=CommonAppCallParams(
                 signer=freeze.signer,
                 sender=freeze.address,
             ),
         )
-        smart_asa = smart_asa_client.get_global_state()
-        sp = smart_asa_client.algod_client.suggested_params()
+        smart_asa = smart_asa_client.state.global_state
+        sp = smart_asa_client.algorand.client.algod.suggested_params()
         sp.flat_fee = True
         sp.fee = sp.min_fee * 2
         with pytest.raises(LogicError, match=err.RECEIVER_FROZEN):
-            smart_asa_client.asset_transfer(
-                xfer_asset=smart_asa.smart_asa_id,
-                asset_amount=smart_asa.total,
-                asset_sender=account_with_supply.address,
-                asset_receiver=receiver.address,
-                transaction_parameters=OnCompleteCallParameters(
-                    suggested_params=sp,
+            smart_asa_client.send.asset_transfer(
+                AssetTransferArgs(
+                    xfer_asset=smart_asa.smart_asa_id,
+                    asset_amount=smart_asa.total,
+                    asset_sender=account_with_supply.address,
+                    asset_receiver=receiver.address,
+                ),
+                params=CommonAppCallParams(
+                    static_fee=AlgoAmount.from_micro_algo(sp.fee),
                     signer=account_with_supply.signer,
                     sender=account_with_supply.address,
                 ),
