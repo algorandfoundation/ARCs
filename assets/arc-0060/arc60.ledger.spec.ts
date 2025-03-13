@@ -51,7 +51,7 @@ describe('ARC60 TEST SUITE', () => {
                 const caip122Request: CAIP122 = {
                     domain: "arc60.io",
                     chain_id: "283",
-                    account_address: new AlgorandEncoder().encodeAddress(pubBuf),
+                    account_address: response.address.toString(),
                     type: "ed25519",
                     statement: "We are requesting you to sign this message to authenticate to arc60.io",
                     uri: "https://arc60.io",
