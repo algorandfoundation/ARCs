@@ -1,63 +1,68 @@
 import pytest
-from algokit_utils import OnCompleteCallParameters
-from algokit_utils.beta.account_manager import AddressAndSigner
-from algokit_utils.beta.algorand_client import AlgorandClient, AssetTransferParams
-from algosdk.atomic_transaction_composer import TransactionWithSigner
+from algokit_utils import (
+    AlgoAmount,
+    AlgorandClient,
+    AssetTransferParams,
+    CommonAppCallParams,
+    SigningAccount,
+)
 
-from smart_contracts.artifacts.smart_asa.smart_asa_client import SmartAsaClient
-
-from . import utils
+from smart_contracts.artifacts.smart_asa.smart_asa_client import (
+    AssetCloseOutArgs,
+    SmartAsaClient,
+)
 
 
 @pytest.mark.parametrize("asa_config", [False], indirect=True)
 def test_pass_regular_close_out(
-    algorand_client: AlgorandClient,
+    algorand: AlgorandClient,
     smart_asa_client: SmartAsaClient,
-    account_with_supply: AddressAndSigner,
-    receiver: AddressAndSigner,
+    account_with_supply: SigningAccount,
+    receiver: SigningAccount,
 ) -> None:
-    smart_asa = smart_asa_client.get_global_state()
+    smart_asa = smart_asa_client.state.global_state
     smart_asa_id = smart_asa.smart_asa_id
-    account_asset_balance = utils.get_account_asset_balance(
-        algorand_client.client.algod, account_with_supply.address, smart_asa_id
-    )
-    receiver_asset_balance = utils.get_account_asset_balance(
-        algorand_client.client.algod, receiver.address, smart_asa_id
-    )
+    account_asset_balance = algorand.asset.get_account_information(
+        account_with_supply, smart_asa_id
+    ).balance
+    receiver_asset_balance = algorand.asset.get_account_information(
+        receiver, smart_asa_id
+    ).balance
     assert account_asset_balance == smart_asa.total
     assert receiver_asset_balance == 0
-    sp = smart_asa_client.algod_client.suggested_params()
+    sp = smart_asa_client.algorand.client.algod.suggested_params()
     sp.flat_fee = True
     sp.fee = sp.min_fee * 2
-    close_out = smart_asa_client.compose().close_out_asset_close_out(
-        close_asset=smart_asa_id,
-        close_to=receiver.address,
-        transaction_parameters=OnCompleteCallParameters(
-            suggested_params=sp,
+    close_out = smart_asa_client.new_group().close_out.asset_close_out(
+        AssetCloseOutArgs(
+            close_asset=smart_asa_id,
+            close_to=receiver.address,
+        ),
+        params=CommonAppCallParams(
+            static_fee=AlgoAmount.from_micro_algo(sp.fee),
             signer=account_with_supply.signer,
             sender=account_with_supply.address,
         ),
     )
-    close_out.atc.add_transaction(
-        TransactionWithSigner(
-            txn=algorand_client.transactions.asset_transfer(
-                AssetTransferParams(
-                    sender=account_with_supply.address,
-                    asset_id=smart_asa_id,
-                    receiver=smart_asa_client.app_address,
-                    close_asset_to=smart_asa_client.app_address,
-                    amount=0,
-                )
-            ),
-            signer=account_with_supply.signer,
-        )
+    close_out.add_transaction(
+        txn=algorand.create_transaction.asset_transfer(
+            AssetTransferParams(
+                sender=account_with_supply.address,
+                asset_id=smart_asa_id,
+                receiver=smart_asa_client.app_address,
+                close_asset_to=smart_asa_client.app_address,
+                amount=0,
+            )
+        ),
+        signer=account_with_supply.signer,
     )
-    close_out.atc.submit(algorand_client.client.algod)
-    receiver_asset_balance = utils.get_account_asset_balance(
-        algorand_client.client.algod, receiver.address, smart_asa_id
-    )
-    assert not utils.is_account_opted_in(
-        algorand_client.client.algod, account_with_supply.address, smart_asa_id
+    close_out.send()
+    receiver_asset_balance = algorand.asset.get_account_information(
+        receiver, smart_asa_id
+    ).balance
+    assert (
+        smart_asa_id
+        not in algorand.account.get_information(account_with_supply.address).assets
     )
     assert receiver_asset_balance == smart_asa.total
 

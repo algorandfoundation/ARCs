@@ -19,7 +19,7 @@ from algopy import (
 )
 
 from smart_contracts import errors as err
-from smart_contracts.types import AssetConfig
+from smart_contracts.avm_types import AssetConfig
 
 from . import config as cfg
 
