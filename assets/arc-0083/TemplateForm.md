@@ -13,7 +13,7 @@ Outcome: <Elected/Not Elected>
 
 Explain why you are applying to become an xGov council member. What motivates you to participate in the review process? Highlight how your involvement can contribute to the ecosystem.
 
-## Social profiles
+## Social Profiles
 
 Add links to the social profiles you will use during the campaign.
 
