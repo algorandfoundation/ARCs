@@ -1,12 +1,9 @@
 ---
-id: <Application number (same as PR)>
-Council cohort ID: <progressive number, starts with 001 for this session>
-Candidate name: <Your name >
-author: <Your GitHubUsername (@GitHubUsername)>
-Algorand address: <Your wallet address>
+id: <progressive number, starts with 1 and incremented for each new application>
+author: <the candidate's name + GitHub username (in parenthesis) Example, FirstName LastName (@GitHubUsername)>
 email: <Email address where you can be reached for KYC process>
-status: <Draft/Final>
-Outcome: <Elected/Not Elected>
+address: <Your Algorand wallet address>
+status: <Draft/Final/Elected/Not Elected>
 ---
 
 ## Introduction
