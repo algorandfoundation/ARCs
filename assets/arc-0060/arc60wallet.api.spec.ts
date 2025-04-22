@@ -188,26 +188,21 @@ describe('ARC60 TEST SUITE', () => {
 
                 const rpHash: Buffer = createHash('sha256').update(rpId).digest()
 
-                // Set the flag for behavior
-                const up = true
-                const uv = true
-                const be = true
-                const bs = true
-                var flags: number = 0
-                if (up) {
-                    flags = flags | 0x01
-                }
-                if (uv) {
-                    flags = flags | 0x04
-                }
-                if (be) {
-                    flags = flags | 0x08
-                }
-                if (bs) {
-                    flags = flags | 0x10
-                }
-
-                const authData: Uint8Array = new Uint8Array(Buffer.concat([rpHash, Buffer.from([flags]), Buffer.from([0, 0, 0, 0])]))
+                // Set the flag, 1 byte for behavior
+                // 0 bit = 1 (1 == present, 0 == not present)
+                // 1 bit = 1 (reserved for future use)
+                // 2 bit = 1 (1 means user is verified, 0 means not verified)
+                // bits 3 - 5 as 0 (reserved for future use)
+                // 6 bit = 1 (indicates whether the authenticator added attested credential data)
+                // 7 bit = 1 (indicates whether the authenticator data has extensions)
+                const flags: number = 0b11000011 // 0xC3
+                
+                // add signCount with 4 bytes
+                const signCount: number = 0
+                const signCountBuffer: Buffer = Buffer.alloc(4)
+                signCountBuffer.writeUInt32BE(signCount, 0)
+                
+                const authData: Buffer = Buffer.concat([rpHash, Buffer.from([flags]), signCountBuffer, Buffer.from(randomBytes(32)), Buffer.from(randomBytes(64))])
 
                 const signData: StdSigData = {
                     data: Buffer.from(canonify(fido2Request) || '').toString('base64'),
