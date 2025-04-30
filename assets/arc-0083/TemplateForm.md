@@ -18,7 +18,7 @@ Add links to the social profiles you will use during the campaign.
 
 Provide an overview of your background, skills, and experience that make you a strong candidate for this role. This can include blockchain expertise, grant evaluation experience, technical skills, or community contributions related to Algorand or Web3.
 
-## Projects Affiliation
+## Project Affiliations
 
 List the Algorand projects you are affiliated with in a professional capacity.
 
