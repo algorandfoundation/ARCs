@@ -40,7 +40,7 @@ describe('ARC60 TEST SUITE', () => {
                 data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
                 signer: pubBuf,
                 domain: domain,
-                requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                requestId: Buffer.from(randomBytes(32)).toString('base64'),
                 authenticationData: new Uint8Array(createHash('sha256').update(domain).digest())
             }
 
@@ -91,7 +91,7 @@ describe('ARC60 TEST SUITE', () => {
                     data: Buffer.from(truestamp.canonify(caip122Request) || '').toString('base64'),
                     signer: pubBuf,
                     domain: caip122Request.domain,
-                    requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                    requestId: Buffer.from(randomBytes(32)).toString('base64'),
                     authenticationData: authenticationData,
                     hdPath: "m/44'/283'/0'/0/0"
                 }
@@ -151,7 +151,7 @@ describe('ARC60 TEST SUITE', () => {
                     data: Buffer.from(truestamp.canonify(fido2Request) || '').toString('base64'),
                     signer: pubBuf,
                     domain: "webauthn.io",
-                    requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                    requestId: Buffer.from(randomBytes(32)).toString('base64'),
                     authenticationData: authData
                 }
 
@@ -186,7 +186,7 @@ describe('ARC60 TEST SUITE', () => {
                 data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
                 signer: pubBuf,
                 domain: "arc60.io",
-                requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                requestId: Buffer.from(randomBytes(32)).toString('base64'),
                 authenticationData: authenticationData
             }
                 
@@ -250,7 +250,7 @@ describe('ARC60 TEST SUITE', () => {
                 data: Buffer.from(clientDataJson).toString('base64'),
                 signer: pubBuf,
                 domain: "arc60.io",
-                requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                requestId: Buffer.from(randomBytes(32)).toString('base64'),
                 authenticationData: authenticationData
             }
 
@@ -274,7 +274,7 @@ describe('ARC60 TEST SUITE', () => {
                 data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
                 signer: pubBuf,
                 domain: "<bad domain>",
-                requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                requestId: Buffer.from(randomBytes(32)).toString('base64'),
                 authenticationData: authenticationData
             }
                 
@@ -296,7 +296,7 @@ describe('ARC60 TEST SUITE', () => {
 
             const signData = {
                 data: Buffer.from(truestamp.canonify(clientDataJson) || '').toString('base64'),
-                requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                requestId: Buffer.from(randomBytes(32)).toString('base64'),
                 authenticationData: authenticationData
             }
 
@@ -332,7 +332,7 @@ describe('ARC60 TEST SUITE', () => {
                 data: Buffer.from(challenge).toString('base64'),
                 signer: new Uint8Array(31),
                 domain: "arc60.io",
-                requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                requestId: Buffer.from(randomBytes(32)).toString('base64'),
                 authenticationData: new Uint8Array(createHash('sha256').update("arc60.io").digest())
             }
 
@@ -351,7 +351,7 @@ describe('ARC60 TEST SUITE', () => {
                 data: Buffer.from(challenge).toString('base64'),
                 domain: "arc60.io",
                 signer: pubBuf,
-                requestId: Buffer.from(Array(32).fill(0x41)).toString('base64'),
+                requestId: Buffer.from(randomBytes(32)).toString('base64'),
                 authenticationData: new Uint8Array(createHash('sha256').update("arc60.io").digest())
             }
 
