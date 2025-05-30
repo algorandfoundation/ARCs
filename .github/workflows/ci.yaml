@@ -26,7 +26,7 @@ jobs:
           echo $PR_SHA > ./pr/pr_sha
           echo $MERGE_SHA > ./pr/merge_sha
       - name: Upload PR Number
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pr_number
           path: pr/
@@ -37,13 +37,13 @@ jobs:
 
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@v4
 
       - name: Install OpenSSL
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
 
       - name: Install Ruby
-        uses: ruby/setup-ruby@0a29871fe2b0200a17a4497bae54fe5df0d973aa
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6.0
           bundler-cache: true
@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@v4
 
       - name: Run CodeSpell
         uses: codespell-project/actions-codespell@2391250ab05295bddd51e36a8c6295edb6343b0e
@@ -81,10 +81,167 @@ jobs:
 
     steps:
       - name: Checkout ARC Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@v4
 
       - uses: algorandfoundation/arcw-action@dist
         id: arcw
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           unchecked: 0000
+
+  check-path:
+    name: Check for Assets Files
+    runs-on: ubuntu-latest
+    outputs:
+      target_path: ${{ steps.check_new_files.outputs.path }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history to ensure proper branch comparison
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Identify Target Path
+        id: check_new_files
+        run: |
+          # Get the base and head branches
+          base_branch="${{ github.event.pull_request.base.ref }}"
+          current_branch="${{ github.event.pull_request.head.ref }}"
+
+          # Ensure the base branch is fetched
+          echo "Fetching base branch: $base_branch"
+          git fetch origin "$base_branch" || exit 0
+
+          # Ensure we are on the current branch
+          echo "Switching to current branch: $current_branch"
+          git checkout "$current_branch" || exit 0
+
+          # Debug: Check if both branches are available
+          echo "Available branches:"
+          git branch -a || exit 0
+
+          # Debug: Check git diff output
+          echo "Git diff output between $base_branch and $current_branch:"
+          git diff --name-status "origin/$base_branch" > diff_output.txt
+          cat diff_output.txt
+
+          # Extract the first matching 'assets/arc-xxxx/' folder
+          arc_folder=$(grep -E '^(A|M|D|R).*assets/arc-[0-9]+/' diff_output.txt | head -n 1 | awk '{print $2}' | sed -E 's|(assets/arc-[0-9]+).*|\1|')
+
+          if [ -z "$arc_folder" ]; then
+            echo "No changes detected in 'assets/arc-xxxx/' folder. Skipping further processing."
+            echo "path=" >> $GITHUB_ENV
+            echo "::set-output name=path::"
+            exit 0
+          fi
+
+          echo "Detected modified folder: $arc_folder"
+
+          # Ensure smart_contracts directory exists before searching
+          if [ ! -d "$arc_folder/smart_contracts" ]; then
+              echo "No smart_contracts directory found in '$arc_folder'. Skipping processing."
+              exit 0
+          fi
+
+          # Search for contract.py within the identified arc folder
+          contract_file=$(find "$arc_folder/smart_contracts" -type f -name "contract.py" 2>/dev/null | head -n 1)
+
+          if [ -z "$contract_file" ]; then
+            echo "No 'contract.py' found in the modified '$arc_folder' folder. Skipping further processing."
+            echo "path=" >> $GITHUB_ENV
+            echo "::set-output name=path::"
+            exit 0
+          fi
+
+          # Extract the parent directory at the desired level
+          path=$(echo "$contract_file" | sed -E 's|(assets/[^/]+)/.*|\1|')
+          echo "Found path: $path"
+          echo "path=$path" >> $GITHUB_ENV
+          echo "::set-output name=path::$path"
+      
+        shell: bash
+
+  validate:
+    name: Validate
+    needs: check-path
+    if: needs.check-path.outputs.target_path != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Target Path
+        run: |
+          echo "Target path: ${{ needs.check-path.outputs.target_path }}"
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install poetry
+        run: pipx install poetry
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install algokit
+        run: pipx install algokit
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Start LocalNet
+        run: algokit localnet start
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Bootstrap dependencies
+        run: algokit project bootstrap all
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Configure git
+        shell: bash
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions"
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Verify .algokit.toml
+        run: |
+          if [ -f .algokit.toml ]; then
+            echo "Found .algokit.toml file. Contents:"
+            cat .algokit.toml
+          else
+            echo "No .algokit.toml file found in the current directory."
+          fi
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Audit python dependencies
+        run: algokit project run audit
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Lint and format python dependencies
+        run: algokit project run lint
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Run tests
+        shell: bash
+        run: |
+          set -o pipefail
+          algokit project run test
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Build smart contracts
+        run: algokit project run build
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Scan TEAL files for issues
+        run: algokit project run audit-teal
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Check output stability of the smart contracts
+        run: algokit project run ci-teal-diff
+        working-directory: ${{ needs.check-path.outputs.target_path }}
+
+      - name: Run deployer against LocalNet
+        run: algokit project deploy localnet
+        working-directory: ${{ needs.check-path.outputs.target_path }}

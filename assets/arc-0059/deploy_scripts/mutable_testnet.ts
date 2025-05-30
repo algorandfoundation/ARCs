@@ -93,7 +93,10 @@ async function deploy() {
   });
 
   const result = await composer
-    .arc59SendAsset({ axfer, receiver }, { sendParams: { fee: algokit.microAlgos(1000 + 1000 * Number(itxns)) } })
+    .arc59SendAsset(
+      { axfer, receiver, additionalReceiverFunds: 0 },
+      { sendParams: { fee: algokit.microAlgos(1000 + 1000 * Number(itxns)) } }
+    )
     .execute();
 
   console.debug(`Sent asset ${assetId} to ${receiver}'s inbox (${result.returns[0]})`);

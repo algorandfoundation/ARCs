@@ -43,6 +43,7 @@ echo "Modifying headers and links in markdown files..."
 cd "$DEST_DIR" || { echo "Directory not found: $DEST_DIR"; exit 1; }
 
 for file in arc-*.md; do
+  arc_number=$(echo "$file" | grep -oE '[0-9]+')  
   if [[ -f "$file" ]]; then
     # 1. Remove the first header (and any preceding blank lines)
     sed -i $SED_INLINE '/^---$/,/^---$/!{/^# /d;}' "$file"
@@ -62,6 +63,19 @@ for file in arc-*.md; do
     sed -i $SED_INLINE -E 's|\(arc-([0-9]{1,4})\.md(\#[a-zA-Z0-9_-]+)?\)|\(/standards/arcs/arc-\1\2)|g' "$file"
     if [[ $? -ne 0 ]]; then
     echo "Failed to update links to /standards/arcs/ in $file"
+    continue
+    fi
+    # 3 Step 3: Replace occurrences of ': ./arc-XXXX.md#anchor' with ': /standards/arcs/arc-XXXX#anchor'
+    sed -i $SED_INLINE -E 's|: \./arc-([0-9]{4})\.md#([a-zA-Z0-9_-]+)|: /standards/arcs/arc-\1#\2|g' "$file"
+    if [[ $? -ne 0 ]]; then
+    echo "Failed to update links with ': ./arc-XXXX.md#anchor' format in $file"
+    continue
+    fi
+
+    # 4 Step 4: Replace occurrences of ': #anchor' with ': /standards/arcs/arc-XXXX#anchor' (based on file name)
+    sed -i $SED_INLINE -E "s|: #([a-zA-Z0-9_-]+)|: /standards/arcs/arc-${arc_number}#\1|g" "$file"
+    if [[ $? -ne 0 ]]; then
+    echo "Failed to update ': #anchor' references to use /standards/arcs/arc-XXXX in $file"
     continue
     fi
 
