@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 # Set up logging and load environment variables.
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s %(levelname)-10s: %(message)s"
+    level=logging.INFO, format="%(asctime)s %(levelname)-10s: %(message)s"
 )
 logger = logging.getLogger(__name__)
 logger.info("Loading .env")

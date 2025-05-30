@@ -3,7 +3,7 @@
 
 // smart_contracts.circulating_supply.contract.CirculatingSupply.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 32
+    intcblock 0 1
     bytecblock "asset_id" "burned" "locked" "generic"
     txn ApplicationID
     bnz main_after_if_else@2
@@ -192,11 +192,6 @@ set_not_circulating_address:
     // smart_contracts/circulating_supply/contract.py:62
     // assert Account(address.bytes).is_opted_in(asset), err.NOT_OPTED_IN
     frame_dig -2
-    len
-    intc_2 // 32
-    ==
-    assert // Address length is 32 bytes
-    frame_dig -2
     swap
     asset_holding_get AssetBalance
     bury 1
@@ -265,40 +260,19 @@ arc62_get_circulating_supply:
     intc_0 // 0
     bytec_1 // "burned"
     app_global_get_ex
-    swap
-    dup
-    uncover 2
     assert // check self.not_circulating_label_1 exists
-    len
-    intc_2 // 32
-    ==
-    assert // Address length is 32 bytes
     // smart_contracts/circulating_supply/contract.py:87
     // not_circulating_2 = Account(self.not_circulating_label_2.value.bytes)
     intc_0 // 0
     bytec_2 // "locked"
     app_global_get_ex
-    swap
-    dup
-    uncover 2
     assert // check self.not_circulating_label_2 exists
-    len
-    intc_2 // 32
-    ==
-    assert // Address length is 32 bytes
     // smart_contracts/circulating_supply/contract.py:88
     // not_circulating_3 = Account(self.not_circulating_label_3.value.bytes)
     intc_0 // 0
     bytec_3 // "generic"
     app_global_get_ex
-    swap
-    dup
-    uncover 2
     assert // check self.not_circulating_label_3 exists
-    len
-    intc_2 // 32
-    ==
-    assert // Address length is 32 bytes
     // smart_contracts/circulating_supply/contract.py:89-90
     // # Preconditions
     // assert asset_id == self.asset_id, err.INVALID_ASSET_ID
