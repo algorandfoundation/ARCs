@@ -1,35 +1,40 @@
 import pytest
-from algokit_utils import LogicError
-from algokit_utils.beta.account_manager import AddressAndSigner
-from algokit_utils.beta.algorand_client import (
+from algokit_utils import (
     AlgorandClient,
     AssetOptInParams,
     AssetTransferParams,
+    LogicError,
+    SigningAccount,
 )
 from algosdk.atomic_transaction_composer import TransactionWithSigner
 
 import smart_contracts.errors as err
-from smart_contracts.artifacts.smart_asa.smart_asa_client import SmartAsaClient
+from smart_contracts.artifacts.smart_asa.smart_asa_client import (
+    AssetOptInArgs,
+    SmartAsaClient,
+)
 
 
 def test_pass_asset_opt_in(
-    algorand_client: AlgorandClient,
+    algorand: AlgorandClient,
     smart_asa_client: SmartAsaClient,
-    creator: AddressAndSigner,
+    creator: SigningAccount,
 ) -> None:
-    state = smart_asa_client.get_global_state()
+    state = smart_asa_client.state.global_state
     smart_asa_id = state.smart_asa_id
-    smart_asa_client.opt_in_asset_opt_in(
-        asset=smart_asa_id,
-        ctrl_asa_opt_in=TransactionWithSigner(
-            txn=algorand_client.transactions.asset_opt_in(
-                AssetOptInParams(sender=creator.address, asset_id=smart_asa_id)
+    smart_asa_client.send.opt_in.asset_opt_in(
+        AssetOptInArgs(
+            asset=smart_asa_id,
+            ctrl_asa_opt_in=TransactionWithSigner(
+                txn=algorand.create_transaction.asset_opt_in(
+                    AssetOptInParams(sender=creator.address, asset_id=smart_asa_id)
+                ),
+                signer=creator.signer,
             ),
-            signer=creator.signer,
         ),
     )
 
-    local_state = smart_asa_client.get_local_state(creator.address)
+    local_state = smart_asa_client.state.local_state(creator.address)
     assert local_state.account_smart_asa_id == smart_asa_id
     if state.default_frozen:
         assert local_state.account_frozen
@@ -38,109 +43,115 @@ def test_pass_asset_opt_in(
 
 
 def test_fail_missing_ctrl_asa(
-    algorand_client: AlgorandClient,
+    algorand: AlgorandClient,
     smart_asa_client_no_asset: SmartAsaClient,
-    creator: AddressAndSigner,
+    creator: SigningAccount,
     dummy_asa: int,
 ) -> None:
     with pytest.raises(LogicError, match=err.MISSING_CTRL_ASA):
-        smart_asa_client_no_asset.opt_in_asset_opt_in(
-            asset=dummy_asa,
-            ctrl_asa_opt_in=TransactionWithSigner(
-                txn=algorand_client.transactions.asset_opt_in(
-                    AssetOptInParams(sender=creator.address, asset_id=dummy_asa)
+        smart_asa_client_no_asset.send.opt_in.asset_opt_in(
+            AssetOptInArgs(
+                asset=dummy_asa,
+                ctrl_asa_opt_in=TransactionWithSigner(
+                    txn=algorand.create_transaction.asset_opt_in(
+                        AssetOptInParams(sender=creator.address, asset_id=dummy_asa)
+                    ),
+                    signer=creator.signer,
                 ),
-                signer=creator.signer,
             ),
         )
 
 
 def test_fail_invalid_ctrl_asa(
-    algorand_client: AlgorandClient,
+    algorand: AlgorandClient,
     smart_asa_client: SmartAsaClient,
-    creator: AddressAndSigner,
+    creator: SigningAccount,
     dummy_asa: int,
 ) -> None:
-    state = smart_asa_client.get_global_state()
-    smart_asa_id = state.smart_asa_id
+    smart_asa_id = smart_asa_client.state.global_state.smart_asa_id
     with pytest.raises(LogicError, match=err.INVALID_CTRL_ASA):
-        smart_asa_client.opt_in_asset_opt_in(
-            asset=dummy_asa,
-            ctrl_asa_opt_in=TransactionWithSigner(
-                txn=algorand_client.transactions.asset_opt_in(
-                    AssetOptInParams(sender=creator.address, asset_id=smart_asa_id)
+        smart_asa_client.send.opt_in.asset_opt_in(
+            AssetOptInArgs(
+                asset=dummy_asa,
+                ctrl_asa_opt_in=TransactionWithSigner(
+                    txn=algorand.create_transaction.asset_opt_in(
+                        AssetOptInParams(sender=creator.address, asset_id=smart_asa_id)
+                    ),
+                    signer=creator.signer,
                 ),
-                signer=creator.signer,
             ),
         )
 
 
 def test_fail_opt_in_wrong_type(
-    smart_asa_client: SmartAsaClient, creator: AddressAndSigner
+    smart_asa_client: SmartAsaClient, creator: SigningAccount
 ) -> None:
     pass  # TODO: Require using low level SDK since the ATC catch the incorrect txn type error first.
 
 
 def test_fail_opt_in_wrong_asa(
-    algorand_client: AlgorandClient,
+    algorand: AlgorandClient,
     smart_asa_client: SmartAsaClient,
-    creator: AddressAndSigner,
+    creator: SigningAccount,
     dummy_asa: int,
 ) -> None:
-    state = smart_asa_client.get_global_state()
-    smart_asa_id = state.smart_asa_id
+    smart_asa_id = smart_asa_client.state.global_state.smart_asa_id
     with pytest.raises(LogicError, match=err.OPT_IN_WRONG_ASA):
-        smart_asa_client.opt_in_asset_opt_in(
-            asset=smart_asa_id,
-            ctrl_asa_opt_in=TransactionWithSigner(
-                txn=algorand_client.transactions.asset_opt_in(
-                    AssetOptInParams(sender=creator.address, asset_id=dummy_asa)
+        smart_asa_client.send.opt_in.asset_opt_in(
+            AssetOptInArgs(
+                asset=smart_asa_id,
+                ctrl_asa_opt_in=TransactionWithSigner(
+                    txn=algorand.create_transaction.asset_opt_in(
+                        AssetOptInParams(sender=creator.address, asset_id=dummy_asa)
+                    ),
+                    signer=creator.signer,
                 ),
-                signer=creator.signer,
             ),
         )
 
 
 def test_fail_opt_in_wrong_sender(
-    algorand_client: AlgorandClient,
+    algorand: AlgorandClient,
     smart_asa_client: SmartAsaClient,
-    eve: AddressAndSigner,
+    eve: SigningAccount,
 ) -> None:
-    state = smart_asa_client.get_global_state()
-    smart_asa_id = state.smart_asa_id
+    smart_asa_id = smart_asa_client.state.global_state.smart_asa_id
     with pytest.raises(LogicError, match=err.OPT_IN_WRONG_SENDER):
-        smart_asa_client.opt_in_asset_opt_in(
-            asset=smart_asa_id,
-            ctrl_asa_opt_in=TransactionWithSigner(
-                txn=algorand_client.transactions.asset_opt_in(
-                    AssetOptInParams(sender=eve.address, asset_id=smart_asa_id)
+        smart_asa_client.send.opt_in.asset_opt_in(
+            AssetOptInArgs(
+                asset=smart_asa_id,
+                ctrl_asa_opt_in=TransactionWithSigner(
+                    txn=algorand.create_transaction.asset_opt_in(
+                        AssetOptInParams(sender=eve.address, asset_id=smart_asa_id)
+                    ),
+                    signer=eve.signer,
                 ),
-                signer=eve.signer,
             ),
         )
 
 
 def test_fail_opt_in_wrong_receiver(
-    algorand_client: AlgorandClient,
+    algorand: AlgorandClient,
     smart_asa_client: SmartAsaClient,
-    creator: AddressAndSigner,
-    eve: AddressAndSigner,
+    creator: SigningAccount,
+    eve: SigningAccount,
 ) -> None:
-    state = smart_asa_client.get_global_state()
-    smart_asa_id = state.smart_asa_id
+    smart_asa_id = smart_asa_client.state.global_state.smart_asa_id
     with pytest.raises(LogicError, match=err.OPT_IN_WRONG_RECEIVER):
-        smart_asa_client.opt_in_asset_opt_in(
-            asset=smart_asa_id,
-            ctrl_asa_opt_in=TransactionWithSigner(
-                txn=algorand_client.transactions.asset_transfer(
-                    AssetTransferParams(
-                        sender=creator.address,
-                        asset_id=smart_asa_id,
-                        receiver=eve.address,
-                        amount=0,
-                    )
+        smart_asa_client.send.opt_in.asset_opt_in(
+            AssetOptInArgs(
+                asset=smart_asa_id,
+                ctrl_asa_opt_in=TransactionWithSigner(
+                    txn=algorand.create_transaction.asset_transfer(
+                        AssetTransferParams(
+                            sender=creator.address,
+                            asset_id=smart_asa_id,
+                            receiver=eve.address,
+                            amount=0,
+                        )
+                    ),
+                    signer=creator.signer,
                 ),
-                signer=creator.signer,
             ),
         )
 
@@ -149,26 +160,27 @@ def test_fail_opt_in_wrong_receiver(
 
 
 def test_fail_opt_in_forbidden_close_out(
-    algorand_client: AlgorandClient,
+    algorand: AlgorandClient,
     smart_asa_client: SmartAsaClient,
-    creator: AddressAndSigner,
+    creator: SigningAccount,
 ) -> None:
-    state = smart_asa_client.get_global_state()
-    smart_asa_id = state.smart_asa_id
+    smart_asa_id = smart_asa_client.state.global_state.smart_asa_id
     with pytest.raises(LogicError, match=err.OPT_IN_WRONG_CLOSE_TO):
-        smart_asa_client.opt_in_asset_opt_in(
-            asset=smart_asa_id,
-            ctrl_asa_opt_in=TransactionWithSigner(
-                txn=algorand_client.transactions.asset_transfer(
-                    AssetTransferParams(
-                        sender=creator.address,
-                        asset_id=smart_asa_id,
-                        receiver=creator.address,
-                        amount=0,
-                        close_asset_to=smart_asa_client.app_address,
-                    )
+        smart_asa_client.send.opt_in.asset_opt_in(
+            AssetOptInArgs(
+                asset=smart_asa_id,
+                ctrl_asa_opt_in=TransactionWithSigner(
+                    txn=algorand.create_transaction.asset_transfer(
+                        AssetTransferParams(
+                            sender=creator.address,
+                            asset_id=smart_asa_id,
+                            receiver=creator.address,
+                            amount=0,
+                            close_asset_to=smart_asa_client.app_address,
+                        )
+                    ),
+                    signer=creator.signer,
                 ),
-                signer=creator.signer,
             ),
         )
 
