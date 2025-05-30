@@ -17,6 +17,7 @@ from smart_contracts.artifacts.circulating_supply.circulating_supply_client impo
     CirculatingSupplyFactory,
     SetAssetArgs,
 )
+from smart_contracts.circulating_supply.config import ARC3_SUFFIX, ARC3_URI
 
 INITIAL_FUNDS: Final[AlgoAmount] = AlgoAmount.from_algo(100)
 ASA_TOTAL: Final[int] = 1000
@@ -24,7 +25,6 @@ RESERVE_BALANCE: Final[int] = 420
 NOT_CIRCULATING_BALANCE_1: Final[int] = 69
 NOT_CIRCULATING_BALANCE_2: Final[int] = 42
 NOT_CIRCULATING_BALANCE_3: Final[int] = 4
-APP_URI: Final[str] = "algorand://app/"
 
 
 @pytest.fixture(scope="session")
@@ -142,7 +142,7 @@ def asset(
             total=ASA_TOTAL,
             manager=asset_manager.address,
             reserve=asset_reserve.address,
-            url=APP_URI + str(circulating_supply_client.app_id),
+            url=ARC3_URI + "<ipfs-cid>" + ARC3_SUFFIX,
         )
     ).asset_id
 
