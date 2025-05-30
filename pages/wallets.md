@@ -27,16 +27,16 @@ Allowed Status are:
 | [25][ARC-25]   | UNKNOWN       | Supported     | Supported     | Supported     |
 | [35][ARC-35]   | UNKNOWN       | Supported     | Not Supported | Planned       |
 
-[ARC-1]: ../ARCs/arc-0001 "Algorand Wallet Transaction Signing API"
-[ARC-5]: ../ARCs/arc-0005 "Wallet Transaction Signing API (Functional)"
-[ARC-6]: ../ARCs/arc-0006 "Algorand Wallet Address Discovery API"
-[ARC-7]: ../ARCs/arc-0007 "Algorand Wallet Post Transactions API"
-[ARC-8]: ../ARCs/arc-0008 "Algorand Wallet Sign and Post API"
-[ARC-9]: ../ARCs/arc-0009 "Algorand Wallet Algodv2 and Indexer API"
-[ARC-10]: ../ARCs/arc-0010 "Algorand Wallet Reach Minimum Requirements"
-[ARC-11]: ../ARCs/arc-0011 "Algorand Wallet Reach Browser Spec"
-[ARC-25]: ../ARCs/arc-0025 "Algorand WalletConnect v1 API"
-[ARC-35]: ../ARCs/arc-0035 "Algorand Offline Wallet Backup Protocol"
+[ARC-1]: https://arc.algorand.foundation/ARCs/arc-0001 "Algorand Wallet Transaction Signing API"
+[ARC-5]: https://arc.algorand.foundation/ARCs/arc-0005 "Wallet Transaction Signing API (Functional)"
+[ARC-6]: https://arc.algorand.foundation/ARCs/arc-0006 "Algorand Wallet Address Discovery API"
+[ARC-7]: https://arc.algorand.foundation/ARCs/arc-0007 "Algorand Wallet Post Transactions API"
+[ARC-8]: https://arc.algorand.foundation/ARCs/arc-0008 "Algorand Wallet Sign and Post API"
+[ARC-9]: https://arc.algorand.foundation/ARCs/arc-0009 "Algorand Wallet Algodv2 and Indexer API"
+[ARC-10]: https://arc.algorand.foundation/ARCs/arc-0010 "Algorand Wallet Reach Minimum Requirements"
+[ARC-11]: https://arc.algorand.foundation/ARCs/arc-0011 "Algorand Wallet Reach Browser Spec"
+[ARC-25]: https://arc.algorand.foundation/ARCs/arc-0025 "Algorand WalletConnect v1 API"
+[ARC-35]: https://arc.algorand.foundation/ARCs/arc-0035 "Algorand Offline Wallet Backup Protocol"
 
 ## NFT & Token ARCs
 
