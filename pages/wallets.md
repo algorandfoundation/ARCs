@@ -50,13 +50,13 @@ Allowed Status are:
 | [72][ARC-72]   | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
 | [200][ARC-200] | UNKNOWN       | UNKNOWN       | Not Supported | UNKNOWN       |
 
-[ARC-3]: ../ARCs/arc-0003 "Conventions Fungible/Non-Fungible Tokens"
-[ARC-16]: ../ARCs/arc-0016 "Convention for declaring traits of an NFT's"
-[ARC-19]: ../ARCs/arc-0019 "Templating of NFT ASA URLs for mutability"
-[ARC-20]: ../ARCs/arc-0020 "Smart ASA"
-[ARC-69]: ../ARCs/arc-0069 "ASA Parameters Conventions, Digital Media"
-[ARC-72]: ../ARCs/arc-0072 "Algorand Smart Contract NFT Specification"
-[ARC-200]: ../ARCs/arc-0200 "Algorand Smart Contract Token Specification"
+[ARC-3]: https://arc.algorand.foundation/ARCs/arc-0003 "Conventions Fungible/Non-Fungible Tokens"
+[ARC-16]: https://arc.algorand.foundation/ARCs/arc-0016 "Convention for declaring traits of an NFT's"
+[ARC-19]: https://arc.algorand.foundation/ARCs/arc-0019 "Templating of NFT ASA URLs for mutability"
+[ARC-20]: https://arc.algorand.foundation/ARCs/arc-0020 "Smart ASA"
+[ARC-69]: https://arc.algorand.foundation/ARCs/arc-0069 "ASA Parameters Conventions, Digital Media"
+[ARC-72]: https://arc.algorand.foundation/ARCs/arc-0072 "Algorand Smart Contract NFT Specification"
+[ARC-200]: https://arc.algorand.foundation/ARCs/arc-0200 "Algorand Smart Contract Token Specification"
 
 
 ## BIPS
