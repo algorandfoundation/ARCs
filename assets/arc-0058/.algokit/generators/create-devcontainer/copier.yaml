@@ -1,0 +1,4 @@
+_tasks:
+  - "echo '==== Successfully generated new .devcontainer.json file 🚀 ===='"
+
+_templates_suffix: ".j2"

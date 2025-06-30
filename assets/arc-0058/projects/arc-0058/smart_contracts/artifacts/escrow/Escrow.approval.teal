@@ -1,0 +1,152 @@
+#pragma version 10
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0
+    // smart_contracts/escrow/contract.algo.ts:6
+    // export class Escrow extends Contract {
+    txn NumAppArgs
+    bz main_bare_routing@7
+    pushbytess 0x00b86caf 0x24378d3c // method "rekey(account)void", method "delete()void"
+    txna ApplicationArgs 0
+    match main_rekey_route@3 main_delete_route@4
+
+main_after_if_else@11:
+    // smart_contracts/escrow/contract.algo.ts:6
+    // export class Escrow extends Contract {
+    intc_1 // 0
+    return
+
+main_delete_route@4:
+    // smart_contracts/escrow/contract.algo.ts:22
+    // @abimethod({ allowActions: 'DeleteApplication' })
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub delete
+    intc_0 // 1
+    return
+
+main_rekey_route@3:
+    // smart_contracts/escrow/contract.algo.ts:8
+    // rekey(rekeyTo: Account): void {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/escrow/contract.algo.ts:6
+    // export class Escrow extends Contract {
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    // smart_contracts/escrow/contract.algo.ts:8
+    // rekey(rekeyTo: Account): void {
+    callsub rekey
+    intc_0 // 1
+    return
+
+main_bare_routing@7:
+    // smart_contracts/escrow/contract.algo.ts:6
+    // export class Escrow extends Contract {
+    txn OnCompletion
+    bnz main_after_if_else@11
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// smart_contracts/escrow/contract.algo.ts::Escrow.rekey(rekeyTo: bytes) -> void:
+rekey:
+    // smart_contracts/escrow/contract.algo.ts:8
+    // rekey(rekeyTo: Account): void {
+    proto 1 0
+    // smart_contracts/escrow/contract.algo.ts:9
+    // assert(Txn.sender === Global.creatorAddress, ERR_ONLY_CREATOR_CAN_REKEY)
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // only the creator can rekey an escrow contract
+    // smart_contracts/escrow/contract.algo.ts:11-18
+    // itxn
+    //   .payment({
+    //     amount: 0,
+    //     receiver: Global.currentApplicationAddress,
+    //     rekeyTo,
+    //     fee,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/escrow/contract.algo.ts:14
+    // receiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    frame_dig -1
+    itxn_field RekeyTo
+    itxn_field Receiver
+    // smart_contracts/escrow/contract.algo.ts:13
+    // amount: 0,
+    intc_1 // 0
+    itxn_field Amount
+    // smart_contracts/escrow/contract.algo.ts:11-17
+    // itxn
+    //   .payment({
+    //     amount: 0,
+    //     receiver: Global.currentApplicationAddress,
+    //     rekeyTo,
+    //     fee,
+    //   })
+    intc_0 // 1
+    itxn_field TypeEnum
+    // smart_contracts/utils/constants.ts:3
+    // export const fee: uint64 = 0
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/escrow/contract.algo.ts:11-18
+    // itxn
+    //   .payment({
+    //     amount: 0,
+    //     receiver: Global.currentApplicationAddress,
+    //     rekeyTo,
+    //     fee,
+    //   })
+    //   .submit()
+    itxn_submit
+    retsub
+
+
+// smart_contracts/escrow/contract.algo.ts::Escrow.delete() -> void:
+delete:
+    // smart_contracts/escrow/contract.algo.ts:24
+    // assert(Txn.sender === Global.creatorAddress, ERR_ONLY_FACTORY_CAN_DELETE)
+    txn Sender
+    global CreatorAddress
+    ==
+    assert // only the factory can delete an escrow contract
+    // smart_contracts/escrow/contract.algo.ts:26-28
+    // itxn
+    //   .payment({ closeRemainderTo: Global.creatorAddress })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/escrow/contract.algo.ts:27
+    // .payment({ closeRemainderTo: Global.creatorAddress })
+    global CreatorAddress
+    itxn_field CloseRemainderTo
+    // smart_contracts/escrow/contract.algo.ts:26-27
+    // itxn
+    //   .payment({ closeRemainderTo: Global.creatorAddress })
+    intc_0 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/escrow/contract.algo.ts:26-28
+    // itxn
+    //   .payment({ closeRemainderTo: Global.creatorAddress })
+    //   .submit()
+    itxn_submit
+    retsub

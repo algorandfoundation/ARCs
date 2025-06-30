@@ -1,0 +1,14 @@
+import { TestExecutionContext } from '@algorandfoundation/algorand-typescript-testing'
+import { describe, expect, it } from 'vitest'
+import { {{ contract_name.split('_')|map('capitalize')|join }} } from './contract.algo'
+
+describe('{{ contract_name.split('_')|map('capitalize')|join }} contract', () => {
+  const ctx = new TestExecutionContext()
+  it('Logs the returned value when sayHello is called', () => {
+    const contract = ctx.contract.create({{ contract_name.split('_')|map('capitalize')|join }})
+
+    const result = contract.hello('Sally')
+
+    expect(result).toBe('Hello Sally')
+  })
+})

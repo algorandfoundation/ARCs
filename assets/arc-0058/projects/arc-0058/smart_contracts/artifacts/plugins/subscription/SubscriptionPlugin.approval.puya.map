@@ -1,0 +1,653 @@
+{
+  "version": 3,
+  "sources": [
+    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/abstracted_account/constants.ts",
+    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/plugins/subscription/contract.algo.ts",
+    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/utils/constants.ts",
+    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/utils/plugins.ts"
+  ],
+  "mappings": ";;;;;ACYE;AAAkD;AAAlD;AAFF;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAIE;;AAAA;AAAA;AAAA;;AAAA;AAJF;;;AAAA;AAAA;;;;AAAA;AAAA;;;AAIE;;;AAAA;;AAJF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAIE;;;AEmB+B;;AH5B4B;;;;;;;;;;;;;;;;;;AG4B5B;AAAA;AFVf;;AAXhB;AAAA;AAAA;AAAA;AAWS;AAjBe;AAiBf;AAAP;AAXF;AAYkC;;AAAhC;AAEA;AAlBmB;AEiCjB;;AAAA;;;AACY;;;;AFZQ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAJtB;;;ACxBuB;;;ADwBvB;;AEmBY;;AAAA;;AAAA;AFdC",
+  "op_pc_offset": 2,
+  "pc_events": {
+    "0": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "reinterpret_bool%0#0"
+      ],
+      "stack_out": [
+        "reinterpret_bool%0#0"
+      ]
+    },
+    "2": {
+      "op": "bnz main_after_if_else@2",
+      "stack_out": []
+    },
+    "5": {
+      "op": "bytec_0 // \"lastPayment\"",
+      "defined_out": [
+        "\"lastPayment\""
+      ],
+      "stack_out": [
+        "\"lastPayment\""
+      ]
+    },
+    "6": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"lastPayment\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"lastPayment\"",
+        "0"
+      ]
+    },
+    "7": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "8": {
+      "block": "main_after_if_else@2",
+      "stack_in": [],
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "10": {
+      "op": "bz main_bare_routing@8",
+      "stack_out": []
+    },
+    "13": {
+      "op": "pushbytes 0xb060ba58 // method \"makePayment(uint64,bool,address)void\"",
+      "defined_out": [
+        "Method(makePayment(uint64,bool,address)void)"
+      ],
+      "stack_out": [
+        "Method(makePayment(uint64,bool,address)void)"
+      ]
+    },
+    "19": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(makePayment(uint64,bool,address)void)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "Method(makePayment(uint64,bool,address)void)",
+        "tmp%2#0"
+      ]
+    },
+    "22": {
+      "op": "match main_makePayment_route@5",
+      "stack_out": []
+    },
+    "26": {
+      "block": "main_after_if_else@12",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "27": {
+      "op": "return",
+      "stack_out": []
+    },
+    "28": {
+      "block": "main_makePayment_route@5",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "30": {
+      "op": "!",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "31": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "32": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "34": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "35": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "reinterpret_bytes[8]%0#0"
+      ],
+      "stack_out": [
+        "reinterpret_bytes[8]%0#0"
+      ]
+    },
+    "38": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "39": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "reinterpret_bytes[1]%0#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "reinterpret_bytes[1]%0#0"
+      ]
+    },
+    "42": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "reinterpret_bytes[1]%0#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "reinterpret_bytes[1]%0#0",
+        "0"
+      ]
+    },
+    "43": {
+      "op": "getbit",
+      "defined_out": [
+        "tmp%7#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "tmp%8#0"
+      ]
+    },
+    "44": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "reinterpret_bytes[32]%0#0",
+        "tmp%7#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "tmp%8#0",
+        "reinterpret_bytes[32]%0#0"
+      ]
+    },
+    "47": {
+      "callsub": "smart_contracts/plugins/subscription/contract.algo.ts::SubscriptionPlugin.makePayment",
+      "op": "callsub makePayment",
+      "stack_out": []
+    },
+    "50": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "51": {
+      "op": "return",
+      "stack_out": []
+    },
+    "52": {
+      "block": "main_bare_routing@8",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%9#0"
+      ]
+    },
+    "54": {
+      "op": "bnz main_after_if_else@12",
+      "stack_out": []
+    },
+    "57": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0"
+      ]
+    },
+    "59": {
+      "op": "!",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "60": {
+      "error": "can only call when creating",
+      "op": "assert // can only call when creating",
+      "stack_out": []
+    },
+    "61": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "62": {
+      "op": "return",
+      "stack_out": []
+    },
+    "63": {
+      "subroutine": "smart_contracts/plugins/subscription/contract.algo.ts::SubscriptionPlugin.makePayment",
+      "params": {
+        "walletID#0": "uint64",
+        "rekeyBack#0": "uint64",
+        "_acctRef#0": "bytes"
+      },
+      "block": "makePayment",
+      "stack_in": [],
+      "op": "proto 3 0"
+    },
+    "66": {
+      "op": "frame_dig -3",
+      "defined_out": [
+        "walletID#0 (copy)"
+      ],
+      "stack_out": [
+        "walletID#0 (copy)"
+      ]
+    },
+    "68": {
+      "op": "pushbytes \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "walletID#0 (copy)"
+      ],
+      "stack_out": [
+        "walletID#0 (copy)",
+        "\"spending_address\""
+      ]
+    },
+    "86": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "_#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "_#0"
+      ]
+    },
+    "87": {
+      "op": "pop",
+      "defined_out": [
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "88": {
+      "op": "global Round",
+      "defined_out": [
+        "spendingAddressBytes#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%0#0"
+      ]
+    },
+    "90": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "91": {
+      "op": "bytec_0 // \"lastPayment\"",
+      "defined_out": [
+        "\"lastPayment\"",
+        "0",
+        "spendingAddressBytes#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%0#0",
+        "0",
+        "\"lastPayment\""
+      ]
+    },
+    "92": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "spendingAddressBytes#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "93": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "94": {
+      "op": "-",
+      "defined_out": [
+        "spendingAddressBytes#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%1#0"
+      ]
+    },
+    "95": {
+      "op": "intc_2 // TMPL_FREQUENCY",
+      "defined_out": [
+        "TMPL_FREQUENCY",
+        "spendingAddressBytes#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%1#0",
+        "TMPL_FREQUENCY"
+      ]
+    },
+    "96": {
+      "op": ">",
+      "defined_out": [
+        "spendingAddressBytes#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "tmp%2#0"
+      ]
+    },
+    "97": {
+      "op": "assert",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "98": {
+      "op": "bytec_0 // \"lastPayment\"",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "\"lastPayment\""
+      ]
+    },
+    "99": {
+      "op": "global Round",
+      "defined_out": [
+        "\"lastPayment\"",
+        "materialized_values%0#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "\"lastPayment\"",
+        "materialized_values%0#0"
+      ]
+    },
+    "101": {
+      "op": "app_global_put",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "102": {
+      "op": "itxn_begin"
+    },
+    "103": {
+      "op": "intc_3 // TMPL_AMOUNT"
+    },
+    "104": {
+      "op": "frame_dig -2",
+      "defined_out": [
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "rekeyBack#0 (copy)",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "rekeyBack#0 (copy)"
+      ]
+    },
+    "106": {
+      "op": "bnz makePayment_after_if_else@6",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "109": {
+      "op": "global ZeroAddress",
+      "defined_out": [
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0"
+      ]
+    },
+    "111": {
+      "block": "makePayment_after_inlined_smart_contracts/utils/plugins.ts::rekeyAddress@7",
+      "stack_in": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0"
+      ],
+      "op": "itxn_field RekeyTo",
+      "defined_out": [],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "113": {
+      "op": "pushbytes base32(46XYR7OTRZXISI2TRSBDWPUVQT4ECBWNI7TFWPPS6EKAPJ7W5OBQ)",
+      "defined_out": [
+        "46XYR7OTRZXISI2TRSBDWPUVQT4ECBWNI7TFWPPS6EKAPJ7W5OBQ"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "46XYR7OTRZXISI2TRSBDWPUVQT4ECBWNI7TFWPPS6EKAPJ7W5OBQ"
+      ]
+    },
+    "147": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "149": {
+      "op": "frame_dig 1",
+      "defined_out": [
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "151": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "153": {
+      "op": "frame_dig 0",
+      "defined_out": [
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "155": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "157": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "1"
+      ]
+    },
+    "158": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "160": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "0"
+      ]
+    },
+    "161": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "163": {
+      "op": "itxn_submit"
+    },
+    "164": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "165": {
+      "block": "makePayment_after_if_else@6",
+      "stack_in": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ],
+      "op": "frame_dig -3",
+      "defined_out": [
+        "walletID#0 (copy)"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "walletID#0 (copy)"
+      ]
+    },
+    "167": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "169": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "defined_out": [
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0"
+      ]
+    },
+    "170": {
+      "op": "b makePayment_after_inlined_smart_contracts/utils/plugins.ts::rekeyAddress@7"
+    }
+  }
+}
