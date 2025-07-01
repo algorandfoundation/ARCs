@@ -31,6 +31,15 @@ export type AllowanceInfo = {
   useRounds: boolean
 }
 
+export type AddAllowanceInfo = {
+  asset: uint64;
+  type: SpendAllowanceType;
+  allowed: uint64;
+  max: uint64;
+  interval: uint64;
+  useRounds: boolean;
+}
+
 export type FundsRequest = {
   asset: uint64;
   amount: uint64;
