@@ -105,6 +105,7 @@ jobs:
       - name: Identify Target Path
         id: check_new_files
         run: |
+          set -euo pipefail
           # Get the base and head branches
           base_branch="${{ github.event.pull_request.base.ref }}"
           current_branch="${{ github.event.pull_request.head.ref }}"
@@ -126,17 +127,20 @@ jobs:
           git diff --name-status "origin/$base_branch" > diff_output.txt
           cat diff_output.txt
 
-          # Extract the first matching 'assets/arc-xxxx/' folder
-          arc_folder=$(grep -E '^(A|M|D|R).*assets/arc-[0-9]+/' diff_output.txt | head -n 1 | awk '{print $2}' | sed -E 's|(assets/arc-[0-9]+).*|\1|')
+          # Extract the first matching 'assets/arc-xxxx/' or 'ARCs/arc-xxxx/' folder
+          arc_folder=$(grep -E '^(A|M|D|R).*(assets|ARCs)/arc-[0-9]+.*' diff_output.txt | head -n 1 | awk '{print $2}' | sed -E 's|((assets|ARCs)/arc-[0-9]+).*|\1|')
 
-          if [ -z "$arc_folder" ]; then
-            echo "No changes detected in 'assets/arc-xxxx/' folder. Skipping further processing."
+          echo "Evaluated arc_folder: '$arc_folder'"
+          if [ -z "${arc_folder:-}" ]; then
+            echo "No changes detected in 'assets/arc-xxxx/' or 'ARCs/arc-xxxx/' folder. Skipping further processing."
             echo "arc_folder is empty"
             echo "GITHUB_ENV=$GITHUB_ENV"
             echo "GITHUB_OUTPUT=$GITHUB_OUTPUT"
-            if [ -n "$GITHUB_ENV" ]; then
+            if [ -n "${GITHUB_ENV:-}" ] && [ -w "$GITHUB_ENV" ]; then
               ls -l "$GITHUB_ENV" || echo "$GITHUB_ENV not writable or doesn't exist"
               echo "path=" >> "$GITHUB_ENV"
+            else
+              echo "⚠️ Cannot write to GITHUB_ENV"
             fi
             if [ -n "$GITHUB_OUTPUT" ]; then
               echo "path=" >> "$GITHUB_OUTPUT"
@@ -157,8 +161,10 @@ jobs:
 
           if [ -z "$contract_file" ]; then
             echo "No 'contract.py' found in the modified '$arc_folder' folder. Skipping further processing."
-            if [ -n "$GITHUB_ENV" ]; then
+            if [ -n "${GITHUB_ENV:-}" ] && [ -w "$GITHUB_ENV" ]; then
               echo "path=" >> "$GITHUB_ENV"
+            else
+              echo "⚠️ Cannot write to GITHUB_ENV"
             fi
             if [ -n "$GITHUB_OUTPUT" ]; then
               echo "path=" >> "$GITHUB_OUTPUT"
