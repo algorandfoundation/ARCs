@@ -131,7 +131,6 @@ jobs:
 
           if [ -z "$arc_folder" ]; then
             echo "No changes detected in 'assets/arc-xxxx/' folder. Skipping further processing."
-            echo "::set-output name=path::"
             exit 0
           fi
 
@@ -148,7 +147,6 @@ jobs:
 
           if [ -z "$contract_file" ]; then
             echo "No 'contract.py' found in the modified '$arc_folder' folder. Skipping further processing."
-            echo "::set-output name=path::"
             exit 0
           fi
 
