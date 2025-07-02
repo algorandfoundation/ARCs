@@ -111,7 +111,7 @@ jobs:
 
           # Ensure the base branch is fetched
           echo "Fetching base branch: $base_branch"
-          git fetch origin "$base_branch" || exit 0
+          git fetch origin "$base_branch" || { echo "⚠️ git fetch failed"; exit 0; }
 
           # Ensure we are on the current branch
           echo "Switching to current branch: $current_branch"
@@ -131,8 +131,16 @@ jobs:
 
           if [ -z "$arc_folder" ]; then
             echo "No changes detected in 'assets/arc-xxxx/' folder. Skipping further processing."
-            echo "path=" >> $GITHUB_ENV
-            echo "::set-output name=path::"
+            echo "arc_folder is empty"
+            echo "GITHUB_ENV=$GITHUB_ENV"
+            echo "GITHUB_OUTPUT=$GITHUB_OUTPUT"
+            if [ -n "$GITHUB_ENV" ]; then
+              ls -l "$GITHUB_ENV" || echo "$GITHUB_ENV not writable or doesn't exist"
+              echo "path=" >> "$GITHUB_ENV"
+            fi
+            if [ -n "$GITHUB_OUTPUT" ]; then
+              echo "path=" >> "$GITHUB_OUTPUT"
+            fi
             exit 0
           fi
 
@@ -149,16 +157,22 @@ jobs:
 
           if [ -z "$contract_file" ]; then
             echo "No 'contract.py' found in the modified '$arc_folder' folder. Skipping further processing."
-            echo "path=" >> $GITHUB_ENV
-            echo "::set-output name=path::"
+            if [ -n "$GITHUB_ENV" ]; then
+              echo "path=" >> "$GITHUB_ENV"
+            fi
+            if [ -n "$GITHUB_OUTPUT" ]; then
+              echo "path=" >> "$GITHUB_OUTPUT"
+            fi
             exit 0
           fi
 
           # Extract the parent directory at the desired level
           path=$(echo "$contract_file" | sed -E 's|(assets/[^/]+)/.*|\1|')
           echo "Found path: $path"
-          echo "path=$path" >> $GITHUB_ENV
-          echo "::set-output name=path::$path"
+          echo "path=$path" >> "$GITHUB_ENV"
+          if [ -n "$GITHUB_OUTPUT" ]; then
+            echo "path=$path" >> "$GITHUB_OUTPUT"
+          fi
       
         shell: bash
 
