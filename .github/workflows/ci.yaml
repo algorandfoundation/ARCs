@@ -130,7 +130,8 @@ jobs:
           # Extract the first matching 'assets/arc-xxxx/' or 'ARCs/arc-xxxx/' folder
           arc_folder=$(grep -E '^(A|M|D|R).*(assets|ARCs)/arc-[0-9]+.*' diff_output.txt | head -n 1 | awk '{print $2}' | sed -E 's|((assets|ARCs)/arc-[0-9]+).*|\1|')
 
-          if [ -z "$arc_folder" ]; then
+          echo "Evaluated arc_folder: '$arc_folder'"
+          if [ -z "${arc_folder:-}" ]; then
             echo "No changes detected in 'assets/arc-xxxx/' or 'ARCs/arc-xxxx/' folder. Skipping further processing."
             echo "arc_folder is empty"
             echo "GITHUB_ENV=$GITHUB_ENV"
