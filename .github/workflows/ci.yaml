@@ -131,6 +131,10 @@ jobs:
 
           if [ -z "$arc_folder" ]; then
             echo "No changes detected in 'assets/arc-xxxx/' folder. Skipping further processing."
+            if [ -n "$GITHUB_ENV" ]; then
+              echo "path=" >> "$GITHUB_ENV"
+            fi
+            echo "::set-output name=path::"
             exit 0
           fi
 
@@ -147,6 +151,10 @@ jobs:
 
           if [ -z "$contract_file" ]; then
             echo "No 'contract.py' found in the modified '$arc_folder' folder. Skipping further processing."
+            if [ -n "$GITHUB_ENV" ]; then
+              echo "path=" >> "$GITHUB_ENV"
+            fi
+            echo "::set-output name=path::"
             exit 0
           fi
 
