@@ -134,7 +134,9 @@ jobs:
             if [ -n "$GITHUB_ENV" ]; then
               echo "path=" >> "$GITHUB_ENV"
             fi
-            echo "::set-output name=path::"
+            if [ -n "$GITHUB_OUTPUT" ]; then
+              echo "path=" >> "$GITHUB_OUTPUT"
+            fi
             exit 0
           fi
 
@@ -154,15 +156,19 @@ jobs:
             if [ -n "$GITHUB_ENV" ]; then
               echo "path=" >> "$GITHUB_ENV"
             fi
-            echo "::set-output name=path::"
+            if [ -n "$GITHUB_OUTPUT" ]; then
+              echo "path=" >> "$GITHUB_OUTPUT"
+            fi
             exit 0
           fi
 
           # Extract the parent directory at the desired level
           path=$(echo "$contract_file" | sed -E 's|(assets/[^/]+)/.*|\1|')
           echo "Found path: $path"
-          echo "path=$path" >> $GITHUB_ENV
-          echo "::set-output name=path::$path"
+          echo "path=$path" >> "$GITHUB_ENV"
+          if [ -n "$GITHUB_OUTPUT" ]; then
+            echo "path=$path" >> "$GITHUB_OUTPUT"
+          fi
       
         shell: bash
 
