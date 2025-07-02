@@ -111,7 +111,7 @@ jobs:
 
           # Ensure the base branch is fetched
           echo "Fetching base branch: $base_branch"
-          git fetch origin "$base_branch" || exit 0
+          git fetch origin "$base_branch" || { echo "⚠️ git fetch failed"; exit 0; }
 
           # Ensure we are on the current branch
           echo "Switching to current branch: $current_branch"
@@ -131,7 +131,11 @@ jobs:
 
           if [ -z "$arc_folder" ]; then
             echo "No changes detected in 'assets/arc-xxxx/' folder. Skipping further processing."
+            echo "arc_folder is empty"
+            echo "GITHUB_ENV=$GITHUB_ENV"
+            echo "GITHUB_OUTPUT=$GITHUB_OUTPUT"
             if [ -n "$GITHUB_ENV" ]; then
+              ls -l "$GITHUB_ENV" || echo "$GITHUB_ENV not writable or doesn't exist"
               echo "path=" >> "$GITHUB_ENV"
             fi
             if [ -n "$GITHUB_OUTPUT" ]; then
