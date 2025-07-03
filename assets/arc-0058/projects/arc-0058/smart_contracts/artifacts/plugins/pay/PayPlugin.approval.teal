@@ -1,0 +1,211 @@
+#pragma version 10
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1
+    // smart_contracts/plugins/pay/contract.algo.ts:6
+    // export class PayPlugin extends Contract {
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x93d588b9 // method "pay(uint64,bool,address,uint64,uint64)void"
+    txna ApplicationArgs 0
+    match main_pay_route@3
+
+main_after_if_else@10:
+    // smart_contracts/plugins/pay/contract.algo.ts:6
+    // export class PayPlugin extends Contract {
+    intc_0 // 0
+    return
+
+main_pay_route@3:
+    // smart_contracts/plugins/pay/contract.algo.ts:8
+    // pay(walletID: uint64, rekeyBack: boolean, receiver: Address, asset: uint64, amount: uint64): void {
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/plugins/pay/contract.algo.ts:6
+    // export class PayPlugin extends Contract {
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    txna ApplicationArgs 4
+    btoi
+    txna ApplicationArgs 5
+    btoi
+    // smart_contracts/plugins/pay/contract.algo.ts:8
+    // pay(walletID: uint64, rekeyBack: boolean, receiver: Address, asset: uint64, amount: uint64): void {
+    callsub pay
+    intc_1 // 1
+    return
+
+main_bare_routing@6:
+    // smart_contracts/plugins/pay/contract.algo.ts:6
+    // export class PayPlugin extends Contract {
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_1 // 1
+    return
+
+
+// smart_contracts/utils/plugins.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // smart_contracts/utils/plugins.ts:41
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // smart_contracts/utils/plugins.ts:42
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // smart_contracts/utils/plugins.ts:43
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // smart_contracts/utils/plugins.ts:46
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
+
+
+// smart_contracts/plugins/pay/contract.algo.ts::PayPlugin.pay(walletID: uint64, rekeyBack: uint64, receiver: bytes, asset: uint64, amount: uint64) -> void:
+pay:
+    // smart_contracts/plugins/pay/contract.algo.ts:8
+    // pay(walletID: uint64, rekeyBack: boolean, receiver: Address, asset: uint64, amount: uint64): void {
+    proto 5 0
+    // smart_contracts/utils/plugins.ts:34-37
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    frame_dig -5
+    // smart_contracts/abstracted_account/constants.ts:6
+    // export const AbstractAccountGlobalStateKeysSpendingAddress = 'spending_address'
+    pushbytes "spending_address"
+    // smart_contracts/utils/plugins.ts:34-37
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    // smart_contracts/plugins/pay/contract.algo.ts:12
+    // if (asset === 0) {
+    frame_dig -2
+    bnz pay_else_body@3
+    // smart_contracts/plugins/pay/contract.algo.ts:13-21
+    // itxn
+    //   .payment({
+    //     sender,
+    //     receiver: receiver.native,
+    //     amount,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //     fee,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/plugins/pay/contract.algo.ts:18
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    frame_dig -4
+    frame_dig -5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    frame_dig -1
+    itxn_field Amount
+    frame_dig -3
+    itxn_field Receiver
+    itxn_field Sender
+    // smart_contracts/plugins/pay/contract.algo.ts:13-20
+    // itxn
+    //   .payment({
+    //     sender,
+    //     receiver: receiver.native,
+    //     amount,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //     fee,
+    //   })
+    intc_1 // 1
+    itxn_field TypeEnum
+    // smart_contracts/utils/constants.ts:3
+    // export const fee: uint64 = 0
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugins/pay/contract.algo.ts:13-21
+    // itxn
+    //   .payment({
+    //     sender,
+    //     receiver: receiver.native,
+    //     amount,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //     fee,
+    //   })
+    //   .submit()
+    itxn_submit
+    retsub
+
+pay_else_body@3:
+    // smart_contracts/plugins/pay/contract.algo.ts:23-32
+    // itxn
+    //   .assetTransfer({
+    //     sender,
+    //     assetReceiver: receiver.native,
+    //     assetAmount: amount,
+    //     xferAsset: asset,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //     fee,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/plugins/pay/contract.algo.ts:29
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    frame_dig -4
+    frame_dig -5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    frame_dig -2
+    itxn_field XferAsset
+    frame_dig -1
+    itxn_field AssetAmount
+    frame_dig -3
+    itxn_field AssetReceiver
+    itxn_field Sender
+    // smart_contracts/plugins/pay/contract.algo.ts:23-31
+    // itxn
+    //   .assetTransfer({
+    //     sender,
+    //     assetReceiver: receiver.native,
+    //     assetAmount: amount,
+    //     xferAsset: asset,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //     fee,
+    //   })
+    pushint 4 // 4
+    itxn_field TypeEnum
+    // smart_contracts/utils/constants.ts:3
+    // export const fee: uint64 = 0
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugins/pay/contract.algo.ts:23-32
+    // itxn
+    //   .assetTransfer({
+    //     sender,
+    //     assetReceiver: receiver.native,
+    //     assetAmount: amount,
+    //     xferAsset: asset,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //     fee,
+    //   })
+    //   .submit()
+    itxn_submit
+    retsub
