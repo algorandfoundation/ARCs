@@ -146,3 +146,10 @@ export type EscrowReclaim = {
   amount: uint64;
   closeOut: boolean;
 }
+
+export type AbstractAccountBoxMBRData = {
+  plugins: uint64;
+  namedPlugins: uint64;
+  escrows: uint64;
+  allowances: uint64;
+}

@@ -88,7 +88,7 @@ makePayment:
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     frame_dig -3
-    // smart_contracts/abstracted_account/constants.ts:6
+    // smart_contracts/abstracted_account/constants.ts:8
     // export const AbstractAccountGlobalStateKeysSpendingAddress = 'spending_address'
     pushbytes "spending_address"
     // smart_contracts/utils/plugins.ts:34-37

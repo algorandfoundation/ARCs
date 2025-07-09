@@ -41,6 +41,8 @@ describe('ARC58 Plugin Permissions', () => {
   const MAX_UINT64 = BigInt('18446744073709551615');
   /** a created asset id to use */
   let asset: bigint;
+  /** the name of the escrow in use during this test */
+  let escrow: string = '';
 
   const fixture = algorandFixture();
 
@@ -179,7 +181,7 @@ describe('ARC58 Plugin Permissions', () => {
     });
     abstractedAccountClient = results.appClient;
 
-    await abstractedAccountClient.appClient.fundAppAccount({ amount: (4).algos() });
+    await abstractedAccountClient.appClient.fundAppAccount({ amount: (100_000).microAlgos() });
   });
 
   beforeAll(async () => {
@@ -237,6 +239,23 @@ describe('ARC58 Plugin Permissions', () => {
 
   test('both are valid, global is used', async () => {
     const { algorand } = fixture;
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({ args: { methodCount: 0, pluginName: '', escrowName: '' } })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins * BigInt(2)}`)
+    const minFundingAmount = mbr.plugins * BigInt(2) // we install plugins twice here so double it
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, minFundingAmount.microAlgo())
+
     await abstractedAccountClient.send.arc58AddPlugin({
       args: {
         app: plugin,
@@ -265,6 +284,9 @@ describe('ARC58 Plugin Permissions', () => {
       }
     });
 
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
 
     const globalPluginBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
@@ -287,6 +309,28 @@ describe('ARC58 Plugin Permissions', () => {
   test('global valid, global is used', async () => {
     const { algorand } = fixture;
 
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -302,6 +346,9 @@ describe('ARC58 Plugin Permissions', () => {
         useRounds: false
       }
     });
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
 
@@ -324,6 +371,28 @@ describe('ARC58 Plugin Permissions', () => {
 
   test('global does not exist, sender valid', async () => {
     const { algorand } = fixture;
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -339,6 +408,9 @@ describe('ARC58 Plugin Permissions', () => {
         useRounds: false
       }
     });
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], false);
 
@@ -361,6 +433,28 @@ describe('ARC58 Plugin Permissions', () => {
 
   test('global does not exist, sender valid, method allowed', async () => {
     const { algorand } = fixture;
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 3,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     const optInToAssetSelector = optInPluginClient.appClient.getABIMethod('optInToAsset').getSelector();
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
@@ -381,6 +475,9 @@ describe('ARC58 Plugin Permissions', () => {
         useRounds: false
       }
     });
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     console.log('optInToAssetSelector', new Uint8Array([...optInToAssetSelector]))
 
@@ -408,6 +505,28 @@ describe('ARC58 Plugin Permissions', () => {
 
   test('methods on cooldown', async () => {
     const { algorand } = fixture;
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 1,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     const optInToAssetSelector = optInPluginClient.appClient.getABIMethod('optInToAsset').getSelector();
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
@@ -426,6 +545,9 @@ describe('ARC58 Plugin Permissions', () => {
         useRounds: false
       }
     });
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [0]);
 
@@ -456,7 +578,31 @@ describe('ARC58 Plugin Permissions', () => {
   });
 
   test('methods on cooldown, single group', async () => {
+    const { algorand } = fixture;
+
     const optInToAssetSelector = optInPluginClient.appClient.getABIMethod('optInToAsset').getSelector();
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 1,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -474,6 +620,9 @@ describe('ARC58 Plugin Permissions', () => {
         useRounds: false
       }
     });
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     const mbrPayment = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       sender: caller.addr,
@@ -558,6 +707,29 @@ describe('ARC58 Plugin Permissions', () => {
   });
 
   test('plugins on cooldown', async () => {
+    const { algorand } = fixture;
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -573,6 +745,9 @@ describe('ARC58 Plugin Permissions', () => {
         useRounds: false
       }
     });
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], false);
 
@@ -600,6 +775,29 @@ describe('ARC58 Plugin Permissions', () => {
   });
 
   test('expired', async () => {
+    const { algorand } = fixture;
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -616,6 +814,9 @@ describe('ARC58 Plugin Permissions', () => {
       }
     });
 
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
     let error = 'no error';
     try {
       await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset);
@@ -624,11 +825,33 @@ describe('ARC58 Plugin Permissions', () => {
       error = e.message;
     }
 
-
     expect(error).toContain(ERR_PLUGIN_EXPIRED);
   });
 
   test('erroneous app call in sandwich', async () => {
+    const { algorand } = fixture;
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -644,6 +867,9 @@ describe('ARC58 Plugin Permissions', () => {
         useRounds: false
       }
     });
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     const mbrPayment = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       sender: caller.addr,
@@ -721,6 +947,29 @@ describe('ARC58 Plugin Permissions', () => {
   });
 
   test('malformed methodOffsets', async () => {
+    const { algorand } = fixture;
+
+    const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 1,
+        pluginName: '',
+        escrowName: ''
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
+
     await abstractedAccountClient.send.arc58AddPlugin({
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -746,13 +995,32 @@ describe('ARC58 Plugin Permissions', () => {
       error = e.message;
     }
 
-
     expect(error).toContain(ERR_MALFORMED_OFFSETS);
   });
 
   test('allowance - flat', async () => {
     const { algorand } = fixture;
+    escrow = 'pay_plugin';
+
     const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        pluginName: '',
+        escrowName: escrow
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
 
     const randomAccount = algorand.account.random().account;
 
@@ -769,7 +1037,7 @@ describe('ARC58 Plugin Permissions', () => {
       suggestedParams,
     });
 
-    await abstractedAccountClient.newGroup()
+    await abstractedAccountClient.send
       .arc58AddPlugin({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -785,25 +1053,39 @@ describe('ARC58 Plugin Permissions', () => {
           useRounds: false
         }
       })
-      .send()
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
 
+    const escrowCreationCost = BigInt(112_100 + 100_000) // Global.minBalance
+    const amount = mbr.plugins + mbr.allowances + mbr.escrows + escrowCreationCost
+
+    console.log(`Funding arc58 account with amount: ${amount}`)
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, amount.microAlgo())
+
     await abstractedAccountClient.newGroup()
-      .addTransaction(algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        sender: randomAccount.addr,
-        receiver: randomAccount.addr,
-        amount: 0,
-        assetIndex: asset,
-        suggestedParams
-      }), makeBasicAccountTransactionSigner(randomAccount))
-      .addTransaction(algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        sender: aliceEOA.addr,
-        receiver: abstractedAccountClient.appAddress,
-        amount: 100_000_000,
-        assetIndex: asset,
-        suggestedParams
-      }), makeBasicAccountTransactionSigner(aliceEOA))
+      .addTransaction(
+        algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+          sender: randomAccount.addr,
+          receiver: randomAccount.addr,
+          amount: 0,
+          assetIndex: asset,
+          suggestedParams
+        }),
+        makeBasicAccountTransactionSigner(randomAccount)
+      )
+      .addTransaction(
+        algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+          sender: aliceEOA.addr,
+          receiver: abstractedAccountClient.appAddress,
+          amount: 100_000_000,
+          assetIndex: asset,
+          suggestedParams
+        }),
+        makeBasicAccountTransactionSigner(aliceEOA)
+      )
       .arc58AddPlugin({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -812,38 +1094,43 @@ describe('ARC58 Plugin Permissions', () => {
           allowedCaller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
-          escrow: 'pay_plugin',
+          escrow,
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
           useRounds: false
         }
       })
-      .arc58AddAllowance({
+      .arc58AddAllowances({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          escrow: 'pay_plugin',
-          asset,
-          type: 1,
-          allowed: 10_000_000,
-          max: 0,
-          interval: 300, // 300 seconds
-          useRounds: false,
+          escrow,
+          allowances: [[
+            asset,
+            1, // type
+            10_000_000, // allowed
+            0, // max
+            300, // interval
+            false, // useRounds
+          ]]
         },
       })
       .arc58PluginOptinEscrow({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          plugin: payPlugin,
-          caller: ZERO_ADDRESS,
+          app: payPlugin,
+          allowedCaller: ZERO_ADDRESS,
           assets: [asset],
           mbrPayment,
         },
         extraFee: (8000).microAlgos(),
       })
       .send()
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     // use the full amount
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 6_000_000n, [], true);
@@ -896,7 +1183,27 @@ describe('ARC58 Plugin Permissions', () => {
 
   test('allowance - window', async () => {
     const { algorand } = fixture;
+    escrow = 'pay_plugin_window'
+
     const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        pluginName: '',
+        escrowName: escrow,
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo())
 
     const randomAccount = algorand.account.random().account;
 
@@ -913,7 +1220,7 @@ describe('ARC58 Plugin Permissions', () => {
       suggestedParams,
     });
 
-    await abstractedAccountClient.newGroup()
+    await abstractedAccountClient.send
       .arc58AddPlugin({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -929,9 +1236,16 @@ describe('ARC58 Plugin Permissions', () => {
           useRounds: false
         }
       })
-      .send()
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
+
+    const escrowCreationCost = BigInt(112_100 + 100_000) // Global.minBalance
+    const amount = mbr.plugins + mbr.allowances + mbr.escrows + escrowCreationCost
+    console.log(`Funding arc58 account with amount: ${amount}`)
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, amount.microAlgo())
 
     await abstractedAccountClient.newGroup()
       .addTransaction(algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -956,38 +1270,45 @@ describe('ARC58 Plugin Permissions', () => {
           allowedCaller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
-          escrow: 'pay_plugin_window',
+          escrow,
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
           useRounds: false
         }
       })
-      .arc58AddAllowance({
+      .arc58AddAllowances({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          escrow: 'pay_plugin_window',
-          asset,
-          type: 2,
-          allowed: 10_000_000,
-          max: 0,
-          interval: 300, // 300 seconds
-          useRounds: false,
+          escrow,
+          allowances: [
+            [
+              asset,
+              2, // type
+              10_000_000, // allowed
+              0, // max
+              300, // interval
+              false, // useRounds
+            ]
+          ]
         },
       })
       .arc58PluginOptinEscrow({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          plugin: payPlugin,
-          caller: ZERO_ADDRESS,
+          app: payPlugin,
+          allowedCaller: ZERO_ADDRESS,
           assets: [asset],
           mbrPayment,
         },
         extraFee: (8000).microAlgos(),
       })
       .send()
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     // use the full amount
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 10_000_000n, [], true);
@@ -1073,7 +1394,27 @@ describe('ARC58 Plugin Permissions', () => {
 
   test('allowance - drip', async () => {
     const { algorand } = fixture;
+    escrow = 'pay_plugin_drip';
+
     const dispenser = await algorand.account.dispenserFromEnvironment();
+
+    let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
+
+    const mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        pluginName: '',
+        escrowName: escrow,
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    console.log(`Funding arc58 account with amount: ${mbr.plugins}`)
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, mbr.plugins.microAlgo());
 
     const randomAccount = algorand.account.random().account;
 
@@ -1090,7 +1431,7 @@ describe('ARC58 Plugin Permissions', () => {
       suggestedParams,
     });
 
-    await abstractedAccountClient.newGroup()
+    await abstractedAccountClient.send
       .arc58AddPlugin({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
@@ -1106,9 +1447,16 @@ describe('ARC58 Plugin Permissions', () => {
           useRounds: false
         }
       })
-      .send()
+
+    accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
+    expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
+
+    const escrowCreationCost = BigInt(112_100 + 100_000) // Global.minBalance
+    const amount = mbr.plugins + mbr.allowances + mbr.escrows + escrowCreationCost;
+    console.log(`Funding arc58 account with amount: ${amount}`)
+    await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, amount.microAlgo());
 
     await abstractedAccountClient.newGroup()
       .addTransaction(algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -1133,32 +1481,36 @@ describe('ARC58 Plugin Permissions', () => {
           allowedCaller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
-          escrow: 'pay_plugin_drip',
+          escrow,
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
           useRounds: true
         }
       })
-      .arc58AddAllowance({
+      .arc58AddAllowances({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          escrow: 'pay_plugin_drip',
-          asset,
-          type: 3,
-          allowed: 1_000_000,
-          max: 50_000_000,
-          interval: 1, // 1 round
-          useRounds: true,
+          escrow,
+          allowances: [
+            [
+              asset,
+              3, // type
+              1_000_000, // allowed
+              50_000_000, // max
+              1, // interval
+              true, // useRounds
+            ]
+          ]
         },
       })
       .arc58PluginOptinEscrow({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          plugin: payPlugin,
-          caller: ZERO_ADDRESS,
+          app: payPlugin,
+          allowedCaller: ZERO_ADDRESS,
           assets: [asset],
           mbrPayment,
         },
@@ -1204,7 +1556,7 @@ describe('ARC58 Plugin Permissions', () => {
       await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 0n, [], true)
     }
 
-    await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 0n, [], true); 
+    await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 0n, [], true);
 
     allowanceBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
       new Uint8Array(
