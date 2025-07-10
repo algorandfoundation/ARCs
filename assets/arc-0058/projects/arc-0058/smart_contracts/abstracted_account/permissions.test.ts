@@ -18,6 +18,7 @@ const EscrowInfoAbiType = algosdk.ABIType.from('uint64');
 const AllowanceInfoAbiType = algosdk.ABIType.from('(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)');
 type AllowanceInfoTuple = [bigint, bigint, bigint, bigint, bigint, bigint, bigint, boolean];
 
+
 algokit.Config.configure({ populateAppCallResources: true });
 
 describe('ARC58 Plugin Permissions', () => {
@@ -301,14 +302,13 @@ describe('ARC58 Plugin Permissions', () => {
     )) as PluginInfoTuple;
 
     const ts = (await algorand.client.algod.status().do())
-    const block = (await algorand.client.algod.block(ts.lastRound - 1n).do());
+    const block = (await algorand.client.algod.block((ts.lastRound - 1n)).do());
 
     expect(globalPluginBox[8]).toBe(BigInt(block.block.header.timestamp));
   });
 
   test('global valid, global is used', async () => {
     const { algorand } = fixture;
-
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
 

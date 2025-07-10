@@ -35,9 +35,9 @@ export class AbstractedAccount extends Contract {
   spendingAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysSpendingAddress })
 
   /** Plugins that add functionality to the controlledAddress and the account that has permission to use it. */
-  plugins = BoxMap<PluginKey, arc4PluginInfo>({ keyPrefix: AbstractAccountBoxPrefixPlugins }); // 36_500 + (400 * methods.length)
+  plugins = BoxMap<PluginKey, arc4PluginInfo>({ keyPrefix: AbstractAccountBoxPrefixPlugins });
   /** Plugins that have been given a name for discoverability */
-  namedPlugins = BoxMap<string, PluginKey>({ keyPrefix: AbstractAccountBoxPrefixNamedPlugins }); // 18_900 + (400 * key.length)
+  namedPlugins = BoxMap<string, PluginKey>({ keyPrefix: AbstractAccountBoxPrefixNamedPlugins });
   /** the escrows that this wallet has created for specific callers with allowances */
   escrows = BoxMap<string, uint64>({ keyPrefix: AbstractAccountBoxPrefixEscrows })
   /** The Allowances for plugins installed on the smart contract with useAllowance set to true */
@@ -291,7 +291,7 @@ export class AbstractedAccount extends Contract {
       assert(check.valid, ERR_INVALID_PLUGIN_CALL);
 
       if (initialCheck.hasCooldown) {
-        this.plugins(key).value.lastCalled = new UintN64(epochRef)
+        this.plugins(key).value.lastCalled = new UintN64(epochRef);
       }
 
       methodIndex += 1;
@@ -354,7 +354,8 @@ export class AbstractedAccount extends Contract {
 
   private transferFunds(key: PluginKey, fundsRequests: FundsRequest[]): void {
     for (let i: uint64 = 0; i < fundsRequests.length; i += 1) {
-      const pluginInfo = decodeArc4<PluginInfo>(this.plugins(key).value.copy().bytes);
+      
+      const pluginInfo = decodeArc4<PluginInfo>(this.plugins(key).value.bytes);
 
       const allowanceKey: AllowanceKey = {
         escrow: pluginInfo.escrow,
@@ -386,10 +387,7 @@ export class AbstractedAccount extends Contract {
     }
   }
 
-  private verifyAllowance(
-    key: AllowanceKey,
-    fundRequest: FundsRequest
-  ): void {
+  private verifyAllowance(key: AllowanceKey, fundRequest: FundsRequest): void {
     assert(this.allowances(key).exists, ERR_ALLOWANCE_DOES_NOT_EXIST);
     const { type, spent, allowed, last, max, interval, start, useRounds } = this.allowances(key).value
     const newLast = useRounds ? Global.round : Global.latestTimestamp;
