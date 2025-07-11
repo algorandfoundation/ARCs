@@ -1,0 +1,56 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Getting Started with Your AlgoKit Project",
+  "steps": [
+    {
+      "file": "README.md",
+      "description": "Welcome to your brand new AlgoKit template-based project. In this tour, we will guide you through the main features and capabilities included in the template.",
+      "line": 3
+    },
+    {
+      "file": "README.md",
+      "description": "Start by ensuring you have followed the setup of pre-requisites.",
+      "line": 9
+    },
+    {
+      "file": ".algokit.toml",
+      "description": "This is the main configuration file used by algokit-cli to manage the project. The default template includes a starter 'Hello World' contract that is deployed via the `algokit-utils` package. To create a new smart contract, you can use the [`algokit generate`](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md) command and invoke a pre-bundled generator template by running `algokit generate smart-contract` (see how it is defined in the `.algokit.toml`, you can create your own generators if needed). This action will create a new folder in the `smart_contracts` directory, named after your project. Each folder contains a `contract.algo.ts` file, which is the entry point for your contract implementation, and `deployConfig.ts` file, that perform the deployment of the contract. Additionally you can define custom commands to run (similar to `npm` scripts), see definitions under `[project]` section in `.algokit.toml`.",
+      "line": 1
+    },
+    {
+      "file": "smart_contracts/hello_world/deploy-config.ts",
+      "description": "The default deployment scripts invoke a sample method on the starter contract that demonstrates how to interact with your deployed Algorand on-chain applications using the [`AlgoKit Typed Clients`](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) feature. The invocation if deploy is aliased in `.algokit.toml` file, allowing simple deployments via `algokit project deploy` command.",
+      "line": 32
+    },
+    {
+      "file": "smart_contracts/abstracted_account/contact.spec.ts",
+      "description": "The default tests provided demonstrate an example of setting up in-memory fast unit tests with the Algorand TypeScript testing library that mocks AVM functionality.",
+      "line": 5
+    },
+    {
+      "file": "smart_contracts/abstracted_account/contact.e2e.spec.ts",
+      "description": "The default tests provided demonstrate an example of setting up an end-to-end test with fixtures, and testing smart contract calls against a LocalNet network via an AlgoKit typed client.",
+      "line": 7
+    },
+    {
+      "file": ".env.localnet.template",
+      "description": "Environment files are a crucial mechanism that allows you to set up the [`algokit deploy`](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/deploy.md) feature to simplify deploying your contracts in CI/CD environments (please note we still recommend careful evaluation when it comes to deployment to MainNet). Clone the file and remove the `.template` suffix to apply the changes to deployment scripts and launch configurations. The network prefix `localnet|testnet|mainnet` is primarily optimized for `algokit deploy`. The order of loading the variables is `.env.{network}` < `.env`.",
+      "line": 2
+    },
+    {
+      "file": ".vscode/launch.json",
+      "description": "Refer to the pre-bundled Visual Studio launch configurations, offering various options on how to execute the build and deployment of your smart contracts. Alternatively execute `algokit project run` to see list of available custom commands.",
+      "line": 5
+    },
+    {
+      "file": ".vscode/extensions.json",
+      "description": "We highly recommend installing the recommended extensions to get the most out of this template starter project in your VSCode IDE.",
+      "line": 3
+    },
+    {
+      "file": "smart_contracts/index.ts",
+      "description": "Uncomment the following line to enable artifacts required for the [AlgoKit AVM Debugger](https://github.com/algorandfoundation/algokit-avm-vscode-debugger) that run for every single call rather than just failures. This VSCode plugin is available on the [VSCode Extension Marketplace](https://marketplace.visualstudio.com/items?itemName=algorandfoundation.algokit-avm-vscode-debugger) for every call. A new folder will be automatically created in the `.algokit` directory with source maps of all TEAL contracts in this workspace, as well as traces that will appear in a folder at the root of the workspace. You can then use the traces as entry points to trigger the debug extension. Make sure to have the `.algokit.toml` file available at the root of the workspace.",
+      "line": 13
+    }
+  ]
+}
