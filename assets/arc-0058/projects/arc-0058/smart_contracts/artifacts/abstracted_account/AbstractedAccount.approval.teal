@@ -5,7 +5,7 @@
 main:
     intcblock 0 1 4 20 400 224 392 18900 29300
     bytecblock "controlled_address" 0x00 "admin" "" "last_user_interaction" "p" "last_change" "spending_address" "e" "a" 0x151f7c75 0x01 0x0000000000000000 0x002d "n" 0x0f885493 "escrow_factory" 0x0000
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txn NumAppArgs
     bz main_after_if_else@26
@@ -16,7 +16,7 @@ main:
     match main_createApplication_route@3 main_arc58_changeAdmin_route@4 main_arc58_pluginChangeAdmin_route@5 main_arc58_getAdmin_route@6 main_arc58_verifyAuthAddr_route@7 main_arc58_rekeyTo_route@8 main_arc58_canCall_route@9 main_arc58_rekeyToPlugin_route@10 main_arc58_rekeyToNamedPlugin_route@11 main_arc58_addPlugin_route@12 main_arc58_removePlugin_route@13 main_arc58_addNamedPlugin_route@14 main_arc58_removeNamedPlugin_route@15 main_arc58_newEscrow_route@16 main_arc58_reclaim_route@17 main_arc58_optinEscrow_route@18 main_arc58_pluginOptinEscrow_route@19 main_arc58_addAllowances_route@20 main_arc58_removeAllowances_route@21 main_mbr_route@22
 
 main_after_if_else@26:
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     intc_0 // 0
     return
@@ -29,7 +29,7 @@ main_mbr_route@22:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     btoi
@@ -70,7 +70,7 @@ main_arc58_removeAllowances_route@21:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     extract 2 0
@@ -89,7 +89,7 @@ main_arc58_addAllowances_route@20:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     extract 2 0
@@ -113,7 +113,7 @@ main_arc58_pluginOptinEscrow_route@19:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     btoi
@@ -146,7 +146,7 @@ main_arc58_optinEscrow_route@18:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     extract 2 0
@@ -165,7 +165,7 @@ main_arc58_reclaim_route@17:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     extract 2 0
@@ -184,7 +184,7 @@ main_arc58_newEscrow_route@16:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     extract 2 0
@@ -202,7 +202,7 @@ main_arc58_removeNamedPlugin_route@15:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     extract 2 0
@@ -231,7 +231,7 @@ main_arc58_addNamedPlugin_route@14:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     extract 2 0
@@ -277,7 +277,7 @@ main_arc58_removePlugin_route@13:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     btoi
@@ -306,7 +306,7 @@ main_arc58_addPlugin_route@12:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     btoi
@@ -349,7 +349,7 @@ main_arc58_rekeyToNamedPlugin_route@11:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     extract 2 0
@@ -377,7 +377,7 @@ main_arc58_rekeyToPlugin_route@10:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     btoi
@@ -405,7 +405,7 @@ main_arc58_canCall_route@9:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     btoi
@@ -436,7 +436,7 @@ main_arc58_rekeyTo_route@8:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     txna ApplicationArgs 2
@@ -484,7 +484,7 @@ main_arc58_pluginChangeAdmin_route@5:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     btoi
@@ -504,7 +504,7 @@ main_arc58_changeAdmin_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     // smart_contracts/abstracted_account/contract.algo.ts:496
@@ -522,7 +522,7 @@ main_createApplication_route@3:
     txn ApplicationID
     !
     assert // can only call when creating
-    // smart_contracts/abstracted_account/contract.algo.ts:12
+    // smart_contracts/abstracted_account/contract.algo.ts:13
     // export class AbstractedAccount extends Contract {
     txna ApplicationArgs 1
     txna ApplicationArgs 2
@@ -538,50 +538,40 @@ main_createApplication_route@3:
 
 // smart_contracts/abstracted_account/contract.algo.ts::AbstractedAccount.pluginsMbr(methodCount: uint64) -> uint64:
 pluginsMbr:
-    // smart_contracts/abstracted_account/contract.algo.ts:54
+    // smart_contracts/abstracted_account/contract.algo.ts:55
     // private pluginsMbr(methodCount: uint64): uint64 {
     proto 1 1
     // smart_contracts/abstracted_account/constants.ts:18
     // export const MethodRestrictionByteLength: uint64 = 20
     intc_3 // 20
-    // smart_contracts/abstracted_account/contract.algo.ts:57
+    // smart_contracts/abstracted_account/contract.algo.ts:58
     // (MethodRestrictionByteLength * methodCount)
     frame_dig -1
     *
     // smart_contracts/abstracted_account/constants.ts:19
-    // export const DynamicOffset: uint64 = 2
-    pushint 2 // 2
-    // smart_contracts/abstracted_account/contract.algo.ts:57-58
+    // export const DynamicOffsetAndLength: uint64 = 4
+    intc_2 // 4
+    // smart_contracts/abstracted_account/contract.algo.ts:58-59
     // (MethodRestrictionByteLength * methodCount)
-    // + DynamicOffset
-    +
-    // smart_contracts/abstracted_account/constants.ts:20
-    // export const DynamicLength: uint64 = 2
-    pushint 2 // 2
-    // smart_contracts/abstracted_account/contract.algo.ts:57-59
-    // (MethodRestrictionByteLength * methodCount)
-    // + DynamicOffset
-    // + DynamicLength
+    // + DynamicOffsetAndLength
     +
     // smart_contracts/abstracted_account/constants.ts:16
     // export const BoxCostPerByte: uint64 = 400
     intc 4 // 400
-    // smart_contracts/abstracted_account/contract.algo.ts:56-60
+    // smart_contracts/abstracted_account/contract.algo.ts:57-60
     // BoxCostPerByte * (
     //   (MethodRestrictionByteLength * methodCount)
-    //   + DynamicOffset
-    //   + DynamicLength
+    //   + DynamicOffsetAndLength
     // )
     *
-    // smart_contracts/abstracted_account/constants.ts:22
+    // smart_contracts/abstracted_account/constants.ts:23
     // export const MinPluginMBR: uint64 = 36_100
     pushint 36100 // 36100
-    // smart_contracts/abstracted_account/contract.algo.ts:55-61
+    // smart_contracts/abstracted_account/contract.algo.ts:56-61
     // return MinPluginMBR + (
     //   BoxCostPerByte * (
     //     (MethodRestrictionByteLength * methodCount)
-    //     + DynamicOffset
-    //     + DynamicLength
+    //     + DynamicOffsetAndLength
     //   )
     // );
     +
@@ -691,7 +681,7 @@ newEscrow:
     // smart_contracts/abstracted_account/contract.algo.ts:69
     // return MinEscrowsMBR + (BoxCostPerByte * Bytes(name).length);
     *
-    // smart_contracts/abstracted_account/constants.ts:24
+    // smart_contracts/abstracted_account/constants.ts:25
     // export const MinEscrowsMBR: uint64 = 6_100
     pushint 6100 // 6100
     // smart_contracts/abstracted_account/contract.algo.ts:69
@@ -735,7 +725,7 @@ newEscrow_after_if_else@3:
     //     args: [
     //       itxn.payment({
     //         sender: this.controlledAddress.value,
-    //         amount: 112_100 + Global.minBalance,
+    //         amount: NewCostForARC58 + Global.minBalance,
     //         receiver: this.escrowFactory.value.address,
     //         fee,
     //       }),
@@ -750,9 +740,11 @@ newEscrow_after_if_else@3:
     bytec_0 // "controlled_address"
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/abstracted_account/contract.algo.ts:106
-    // amount: 112_100 + Global.minBalance,
+    // smart_contracts/escrow/constants.ts:3
+    // export const NewCostForARC58: uint64 = 112_100
     pushint 112100 // 112100
+    // smart_contracts/abstracted_account/contract.algo.ts:106
+    // amount: NewCostForARC58 + Global.minBalance,
     global MinBalance
     +
     // smart_contracts/abstracted_account/constants.ts:7
@@ -774,7 +766,7 @@ newEscrow_after_if_else@3:
     // smart_contracts/abstracted_account/contract.algo.ts:104-109
     // itxn.payment({
     //   sender: this.controlledAddress.value,
-    //   amount: 112_100 + Global.minBalance,
+    //   amount: NewCostForARC58 + Global.minBalance,
     //   receiver: this.escrowFactory.value.address,
     //   fee,
     // }),
@@ -793,7 +785,7 @@ newEscrow_after_if_else@3:
     //     args: [
     //       itxn.payment({
     //         sender: this.controlledAddress.value,
-    //         amount: 112_100 + Global.minBalance,
+    //         amount: NewCostForARC58 + Global.minBalance,
     //         receiver: this.escrowFactory.value.address,
     //         fee,
     //       }),
@@ -821,7 +813,7 @@ newEscrow_after_if_else@3:
     //     args: [
     //       itxn.payment({
     //         sender: this.controlledAddress.value,
-    //         amount: 112_100 + Global.minBalance,
+    //         amount: NewCostForARC58 + Global.minBalance,
     //         receiver: this.escrowFactory.value.address,
     //         fee,
     //       }),
@@ -1404,14 +1396,14 @@ createApplication_ternary_merge@7:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -1454,14 +1446,14 @@ arc58_changeAdmin:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -1564,7 +1556,7 @@ arc58_pluginChangeAdmin_bool_merge@4:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -1573,7 +1565,7 @@ arc58_pluginChangeAdmin_after_if_else@6:
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -1782,7 +1774,7 @@ arc58_rekeyTo_after_if_else@3:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -2770,7 +2762,7 @@ arc58_rekeyToPlugin_after_if_else@6:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -3545,14 +3537,14 @@ arc58_addPlugin_after_if_else@13:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -3684,14 +3676,14 @@ arc58_removePlugin_after_if_else@3:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -3885,7 +3877,7 @@ arc58_addNamedPlugin_after_while@3:
     // smart_contracts/abstracted_account/contract.algo.ts:65
     // return MinNamedPluginMBR + (BoxCostPerByte * Bytes(name).length);
     *
-    // smart_contracts/abstracted_account/constants.ts:23
+    // smart_contracts/abstracted_account/constants.ts:24
     // export const MinNamedPluginMBR: uint64 = 18_900
     intc 7 // 18900
     // smart_contracts/abstracted_account/contract.algo.ts:65
@@ -4033,14 +4025,14 @@ arc58_addNamedPlugin_ternary_merge@9:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -4166,7 +4158,7 @@ arc58_removeNamedPlugin:
     // smart_contracts/abstracted_account/contract.algo.ts:65
     // return MinNamedPluginMBR + (BoxCostPerByte * Bytes(name).length);
     *
-    // smart_contracts/abstracted_account/constants.ts:23
+    // smart_contracts/abstracted_account/constants.ts:24
     // export const MinNamedPluginMBR: uint64 = 18_900
     intc 7 // 18900
     // smart_contracts/abstracted_account/contract.algo.ts:65
@@ -4208,14 +4200,14 @@ arc58_removeNamedPlugin_after_if_else@3:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -5063,7 +5055,7 @@ arc58_addAllowances:
     frame_dig -1
     intc_0 // 0
     extract_uint16
-    // smart_contracts/abstracted_account/constants.ts:25
+    // smart_contracts/abstracted_account/constants.ts:26
     // export const AllowanceMBR: uint64 = 29_300
     intc 8 // 29300
     // smart_contracts/abstracted_account/contract.algo.ts:1040
@@ -5256,14 +5248,14 @@ arc58_addAllowances_after_while@9:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -5331,7 +5323,7 @@ arc58_removeAllowances:
     frame_dig -1
     intc_0 // 0
     extract_uint16
-    // smart_contracts/abstracted_account/constants.ts:25
+    // smart_contracts/abstracted_account/constants.ts:26
     // export const AllowanceMBR: uint64 = 29_300
     intc 8 // 29300
     // smart_contracts/abstracted_account/contract.algo.ts:1082
@@ -5428,14 +5420,14 @@ arc58_removeAllowances_after_while@6:
     // smart_contracts/abstracted_account/constants.ts:5
     // export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
     bytec 4 // "last_user_interaction"
-    // smart_contracts/abstracted_account/contract.algo.ts:47
+    // smart_contracts/abstracted_account/contract.algo.ts:48
     // this.lastUserInteraction.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
     // smart_contracts/abstracted_account/constants.ts:6
     // export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
     bytec 6 // "last_change"
-    // smart_contracts/abstracted_account/contract.algo.ts:51
+    // smart_contracts/abstracted_account/contract.algo.ts:52
     // this.lastChange.value = Global.latestTimestamp
     global LatestTimestamp
     app_global_put
@@ -5466,7 +5458,7 @@ mbr:
     // smart_contracts/abstracted_account/contract.algo.ts:65
     // return MinNamedPluginMBR + (BoxCostPerByte * Bytes(name).length);
     *
-    // smart_contracts/abstracted_account/constants.ts:23
+    // smart_contracts/abstracted_account/constants.ts:24
     // export const MinNamedPluginMBR: uint64 = 18_900
     intc 7 // 18900
     // smart_contracts/abstracted_account/contract.algo.ts:65
@@ -5482,13 +5474,13 @@ mbr:
     // smart_contracts/abstracted_account/contract.algo.ts:69
     // return MinEscrowsMBR + (BoxCostPerByte * Bytes(name).length);
     *
-    // smart_contracts/abstracted_account/constants.ts:24
+    // smart_contracts/abstracted_account/constants.ts:25
     // export const MinEscrowsMBR: uint64 = 6_100
     pushint 6100 // 6100
     // smart_contracts/abstracted_account/contract.algo.ts:69
     // return MinEscrowsMBR + (BoxCostPerByte * Bytes(name).length);
     +
-    // smart_contracts/abstracted_account/constants.ts:25
+    // smart_contracts/abstracted_account/constants.ts:26
     // export const AllowanceMBR: uint64 = 29_300
     intc 8 // 29300
     // smart_contracts/abstracted_account/contract.algo.ts:1107-1112

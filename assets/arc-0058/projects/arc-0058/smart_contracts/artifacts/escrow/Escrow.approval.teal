@@ -19,7 +19,7 @@ main_after_if_else@11:
     return
 
 main_delete_route@4:
-    // smart_contracts/escrow/contract.algo.ts:22
+    // smart_contracts/escrow/contract.algo.ts:21
     // @abimethod({ allowActions: 'DeleteApplication' })
     txn OnCompletion
     pushint 5 // DeleteApplication
@@ -122,29 +122,29 @@ rekey:
 
 // smart_contracts/escrow/contract.algo.ts::Escrow.delete() -> void:
 delete:
-    // smart_contracts/escrow/contract.algo.ts:24
+    // smart_contracts/escrow/contract.algo.ts:23
     // assert(Txn.sender === Global.creatorAddress, ERR_ONLY_FACTORY_CAN_DELETE)
     txn Sender
     global CreatorAddress
     ==
     assert // only the factory can delete an escrow contract
-    // smart_contracts/escrow/contract.algo.ts:26-28
+    // smart_contracts/escrow/contract.algo.ts:25-27
     // itxn
     //   .payment({ closeRemainderTo: Global.creatorAddress })
     //   .submit()
     itxn_begin
-    // smart_contracts/escrow/contract.algo.ts:27
+    // smart_contracts/escrow/contract.algo.ts:26
     // .payment({ closeRemainderTo: Global.creatorAddress })
     global CreatorAddress
     itxn_field CloseRemainderTo
-    // smart_contracts/escrow/contract.algo.ts:26-27
+    // smart_contracts/escrow/contract.algo.ts:25-26
     // itxn
     //   .payment({ closeRemainderTo: Global.creatorAddress })
     intc_0 // 1
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
-    // smart_contracts/escrow/contract.algo.ts:26-28
+    // smart_contracts/escrow/contract.algo.ts:25-27
     // itxn
     //   .payment({ closeRemainderTo: Global.creatorAddress })
     //   .submit()

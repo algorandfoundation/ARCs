@@ -16,6 +16,7 @@ export const BoxCostPerBox: uint64 = 2_500
 export const BoxCostPerByte: uint64 = 400
 
 export const MethodRestrictionByteLength: uint64 = 20
+export const DynamicOffsetAndLength: uint64 = 4
 export const DynamicOffset: uint64 = 2
 export const DynamicLength: uint64 = 2
 

@@ -3,25 +3,31 @@ import { abimethod, Address, compileArc4, DynamicArray, DynamicBytes, StaticByte
 import { Escrow } from "./contract.algo";
 import { btoi, itob } from "@algorandfoundation/algorand-typescript/op";
 import { ERR_FORBIDDEN } from "./errors";
-import { ERR_DOESNT_EXIST} from './errors'
+import { ERR_DOESNT_EXIST } from './errors'
 import { fee } from "../utils/constants";
 import { ERR_INVALID_PAYMENT } from "../utils/errors";
+import { BoxCostPerByte, MinPages, MinWalletIDsByAccountsMbr } from "./constants";
 
 function bytes16(acc: Account): bytes<16> {
-  return acc.bytes.slice(0, 16).toFixed({ length: 16})
+  return acc.bytes.slice(0, 16).toFixed({ length: 16 })
 }
 
-const GlobalMinPages: uint64 = 100_000
-
 export class EscrowFactory extends Contract {
-
-  childMBR = GlobalState<uint64>({ key: 'child_mbr', initialValue: GlobalMinPages })
 
   // 8 or 16 bytes
   walletIDsByAccounts = BoxMap<bytes<16>, bytes>({ keyPrefix: '' })
 
   private mbr(length: uint64): uint64 {
-    return 8_900 + (length * 400)
+    return MinWalletIDsByAccountsMbr + (length * BoxCostPerByte)
+  }
+
+  @abimethod({ readonly: true })
+  newCost(): uint64 {
+    const appCaller = Global.callerApplicationId === 0
+    const creator = appCaller
+      ? Bytes(bytes16(Txn.sender))
+      : Bytes(itob(Global.callerApplicationId))
+    return (MinPages + this.mbr(creator.length) + Global.minBalance)
   }
 
   new(payment: gtxn.PaymentTxn): uint64 {
@@ -32,7 +38,7 @@ export class EscrowFactory extends Contract {
 
     const escrow = compileArc4(Escrow);
 
-    const childAppMBR: uint64 = this.childMBR.value + this.mbr(creator.length)
+    const childAppMBR: uint64 = MinPages + this.mbr(creator.length)
 
     assertMatch(
       payment,

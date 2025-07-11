@@ -4,10 +4,11 @@ import { btoi, Global, len, Txn } from '@algorandfoundation/algorand-typescript/
 import { ERR_ADMIN_ONLY, ERR_ALLOWANCE_ALREADY_EXISTS, ERR_ALLOWANCE_DOES_NOT_EXIST, ERR_ALLOWANCE_EXCEEDED, ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY, ERR_ESCROW_ALREADY_EXISTS, ERR_ESCROW_DOES_NOT_EXIST, ERR_INVALID_METHOD_SIGNATURE_LENGTH, ERR_INVALID_ONCOMPLETE, ERR_INVALID_PLUGIN_CALL, ERR_INVALID_SENDER_ARG, ERR_INVALID_SENDER_VALUE, ERR_MALFORMED_OFFSETS, ERR_METHOD_ON_COOLDOWN, ERR_MISSING_REKEY_BACK, ERR_NOT_USING_ALLOWANCE, ERR_NOT_USING_ESCROW, ERR_ONLY_ADMIN_CAN_CHANGE_ADMIN, ERR_PLUGIN_DOES_NOT_EXIST, ERR_PLUGIN_EXPIRED, ERR_PLUGIN_ON_COOLDOWN, ERR_SENDER_MUST_BE_ADMIN_OR_CONTROLLED_ADDRESS, ERR_SENDER_MUST_BE_ADMIN_PLUGIN, ERR_ZERO_ADDRESS_DELEGATION_TYPE } from './errors';
 import { AbstractAccountBoxMBRData, AddAllowanceInfo, AllowanceInfo, AllowanceKey, arc4MethodInfo, arc4MethodRestriction, arc4PluginInfo, DelegationTypeSelf, EscrowReclaim, FullPluginValidation, FundsRequest, MethodRestriction, MethodValidation, PluginInfo, PluginKey, PluginValidation, SpendAllowanceType, SpendAllowanceTypeDrip, SpendAllowanceTypeFlat, SpendAllowanceTypeWindow } from './types';
 import { EscrowFactory } from '../escrow/factory.algo';
-import { AbstractAccountBoxPrefixAllowances, AbstractAccountBoxPrefixEscrows, AbstractAccountBoxPrefixNamedPlugins, AbstractAccountBoxPrefixPlugins, AbstractAccountGlobalStateKeysAdmin, AbstractAccountGlobalStateKeysControlledAddress, AbstractAccountGlobalStateKeysEscrowFactory, AbstractAccountGlobalStateKeysLastChange, AbstractAccountGlobalStateKeysLastUserInteraction, AbstractAccountGlobalStateKeysSpendingAddress, AllowanceMBR, BoxCostPerByte, DynamicLength, DynamicOffset, MethodRestrictionByteLength, MinEscrowsMBR, MinNamedPluginMBR, MinPluginMBR } from './constants';
+import { AbstractAccountBoxPrefixAllowances, AbstractAccountBoxPrefixEscrows, AbstractAccountBoxPrefixNamedPlugins, AbstractAccountBoxPrefixPlugins, AbstractAccountGlobalStateKeysAdmin, AbstractAccountGlobalStateKeysControlledAddress, AbstractAccountGlobalStateKeysEscrowFactory, AbstractAccountGlobalStateKeysLastChange, AbstractAccountGlobalStateKeysLastUserInteraction, AbstractAccountGlobalStateKeysSpendingAddress, AllowanceMBR, BoxCostPerByte, DynamicLength, DynamicOffset, DynamicOffsetAndLength, MethodRestrictionByteLength, MinEscrowsMBR, MinNamedPluginMBR, MinPluginMBR } from './constants';
 import { fee } from "../utils/constants";
 import { ERR_INVALID_PAYMENT } from '../utils/errors';
 import { ERR_FORBIDDEN } from '../escrow/errors';
+import { MinPages, NewCostForARC58 } from '../escrow/constants';
 
 export class AbstractedAccount extends Contract {
 
@@ -55,8 +56,7 @@ export class AbstractedAccount extends Contract {
     return MinPluginMBR + (
       BoxCostPerByte * (
         (MethodRestrictionByteLength * methodCount)
-        + DynamicOffset
-        + DynamicLength
+        + DynamicOffsetAndLength
       )
     );
   }
@@ -103,7 +103,7 @@ export class AbstractedAccount extends Contract {
         args: [
           itxn.payment({
             sender: this.controlledAddress.value,
-            amount: 112_100 + Global.minBalance,
+            amount: NewCostForARC58 + Global.minBalance,
             receiver: this.escrowFactory.value.address,
             fee,
           }),

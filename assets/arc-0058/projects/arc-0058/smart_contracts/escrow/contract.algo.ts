@@ -18,7 +18,6 @@ export class Escrow extends Contract {
       .submit()
   }
 
-  // @ts-ignore
   @abimethod({ allowActions: 'DeleteApplication' })
   delete(): void {
     assert(Txn.sender === Global.creatorAddress, ERR_ONLY_FACTORY_CAN_DELETE)
