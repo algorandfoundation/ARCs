@@ -1,0 +1,33 @@
+{
+  "name": "arc-0087",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Standard Key Names for Algorand State",
+  "main": "bin/fuzz.ts",
+  "scripts": {
+    "dev": "wait-on ./objects/client.ts -t 3s && tsx ./bin/fuzz.ts",
+    "clean": "rm -rf ./contracts/artifacts ./objects/client.ts ./lib",
+    "build": "npm run build:compile && npm run build:generate && npm run build:lib",
+    "build:lib": "wait-on ./objects/client.ts -t 30s && tsc",
+    "build:compile": "algokit compile python ./contracts/arc87.py --out-dir ./artifacts",
+    "build:generate": "wait-on ./contracts/artifacts/ARC87.arc32.json -t 30s && algokit generate client -l typescript -o objects/client.ts ./contracts/artifacts/ARC87.arc32.json"
+  },
+  "author": "Michael",
+  "license": "MIT",
+  "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@txnlab/use-wallet": "^4.3.0",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.0.14",
+    "async-mutex": "^0.5.0",
+    "concurrently": "^9.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4",
+    "wait-on": "^8.0.3"
+  },
+  "dependencies": {
+    "@algorandfoundation/algokit-utils": "^9.1.1",
+    "lodash": "^4.17.21"
+  }
+}
