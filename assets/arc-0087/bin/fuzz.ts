@@ -5,11 +5,12 @@ import {Semaphore} from "async-mutex";
 import {faker} from "@faker-js/faker";
 
 
-import {toMBR} from "../objects";
+import {fromBoxes, toMBR} from "../objects";
+import {deploy} from "../objects/deploy";
 
 // Handle concurrency and total users created
 const mutex = new Semaphore(25);
-const TOTAL = 200;
+const TOTAL = 10;
 
 Config.configure({
     debug: false,
@@ -27,6 +28,18 @@ Config.configure({
     },
 });
 
+type Animal = {
+    id: number;
+    type: string;
+    avatar: string;
+    petName: string;
+    birthdate: Date;
+    registeredAt: Date;
+    location: {
+        country: string;
+        city: string;
+    }
+}
 export function createAnimal() {
     return {
         id: faker.number.int(),
@@ -36,7 +49,7 @@ export function createAnimal() {
         birthdate: faker.date.birthdate(),
         registeredAt: faker.date.past(),
         location: createRandomLocation()
-    };
+    } as Animal;
 }
 
 export const animals = faker.helpers.multiple(createAnimal, {
@@ -86,7 +99,6 @@ console.log(
     `Deploying Store with ${animals.length} animals`,
 );
 
-
 try {
     const algorand = AlgorandClient.fromEnvironment();
     const deployer = await algorand.account.fromEnvironment("DEPLOYER");
@@ -116,16 +128,11 @@ try {
         `Deploying to ${await algorand.client.network().then((n) => n.genesisId)}`,
     );
 
-    await Promise.all(
-        animals.map(async (user) => {
-            // TODO: deploy store
-            // const store = new Store(user);
-            // store.setAlgorand(algorand);
-            // store.setManager(manager);
-            // await mutex.runExclusive(async () => {
-            //     await store.init(`user-${user.id.toString()}`, true);
-            //     console.log(await store.assemble());
-            // });
+    const appIds = await Promise.all(
+        animals.map(async (animal) => {
+            return await mutex.runExclusive(async () => {
+                return await deploy(algorand, deployer, `animal-${animal.id.toString()}`, animal);
+            });
         }),
     );
 
@@ -141,7 +148,9 @@ try {
         `Final Average: ${(bDiff / BigInt(animals.length)).microAlgo().algos}`,
     );
 
-    // TODO: Reassemble Objects
+    await Promise.all(appIds.map(async (appId) => {
+        console.log(await fromBoxes<Animal>(algorand, appId))
+    }))
 } catch (e) {
     console.log(`Ensure you have a localnet running and a wallet with funds.`)
     console.error(e);

@@ -2,7 +2,7 @@ import { AlgorandClient } from "@algorandfoundation/algokit-utils";
 import { ALGORAND_CLIENT_REQUIRED } from "./errors.js";
 import { PREFIX } from "./constants.js";
 import { toPaths } from "./paths.js";
-import * as _ from "lodash";
+import _ from "lodash";
 import { APPLICATION_ID_REQUIRED } from "./errors.js";
 import type { KeyValue, KeyValueMap } from "./type";
 import {parseBigInt} from "./numbers.js";

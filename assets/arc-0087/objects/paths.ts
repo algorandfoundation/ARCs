@@ -9,7 +9,7 @@ import { KeyValueMap } from "./type";
  */
 export function toPaths(obj: unknown, parentKey?: string): string[] {
   let result: string[];
-
+  let isObjectKey = false;
   if (Array.isArray(obj)) {
     // Map the Array to paths
     result = obj.flatMap((obj, idx) =>
@@ -18,6 +18,7 @@ export function toPaths(obj: unknown, parentKey?: string): string[] {
   }
   // TODO: better object detection
   else if (Object.prototype.toString.call(obj) === "[object Object]") {
+    isObjectKey = true;
     // Map the Object Keys to paths
     result = Object.keys(obj as object).flatMap((key) =>
       toPaths((obj as KeyValueMap)[key], key).map(
@@ -31,6 +32,6 @@ export function toPaths(obj: unknown, parentKey?: string): string[] {
   }
 
   // Return the result array with the parent key appended
-  if (parentKey) return [...result, parentKey];
+  if (parentKey && !isObjectKey) return [...result, parentKey];
   else return result;
 }
