@@ -7,11 +7,8 @@ import {
   PER_UNIT,
   PREFIX,
 } from "./constants.js";
-import { toPaths } from "./paths.js";
 import { MaxSizeError } from "./errors.js";
-import { assemble, diff } from "./state.js";
-
-const { get } = _;
+import { toPaths } from "./paths.js";
 
 /**
  * Calculates the minimum balance requirement (MBR) for an object.
@@ -23,42 +20,22 @@ const { get } = _;
  * @throws {MaxSizeError} Throws a {@link MaxSizeError} if the object key or value exceeds the maximum size.
  *
  * @example
- * ## Basic Usage
- * ```typescript
+ * ```TypeScript
  * // Define an object
- * const obj = {
- *   key: "value"
+ * const animal = {
+ *   type: "dog",
+ *   petName: "Sadie"
  * }
  * // Calculate the MBR
- * const mbr = toMBR(obj)
- * ```
- *
- * ## Cached Paths
- * Using the {@link paths} parameter
- * ```typescript
- * // Define an object
- * const obj = {
- *  key: "value"
- * }
- * // Calculate the paths
- * const paths = toPaths(obj)
- * // Calculate the MBR
- * const mbr = toMBR(obj, paths)
+ * const mbr = toMBR(animal)
  * ```
  */
-export function toMBR(
-  obj: unknown,
-  pathsCache?: (string | undefined)[],
-): bigint {
+export function toMBR(obj: unknown, pathsCache?: string[]): bigint {
   if (typeof obj === "undefined") {
     throw new TypeError("Object is required");
   }
-  let paths;
-  if (typeof pathsCache === "undefined") {
-    paths = toPaths(obj).filter((path) => typeof path !== "undefined");
-  } else {
-    paths = pathsCache.filter((path) => typeof path !== "undefined");
-  }
+  const paths = typeof pathsCache === "undefined" ? toPaths(obj) : pathsCache;
+
   const encoder = new TextEncoder();
   return paths.reduce((acc, path) => {
     // Key size is the length of the path plus bytes for the prefix
@@ -67,13 +44,10 @@ export function toMBR(
       throw new MaxSizeError(`Key size exceeds maximum of ${MAX_KEY_SIZE}`);
     }
 
-    const boxSize = BigInt(encoder.encode(get(obj, path || "")).length);
+    const boxSize = BigInt(encoder.encode(_.get(obj, path || "")).length);
     if (boxSize > MAX_BOX_SIZE) {
       throw new MaxSizeError(`Box size exceeds maximum of ${MAX_BOX_SIZE}`);
     }
     return acc + (PER_BOX + PER_UNIT * (keySize + boxSize));
   }, BigInt(MIN_BALANCE));
-}
-export async function getMBRDifference(a: unknown, b: unknown) {
-  return toMBR(assemble(diff(a, b)));
 }

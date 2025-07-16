@@ -1,7 +1,19 @@
-import { KeyValueMap } from "./type";
+import type { KeyValueMap } from "./type";
 
 /**
  * Recursively generates the paths for all keys in an object or array, formatted as dot notation.
+ *
+ * @example
+ * ```TypeScript
+ * // Define an object
+ * const animal = {
+ *   type: "cat",
+ *   petName: "Corey"
+ * }
+ * // List of paths for this object
+ * const paths = toPaths(animal)
+ * // ["o_type", "o_petName"]
+ * ```
  *
  * @param {any} obj The object or array for which to generate key paths.
  * @param {string} parentKey The key or path of the parent object, used to build the complete key paths.
@@ -13,7 +25,7 @@ export function toPaths(obj: unknown, parentKey?: string): string[] {
   if (Array.isArray(obj)) {
     // Map the Array to paths
     result = obj.flatMap((obj, idx) =>
-      toPaths(obj, (parentKey || "") + "[" + idx++ + "]"),
+      toPaths(obj, `${parentKey || ""}[${idx++}]`),
     );
   }
   // TODO: better object detection
@@ -22,7 +34,7 @@ export function toPaths(obj: unknown, parentKey?: string): string[] {
     // Map the Object Keys to paths
     result = Object.keys(obj as object).flatMap((key) =>
       toPaths((obj as KeyValueMap)[key], key).map(
-        (subkey: string) => (parentKey ? parentKey + "." : "") + subkey,
+        (subkey: string) => `${parentKey ? `${parentKey}.` : ""}${subkey}`,
       ),
     );
   }

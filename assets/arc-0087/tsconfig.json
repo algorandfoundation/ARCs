@@ -10,11 +10,9 @@
     "sourceMap": true,
     "declaration": true
   },
-  "include": [
-    "objects/**/*.ts",
-    "bin/*.ts"
-  ],
-  "exclude": [
-    "lib"
-  ]
+  "include": ["objects/**/*.ts", "bin/*.ts"],
+  "exclude": ["lib"],
+  "typedocOptions": {
+    "entryPoints": ["./objects/index.ts"]
+  }
 }
