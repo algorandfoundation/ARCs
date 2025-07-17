@@ -1,0 +1,5 @@
+lib
+node_modules/
+contracts/artifacts
+objects/client.ts
+docs
