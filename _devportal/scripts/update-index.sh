@@ -42,9 +42,9 @@ for file in "$SRC_DIR"/arc-*.md; do
 
   # Prepare the formatted output for each ARC in an HTML row, adding / to hrefs and keeping ARC number as-is elsewhere
   arc_output="<tr>
-    <td><a href=\"/standards/arcs/arc-$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$arc</a></td>
-    <td><a href=\"/standards/arcs/arc-$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$title</a></td>
-    <td><a href=\"/standards/arcs/arc-$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$description</a></td>
+    <td><a href=\"/arc-standards/arcs/arc-$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$arc</a></td>
+    <td><a href=\"/arc-standards/arcs/arc-$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$title</a></td>
+    <td><a href=\"/arc-standards/arcs/arc-$arc_href/\" style='display: block; text-decoration: none; color: inherit;'>$description</a></td>
   </tr>"
 
   # Group the ARCs by status

@@ -59,30 +59,30 @@ for file in arc-*.md; do
     continue
     fi
 
-    # 2 Step 2: Replace all arc-XXXX.md links with /standards/arcs/arc-XXXX
-    sed -i $SED_INLINE -E 's|\(arc-([0-9]{1,4})\.md(\#[a-zA-Z0-9_-]+)?\)|\(/standards/arcs/arc-\1\2)|g' "$file"
+    # 2 Step 2: Replace all arc-XXXX.md links with /arc-standards/arcs/arc-XXXX
+    sed -i $SED_INLINE -E 's|\(arc-([0-9]{1,4})\.md(\#[a-zA-Z0-9_-]+)?\)|\(/arc-standards/arcs/arc-\1\2)|g' "$file"
     if [[ $? -ne 0 ]]; then
-    echo "Failed to update links to /standards/arcs/ in $file"
+    echo "Failed to update links to /arc-standards/arcs/ in $file"
     continue
     fi
-    # 3 Step 3: Replace occurrences of ': ./arc-XXXX.md#anchor' with ': /standards/arcs/arc-XXXX#anchor'
-    sed -i $SED_INLINE -E 's|: \./arc-([0-9]{4})\.md#([a-zA-Z0-9_-]+)|: /standards/arcs/arc-\1#\2|g' "$file"
+    # 3 Step 3: Replace occurrences of ': ./arc-XXXX.md#anchor' with ': /arc-standards/arcs/arc-XXXX#anchor'
+    sed -i $SED_INLINE -E 's|: \./arc-([0-9]{4})\.md#([a-zA-Z0-9_-]+)|: /arc-standards/arcs/arc-\1#\2|g' "$file"
     if [[ $? -ne 0 ]]; then
     echo "Failed to update links with ': ./arc-XXXX.md#anchor' format in $file"
     continue
     fi
 
-    # 4 Step 4: Replace occurrences of ': #anchor' with ': /standards/arcs/arc-XXXX#anchor' (based on file name)
-    sed -i $SED_INLINE -E "s|: #([a-zA-Z0-9_-]+)|: /standards/arcs/arc-${arc_number}#\1|g" "$file"
+    # 4 Step 4: Replace occurrences of ': #anchor' with ': /arc-standards/arcs/arc-XXXX#anchor' (based on file name)
+    sed -i $SED_INLINE -E "s|: #([a-zA-Z0-9_-]+)|: /arc-standards/arcs/arc-${arc_number}#\1|g" "$file"
     if [[ $? -ne 0 ]]; then
-    echo "Failed to update ': #anchor' references to use /standards/arcs/arc-XXXX in $file"
+    echo "Failed to update ': #anchor' references to use /arc-standards/arcs/arc-XXXX in $file"
     continue
     fi
 
     # Following commands if the file is arc-0000.md
     if [[ "$file" == "arc-0000.md" ]]; then
-        # Replace [ARC-0](/standards/arcs/arc-0000) with [ARC-0](./arc-0000.md)
-        sed -i $SED_INLINE -E 's|\[ARC-0\]\(/standards/arcs/arc-0000\)|\[ARC-0\]\(./arc-0000.md\)|g' "$file"
+        # Replace [ARC-0](/arc-standards/arcs/arc-0000) with [ARC-0](./arc-0000.md)
+        sed -i $SED_INLINE -E 's|\[ARC-0\]\(/arc-standards/arcs/arc-0000\)|\[ARC-0\]\(./arc-0000.md\)|g' "$file"
         if [[ $? -ne 0 ]]; then
         echo "Failed to update the specific link in $file"
         continue
