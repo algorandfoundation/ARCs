@@ -1,0 +1,18 @@
+[algokit]
+min_version = "v2.6.0"
+
+[project]
+type = 'contract'
+name = 'arc-87'
+artifacts = 'contracts/artifacts'
+
+[project.deploy]
+command = "npm run dev"
+
+[project.run]
+build = { commands = [
+  'npm run build',
+], description = 'Build the reference specification' }
+clean = { commands = [
+  'npm run clean'
+], description = 'Clean the project directory' }
