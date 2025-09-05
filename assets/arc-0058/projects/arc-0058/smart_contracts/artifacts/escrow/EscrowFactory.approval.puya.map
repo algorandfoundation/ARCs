@@ -1,0 +1,5993 @@
+{
+  "version": 3,
+  "sources": [
+    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/escrow/constants.ts",
+    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/escrow/factory.algo.ts",
+    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/utils/constants.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;ACcA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;AAAA;;AAkIG;;AAAA;AAAA;AAAA;;AAAA;AAlIH;;;AAkIG;;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAfA;;AAAA;AAAA;AAAA;;AAAA;AAnHH;;;AAmHG;;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAPA;;AAAA;AAAA;AAAA;;AAAA;AA5GH;;;AA4GG;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AATA;;AAAA;AAAA;AAAA;;AAAA;AAnGH;;;AAmGG;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AANA;;AAAA;AAAA;AAAA;;AAAA;AA7FH;;;AA6FG;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AA9BD;;AAAA;AAAA;AAAA;;AAAA;AA/DF;;;AAAA;AA+DE;;;AAAA;;AA7CA;;AAAA;AAAA;AAAA;;AAAA;AAlBF;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAkBE;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AATC;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AATH;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAJA;;;AACS;;AAAA;AAAgB;AAAhB;;AAAA;AAAgB;AAAhB;;AAAA;;AAAA;AAAmB;;AAAnB;;AAAA;AAAmB;;AAAnB;;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAP;AAc2B;;AACT;;;AACM;;AAAZ;;;AAE0B;ADpBF;;ACWE;ADbS;;ACatC;ADhBqB;;ACyBpB;AAA6C;;AAA7C;AAAR;AADsB;;AAAZ;;;;AAIZ;;;;;;AAC2B;;AAAA;AACT;;;AACM;;AAAZ;;;;;AAK8C;;AAAA;AD/BtB;;ACWE;ADbS;;ACatC;ADhBqB;;ACoCA;AAAtB;;AAEN;;AAAA;;AAGqB;;AAHrB;AAAA;;;AAAA;;AAAA;;AAIY;;AAAqB;;AAArB;AAJZ;AAAA;;;;AAAA;AASkB;AAbH;;;;;;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAaG;;;AAAA;;;;ACjDK;;;ADiDL;AAAZ;;AAAuC;AAAvC;;AAGiC;AAAA;;AAAA;AAAlB;;;AAErB;AAAA;;AAAA;;AAAA;AAEA;AAEwB;;AAAA;AACL;;;;;;AAHnB;;;ACxDuB;;;ADwDvB;AAQA;AAGI;;AAAA;;;AAAmB;;;;AAHvB;;;;;;;;;;;;;AAAA;;;;;;;;AAAA;;;;AChEuB;;;ADgEvB;AAQA;;AAAA;AALsD;;;;;;;;;AAjChC;;AAAZ;;;;;;AAyCZ;;;;AACwB;;AACc;;AAAA;;AAAA;AAAxB;;;AAAN;;AAC+B;AAAA;;AAArC;AAE8C;AAAA;AAAA;AAAA;;AAAA;AAClC;AAAA;AAAA;;AAAW;;AAAnB;AAAA;AAAA;;AAAJ;;;AACoB;AAAX;;AAAA;AAAP;AAOiC;;AAvEC;;ADXF;;ACWE;ADbS;;ACatC;AAuEqB;AAAtB;;AAEN;AAAA;;;;;;;;AAAA;;;;;;;;AAAA;;;;AC3FuB;;;AD2FvB;AAEA;;AAAA;;AAEA;AAEc;;AAAA;;;AAA8B;;;;;;;;AAF5C;;;AC/FuB;;;AD+FvB;;AAE2E;;;;;AAbhD;;AAAZ;;;AAAN;AAAP;;;;AAqBJ;;;AAEkC;;AAAA;;;AAAyB;AAAA;;AAAzD;AAIF;;;AAEgC;;AAAA;;;AAAyB;AAAA;;AAAnD;;;AACW;AAAb;AAE8B;;AAAA;;;AAAyB;AAAA;AAAzD;AAIF;;;AAEkC;;AAAA;;;AAAyB;AAAA;;AAAzD;AACgC;;AAAA;;;AAAyB;AAAA;AAAzD;AAIF;;;;AAEe;AACQ;AAAiB;;AAAA;AAAA;AAAd;;AAAA;AAAxB;;;AACkB;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAV;AAAA;;AACuB;;;AAAyB;AAAA;;AAAtD;;;AACsD;;AAAA;;;AAAyB;AAAA;AAAnE;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAV;;AAAA;AAAA;AAAA;;;AAAA;;AAH0C;;AAAA;AAAA;AAAA;;;;;AAK1C;;AAAU;AAAV;AAAA;;;AAAA;;;;;AAGJ;;AAAA;;AAAA;AAIF;;;AAEe;AACQ;AAAiB;;AAAA;AAAA;AAAd;;AAAA;AAAxB;;;AACkB;;AAAA;;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AACgB;AAAA;;;AAAyB;AAAA;;AAAzD;AACoD;;;AAAyB;AAAA;AAAnE;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAV;;AAAA;AAAA;AAAA;;;AAAA;;AAH4C;AAAA;AAAA;;;;;AAK9C",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1 2 32 400 8900 100000"
+    },
+    "14": {
+      "op": "bytecblock 0x151f7c75 \"\" 0x0000"
+    },
+    "25": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "27": {
+      "op": "bz main_bare_routing@13",
+      "stack_out": []
+    },
+    "30": {
+      "op": "pushbytess 0xb551d5ff 0xd85cf184 0x8a39e79f 0x4c9fb656 0x3c1a6f33 0x2b5602a3 0x13dc508a 0x475d3773 // method \"newCost()uint64\", method \"new(pay)uint64\", method \"delete(uint64)void\", method \"exists(address)bool\", method \"get(address)byte[]\", method \"mustGet(address)byte[]\", method \"getList(address[])byte[][]\", method \"mustGetList(address[])byte[][]\"",
+      "defined_out": [
+        "Method(delete(uint64)void)",
+        "Method(exists(address)bool)",
+        "Method(get(address)byte[])",
+        "Method(getList(address[])byte[][])",
+        "Method(mustGet(address)byte[])",
+        "Method(mustGetList(address[])byte[][])",
+        "Method(new(pay)uint64)",
+        "Method(newCost()uint64)"
+      ],
+      "stack_out": [
+        "Method(newCost()uint64)",
+        "Method(new(pay)uint64)",
+        "Method(delete(uint64)void)",
+        "Method(exists(address)bool)",
+        "Method(get(address)byte[])",
+        "Method(mustGet(address)byte[])",
+        "Method(getList(address[])byte[][])",
+        "Method(mustGetList(address[])byte[][])"
+      ]
+    },
+    "72": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(delete(uint64)void)",
+        "Method(exists(address)bool)",
+        "Method(get(address)byte[])",
+        "Method(getList(address[])byte[][])",
+        "Method(mustGet(address)byte[])",
+        "Method(mustGetList(address[])byte[][])",
+        "Method(new(pay)uint64)",
+        "Method(newCost()uint64)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "Method(newCost()uint64)",
+        "Method(new(pay)uint64)",
+        "Method(delete(uint64)void)",
+        "Method(exists(address)bool)",
+        "Method(get(address)byte[])",
+        "Method(mustGet(address)byte[])",
+        "Method(getList(address[])byte[][])",
+        "Method(mustGetList(address[])byte[][])",
+        "tmp%2#0"
+      ]
+    },
+    "75": {
+      "op": "match main_newCost_route@3 main_new_route@4 main_delete_route@5 main_exists_route@6 main_get_route@7 main_mustGet_route@8 main_getList_route@9 main_mustGetList_route@10",
+      "stack_out": []
+    },
+    "93": {
+      "block": "main_after_if_else@17",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "94": {
+      "op": "return",
+      "stack_out": []
+    },
+    "95": {
+      "block": "main_mustGetList_route@10",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%41#0"
+      ],
+      "stack_out": [
+        "tmp%41#0"
+      ]
+    },
+    "97": {
+      "op": "!",
+      "defined_out": [
+        "tmp%42#0"
+      ],
+      "stack_out": [
+        "tmp%42#0"
+      ]
+    },
+    "98": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "99": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%43#0"
+      ],
+      "stack_out": [
+        "tmp%43#0"
+      ]
+    },
+    "101": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "102": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%45#0"
+      ],
+      "stack_out": [
+        "tmp%45#0"
+      ]
+    },
+    "105": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.mustGetList",
+      "op": "callsub mustGetList",
+      "defined_out": [
+        "tmp%46#0"
+      ],
+      "stack_out": [
+        "tmp%46#0"
+      ]
+    },
+    "108": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%46#0"
+      ],
+      "stack_out": [
+        "tmp%46#0",
+        "0x151f7c75"
+      ]
+    },
+    "109": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%46#0"
+      ]
+    },
+    "110": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%47#0"
+      ],
+      "stack_out": [
+        "tmp%47#0"
+      ]
+    },
+    "111": {
+      "op": "log",
+      "stack_out": []
+    },
+    "112": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "113": {
+      "op": "return",
+      "stack_out": []
+    },
+    "114": {
+      "block": "main_getList_route@9",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%34#0"
+      ],
+      "stack_out": [
+        "tmp%34#0"
+      ]
+    },
+    "116": {
+      "op": "!",
+      "defined_out": [
+        "tmp%35#0"
+      ],
+      "stack_out": [
+        "tmp%35#0"
+      ]
+    },
+    "117": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "118": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%36#0"
+      ],
+      "stack_out": [
+        "tmp%36#0"
+      ]
+    },
+    "120": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "121": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%38#0"
+      ],
+      "stack_out": [
+        "tmp%38#0"
+      ]
+    },
+    "124": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.getList",
+      "op": "callsub getList",
+      "defined_out": [
+        "tmp%39#0"
+      ],
+      "stack_out": [
+        "tmp%39#0"
+      ]
+    },
+    "127": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%39#0"
+      ],
+      "stack_out": [
+        "tmp%39#0",
+        "0x151f7c75"
+      ]
+    },
+    "128": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%39#0"
+      ]
+    },
+    "129": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%40#0"
+      ],
+      "stack_out": [
+        "tmp%40#0"
+      ]
+    },
+    "130": {
+      "op": "log",
+      "stack_out": []
+    },
+    "131": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "132": {
+      "op": "return",
+      "stack_out": []
+    },
+    "133": {
+      "block": "main_mustGet_route@8",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%29#0"
+      ],
+      "stack_out": [
+        "tmp%29#0"
+      ]
+    },
+    "135": {
+      "op": "!",
+      "defined_out": [
+        "tmp%30#0"
+      ],
+      "stack_out": [
+        "tmp%30#0"
+      ]
+    },
+    "136": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "137": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%31#0"
+      ],
+      "stack_out": [
+        "tmp%31#0"
+      ]
+    },
+    "139": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "140": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "reinterpret_bytes[32]%2#0"
+      ],
+      "stack_out": [
+        "reinterpret_bytes[32]%2#0"
+      ]
+    },
+    "143": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.mustGet",
+      "op": "callsub mustGet",
+      "defined_out": [
+        "to_encode%4#0"
+      ],
+      "stack_out": [
+        "to_encode%4#0"
+      ]
+    },
+    "146": {
+      "op": "dup",
+      "defined_out": [
+        "to_encode%4#0",
+        "to_encode%4#0 (copy)"
+      ],
+      "stack_out": [
+        "to_encode%4#0",
+        "to_encode%4#0 (copy)"
+      ]
+    },
+    "147": {
+      "op": "len",
+      "defined_out": [
+        "length%1#0",
+        "to_encode%4#0"
+      ],
+      "stack_out": [
+        "to_encode%4#0",
+        "length%1#0"
+      ]
+    },
+    "148": {
+      "op": "itob",
+      "defined_out": [
+        "as_bytes%1#0",
+        "to_encode%4#0"
+      ],
+      "stack_out": [
+        "to_encode%4#0",
+        "as_bytes%1#0"
+      ]
+    },
+    "149": {
+      "op": "extract 6 2",
+      "defined_out": [
+        "length_uint16%1#0",
+        "to_encode%4#0"
+      ],
+      "stack_out": [
+        "to_encode%4#0",
+        "length_uint16%1#0"
+      ]
+    },
+    "152": {
+      "op": "swap",
+      "stack_out": [
+        "length_uint16%1#0",
+        "to_encode%4#0"
+      ]
+    },
+    "153": {
+      "op": "concat",
+      "defined_out": [
+        "encoded_value%1#0"
+      ],
+      "stack_out": [
+        "encoded_value%1#0"
+      ]
+    },
+    "154": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "encoded_value%1#0"
+      ],
+      "stack_out": [
+        "encoded_value%1#0",
+        "0x151f7c75"
+      ]
+    },
+    "155": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "encoded_value%1#0"
+      ]
+    },
+    "156": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%33#0"
+      ],
+      "stack_out": [
+        "tmp%33#0"
+      ]
+    },
+    "157": {
+      "op": "log",
+      "stack_out": []
+    },
+    "158": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "159": {
+      "op": "return",
+      "stack_out": []
+    },
+    "160": {
+      "block": "main_get_route@7",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%24#0"
+      ],
+      "stack_out": [
+        "tmp%24#0"
+      ]
+    },
+    "162": {
+      "op": "!",
+      "defined_out": [
+        "tmp%25#0"
+      ],
+      "stack_out": [
+        "tmp%25#0"
+      ]
+    },
+    "163": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "164": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%26#0"
+      ],
+      "stack_out": [
+        "tmp%26#0"
+      ]
+    },
+    "166": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "167": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "reinterpret_bytes[32]%1#0"
+      ],
+      "stack_out": [
+        "reinterpret_bytes[32]%1#0"
+      ]
+    },
+    "170": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.get",
+      "op": "callsub get",
+      "defined_out": [
+        "to_encode%3#0"
+      ],
+      "stack_out": [
+        "to_encode%3#0"
+      ]
+    },
+    "173": {
+      "op": "dup",
+      "defined_out": [
+        "to_encode%3#0",
+        "to_encode%3#0 (copy)"
+      ],
+      "stack_out": [
+        "to_encode%3#0",
+        "to_encode%3#0 (copy)"
+      ]
+    },
+    "174": {
+      "op": "len",
+      "defined_out": [
+        "length%0#0",
+        "to_encode%3#0"
+      ],
+      "stack_out": [
+        "to_encode%3#0",
+        "length%0#0"
+      ]
+    },
+    "175": {
+      "op": "itob",
+      "defined_out": [
+        "as_bytes%0#0",
+        "to_encode%3#0"
+      ],
+      "stack_out": [
+        "to_encode%3#0",
+        "as_bytes%0#0"
+      ]
+    },
+    "176": {
+      "op": "extract 6 2",
+      "defined_out": [
+        "length_uint16%0#0",
+        "to_encode%3#0"
+      ],
+      "stack_out": [
+        "to_encode%3#0",
+        "length_uint16%0#0"
+      ]
+    },
+    "179": {
+      "op": "swap",
+      "stack_out": [
+        "length_uint16%0#0",
+        "to_encode%3#0"
+      ]
+    },
+    "180": {
+      "op": "concat",
+      "defined_out": [
+        "encoded_value%0#0"
+      ],
+      "stack_out": [
+        "encoded_value%0#0"
+      ]
+    },
+    "181": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "encoded_value%0#0"
+      ],
+      "stack_out": [
+        "encoded_value%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "182": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "encoded_value%0#0"
+      ]
+    },
+    "183": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%28#0"
+      ],
+      "stack_out": [
+        "tmp%28#0"
+      ]
+    },
+    "184": {
+      "op": "log",
+      "stack_out": []
+    },
+    "185": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "186": {
+      "op": "return",
+      "stack_out": []
+    },
+    "187": {
+      "block": "main_exists_route@6",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%19#0"
+      ],
+      "stack_out": [
+        "tmp%19#0"
+      ]
+    },
+    "189": {
+      "op": "!",
+      "defined_out": [
+        "tmp%20#0"
+      ],
+      "stack_out": [
+        "tmp%20#0"
+      ]
+    },
+    "190": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "191": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%21#0"
+      ],
+      "stack_out": [
+        "tmp%21#0"
+      ]
+    },
+    "193": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "194": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "reinterpret_bytes[32]%0#0"
+      ],
+      "stack_out": [
+        "reinterpret_bytes[32]%0#0"
+      ]
+    },
+    "197": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.exists",
+      "op": "callsub exists",
+      "defined_out": [
+        "to_encode%2#0"
+      ],
+      "stack_out": [
+        "to_encode%2#0"
+      ]
+    },
+    "200": {
+      "op": "pushbytes 0x00",
+      "defined_out": [
+        "0x00",
+        "to_encode%2#0"
+      ],
+      "stack_out": [
+        "to_encode%2#0",
+        "0x00"
+      ]
+    },
+    "203": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "0x00",
+        "to_encode%2#0"
+      ],
+      "stack_out": [
+        "to_encode%2#0",
+        "0x00",
+        "0"
+      ]
+    },
+    "204": {
+      "op": "uncover 2",
+      "stack_out": [
+        "0x00",
+        "0",
+        "to_encode%2#0"
+      ]
+    },
+    "206": {
+      "op": "setbit",
+      "defined_out": [
+        "encoded_bool%0#0"
+      ],
+      "stack_out": [
+        "encoded_bool%0#0"
+      ]
+    },
+    "207": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "encoded_bool%0#0"
+      ],
+      "stack_out": [
+        "encoded_bool%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "208": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "encoded_bool%0#0"
+      ]
+    },
+    "209": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%23#0"
+      ],
+      "stack_out": [
+        "tmp%23#0"
+      ]
+    },
+    "210": {
+      "op": "log",
+      "stack_out": []
+    },
+    "211": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "212": {
+      "op": "return",
+      "stack_out": []
+    },
+    "213": {
+      "block": "main_delete_route@5",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%14#0"
+      ],
+      "stack_out": [
+        "tmp%14#0"
+      ]
+    },
+    "215": {
+      "op": "!",
+      "defined_out": [
+        "tmp%15#0"
+      ],
+      "stack_out": [
+        "tmp%15#0"
+      ]
+    },
+    "216": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "217": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%16#0"
+      ],
+      "stack_out": [
+        "tmp%16#0"
+      ]
+    },
+    "219": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "220": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "reinterpret_bytes[8]%0#0"
+      ],
+      "stack_out": [
+        "reinterpret_bytes[8]%0#0"
+      ]
+    },
+    "223": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%18#0"
+      ],
+      "stack_out": [
+        "tmp%18#0"
+      ]
+    },
+    "224": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.delete",
+      "op": "callsub delete",
+      "stack_out": []
+    },
+    "227": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "228": {
+      "op": "return",
+      "stack_out": []
+    },
+    "229": {
+      "block": "main_new_route@4",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "231": {
+      "op": "!",
+      "defined_out": [
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%9#0"
+      ]
+    },
+    "232": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "233": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0"
+      ]
+    },
+    "235": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "236": {
+      "op": "txn GroupIndex",
+      "defined_out": [
+        "tmp%12#0"
+      ],
+      "stack_out": [
+        "tmp%12#0"
+      ]
+    },
+    "238": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "tmp%12#0"
+      ],
+      "stack_out": [
+        "tmp%12#0",
+        "1"
+      ]
+    },
+    "239": {
+      "op": "-",
+      "defined_out": [
+        "gtxn_idx%0#0"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0"
+      ]
+    },
+    "240": {
+      "op": "dup",
+      "defined_out": [
+        "gtxn_idx%0#0",
+        "gtxn_idx%0#0 (copy)"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0",
+        "gtxn_idx%0#0 (copy)"
+      ]
+    },
+    "241": {
+      "op": "gtxns TypeEnum",
+      "defined_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type%0#0"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type%0#0"
+      ]
+    },
+    "243": {
+      "op": "intc_1 // pay",
+      "defined_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type%0#0",
+        "pay"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type%0#0",
+        "pay"
+      ]
+    },
+    "244": {
+      "op": "==",
+      "defined_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type_matches%0#0"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type_matches%0#0"
+      ]
+    },
+    "245": {
+      "error": "transaction type is pay",
+      "op": "assert // transaction type is pay",
+      "stack_out": [
+        "gtxn_idx%0#0"
+      ]
+    },
+    "246": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.new",
+      "op": "callsub new",
+      "defined_out": [
+        "to_encode%1#0"
+      ],
+      "stack_out": [
+        "to_encode%1#0"
+      ]
+    },
+    "249": {
+      "op": "itob",
+      "defined_out": [
+        "val_as_bytes%1#0"
+      ],
+      "stack_out": [
+        "val_as_bytes%1#0"
+      ]
+    },
+    "250": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "val_as_bytes%1#0"
+      ],
+      "stack_out": [
+        "val_as_bytes%1#0",
+        "0x151f7c75"
+      ]
+    },
+    "251": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "val_as_bytes%1#0"
+      ]
+    },
+    "252": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%13#0"
+      ],
+      "stack_out": [
+        "tmp%13#0"
+      ]
+    },
+    "253": {
+      "op": "log",
+      "stack_out": []
+    },
+    "254": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "255": {
+      "op": "return",
+      "stack_out": []
+    },
+    "256": {
+      "block": "main_newCost_route@3",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "258": {
+      "op": "!",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "259": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "260": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "262": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "263": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.newCost",
+      "op": "callsub newCost",
+      "defined_out": [
+        "to_encode%0#0"
+      ],
+      "stack_out": [
+        "to_encode%0#0"
+      ]
+    },
+    "266": {
+      "op": "itob",
+      "defined_out": [
+        "val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "val_as_bytes%0#0"
+      ]
+    },
+    "267": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "268": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "val_as_bytes%0#0"
+      ]
+    },
+    "269": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "270": {
+      "op": "log",
+      "stack_out": []
+    },
+    "271": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "272": {
+      "op": "return",
+      "stack_out": []
+    },
+    "273": {
+      "block": "main_bare_routing@13",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%48#0"
+      ],
+      "stack_out": [
+        "tmp%48#0"
+      ]
+    },
+    "275": {
+      "op": "bnz main_after_if_else@17",
+      "stack_out": []
+    },
+    "278": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%49#0"
+      ],
+      "stack_out": [
+        "tmp%49#0"
+      ]
+    },
+    "280": {
+      "op": "!",
+      "defined_out": [
+        "tmp%50#0"
+      ],
+      "stack_out": [
+        "tmp%50#0"
+      ]
+    },
+    "281": {
+      "error": "can only call when creating",
+      "op": "assert // can only call when creating",
+      "stack_out": []
+    },
+    "282": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "283": {
+      "op": "return",
+      "stack_out": []
+    },
+    "284": {
+      "subroutine": "_puya_lib.arc4.dynamic_array_concat_byte_length_head",
+      "params": {
+        "array#0": "bytes",
+        "new_items_bytes#0": "bytes",
+        "new_items_count#0": "uint64"
+      },
+      "block": "dynamic_array_concat_byte_length_head",
+      "stack_in": [],
+      "op": "proto 3 1"
+    },
+    "287": {
+      "op": "frame_dig -3",
+      "defined_out": [
+        "array#0 (copy)"
+      ],
+      "stack_out": [
+        "array#0 (copy)"
+      ]
+    },
+    "289": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "array#0 (copy)"
+      ],
+      "stack_out": [
+        "array#0 (copy)",
+        "0"
+      ]
+    },
+    "290": {
+      "op": "extract_uint16",
+      "defined_out": [
+        "array_length#0"
+      ],
+      "stack_out": [
+        "array_length#0"
+      ]
+    },
+    "291": {
+      "op": "dup",
+      "defined_out": [
+        "array_length#0",
+        "array_length#0 (copy)"
+      ],
+      "stack_out": [
+        "array_length#0",
+        "array_length#0 (copy)"
+      ]
+    },
+    "292": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "array_length#0",
+        "array_length#0 (copy)",
+        "new_items_count#0 (copy)"
+      ],
+      "stack_out": [
+        "array_length#0",
+        "array_length#0 (copy)",
+        "new_items_count#0 (copy)"
+      ]
+    },
+    "294": {
+      "op": "+",
+      "defined_out": [
+        "array_length#0",
+        "new_length#0"
+      ],
+      "stack_out": [
+        "array_length#0",
+        "new_length#0"
+      ]
+    },
+    "295": {
+      "op": "swap",
+      "stack_out": [
+        "new_length#0",
+        "array_length#0"
+      ]
+    },
+    "296": {
+      "op": "intc_2 // 2",
+      "defined_out": [
+        "2",
+        "array_length#0",
+        "new_length#0"
+      ],
+      "stack_out": [
+        "new_length#0",
+        "array_length#0",
+        "2"
+      ]
+    },
+    "297": {
+      "op": "*",
+      "defined_out": [
+        "new_length#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "new_length#0",
+        "tmp%0#0"
+      ]
+    },
+    "298": {
+      "op": "intc_2 // 2",
+      "stack_out": [
+        "new_length#0",
+        "tmp%0#0",
+        "2"
+      ]
+    },
+    "299": {
+      "op": "+",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0"
+      ],
+      "stack_out": [
+        "new_length#0",
+        "header_end#0"
+      ]
+    },
+    "300": {
+      "op": "dig 1",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "new_length#0 (copy)"
+      ],
+      "stack_out": [
+        "new_length#0",
+        "header_end#0",
+        "new_length#0 (copy)"
+      ]
+    },
+    "302": {
+      "op": "itob",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "new_length#0",
+        "header_end#0",
+        "tmp%1#0"
+      ]
+    },
+    "303": {
+      "op": "extract 6 2",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "new_length#0",
+        "header_end#0",
+        "tmp%2#0"
+      ]
+    },
+    "306": {
+      "op": "cover 2",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0"
+      ]
+    },
+    "308": {
+      "op": "frame_dig -3",
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "array#0 (copy)"
+      ]
+    },
+    "310": {
+      "op": "intc_2 // 2",
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "array#0 (copy)",
+        "2"
+      ]
+    },
+    "311": {
+      "op": "dig 2",
+      "defined_out": [
+        "2",
+        "array#0 (copy)",
+        "header_end#0",
+        "header_end#0 (copy)",
+        "new_length#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "array#0 (copy)",
+        "2",
+        "header_end#0 (copy)"
+      ]
+    },
+    "313": {
+      "op": "substring3",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "tmp%2#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%3#0"
+      ]
+    },
+    "314": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%3#0",
+        "new_items_count#0 (copy)"
+      ]
+    },
+    "316": {
+      "op": "intc_2 // 2",
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%3#0",
+        "new_items_count#0 (copy)",
+        "2"
+      ]
+    },
+    "317": {
+      "op": "*",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "tmp%2#0",
+        "tmp%3#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%3#0",
+        "tmp%4#0"
+      ]
+    },
+    "318": {
+      "op": "bzero",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "tmp%2#0",
+        "tmp%3#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%3#0",
+        "tmp%5#0"
+      ]
+    },
+    "319": {
+      "op": "concat",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "tmp%2#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%6#0"
+      ]
+    },
+    "320": {
+      "op": "frame_dig -3",
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%6#0",
+        "array#0 (copy)"
+      ]
+    },
+    "322": {
+      "op": "len",
+      "defined_out": [
+        "header_end#0",
+        "new_length#0",
+        "tmp%2#0",
+        "tmp%6#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%6#0",
+        "tmp%7#0"
+      ]
+    },
+    "323": {
+      "op": "frame_dig -3",
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "header_end#0",
+        "tmp%6#0",
+        "tmp%7#0",
+        "array#0 (copy)"
+      ]
+    },
+    "325": {
+      "op": "uncover 3",
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "tmp%6#0",
+        "tmp%7#0",
+        "array#0 (copy)",
+        "header_end#0"
+      ]
+    },
+    "327": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "tmp%6#0",
+        "array#0 (copy)",
+        "header_end#0",
+        "tmp%7#0"
+      ]
+    },
+    "329": {
+      "op": "substring3",
+      "defined_out": [
+        "new_length#0",
+        "tmp%2#0",
+        "tmp%6#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "tmp%6#0",
+        "tmp%8#0"
+      ]
+    },
+    "330": {
+      "op": "concat",
+      "defined_out": [
+        "new_length#0",
+        "tmp%2#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "tmp%9#0"
+      ]
+    },
+    "331": {
+      "op": "frame_dig -2",
+      "defined_out": [
+        "new_items_bytes#0 (copy)",
+        "new_length#0",
+        "tmp%2#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "tmp%9#0",
+        "new_items_bytes#0 (copy)"
+      ]
+    },
+    "333": {
+      "op": "concat",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "new_length#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "new_length#0",
+        "array_head_and_tail#0"
+      ]
+    },
+    "334": {
+      "op": "swap",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "new_length#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "new_length#0"
+      ]
+    },
+    "335": {
+      "op": "intc_2 // 2",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "new_length#0",
+        "2"
+      ]
+    },
+    "336": {
+      "op": "*",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0"
+      ]
+    },
+    "337": {
+      "op": "dup",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "tail_offset#0"
+      ]
+    },
+    "338": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "tail_offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "tail_offset#0",
+        "head_offset#0"
+      ]
+    },
+    "339": {
+      "op": "swap",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1"
+      ]
+    },
+    "340": {
+      "block": "dynamic_array_concat_byte_length_head_for_header@2",
+      "stack_in": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1"
+      ],
+      "op": "frame_dig 3",
+      "defined_out": [
+        "head_offset#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0"
+      ]
+    },
+    "342": {
+      "op": "frame_dig 2",
+      "defined_out": [
+        "head_offset#0",
+        "tail_offset#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#0"
+      ]
+    },
+    "344": {
+      "op": "<",
+      "defined_out": [
+        "continue_looping%0#0",
+        "head_offset#0",
+        "tail_offset#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "continue_looping%0#0"
+      ]
+    },
+    "345": {
+      "op": "bz dynamic_array_concat_byte_length_head_after_for@5",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1"
+      ]
+    },
+    "348": {
+      "op": "frame_dig 4",
+      "defined_out": [
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tail_offset#1"
+      ]
+    },
+    "350": {
+      "op": "dup",
+      "defined_out": [
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tail_offset#1 (copy)"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tail_offset#1",
+        "tail_offset#1 (copy)"
+      ]
+    },
+    "351": {
+      "op": "itob",
+      "defined_out": [
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tail_offset#1",
+        "tmp%5#0"
+      ]
+    },
+    "352": {
+      "op": "extract 6 2",
+      "defined_out": [
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tail_offset_bytes#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tail_offset#1",
+        "tail_offset_bytes#0"
+      ]
+    },
+    "355": {
+      "op": "frame_dig 1",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tail_offset_bytes#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tail_offset#1",
+        "tail_offset_bytes#0",
+        "array_head_and_tail#0"
+      ]
+    },
+    "357": {
+      "op": "frame_dig 3",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tail_offset#1",
+        "tail_offset_bytes#0",
+        "array_head_and_tail#0",
+        "head_offset#0"
+      ]
+    },
+    "359": {
+      "op": "dup",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "head_offset#0 (copy)",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tail_offset_bytes#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tail_offset#1",
+        "tail_offset_bytes#0",
+        "array_head_and_tail#0",
+        "head_offset#0 (copy)",
+        "head_offset#0 (copy)"
+      ]
+    },
+    "360": {
+      "op": "cover 4",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "tail_offset_bytes#0",
+        "array_head_and_tail#0",
+        "head_offset#0 (copy)"
+      ]
+    },
+    "362": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "array_head_and_tail#0",
+        "head_offset#0 (copy)",
+        "tail_offset_bytes#0"
+      ]
+    },
+    "364": {
+      "op": "replace3",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "array_head_and_tail#0"
+      ]
+    },
+    "365": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "array_head_and_tail#0",
+        "array_head_and_tail#0"
+      ]
+    },
+    "366": {
+      "op": "frame_bury 1",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "array_head_and_tail#0"
+      ]
+    },
+    "368": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "array_head_and_tail#0",
+        "tail_offset#1 (copy)"
+      ]
+    },
+    "370": {
+      "op": "extract_uint16",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tmp%6#1"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "tmp%6#1"
+      ]
+    },
+    "371": {
+      "op": "intc_2 // 2",
+      "defined_out": [
+        "2",
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tmp%6#1"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "tmp%6#1",
+        "2"
+      ]
+    },
+    "372": {
+      "op": "+",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1",
+        "tmp%7#0"
+      ]
+    },
+    "373": {
+      "op": "+",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "tail_offset#1"
+      ]
+    },
+    "374": {
+      "op": "frame_bury 4",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "head_offset#0",
+        "tail_offset#0",
+        "tail_offset#1"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0"
+      ]
+    },
+    "376": {
+      "op": "intc_2 // 2",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0",
+        "2"
+      ]
+    },
+    "377": {
+      "op": "+",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "head_offset#0"
+      ]
+    },
+    "378": {
+      "op": "frame_bury 3",
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1"
+      ]
+    },
+    "380": {
+      "op": "b dynamic_array_concat_byte_length_head_for_header@2"
+    },
+    "383": {
+      "block": "dynamic_array_concat_byte_length_head_after_for@5",
+      "stack_in": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1"
+      ],
+      "op": "frame_dig 0",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tmp%2#0"
+      ]
+    },
+    "385": {
+      "op": "frame_dig 1",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tmp%2#0",
+        "array_head_and_tail#0"
+      ]
+    },
+    "387": {
+      "op": "concat",
+      "defined_out": [
+        "array_head_and_tail#0",
+        "tmp%12#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "array_head_and_tail#0",
+        "tail_offset#0",
+        "head_offset#0",
+        "tail_offset#1",
+        "tmp%12#0"
+      ]
+    },
+    "388": {
+      "op": "frame_bury 0"
+    },
+    "390": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "391": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "params": {
+        "acc#0": "bytes"
+      },
+      "block": "bytes16",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "394": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "acc#0 (copy)"
+      ],
+      "stack_out": [
+        "acc#0 (copy)"
+      ]
+    },
+    "396": {
+      "op": "len",
+      "defined_out": [
+        "length%0#0"
+      ],
+      "stack_out": [
+        "length%0#0"
+      ]
+    },
+    "397": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "length%0#0"
+      ],
+      "stack_out": [
+        "length%0#0",
+        "0"
+      ]
+    },
+    "398": {
+      "op": "dig 1",
+      "defined_out": [
+        "0",
+        "length%0#0",
+        "length%0#0 (copy)"
+      ],
+      "stack_out": [
+        "length%0#0",
+        "0",
+        "length%0#0 (copy)"
+      ]
+    },
+    "400": {
+      "op": ">=",
+      "defined_out": [
+        "is_out_of_bounds%0#0",
+        "length%0#0"
+      ],
+      "stack_out": [
+        "length%0#0",
+        "is_out_of_bounds%0#0"
+      ]
+    },
+    "401": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "length%0#0",
+        "is_out_of_bounds%0#0",
+        "0"
+      ]
+    },
+    "402": {
+      "op": "dig 2",
+      "stack_out": [
+        "length%0#0",
+        "is_out_of_bounds%0#0",
+        "0",
+        "length%0#0 (copy)"
+      ]
+    },
+    "404": {
+      "op": "uncover 2",
+      "stack_out": [
+        "length%0#0",
+        "0",
+        "length%0#0 (copy)",
+        "is_out_of_bounds%0#0"
+      ]
+    },
+    "406": {
+      "op": "select",
+      "defined_out": [
+        "bounded_index%0#0",
+        "length%0#0"
+      ],
+      "stack_out": [
+        "length%0#0",
+        "bounded_index%0#0"
+      ]
+    },
+    "407": {
+      "op": "pushint 16 // 16",
+      "defined_out": [
+        "16",
+        "bounded_index%0#0",
+        "length%0#0"
+      ],
+      "stack_out": [
+        "length%0#0",
+        "bounded_index%0#0",
+        "16"
+      ]
+    },
+    "409": {
+      "op": "dig 2",
+      "stack_out": [
+        "length%0#0",
+        "bounded_index%0#0",
+        "16",
+        "length%0#0 (copy)"
+      ]
+    },
+    "411": {
+      "op": ">=",
+      "defined_out": [
+        "bounded_index%0#0",
+        "is_out_of_bounds%1#0",
+        "length%0#0"
+      ],
+      "stack_out": [
+        "length%0#0",
+        "bounded_index%0#0",
+        "is_out_of_bounds%1#0"
+      ]
+    },
+    "412": {
+      "op": "pushint 16 // 16",
+      "stack_out": [
+        "length%0#0",
+        "bounded_index%0#0",
+        "is_out_of_bounds%1#0",
+        "16"
+      ]
+    },
+    "414": {
+      "op": "uncover 3",
+      "stack_out": [
+        "bounded_index%0#0",
+        "is_out_of_bounds%1#0",
+        "16",
+        "length%0#0"
+      ]
+    },
+    "416": {
+      "op": "uncover 2",
+      "stack_out": [
+        "bounded_index%0#0",
+        "16",
+        "length%0#0",
+        "is_out_of_bounds%1#0"
+      ]
+    },
+    "418": {
+      "op": "select",
+      "defined_out": [
+        "bounded_index%0#0",
+        "bounded_index%1#0"
+      ],
+      "stack_out": [
+        "bounded_index%0#0",
+        "bounded_index%1#0"
+      ]
+    },
+    "419": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "bounded_index%0#0",
+        "bounded_index%1#0",
+        "acc#0 (copy)"
+      ]
+    },
+    "421": {
+      "op": "cover 2",
+      "stack_out": [
+        "acc#0 (copy)",
+        "bounded_index%0#0",
+        "bounded_index%1#0"
+      ]
+    },
+    "423": {
+      "op": "substring3",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "424": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "425": {
+      "op": "len",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%0#0"
+      ]
+    },
+    "426": {
+      "op": "pushint 16 // 16",
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%0#0",
+        "16"
+      ]
+    },
+    "428": {
+      "op": "==",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%1#0"
+      ]
+    },
+    "429": {
+      "error": "Length must be 16",
+      "op": "assert // Length must be 16",
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "430": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "431": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.newCost",
+      "params": {},
+      "block": "newCost",
+      "stack_in": [],
+      "op": "global CallerApplicationID",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "433": {
+      "op": "bnz newCost_ternary_false@2",
+      "stack_out": []
+    },
+    "436": {
+      "op": "txn Sender",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "438": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "creator#0"
+      ],
+      "stack_out": [
+        "creator#0"
+      ]
+    },
+    "441": {
+      "block": "newCost_ternary_merge@3",
+      "stack_in": [
+        "creator#0"
+      ],
+      "op": "len",
+      "defined_out": [
+        "length#0"
+      ],
+      "stack_out": [
+        "length#0"
+      ]
+    },
+    "442": {
+      "op": "intc 4 // 400",
+      "defined_out": [
+        "400",
+        "length#0"
+      ],
+      "stack_out": [
+        "length#0",
+        "400"
+      ]
+    },
+    "444": {
+      "op": "*",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "445": {
+      "op": "intc 5 // 8900",
+      "defined_out": [
+        "8900",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "8900"
+      ]
+    },
+    "447": {
+      "op": "+",
+      "defined_out": [
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "448": {
+      "op": "intc 6 // 100000",
+      "defined_out": [
+        "100000",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "100000"
+      ]
+    },
+    "450": {
+      "op": "+",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "451": {
+      "op": "global MinBalance",
+      "defined_out": [
+        "tmp%5#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%5#0",
+        "tmp%6#0"
+      ]
+    },
+    "453": {
+      "op": "+",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "454": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "455": {
+      "block": "newCost_ternary_false@2",
+      "stack_in": [],
+      "op": "global CallerApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "457": {
+      "op": "itob",
+      "defined_out": [
+        "creator#0"
+      ],
+      "stack_out": [
+        "creator#0"
+      ]
+    },
+    "458": {
+      "op": "b newCost_ternary_merge@3"
+    },
+    "461": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.new",
+      "params": {
+        "payment#0": "uint64"
+      },
+      "block": "new",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "464": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "creator#0"
+      ]
+    },
+    "465": {
+      "op": "bytec_1 // \"\"",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0"
+      ]
+    },
+    "466": {
+      "op": "dup",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0"
+      ]
+    },
+    "467": {
+      "op": "global CallerApplicationID"
+    },
+    "469": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%0#0"
+      ]
+    },
+    "470": {
+      "op": "bnz new_ternary_false@2",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "473": {
+      "op": "txn Sender",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%1#0"
+      ]
+    },
+    "475": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "creator#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "creator#0"
+      ]
+    },
+    "478": {
+      "op": "frame_bury 0",
+      "defined_out": [
+        "creator#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "480": {
+      "block": "new_ternary_merge@3",
+      "stack_in": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ],
+      "op": "frame_dig 0",
+      "defined_out": [
+        "creator#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "creator#0"
+      ]
+    },
+    "482": {
+      "op": "len",
+      "defined_out": [
+        "creator#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "length#0"
+      ]
+    },
+    "483": {
+      "op": "intc 4 // 400",
+      "defined_out": [
+        "400",
+        "creator#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "length#0",
+        "400"
+      ]
+    },
+    "485": {
+      "op": "*",
+      "defined_out": [
+        "creator#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%0#1"
+      ]
+    },
+    "486": {
+      "op": "intc 5 // 8900",
+      "defined_out": [
+        "8900",
+        "creator#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%0#1",
+        "8900"
+      ]
+    },
+    "488": {
+      "op": "+",
+      "defined_out": [
+        "creator#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "489": {
+      "op": "intc 6 // 100000",
+      "defined_out": [
+        "100000",
+        "creator#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%1#1",
+        "100000"
+      ]
+    },
+    "491": {
+      "op": "+",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "childAppMBR#0"
+      ]
+    },
+    "492": {
+      "op": "frame_bury 1",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "494": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0",
+        "payment#0 (copy)"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "496": {
+      "op": "gtxns Receiver",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%5#0"
+      ]
+    },
+    "498": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0",
+        "tmp%5#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%5#0",
+        "tmp%6#0"
+      ]
+    },
+    "500": {
+      "op": "==",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%7#0"
+      ]
+    },
+    "501": {
+      "op": "bz new_bool_false@6",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "504": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "506": {
+      "op": "gtxns Amount",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%8#0"
+      ]
+    },
+    "508": {
+      "op": "frame_dig 1",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%8#0",
+        "childAppMBR#0"
+      ]
+    },
+    "510": {
+      "op": "global MinBalance",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0",
+        "tmp%8#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%8#0",
+        "childAppMBR#0",
+        "tmp%9#0"
+      ]
+    },
+    "512": {
+      "op": "+",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0",
+        "tmp%10#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%8#0",
+        "tmp%10#0"
+      ]
+    },
+    "513": {
+      "op": "==",
+      "defined_out": [
+        "childAppMBR#0",
+        "creator#0",
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%11#0"
+      ]
+    },
+    "514": {
+      "op": "bz new_bool_false@6",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "517": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "and_result%0#0",
+        "childAppMBR#0",
+        "creator#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "and_result%0#0"
+      ]
+    },
+    "518": {
+      "block": "new_bool_merge@7",
+      "stack_in": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "and_result%0#0"
+      ],
+      "error": "invalid payment",
+      "op": "assert // invalid payment",
+      "defined_out": [],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "519": {
+      "op": "itxn_begin"
+    },
+    "520": {
+      "op": "pushbytes base64(CoEBQw==)",
+      "defined_out": [
+        "CoEBQw=="
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "CoEBQw=="
+      ]
+    },
+    "526": {
+      "op": "itxn_field ClearStateProgramPages",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "528": {
+      "op": "pushbytes base64(CiACAQAxG0EAN4ICBAC4bK8EJDeNPDYaAI4CABAAAiNDMRmBBRJEMRhEiAA8IkMxGRREMRhENhoBF8AciAANIkMxGUD/2TEYFEQiQ4oBADEAMgkSRLEyCov/siCyByOyCCKyECOyAbOJMQAyCRJEsTIJsgkishAjsgGziQ==)",
+      "defined_out": [
+        "CiACAQAxG0EAN4ICBAC4bK8EJDeNPDYaAI4CABAAAiNDMRmBBRJEMRhEiAA8IkMxGRREMRhENhoBF8AciAANIkMxGUD/2TEYFEQiQ4oBADEAMgkSRLEyCov/siCyByOyCCKyECOyAbOJMQAyCRJEsTIJsgkishAjsgGziQ=="
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "CiACAQAxG0EAN4ICBAC4bK8EJDeNPDYaAI4CABAAAiNDMRmBBRJEMRhEiAA8IkMxGRREMRhENhoBF8AciAANIkMxGUD/2TEYFEQiQ4oBADEAMgkSRLEyCov/siCyByOyCCKyECOyAbOJMQAyCRJEsTIJsgkishAjsgGziQ=="
+      ]
+    },
+    "654": {
+      "op": "itxn_field ApprovalProgramPages",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "656": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "657": {
+      "op": "itxn_field OnCompletion",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "659": {
+      "op": "pushint 6 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "appl"
+      ]
+    },
+    "661": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "663": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "664": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "666": {
+      "op": "itxn_submit"
+    },
+    "667": {
+      "op": "itxn CreatedApplicationID"
+    },
+    "669": {
+      "op": "dup",
+      "defined_out": [
+        "newEscrow#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "newEscrow#0"
+      ]
+    },
+    "670": {
+      "op": "frame_bury 2",
+      "defined_out": [
+        "newEscrow#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0"
+      ]
+    },
+    "672": {
+      "op": "dup",
+      "defined_out": [
+        "newEscrow#0",
+        "newEscrow#0 (copy)"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "newEscrow#0 (copy)"
+      ]
+    },
+    "673": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "newEscrow#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "675": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "value%0#0"
+      ]
+    },
+    "676": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "newEscrow#0",
+        "spendAccount#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "spendAccount#0"
+      ]
+    },
+    "679": {
+      "op": "dup",
+      "defined_out": [
+        "newEscrow#0",
+        "spendAccount#0",
+        "spendAccount#0 (copy)"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "spendAccount#0",
+        "spendAccount#0 (copy)"
+      ]
+    },
+    "680": {
+      "op": "box_del",
+      "defined_out": [
+        "newEscrow#0",
+        "spendAccount#0",
+        "{box_del}"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "spendAccount#0",
+        "{box_del}"
+      ]
+    },
+    "681": {
+      "op": "pop",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "spendAccount#0"
+      ]
+    },
+    "682": {
+      "op": "frame_dig 0",
+      "defined_out": [
+        "creator#0",
+        "newEscrow#0",
+        "spendAccount#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "spendAccount#0",
+        "creator#0"
+      ]
+    },
+    "684": {
+      "op": "box_put",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0"
+      ]
+    },
+    "685": {
+      "op": "itxn_begin"
+    },
+    "686": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%1#0",
+        "creator#0",
+        "newEscrow#0",
+        "value%1#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "value%1#0",
+        "check%1#0"
+      ]
+    },
+    "688": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "value%1#0"
+      ]
+    },
+    "689": {
+      "op": "global MinBalance",
+      "defined_out": [
+        "creator#0",
+        "inner_txn_params%1%%param_Amount_idx_0#0",
+        "newEscrow#0",
+        "value%1#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "value%1#0",
+        "inner_txn_params%1%%param_Amount_idx_0#0"
+      ]
+    },
+    "691": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "value%1#0"
+      ]
+    },
+    "693": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "695": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "creator#0",
+        "newEscrow#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "1"
+      ]
+    },
+    "696": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "698": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "699": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "701": {
+      "op": "itxn_submit"
+    },
+    "702": {
+      "op": "itxn_begin"
+    },
+    "703": {
+      "op": "frame_dig 3",
+      "defined_out": [
+        "creator#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%0#0"
+      ]
+    },
+    "705": {
+      "op": "bnz new_ternary_false@11",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "708": {
+      "op": "global CallerApplicationAddress",
+      "defined_out": [
+        "creator#0",
+        "newEscrow#0",
+        "ternary_result%1#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "ternary_result%1#0"
+      ]
+    },
+    "710": {
+      "block": "new_ternary_merge@12",
+      "stack_in": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "ternary_result%1#0"
+      ],
+      "op": "itxn_field Accounts",
+      "defined_out": [],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "712": {
+      "op": "pushbytes 0x00b86caf // method \"rekey(account)void\"",
+      "defined_out": [
+        "Method(rekey(account)void)"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "Method(rekey(account)void)"
+      ]
+    },
+    "718": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "720": {
+      "op": "pushbytes 0x01",
+      "defined_out": [
+        "0x01"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "0x01"
+      ]
+    },
+    "723": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "725": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "726": {
+      "op": "itxn_field OnCompletion",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "728": {
+      "op": "frame_dig 2",
+      "defined_out": [
+        "newEscrow#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0"
+      ]
+    },
+    "730": {
+      "op": "dup",
+      "defined_out": [
+        "newEscrow#0",
+        "newEscrow#0 (copy)"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "newEscrow#0 (copy)"
+      ]
+    },
+    "731": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0"
+      ]
+    },
+    "733": {
+      "op": "pushint 6 // appl",
+      "defined_out": [
+        "appl",
+        "newEscrow#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "appl"
+      ]
+    },
+    "735": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0"
+      ]
+    },
+    "737": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0",
+        "0"
+      ]
+    },
+    "738": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "newEscrow#0"
+      ]
+    },
+    "740": {
+      "op": "itxn_submit"
+    },
+    "741": {
+      "op": "frame_bury 0"
+    },
+    "743": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "744": {
+      "block": "new_ternary_false@11",
+      "stack_in": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ],
+      "op": "txn Sender",
+      "defined_out": [
+        "ternary_result%1#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "ternary_result%1#0"
+      ]
+    },
+    "746": {
+      "op": "b new_ternary_merge@12"
+    },
+    "749": {
+      "block": "new_bool_false@6",
+      "stack_in": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "and_result%0#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "and_result%0#0"
+      ]
+    },
+    "750": {
+      "op": "b new_bool_merge@7"
+    },
+    "753": {
+      "block": "new_ternary_false@2",
+      "stack_in": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ],
+      "op": "global CallerApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "755": {
+      "op": "itob",
+      "defined_out": [
+        "creator#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0",
+        "creator#0"
+      ]
+    },
+    "756": {
+      "op": "frame_bury 0",
+      "defined_out": [
+        "creator#0"
+      ],
+      "stack_out": [
+        "creator#0",
+        "childAppMBR#0",
+        "newEscrow#0",
+        "tmp%0#0"
+      ]
+    },
+    "758": {
+      "op": "b new_ternary_merge@3"
+    },
+    "761": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.delete",
+      "params": {
+        "id#0": "uint64"
+      },
+      "block": "delete",
+      "stack_in": [],
+      "op": "proto 1 0"
+    },
+    "764": {
+      "op": "bytec_1 // \"\"",
+      "stack_out": [
+        "childAppMBR#0"
+      ]
+    },
+    "765": {
+      "op": "global CallerApplicationID"
+    },
+    "767": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "caller#0",
+        "id#0 (copy)"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "id#0 (copy)"
+      ]
+    },
+    "769": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "caller#0",
+        "check%0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "771": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "value%0#0"
+      ]
+    },
+    "772": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "caller#0",
+        "key#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0"
+      ]
+    },
+    "775": {
+      "op": "dupn 2",
+      "defined_out": [
+        "caller#0",
+        "key#0",
+        "key#0 (copy)"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "key#0",
+        "key#0 (copy)"
+      ]
+    },
+    "777": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "caller#0",
+        "key#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "key#0",
+        "_%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "778": {
+      "op": "bury 1",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "key#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "780": {
+      "error": "does not exist",
+      "op": "assert // does not exist",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "key#0"
+      ]
+    },
+    "781": {
+      "op": "box_get",
+      "defined_out": [
+        "caller#0",
+        "creator#0",
+        "key#0",
+        "maybe_exists%1#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "creator#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "782": {
+      "op": "swap",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "maybe_exists%1#0",
+        "creator#0"
+      ]
+    },
+    "783": {
+      "op": "dup",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "maybe_exists%1#0",
+        "creator#0",
+        "creator#0 (copy)"
+      ]
+    },
+    "784": {
+      "op": "uncover 2",
+      "defined_out": [
+        "caller#0",
+        "creator#0",
+        "key#0",
+        "maybe_exists%1#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "creator#0",
+        "creator#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "786": {
+      "error": "Box must have value",
+      "op": "assert // Box must have value",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "creator#0",
+        "creator#0"
+      ]
+    },
+    "787": {
+      "op": "len",
+      "defined_out": [
+        "caller#0",
+        "creator#0",
+        "key#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "creator#0",
+        "length#0"
+      ]
+    },
+    "788": {
+      "op": "dup",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "creator#0",
+        "length#0",
+        "length#0"
+      ]
+    },
+    "789": {
+      "op": "cover 2",
+      "defined_out": [
+        "caller#0",
+        "creator#0",
+        "key#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "creator#0",
+        "length#0"
+      ]
+    },
+    "791": {
+      "op": "pushint 8 // 8",
+      "defined_out": [
+        "8",
+        "caller#0",
+        "creator#0",
+        "key#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "creator#0",
+        "length#0",
+        "8"
+      ]
+    },
+    "793": {
+      "op": "==",
+      "defined_out": [
+        "caller#0",
+        "creator#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "creator#0",
+        "tmp%1#0"
+      ]
+    },
+    "794": {
+      "op": "dup",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "creator#0",
+        "tmp%1#0",
+        "tmp%1#0"
+      ]
+    },
+    "795": {
+      "op": "cover 2",
+      "defined_out": [
+        "caller#0",
+        "creator#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "creator#0",
+        "tmp%1#0"
+      ]
+    },
+    "797": {
+      "op": "bz delete_else_body@2",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "creator#0"
+      ]
+    },
+    "800": {
+      "op": "btoi",
+      "defined_out": [
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%2#0"
+      ]
+    },
+    "801": {
+      "op": "frame_dig 1",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%2#0",
+        "caller#0"
+      ]
+    },
+    "803": {
+      "op": "==",
+      "defined_out": [
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%3#0"
+      ]
+    },
+    "804": {
+      "error": "forbidden",
+      "op": "assert // forbidden",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "805": {
+      "block": "delete_after_if_else@3",
+      "stack_in": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ],
+      "op": "global MinBalance",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%7#0"
+      ]
+    },
+    "807": {
+      "op": "frame_dig 3",
+      "defined_out": [
+        "length#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%7#0",
+        "length#0"
+      ]
+    },
+    "809": {
+      "op": "intc 4 // 400",
+      "defined_out": [
+        "400",
+        "length#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%7#0",
+        "length#0",
+        "400"
+      ]
+    },
+    "811": {
+      "op": "*",
+      "defined_out": [
+        "length#0",
+        "tmp%0#1",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%7#0",
+        "tmp%0#1"
+      ]
+    },
+    "812": {
+      "op": "intc 5 // 8900",
+      "defined_out": [
+        "8900",
+        "length#0",
+        "tmp%0#1",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%7#0",
+        "tmp%0#1",
+        "8900"
+      ]
+    },
+    "814": {
+      "op": "+",
+      "defined_out": [
+        "length#0",
+        "tmp%1#1",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%7#0",
+        "tmp%1#1"
+      ]
+    },
+    "815": {
+      "op": "+",
+      "defined_out": [
+        "childAppMBR#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "childAppMBR#0"
+      ]
+    },
+    "816": {
+      "op": "frame_bury 0",
+      "defined_out": [
+        "childAppMBR#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "818": {
+      "op": "itxn_begin"
+    },
+    "819": {
+      "op": "pushbytes 0x24378d3c // method \"delete()void\"",
+      "defined_out": [
+        "Method(delete()void)",
+        "childAppMBR#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "Method(delete()void)"
+      ]
+    },
+    "825": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "827": {
+      "op": "pushint 5 // 5",
+      "defined_out": [
+        "5",
+        "childAppMBR#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "5"
+      ]
+    },
+    "829": {
+      "op": "itxn_field OnCompletion",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "831": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "childAppMBR#0",
+        "id#0 (copy)",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "id#0 (copy)"
+      ]
+    },
+    "833": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "835": {
+      "op": "pushint 6 // appl",
+      "defined_out": [
+        "appl",
+        "childAppMBR#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "appl"
+      ]
+    },
+    "837": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "839": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "0"
+      ]
+    },
+    "840": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "842": {
+      "op": "itxn_submit"
+    },
+    "843": {
+      "op": "frame_dig 2",
+      "defined_out": [
+        "childAppMBR#0",
+        "key#0",
+        "length#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "key#0"
+      ]
+    },
+    "845": {
+      "op": "box_del",
+      "defined_out": [
+        "childAppMBR#0",
+        "key#0",
+        "length#0",
+        "{box_del}"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "{box_del}"
+      ]
+    },
+    "846": {
+      "op": "pop",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "847": {
+      "op": "itxn_begin"
+    },
+    "848": {
+      "op": "frame_dig 4",
+      "defined_out": [
+        "childAppMBR#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%1#0"
+      ]
+    },
+    "850": {
+      "op": "bz delete_ternary_false@6",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "853": {
+      "op": "global CallerApplicationAddress",
+      "defined_out": [
+        "childAppMBR#0",
+        "key#0",
+        "length#0",
+        "ternary_result%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "ternary_result%0#0"
+      ]
+    },
+    "855": {
+      "block": "delete_ternary_merge@7",
+      "stack_in": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "ternary_result%0#0"
+      ],
+      "op": "frame_dig 0",
+      "defined_out": [
+        "childAppMBR#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "ternary_result%0#0",
+        "childAppMBR#0"
+      ]
+    },
+    "857": {
+      "op": "itxn_field Amount",
+      "defined_out": [
+        "childAppMBR#0",
+        "ternary_result%0#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "ternary_result%0#0"
+      ]
+    },
+    "859": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "861": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "childAppMBR#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "1"
+      ]
+    },
+    "862": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "864": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "childAppMBR#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "0"
+      ]
+    },
+    "865": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "867": {
+      "op": "itxn_submit"
+    },
+    "868": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "869": {
+      "block": "delete_ternary_false@6",
+      "stack_in": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ],
+      "op": "txn Sender",
+      "defined_out": [
+        "ternary_result%0#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "ternary_result%0#0"
+      ]
+    },
+    "871": {
+      "op": "b delete_ternary_merge@7"
+    },
+    "874": {
+      "block": "delete_else_body@2",
+      "stack_in": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "creator#0"
+      ],
+      "op": "txn Sender",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "creator#0",
+        "tmp%4#0"
+      ]
+    },
+    "876": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "creator#0",
+        "tmp%5#0"
+      ]
+    },
+    "879": {
+      "op": "==",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0",
+        "tmp%6#0"
+      ]
+    },
+    "880": {
+      "error": "forbidden",
+      "op": "assert // forbidden",
+      "stack_out": [
+        "childAppMBR#0",
+        "caller#0",
+        "key#0",
+        "length#0",
+        "tmp%1#0"
+      ]
+    },
+    "881": {
+      "op": "b delete_after_if_else@3"
+    },
+    "884": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.exists",
+      "params": {
+        "address#0": "bytes"
+      },
+      "block": "exists",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "887": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "address#0 (copy)"
+      ],
+      "stack_out": [
+        "address#0 (copy)"
+      ]
+    },
+    "889": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "materialized_values%0#0"
+      ],
+      "stack_out": [
+        "materialized_values%0#0"
+      ]
+    },
+    "892": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "_%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "893": {
+      "op": "bury 1",
+      "stack_out": [
+        "maybe_exists%0#0"
+      ]
+    },
+    "895": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "896": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.get",
+      "params": {
+        "address#0": "bytes"
+      },
+      "block": "get",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "899": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "address#0 (copy)"
+      ],
+      "stack_out": [
+        "address#0 (copy)"
+      ]
+    },
+    "901": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "materialized_values%0#0"
+      ],
+      "stack_out": [
+        "materialized_values%0#0"
+      ]
+    },
+    "904": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "_%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "905": {
+      "op": "bury 1",
+      "stack_out": [
+        "maybe_exists%0#0"
+      ]
+    },
+    "907": {
+      "op": "bnz get_after_if_else@2",
+      "stack_out": []
+    },
+    "910": {
+      "op": "bytec_1 // \"\"",
+      "defined_out": [
+        "\"\""
+      ],
+      "stack_out": [
+        "\"\""
+      ]
+    },
+    "911": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "912": {
+      "block": "get_after_if_else@2",
+      "stack_in": [],
+      "op": "frame_dig -1",
+      "defined_out": [
+        "address#0 (copy)"
+      ],
+      "stack_out": [
+        "address#0 (copy)"
+      ]
+    },
+    "914": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "materialized_values%1#0"
+      ],
+      "stack_out": [
+        "materialized_values%1#0"
+      ]
+    },
+    "917": {
+      "op": "box_get",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "918": {
+      "error": "Box must have value",
+      "op": "assert // Box must have value",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "919": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "920": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.mustGet",
+      "params": {
+        "address#0": "bytes"
+      },
+      "block": "mustGet",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "923": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "address#0 (copy)"
+      ],
+      "stack_out": [
+        "address#0 (copy)"
+      ]
+    },
+    "925": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "materialized_values%0#0"
+      ],
+      "stack_out": [
+        "materialized_values%0#0"
+      ]
+    },
+    "928": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "_%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "929": {
+      "op": "bury 1",
+      "stack_out": [
+        "maybe_exists%0#0"
+      ]
+    },
+    "931": {
+      "error": "Account not found",
+      "op": "assert // Account not found",
+      "stack_out": []
+    },
+    "932": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "address#0 (copy)"
+      ]
+    },
+    "934": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "materialized_values%1#0"
+      ],
+      "stack_out": [
+        "materialized_values%1#0"
+      ]
+    },
+    "937": {
+      "op": "box_get",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "938": {
+      "error": "Box must have value",
+      "op": "assert // Box must have value",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "939": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "940": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.getList",
+      "params": {
+        "addresses#0": "bytes"
+      },
+      "block": "getList",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "943": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "address#0"
+      ]
+    },
+    "944": {
+      "op": "bytec_2 // 0x0000"
+    },
+    "945": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "apps#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "946": {
+      "block": "getList_while_top@1",
+      "stack_in": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ],
+      "op": "frame_dig -1",
+      "defined_out": [
+        "addresses#0 (copy)"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "addresses#0 (copy)"
+      ]
+    },
+    "948": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "addresses#0 (copy)"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "addresses#0 (copy)",
+        "0"
+      ]
+    },
+    "949": {
+      "op": "extract_uint16",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "tmp%0#0"
+      ]
+    },
+    "950": {
+      "op": "frame_dig 2",
+      "defined_out": [
+        "i#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "tmp%0#0",
+        "i#0"
+      ]
+    },
+    "952": {
+      "op": ">",
+      "defined_out": [
+        "i#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "tmp%1#0"
+      ]
+    },
+    "953": {
+      "op": "bz getList_after_while@6",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "956": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "addresses#0 (copy)"
+      ]
+    },
+    "958": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "array_head_and_tail%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "array_head_and_tail%0#0"
+      ]
+    },
+    "961": {
+      "op": "frame_dig 2",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "i#0"
+      ]
+    },
+    "963": {
+      "op": "intc_3 // 32",
+      "defined_out": [
+        "32",
+        "array_head_and_tail%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "i#0",
+        "32"
+      ]
+    },
+    "964": {
+      "op": "*",
+      "defined_out": [
+        "array_head_and_tail%0#0",
+        "i#0",
+        "item_offset%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "item_offset%0#0"
+      ]
+    },
+    "965": {
+      "op": "intc_3 // 32",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "item_offset%0#0",
+        "32"
+      ]
+    },
+    "966": {
+      "error": "Index access is out of bounds",
+      "op": "extract3 // on error: Index access is out of bounds",
+      "defined_out": [
+        "address#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "address#0"
+      ]
+    },
+    "967": {
+      "op": "dup",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "address#0",
+        "address#0"
+      ]
+    },
+    "968": {
+      "op": "frame_bury 0",
+      "defined_out": [
+        "address#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "address#0"
+      ]
+    },
+    "970": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "address#0",
+        "i#0",
+        "materialized_values%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "materialized_values%0#0"
+      ]
+    },
+    "973": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "address#0",
+        "i#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "_%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "974": {
+      "op": "bury 1",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "976": {
+      "op": "bz getList_else_body@4",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "979": {
+      "op": "frame_dig 0",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "address#0"
+      ]
+    },
+    "981": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "address#0",
+        "i#0",
+        "materialized_values%1#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "materialized_values%1#0"
+      ]
+    },
+    "984": {
+      "op": "box_get",
+      "defined_out": [
+        "address#0",
+        "i#0",
+        "maybe_exists%1#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "maybe_value%0#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "985": {
+      "error": "Box must have value",
+      "op": "assert // Box must have value",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "986": {
+      "op": "dup",
+      "defined_out": [
+        "address#0",
+        "i#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "987": {
+      "op": "len",
+      "defined_out": [
+        "address#0",
+        "i#0",
+        "length%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "maybe_value%0#0",
+        "length%0#0"
+      ]
+    },
+    "988": {
+      "op": "itob",
+      "defined_out": [
+        "address#0",
+        "as_bytes%0#0",
+        "i#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "maybe_value%0#0",
+        "as_bytes%0#0"
+      ]
+    },
+    "989": {
+      "op": "extract 6 2",
+      "defined_out": [
+        "address#0",
+        "i#0",
+        "length_uint16%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "maybe_value%0#0",
+        "length_uint16%0#0"
+      ]
+    },
+    "992": {
+      "op": "swap",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "length_uint16%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "993": {
+      "op": "concat",
+      "defined_out": [
+        "address#0",
+        "encoded_value%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "encoded_value%0#0"
+      ]
+    },
+    "994": {
+      "op": "frame_dig 1",
+      "defined_out": [
+        "address#0",
+        "apps#0",
+        "encoded_value%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "encoded_value%0#0",
+        "apps#0"
+      ]
+    },
+    "996": {
+      "op": "swap",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "apps#0",
+        "encoded_value%0#0"
+      ]
+    },
+    "997": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "address#0",
+        "apps#0",
+        "encoded_value%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "apps#0",
+        "encoded_value%0#0",
+        "1"
+      ]
+    },
+    "998": {
+      "callsub": "_puya_lib.arc4.dynamic_array_concat_byte_length_head",
+      "op": "callsub dynamic_array_concat_byte_length_head",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "apps#0"
+      ]
+    },
+    "1001": {
+      "op": "frame_bury 1",
+      "defined_out": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "1003": {
+      "block": "getList_after_if_else@5",
+      "stack_in": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ],
+      "op": "frame_dig 2",
+      "defined_out": [
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "i#0"
+      ]
+    },
+    "1005": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "i#0",
+        "1"
+      ]
+    },
+    "1006": {
+      "op": "+",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "i#0"
+      ]
+    },
+    "1007": {
+      "op": "frame_bury 2",
+      "defined_out": [
+        "i#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "1009": {
+      "op": "b getList_while_top@1"
+    },
+    "1012": {
+      "block": "getList_else_body@4",
+      "stack_in": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ],
+      "op": "frame_dig 1",
+      "defined_out": [
+        "apps#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "apps#0"
+      ]
+    },
+    "1014": {
+      "op": "bytec_2 // 0x0000",
+      "defined_out": [
+        "0x0000",
+        "apps#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "apps#0",
+        "0x0000"
+      ]
+    },
+    "1015": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "0x0000",
+        "1",
+        "apps#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "apps#0",
+        "0x0000",
+        "1"
+      ]
+    },
+    "1016": {
+      "callsub": "_puya_lib.arc4.dynamic_array_concat_byte_length_head",
+      "op": "callsub dynamic_array_concat_byte_length_head",
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "apps#0"
+      ]
+    },
+    "1019": {
+      "op": "frame_bury 1",
+      "defined_out": [
+        "apps#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "1021": {
+      "op": "b getList_after_if_else@5"
+    },
+    "1024": {
+      "block": "getList_after_while@6",
+      "stack_in": [
+        "address#0",
+        "apps#0",
+        "i#0"
+      ],
+      "op": "frame_dig 1",
+      "defined_out": [
+        "apps#0"
+      ],
+      "stack_out": [
+        "address#0",
+        "apps#0",
+        "i#0",
+        "apps#0"
+      ]
+    },
+    "1026": {
+      "op": "frame_bury 0"
+    },
+    "1028": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "1029": {
+      "subroutine": "smart_contracts/escrow/factory.algo.ts::EscrowFactory.mustGetList",
+      "params": {
+        "addresses#0": "bytes"
+      },
+      "block": "mustGetList",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "1032": {
+      "op": "bytec_2 // 0x0000"
+    },
+    "1033": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "apps#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "1034": {
+      "block": "mustGetList_while_top@1",
+      "stack_in": [
+        "apps#0",
+        "i#0"
+      ],
+      "op": "frame_dig -1",
+      "defined_out": [
+        "addresses#0 (copy)"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "addresses#0 (copy)"
+      ]
+    },
+    "1036": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "addresses#0 (copy)"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "addresses#0 (copy)",
+        "0"
+      ]
+    },
+    "1037": {
+      "op": "extract_uint16",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "tmp%0#0"
+      ]
+    },
+    "1038": {
+      "op": "frame_dig 1",
+      "defined_out": [
+        "i#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "tmp%0#0",
+        "i#0"
+      ]
+    },
+    "1040": {
+      "op": ">",
+      "defined_out": [
+        "i#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "tmp%1#0"
+      ]
+    },
+    "1041": {
+      "op": "bz mustGetList_after_while@3",
+      "stack_out": [
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "1044": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "addresses#0 (copy)"
+      ]
+    },
+    "1046": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "array_head_and_tail%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "array_head_and_tail%0#0"
+      ]
+    },
+    "1049": {
+      "op": "frame_dig 1",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "i#0"
+      ]
+    },
+    "1051": {
+      "op": "dup",
+      "defined_out": [
+        "array_head_and_tail%0#0",
+        "i#0",
+        "i#0 (copy)"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "i#0 (copy)",
+        "i#0 (copy)"
+      ]
+    },
+    "1052": {
+      "op": "cover 2",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "i#0 (copy)"
+      ]
+    },
+    "1054": {
+      "op": "intc_3 // 32",
+      "defined_out": [
+        "32",
+        "array_head_and_tail%0#0",
+        "i#0",
+        "i#0 (copy)"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "i#0 (copy)",
+        "32"
+      ]
+    },
+    "1055": {
+      "op": "*",
+      "defined_out": [
+        "array_head_and_tail%0#0",
+        "i#0",
+        "item_offset%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "item_offset%0#0"
+      ]
+    },
+    "1056": {
+      "op": "intc_3 // 32",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "array_head_and_tail%0#0",
+        "item_offset%0#0",
+        "32"
+      ]
+    },
+    "1057": {
+      "error": "Index access is out of bounds",
+      "op": "extract3 // on error: Index access is out of bounds",
+      "defined_out": [
+        "address#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "address#0"
+      ]
+    },
+    "1058": {
+      "op": "dup",
+      "defined_out": [
+        "address#0",
+        "address#0 (copy)",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "address#0",
+        "address#0 (copy)"
+      ]
+    },
+    "1059": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "address#0",
+        "i#0",
+        "materialized_values%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "address#0",
+        "materialized_values%0#0"
+      ]
+    },
+    "1062": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "address#0",
+        "i#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "address#0",
+        "_%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "1063": {
+      "op": "bury 1",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "address#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "1065": {
+      "error": "Account not found",
+      "op": "assert // Account not found",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "address#0"
+      ]
+    },
+    "1066": {
+      "callsub": "smart_contracts/escrow/factory.algo.ts::bytes16",
+      "op": "callsub bytes16",
+      "defined_out": [
+        "i#0",
+        "materialized_values%1#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "materialized_values%1#0"
+      ]
+    },
+    "1069": {
+      "op": "box_get",
+      "defined_out": [
+        "i#0",
+        "maybe_exists%1#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "maybe_value%0#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "1070": {
+      "error": "Box must have value",
+      "op": "assert // Box must have value",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1071": {
+      "op": "dup",
+      "defined_out": [
+        "i#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "1072": {
+      "op": "len",
+      "defined_out": [
+        "i#0",
+        "length%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "maybe_value%0#0",
+        "length%0#0"
+      ]
+    },
+    "1073": {
+      "op": "itob",
+      "defined_out": [
+        "as_bytes%0#0",
+        "i#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "maybe_value%0#0",
+        "as_bytes%0#0"
+      ]
+    },
+    "1074": {
+      "op": "extract 6 2",
+      "defined_out": [
+        "i#0",
+        "length_uint16%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "maybe_value%0#0",
+        "length_uint16%0#0"
+      ]
+    },
+    "1077": {
+      "op": "swap",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "length_uint16%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1078": {
+      "op": "concat",
+      "defined_out": [
+        "encoded_value%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "encoded_value%0#0"
+      ]
+    },
+    "1079": {
+      "op": "frame_dig 0",
+      "defined_out": [
+        "apps#0",
+        "encoded_value%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "encoded_value%0#0",
+        "apps#0"
+      ]
+    },
+    "1081": {
+      "op": "swap",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "apps#0",
+        "encoded_value%0#0"
+      ]
+    },
+    "1082": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "apps#0",
+        "encoded_value%0#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "apps#0",
+        "encoded_value%0#0",
+        "1"
+      ]
+    },
+    "1083": {
+      "callsub": "_puya_lib.arc4.dynamic_array_concat_byte_length_head",
+      "op": "callsub dynamic_array_concat_byte_length_head",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "apps#0"
+      ]
+    },
+    "1086": {
+      "op": "frame_bury 0",
+      "defined_out": [
+        "apps#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0"
+      ]
+    },
+    "1088": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0",
+        "1"
+      ]
+    },
+    "1089": {
+      "op": "+",
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "i#0"
+      ]
+    },
+    "1090": {
+      "op": "frame_bury 1",
+      "defined_out": [
+        "apps#0",
+        "i#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0"
+      ]
+    },
+    "1092": {
+      "op": "b mustGetList_while_top@1"
+    },
+    "1095": {
+      "block": "mustGetList_after_while@3",
+      "stack_in": [
+        "apps#0",
+        "i#0"
+      ],
+      "retsub": true,
+      "op": "retsub",
+      "defined_out": [
+        "apps#0"
+      ],
+      "stack_out": [
+        "apps#0",
+        "i#0",
+        "apps#0"
+      ]
+    }
+  }
+}
