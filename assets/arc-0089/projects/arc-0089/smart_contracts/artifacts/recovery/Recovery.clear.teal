@@ -1,0 +1,7 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.clear_state_program() -> uint64:
+main:
+    pushint 1 // 1
+    return

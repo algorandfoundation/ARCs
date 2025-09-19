@@ -1,0 +1,71 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // smart_contracts/recovery/contract.py:5
+    // class Recovery(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x02bece11 // method "hello(string)string"
+    txna ApplicationArgs 0
+    match main_hello_route@3
+
+main_after_if_else@10:
+    // smart_contracts/recovery/contract.py:5
+    // class Recovery(ARC4Contract):
+    pushint 0 // 0
+    return
+
+main_hello_route@3:
+    // smart_contracts/recovery/contract.py:6
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/recovery/contract.py:5
+    // class Recovery(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // smart_contracts/recovery/contract.py:6
+    // @abimethod()
+    callsub hello
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return
+
+main_bare_routing@6:
+    // smart_contracts/recovery/contract.py:5
+    // class Recovery(ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
+
+
+// smart_contracts.recovery.contract.Recovery.hello(name: bytes) -> bytes:
+hello:
+    // smart_contracts/recovery/contract.py:6-7
+    // @abimethod()
+    // def hello(self, name: String) -> String:
+    proto 1 1
+    // smart_contracts/recovery/contract.py:8
+    // return "Hello, " + name
+    pushbytes "Hello, "
+    frame_dig -1
+    concat
+    retsub

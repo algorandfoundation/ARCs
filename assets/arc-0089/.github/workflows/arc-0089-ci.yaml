@@ -1,0 +1,65 @@
+name: Validate arc-0089
+
+on:
+  workflow_call:
+
+jobs:
+  validate:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: |
+          pipx install poetry
+          pipx inject poetry poetry-plugin-export
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install algokit
+        run: pipx install algokit
+
+      - name: Start LocalNet
+        run: algokit localnet start
+
+      - name: Bootstrap dependencies
+        run: algokit project bootstrap all --project-name 'arc-0089'
+
+      - name: Configure git
+        shell: bash
+        run: |
+          # set git user and email as test invoke git
+          git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
+
+      - name: Audit python dependencies
+        run: algokit project run audit --project-name 'arc-0089'
+
+      - name: Lint and format python dependencies
+        run: algokit project run lint --project-name 'arc-0089'
+
+      - name: Run tests
+        shell: bash
+        run: |
+          set -o pipefail
+          algokit project run test --project-name 'arc-0089'
+
+      - name: Build smart contracts
+        run: algokit project run build --project-name 'arc-0089'
+
+      - name: Scan TEAL files for issues
+        run: algokit project run audit-teal --project-name 'arc-0089'
+
+      # # Uncomment to enable TEAL static analysis with snapshoting using Tealer package
+      # # Would first require running locally using audit-teal command and committing the snapshots into source control
+      # # Please note, tealer has a known bug that may result in large snapshot file sizes, track resolution here:
+      # # https://github.com/crytic/tealer/issues/101
+      # - name: Check output stability of the smart contracts
+      #   run: algokit project run ci-teal-diff --project-name 'arc-0089'
+
+      - name: Run deployer against LocalNet
+        run: algokit project deploy localnet --project-name 'arc-0089'

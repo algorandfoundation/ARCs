@@ -1,0 +1,330 @@
+{
+  "version": 3,
+  "sources": [
+    "../../recovery/contract.py"
+  ],
+  "mappings": ";AAIA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;;;AACK;;AAAA;AAAA;AAAA;;AAAA;AADL;;;AAAA;;;AACK;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;;;;;AAAA;AAAA;AAAA;AAAA;;;AADL;;AAAA;;;;;;;;;;AACA;;;AAEe;;;;;;;;;AAAA;;AAAA;AAAP",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "algopy.arc4.ARC4Contract.approval_program",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "3": {
+      "op": "bz main_bare_routing@6",
+      "stack_out": []
+    },
+    "6": {
+      "op": "pushbytes 0x02bece11 // method \"hello(string)string\"",
+      "defined_out": [
+        "Method(hello(string)string)"
+      ],
+      "stack_out": [
+        "Method(hello(string)string)"
+      ]
+    },
+    "12": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(hello(string)string)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "Method(hello(string)string)",
+        "tmp%2#0"
+      ]
+    },
+    "15": {
+      "op": "match main_hello_route@3",
+      "stack_out": []
+    },
+    "19": {
+      "block": "main_after_if_else@10",
+      "stack_in": [],
+      "op": "pushint 0 // 0",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "21": {
+      "op": "return",
+      "stack_out": []
+    },
+    "22": {
+      "block": "main_hello_route@3",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "24": {
+      "op": "!",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "25": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "26": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "28": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "29": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "32": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "35": {
+      "callsub": "smart_contracts.recovery.contract.Recovery.hello",
+      "op": "callsub hello",
+      "defined_out": [
+        "to_encode%0#0"
+      ],
+      "stack_out": [
+        "to_encode%0#0"
+      ]
+    },
+    "38": {
+      "op": "dup",
+      "defined_out": [
+        "to_encode%0#0",
+        "to_encode%0#0 (copy)"
+      ],
+      "stack_out": [
+        "to_encode%0#0",
+        "to_encode%0#0 (copy)"
+      ]
+    },
+    "39": {
+      "op": "len",
+      "defined_out": [
+        "length%0#0",
+        "to_encode%0#0"
+      ],
+      "stack_out": [
+        "to_encode%0#0",
+        "length%0#0"
+      ]
+    },
+    "40": {
+      "op": "itob",
+      "defined_out": [
+        "as_bytes%0#0",
+        "to_encode%0#0"
+      ],
+      "stack_out": [
+        "to_encode%0#0",
+        "as_bytes%0#0"
+      ]
+    },
+    "41": {
+      "op": "extract 6 2",
+      "defined_out": [
+        "length_uint16%0#0",
+        "to_encode%0#0"
+      ],
+      "stack_out": [
+        "to_encode%0#0",
+        "length_uint16%0#0"
+      ]
+    },
+    "44": {
+      "op": "swap",
+      "stack_out": [
+        "length_uint16%0#0",
+        "to_encode%0#0"
+      ]
+    },
+    "45": {
+      "op": "concat",
+      "defined_out": [
+        "encoded_value%0#0"
+      ],
+      "stack_out": [
+        "encoded_value%0#0"
+      ]
+    },
+    "46": {
+      "op": "pushbytes 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "encoded_value%0#0"
+      ],
+      "stack_out": [
+        "encoded_value%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "52": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "encoded_value%0#0"
+      ]
+    },
+    "53": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%9#0"
+      ]
+    },
+    "54": {
+      "op": "log",
+      "stack_out": []
+    },
+    "55": {
+      "op": "pushint 1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "57": {
+      "op": "return",
+      "stack_out": []
+    },
+    "58": {
+      "block": "main_bare_routing@6",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0"
+      ]
+    },
+    "60": {
+      "op": "bnz main_after_if_else@10",
+      "stack_out": []
+    },
+    "63": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "65": {
+      "op": "!",
+      "defined_out": [
+        "tmp%12#0"
+      ],
+      "stack_out": [
+        "tmp%12#0"
+      ]
+    },
+    "66": {
+      "error": "can only call when creating",
+      "op": "assert // can only call when creating",
+      "stack_out": []
+    },
+    "67": {
+      "op": "pushint 1 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "69": {
+      "op": "return",
+      "stack_out": []
+    },
+    "70": {
+      "subroutine": "smart_contracts.recovery.contract.Recovery.hello",
+      "params": {
+        "name#0": "bytes"
+      },
+      "block": "hello",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "73": {
+      "op": "pushbytes \"Hello, \"",
+      "defined_out": [
+        "\"Hello, \""
+      ],
+      "stack_out": [
+        "\"Hello, \""
+      ]
+    },
+    "82": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "\"Hello, \"",
+        "name#0 (copy)"
+      ],
+      "stack_out": [
+        "\"Hello, \"",
+        "name#0 (copy)"
+      ]
+    },
+    "84": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "85": {
+      "retsub": true,
+      "op": "retsub"
+    }
+  }
+}

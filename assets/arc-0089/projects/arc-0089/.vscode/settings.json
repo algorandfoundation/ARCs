@@ -1,0 +1,53 @@
+{
+  // General - see also /.editorconfig
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    ".mypy_cache": true,
+    ".pytest_cache": true,
+    ".ruff_cache": true,
+    "**/__pycache__": true,
+    ".idea": true
+  },
+  
+  // Python
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.extraPaths": ["${workspaceFolder}/smart_contracts"],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingModuleSource": "none"
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      // Prevent default import sorting from running; Ruff will sort imports for us anyway
+      "source.organizeImports": "never"
+    },
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    },
+  "black-formatter.args": ["--config=pyproject.toml"],
+  "python.testing.pytestEnabled": true,
+  "ruff.enable": true,
+  "ruff.lint.run": "onSave",
+  "ruff.lint.args": ["--config=pyproject.toml"],
+  "ruff.importStrategy": "fromEnvironment",
+  "ruff.fixAll": true, //lint and fix all files in workspace
+  "ruff.organizeImports": true, //organize imports on save
+  "ruff.codeAction.disableRuleComment": {
+    "enable": true
+  },
+  "ruff.codeAction.fixViolation": {
+    "enable": true
+  },
+  "python.analysis.typeCheckingMode": "off",
+  "mypy.configFile": "pyproject.toml",
+  // set to empty array to use config from project
+  "mypy.targets": [],
+  "mypy.runUsingActiveInterpreter": true,
+  
+  // On Windows, if execution policy is set to Signed (default) then it won't be able to activate the venv
+  //  so instead let's set it to RemoteSigned for VS Code terminal
+  "terminal.integrated.shellArgs.windows": ["-ExecutionPolicy", "RemoteSigned"],
+}

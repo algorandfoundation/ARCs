@@ -1,0 +1,52 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Build & Deploy contracts",
+      "type": "python",
+      "request": "launch",
+      "module": "smart_contracts",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Start AlgoKit LocalNet",
+      "env": {
+        "ALGOD_TOKEN": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "ALGOD_SERVER": "http://localhost",
+        "ALGOD_PORT": "4001",
+        "INDEXER_TOKEN": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "INDEXER_SERVER": "http://localhost",
+        "INDEXER_PORT": "8980"
+      }
+    },
+    {
+      "name": "Deploy contracts",
+      "type": "python",
+      "request": "launch",
+      "module": "smart_contracts",
+      "args": ["deploy"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ALGOD_TOKEN": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "ALGOD_SERVER": "http://localhost",
+        "ALGOD_PORT": "4001",
+        "INDEXER_TOKEN": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "INDEXER_SERVER": "http://localhost",
+        "INDEXER_PORT": "8980"
+      }
+    },
+    {
+      "name": "Build contracts",
+      "type": "python",
+      "request": "launch",
+      "module": "smart_contracts",
+      "args": ["build"],
+      "cwd": "${workspaceFolder}"
+    },    
+    {
+      "type": "avm",
+      "request": "launch",
+      "name": "Debug TEAL via AlgoKit AVM Debugger",
+      "simulateTraceFile": "${workspaceFolder}/${command:PickSimulateTraceFile}",
+      "stopOnEntry": true
+    }
+  ]
+}

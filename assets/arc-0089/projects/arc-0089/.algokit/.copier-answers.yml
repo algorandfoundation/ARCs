@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 1.6.3
+_src_path: gh:algorandfoundation/algokit-python-template
+author_email: stephane@algorand.foundation
+author_name: Stéphane
+contract_name: recovery
+deployment_language: python
+preset_name: production
+project_name: arc-0089
+

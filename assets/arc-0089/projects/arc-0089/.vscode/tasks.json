@@ -1,0 +1,79 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build contracts",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/.venv/Scripts/python.exe"
+      },
+      "args": ["-m", "smart_contracts", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build contracts (+ LocalNet)",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/.venv/Scripts/python.exe"
+      },
+      "args": ["-m", "smart_contracts", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "dependsOn": "Start AlgoKit LocalNet",
+      "problemMatcher": []
+    },
+    {
+      "label": "Start AlgoKit LocalNet",
+      "command": "algokit",
+      "args": ["localnet", "start"],
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Stop AlgoKit LocalNet",
+      "command": "algokit",
+      "args": ["localnet", "stop"],
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Reset AlgoKit LocalNet",
+      "command": "algokit",
+      "args": ["localnet", "reset"],
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Analyze TEAL contracts with AlgoKit Tealer integration",
+      "command": "algokit",
+      "args": [
+        "task",
+        "analyze",
+        "${workspaceFolder}/.algokit",
+        "--recursive",
+        "--force"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
