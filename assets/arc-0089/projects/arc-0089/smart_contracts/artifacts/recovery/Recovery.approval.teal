@@ -1,35 +1,93 @@
 #pragma version 10
 #pragma typetrack false
 
-// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+// smart_contracts.recovery.contract.Recovery.__algopy_entrypoint_with_init() -> uint64:
 main:
-    // smart_contracts/recovery/contract.py:5
+    intcblock 1 0
+    bytecblock 0x151f7c75 0x646561646c696e653a 0x63616e63656c6c65643a 0x7075627369673a 0x7265636f7264733a 0x6e6f746963653a 0x63616c6c65723a
+    // smart_contracts/recovery/contract.py:16
     // class Recovery(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@6
-    pushbytes 0x02bece11 // method "hello(string)string"
+    bz main_bare_routing@11
+    pushbytess 0x16ea47cf 0x4a5a8365 0x02bece11 0xcf44c3c0 0x2946edc1 0x3f388e48 // method "set_public_sig(address,string)bool", method "get_public_sig(address)string", method "hello(string)string", method "set_rekey_record(address,address,address,uint64)void", method "rekey_wallet(address,address)void", method "cancel_rekey(address)void"
     txna ApplicationArgs 0
-    match main_hello_route@3
+    match main_set_public_sig_route@5 main_get_public_sig_route@6 main_hello_route@7 main_set_rekey_record_route@8 main_rekey_wallet_route@9 main_cancel_rekey_route@10
 
-main_after_if_else@10:
-    // smart_contracts/recovery/contract.py:5
+main_after_if_else@13:
+    // smart_contracts/recovery/contract.py:16
     // class Recovery(ARC4Contract):
-    pushint 0 // 0
+    intc_1 // 0
     return
 
-main_hello_route@3:
-    // smart_contracts/recovery/contract.py:6
+main_cancel_rekey_route@10:
+    // smart_contracts/recovery/contract.py:100
     // @abimethod()
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/recovery/contract.py:5
+    // smart_contracts/recovery/contract.py:16
+    // class Recovery(ARC4Contract):
+    txna ApplicationArgs 1
+    // smart_contracts/recovery/contract.py:100
+    // @abimethod()
+    callsub cancel_rekey
+    intc_0 // 1
+    return
+
+main_rekey_wallet_route@9:
+    // smart_contracts/recovery/contract.py:60
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/recovery/contract.py:16
+    // class Recovery(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    // smart_contracts/recovery/contract.py:60
+    // @abimethod()
+    callsub rekey_wallet
+    intc_0 // 1
+    return
+
+main_set_rekey_record_route@8:
+    // smart_contracts/recovery/contract.py:45
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/recovery/contract.py:16
+    // class Recovery(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    txna ApplicationArgs 3
+    txna ApplicationArgs 4
+    btoi
+    // smart_contracts/recovery/contract.py:45
+    // @abimethod()
+    callsub set_rekey_record
+    intc_0 // 1
+    return
+
+main_hello_route@7:
+    // smart_contracts/recovery/contract.py:41
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/recovery/contract.py:16
     // class Recovery(ARC4Contract):
     txna ApplicationArgs 1
     extract 2 0
-    // smart_contracts/recovery/contract.py:6
+    // smart_contracts/recovery/contract.py:41
     // @abimethod()
     callsub hello
     dup
@@ -38,34 +96,423 @@ main_hello_route@3:
     extract 6 2
     swap
     concat
-    pushbytes 0x151f7c75
+    bytec_0 // 0x151f7c75
     swap
     concat
     log
-    pushint 1 // 1
+    intc_0 // 1
     return
 
-main_bare_routing@6:
-    // smart_contracts/recovery/contract.py:5
+main_get_public_sig_route@6:
+    // smart_contracts/recovery/contract.py:37
+    // @abimethod(readonly=True)
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/recovery/contract.py:16
+    // class Recovery(ARC4Contract):
+    txna ApplicationArgs 1
+    // smart_contracts/recovery/contract.py:37
+    // @abimethod(readonly=True)
+    callsub get_public_sig
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_set_public_sig_route@5:
+    // smart_contracts/recovery/contract.py:32
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/recovery/contract.py:16
+    // class Recovery(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    extract 2 0
+    // smart_contracts/recovery/contract.py:32
+    // @abimethod()
+    callsub set_public_sig
+    pushbytes 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@11:
+    // smart_contracts/recovery/contract.py:16
     // class Recovery(ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@10
+    bnz main_after_if_else@13
     txn ApplicationID
     !
     assert // can only call when creating
-    pushint 1 // 1
+    intc_0 // 1
     return
+
+
+// smart_contracts.recovery.contract.Recovery.set_public_sig(account: bytes, sig: bytes) -> uint64:
+set_public_sig:
+    // smart_contracts/recovery/contract.py:32-33
+    // @abimethod()
+    // def set_public_sig(self, account: Address, sig: String) -> bool:
+    proto 2 1
+    // smart_contracts/recovery/contract.py:34
+    // self.db[account] = sig
+    bytec_3 // 0x7075627369673a
+    frame_dig -2
+    concat
+    dup
+    box_del
+    pop
+    frame_dig -1
+    box_put
+    // smart_contracts/recovery/contract.py:35
+    // return self.db[account] == sig
+    intc_0 // 1
+    retsub
+
+
+// smart_contracts.recovery.contract.Recovery.get_public_sig(account: bytes) -> bytes:
+get_public_sig:
+    // smart_contracts/recovery/contract.py:37-38
+    // @abimethod(readonly=True)
+    // def get_public_sig(self, account: Address) -> String:
+    proto 1 1
+    // smart_contracts/recovery/contract.py:39
+    // return self.db[account]
+    bytec_3 // 0x7075627369673a
+    frame_dig -1
+    concat
+    box_get
+    assert // check self.db entry exists
+    retsub
 
 
 // smart_contracts.recovery.contract.Recovery.hello(name: bytes) -> bytes:
 hello:
-    // smart_contracts/recovery/contract.py:6-7
+    // smart_contracts/recovery/contract.py:41-42
     // @abimethod()
     // def hello(self, name: String) -> String:
     proto 1 1
-    // smart_contracts/recovery/contract.py:8
+    // smart_contracts/recovery/contract.py:43
     // return "Hello, " + name
     pushbytes "Hello, "
     frame_dig -1
     concat
+    retsub
+
+
+// smart_contracts.recovery.contract.Recovery.set_rekey_record(wallet: bytes, allowed_sender: bytes, rekey_target: bytes, notification_window: uint64) -> void:
+set_rekey_record:
+    // smart_contracts/recovery/contract.py:45-52
+    // @abimethod()
+    // def set_rekey_record(
+    //     self,
+    //     wallet: Address,
+    //     allowed_sender: Address,
+    //     rekey_target: Address,
+    //     notification_window: UInt64,
+    // ) -> None:
+    proto 4 0
+    // smart_contracts/recovery/contract.py:53
+    // assert Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    assert
+    // smart_contracts/recovery/contract.py:54
+    // self.rekey_records[wallet] = rekey_target
+    bytec 4 // 0x7265636f7264733a
+    frame_dig -4
+    concat
+    frame_dig -2
+    box_put
+    // smart_contracts/recovery/contract.py:55
+    // self.rekey_deadlines[wallet] = UInt64(0)
+    bytec_1 // 0x646561646c696e653a
+    frame_dig -4
+    concat
+    intc_1 // 0
+    itob
+    box_put
+    // smart_contracts/recovery/contract.py:56
+    // self.rekey_cancelled[wallet] = False
+    bytec_2 // 0x63616e63656c6c65643a
+    frame_dig -4
+    concat
+    intc_1 // 0
+    itob
+    box_put
+    // smart_contracts/recovery/contract.py:57
+    // self.rekey_notice_periods[wallet] = notification_window
+    bytec 5 // 0x6e6f746963653a
+    frame_dig -4
+    concat
+    frame_dig -1
+    itob
+    box_put
+    // smart_contracts/recovery/contract.py:58
+    // self.authorized_callers[wallet] = allowed_sender
+    bytec 6 // 0x63616c6c65723a
+    frame_dig -4
+    concat
+    frame_dig -3
+    box_put
+    retsub
+
+
+// smart_contracts.recovery.contract.Recovery.rekey_wallet(wallet: bytes, new_address: bytes) -> void:
+rekey_wallet:
+    // smart_contracts/recovery/contract.py:60-61
+    // @abimethod()
+    // def rekey_wallet(self, wallet: Address, new_address: Address) -> None:
+    proto 2 0
+    // smart_contracts/recovery/contract.py:62
+    // stored_address, exists = self.rekey_records.maybe(wallet)
+    bytec 4 // 0x7265636f7264733a
+    frame_dig -2
+    concat
+    box_get
+    swap
+    dup
+    uncover 2
+    // smart_contracts/recovery/contract.py:63
+    // assert exists
+    assert
+    // smart_contracts/recovery/contract.py:64
+    // assert stored_address == new_address
+    frame_dig -1
+    ==
+    assert
+    // smart_contracts/recovery/contract.py:65
+    // authorized_sender, has_authorized = self.authorized_callers.maybe(wallet)
+    bytec 6 // 0x63616c6c65723a
+    frame_dig -2
+    concat
+    box_get
+    // smart_contracts/recovery/contract.py:66
+    // assert has_authorized
+    assert
+    // smart_contracts/recovery/contract.py:67
+    // assert Txn.sender == authorized_sender.native
+    txn Sender
+    ==
+    assert
+    // smart_contracts/recovery/contract.py:69
+    // cancelled, cancel_exists = self.rekey_cancelled.maybe(wallet)
+    bytec_2 // 0x63616e63656c6c65643a
+    frame_dig -2
+    concat
+    dup
+    box_get
+    swap
+    btoi
+    // smart_contracts/recovery/contract.py:70
+    // assert cancel_exists
+    swap
+    assert
+    // smart_contracts/recovery/contract.py:71
+    // assert not cancelled
+    !
+    assert
+    // smart_contracts/recovery/contract.py:73
+    // deadline, deadline_exists = self.rekey_deadlines.maybe(wallet)
+    bytec_1 // 0x646561646c696e653a
+    frame_dig -2
+    concat
+    dup
+    box_get
+    swap
+    btoi
+    dup
+    cover 2
+    cover 3
+    // smart_contracts/recovery/contract.py:74
+    // assert deadline_exists
+    assert
+    // smart_contracts/recovery/contract.py:75
+    // notice_period, notice_exists = self.rekey_notice_periods.maybe(wallet)
+    bytec 5 // 0x6e6f746963653a
+    frame_dig -2
+    concat
+    box_get
+    swap
+    btoi
+    cover 3
+    // smart_contracts/recovery/contract.py:76
+    // assert notice_exists
+    assert
+    // smart_contracts/recovery/contract.py:77
+    // current_round = Global.round
+    global Round
+    cover 2
+    // smart_contracts/recovery/contract.py:78
+    // if deadline == UInt64(0):
+    bnz rekey_wallet_after_if_else@3
+    // smart_contracts/recovery/contract.py:79
+    // self.rekey_deadlines[wallet] = current_round + notice_period
+    swap
+    frame_dig 3
+    dup
+    cover 2
+    +
+    itob
+    uncover 2
+    swap
+    box_put
+    // smart_contracts/recovery/contract.py:29
+    // rounds_bytes = op.itob(rounds)
+    itob
+    // smart_contracts/recovery/contract.py:28
+    // suffix = Bytes(b" rounds to prevent the operation")
+    pushbytes 0x20726f756e647320746f2070726576656e7420746865206f7065726174696f6e
+    // smart_contracts/recovery/contract.py:30
+    // return op.concat(prefix, op.concat(rounds_bytes, suffix))
+    concat
+    // smart_contracts/recovery/contract.py:27
+    // prefix = Bytes(b"someone wants to rekey your wallet, you have ")
+    pushbytes 0x736f6d656f6e652077616e747320746f2072656b657920796f75722077616c6c65742c20796f75206861766520
+    // smart_contracts/recovery/contract.py:30
+    // return op.concat(prefix, op.concat(rounds_bytes, suffix))
+    swap
+    concat
+    // smart_contracts/recovery/contract.py:81-86
+    // itxn.Payment(
+    //     receiver=Global.creator_address,
+    //     amount=0,
+    //     note=note_bytes,
+    //     fee=Global.min_txn_fee,
+    // ).submit()
+    itxn_begin
+    // smart_contracts/recovery/contract.py:85
+    // fee=Global.min_txn_fee,
+    global MinTxnFee
+    // smart_contracts/recovery/contract.py:82
+    // receiver=Global.creator_address,
+    global CreatorAddress
+    uncover 2
+    itxn_field Note
+    // smart_contracts/recovery/contract.py:83
+    // amount=0,
+    intc_1 // 0
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/recovery/contract.py:81
+    // itxn.Payment(
+    intc_0 // pay
+    itxn_field TypeEnum
+    itxn_field Fee
+    // smart_contracts/recovery/contract.py:81-86
+    // itxn.Payment(
+    //     receiver=Global.creator_address,
+    //     amount=0,
+    //     note=note_bytes,
+    //     fee=Global.min_txn_fee,
+    // ).submit()
+    itxn_submit
+    // smart_contracts/recovery/contract.py:87
+    // return
+    retsub
+
+rekey_wallet_after_if_else@3:
+    // smart_contracts/recovery/contract.py:89
+    // assert current_round >= deadline
+    swap
+    frame_dig 2
+    >=
+    assert
+    // smart_contracts/recovery/contract.py:91-96
+    // itxn.Payment(
+    //     receiver=wallet.native,
+    //     amount=0,
+    //     rekey_to=stored_address.native,
+    //     fee=0,
+    // ).submit()
+    itxn_begin
+    frame_dig 0
+    itxn_field RekeyTo
+    // smart_contracts/recovery/contract.py:93
+    // amount=0,
+    intc_1 // 0
+    itxn_field Amount
+    frame_dig -2
+    itxn_field Receiver
+    // smart_contracts/recovery/contract.py:91
+    // itxn.Payment(
+    intc_0 // pay
+    itxn_field TypeEnum
+    // smart_contracts/recovery/contract.py:95
+    // fee=0,
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/recovery/contract.py:91-96
+    // itxn.Payment(
+    //     receiver=wallet.native,
+    //     amount=0,
+    //     rekey_to=stored_address.native,
+    //     fee=0,
+    // ).submit()
+    itxn_submit
+    // smart_contracts/recovery/contract.py:97
+    // self.rekey_deadlines[wallet] = UInt64(0)
+    intc_1 // 0
+    itob
+    box_put
+    // smart_contracts/recovery/contract.py:98
+    // self.rekey_cancelled[wallet] = False
+    intc_1 // 0
+    itob
+    frame_dig 1
+    swap
+    box_put
+    retsub
+
+
+// smart_contracts.recovery.contract.Recovery.cancel_rekey(wallet: bytes) -> void:
+cancel_rekey:
+    // smart_contracts/recovery/contract.py:100-101
+    // @abimethod()
+    // def cancel_rekey(self, wallet: Address) -> None:
+    proto 1 0
+    // smart_contracts/recovery/contract.py:102
+    // assert Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    assert
+    // smart_contracts/recovery/contract.py:103
+    // self.rekey_cancelled[wallet] = True
+    bytec_2 // 0x63616e63656c6c65643a
+    frame_dig -1
+    concat
+    intc_0 // 1
+    itob
+    box_put
+    // smart_contracts/recovery/contract.py:104
+    // self.rekey_deadlines[wallet] = UInt64(0)
+    bytec_1 // 0x646561646c696e653a
+    frame_dig -1
+    concat
+    intc_1 // 0
+    itob
+    box_put
     retsub

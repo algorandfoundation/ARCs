@@ -19,7 +19,7 @@ from algosdk.v2client.models import SimulateTraceConfig
 import algokit_utils
 from algokit_utils import AlgorandClient as _AlgoKitAlgorandClient
 
-_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "string", "name": "name"}], "name": "hello", "returns": {"type": "string"}, "events": [], "readonly": false, "recommendations": {}}], "name": "Recovery", "state": {"keys": {"box": {}, "global": {}, "local": {}}, "maps": {"box": {}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 0}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CjEbQQA0gAQCvs4RNhoAjgEAA4EAQzEZFEQxGEQ2GgFXAgCIACBJFRZXBgJMUIAEFR98dUxQsIEBQzEZQP/UMRgURIEBQ4oBAYAHSGVsbG8sIIv/UIk=", "clear": "CoEBQw=="}, "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBSZWNvdmVyeShBUkM0Q29udHJhY3QpOgogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fYmFyZV9yb3V0aW5nQDYKICAgIHB1c2hieXRlcyAweDAyYmVjZTExIC8vIG1ldGhvZCAiaGVsbG8oc3RyaW5nKXN0cmluZyIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5faGVsbG9fcm91dGVAMwoKbWFpbl9hZnRlcl9pZl9lbHNlQDEwOgogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjUKICAgIC8vIGNsYXNzIFJlY292ZXJ5KEFSQzRDb250cmFjdCk6CiAgICBwdXNoaW50IDAgLy8gMAogICAgcmV0dXJuCgptYWluX2hlbGxvX3JvdXRlQDM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NgogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBSZWNvdmVyeShBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZXh0cmFjdCAyIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo2CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgaGVsbG8KICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4KCm1haW5fYmFyZV9yb3V0aW5nQDY6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgUmVjb3ZlcnkoQVJDNENvbnRyYWN0KToKICAgIHR4biBPbkNvbXBsZXRpb24KICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAMTAKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzLnJlY292ZXJ5LmNvbnRyYWN0LlJlY292ZXJ5LmhlbGxvKG5hbWU6IGJ5dGVzKSAtPiBieXRlczoKaGVsbG86CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6Ni03CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIC8vIGRlZiBoZWxsbyhzZWxmLCBuYW1lOiBTdHJpbmcpIC0+IFN0cmluZzoKICAgIHByb3RvIDEgMQogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjgKICAgIC8vIHJldHVybiAiSGVsbG8sICIgKyBuYW1lCiAgICBwdXNoYnl0ZXMgIkhlbGxvLCAiCiAgICBmcmFtZV9kaWcgLTEKICAgIGNvbmNhdAogICAgcmV0c3ViCg==", "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [25], "errorMessage": "OnCompletion is not NoOp"}, {"pc": [66], "errorMessage": "can only call when creating"}, {"pc": [28], "errorMessage": "can only call when not creating"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
+_APP_SPEC_JSON = r"""{"arcs": [22, 28], "bareActions": {"call": [], "create": ["NoOp"]}, "methods": [{"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "account"}, {"type": "string", "name": "sig"}], "name": "set_public_sig", "returns": {"type": "bool"}, "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "account"}], "name": "get_public_sig", "returns": {"type": "string"}, "events": [], "readonly": true, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "string", "name": "name"}], "name": "hello", "returns": {"type": "string"}, "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "wallet"}, {"type": "address", "name": "allowed_sender"}, {"type": "address", "name": "rekey_target"}, {"type": "uint64", "name": "notification_window"}], "name": "set_rekey_record", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "wallet"}, {"type": "address", "name": "new_address"}], "name": "rekey_wallet", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}, {"actions": {"call": ["NoOp"], "create": []}, "args": [{"type": "address", "name": "wallet"}], "name": "cancel_rekey", "returns": {"type": "void"}, "events": [], "readonly": false, "recommendations": {}}], "name": "Recovery", "state": {"keys": {"box": {}, "global": {}, "local": {}}, "maps": {"box": {"rekey_records": {"keyType": "address", "valueType": "address", "prefix": "cmVjb3Jkczo="}, "rekey_deadlines": {"keyType": "address", "valueType": "uint64", "prefix": "ZGVhZGxpbmU6"}, "rekey_cancelled": {"keyType": "address", "valueType": "uint64", "prefix": "Y2FuY2VsbGVkOg=="}, "rekey_notice_periods": {"keyType": "address", "valueType": "uint64", "prefix": "bm90aWNlOg=="}, "db": {"keyType": "address", "valueType": "AVMString", "prefix": "cHVic2lnOg=="}, "authorized_callers": {"keyType": "address", "valueType": "address", "prefix": "Y2FsbGVyOg=="}}, "global": {}, "local": {}}, "schema": {"global": {"bytes": 0, "ints": 0}, "local": {"bytes": 0, "ints": 0}}}, "structs": {}, "byteCode": {"approval": "CiACAQAmBwQVH3x1CWRlYWRsaW5lOgpjYW5jZWxsZWQ6B3B1YnNpZzoIcmVjb3JkczoHbm90aWNlOgdjYWxsZXI6MRtBAMaCBgQW6kfPBEpag2UEAr7OEQTPRMPABClG7cEEPziOSDYaAI4GAHUAWgA8ACMAEQACI0MxGRREMRhENhoBiAHMIkMxGRREMRhENhoBNhoCiADZIkMxGRREMRhENhoBNhoCNhoDNhoEF4gAjyJDMRkURDEYRDYaAVcCAIgAbUkVFlcGAkxQKExQsCJDMRkURDEYRDYaAYgASEkVFlcGAkxQKExQsCJDMRkURDEYRDYaATYaAlcCAIgAGIABACNPAlQoTFCwIkMxGUD/ZjEYFEQiQ4oCASuL/lBJvEiL/78iiYoBASuL/1C+RImKAQGAB0hlbGxvLCCL/1CJigQAMQAyCRJEJwSL/FCL/r8pi/xQIxa/Kov8UCMWvycFi/xQi/8WvycGi/xQi/2/iYoCACcEi/5QvkxJTwJEi/8SRCcGi/5QvkQxABJEKov+UEm+TBdMRBREKYv+UEm+TBdJTgJOA0QnBYv+UL5MF04DRDIGTgJAAHZMiwNJTgIIFk8CTL8WgCAgcm91bmRzIHRvIHByZXZlbnQgdGhlIG9wZXJhdGlvblCALXNvbWVvbmUgd2FudHMgdG8gcmVrZXkgeW91ciB3YWxsZXQsIHlvdSBoYXZlIExQsTIAMglPArIFI7IIsgcishCyAbOJTIsCD0SxiwCyICOyCIv+sgcishAjsgGzIxa/IxaLAUy/iYoBADEAMgkSRCqL/1AiFr8pi/9QIxa/iQ==", "clear": "CoEBQw=="}, "events": [], "networks": {}, "source": {"approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBzbWFydF9jb250cmFjdHMucmVjb3ZlcnkuY29udHJhY3QuUmVjb3ZlcnkuX19hbGdvcHlfZW50cnlwb2ludF93aXRoX2luaXQoKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgMSAwCiAgICBieXRlY2Jsb2NrIDB4MTUxZjdjNzUgMHg2NDY1NjE2NDZjNjk2ZTY1M2EgMHg2MzYxNmU2MzY1NmM2YzY1NjQzYSAweDcwNzU2MjczNjk2NzNhIDB4NzI2NTYzNmY3MjY0NzMzYSAweDZlNmY3NDY5NjM2NTNhIDB4NjM2MTZjNmM2NTcyM2EKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weToxNgogICAgLy8gY2xhc3MgUmVjb3ZlcnkoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX2JhcmVfcm91dGluZ0AxMQogICAgcHVzaGJ5dGVzcyAweDE2ZWE0N2NmIDB4NGE1YTgzNjUgMHgwMmJlY2UxMSAweGNmNDRjM2MwIDB4Mjk0NmVkYzEgMHgzZjM4OGU0OCAvLyBtZXRob2QgInNldF9wdWJsaWNfc2lnKGFkZHJlc3Msc3RyaW5nKWJvb2wiLCBtZXRob2QgImdldF9wdWJsaWNfc2lnKGFkZHJlc3Mpc3RyaW5nIiwgbWV0aG9kICJoZWxsbyhzdHJpbmcpc3RyaW5nIiwgbWV0aG9kICJzZXRfcmVrZXlfcmVjb3JkKGFkZHJlc3MsYWRkcmVzcyxhZGRyZXNzLHVpbnQ2NCl2b2lkIiwgbWV0aG9kICJyZWtleV93YWxsZXQoYWRkcmVzcyxhZGRyZXNzKXZvaWQiLCBtZXRob2QgImNhbmNlbF9yZWtleShhZGRyZXNzKXZvaWQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX3NldF9wdWJsaWNfc2lnX3JvdXRlQDUgbWFpbl9nZXRfcHVibGljX3NpZ19yb3V0ZUA2IG1haW5faGVsbG9fcm91dGVANyBtYWluX3NldF9yZWtleV9yZWNvcmRfcm91dGVAOCBtYWluX3Jla2V5X3dhbGxldF9yb3V0ZUA5IG1haW5fY2FuY2VsX3Jla2V5X3JvdXRlQDEwCgptYWluX2FmdGVyX2lmX2Vsc2VAMTM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MTYKICAgIC8vIGNsYXNzIFJlY292ZXJ5KEFSQzRDb250cmFjdCk6CiAgICBpbnRjXzEgLy8gMAogICAgcmV0dXJuCgptYWluX2NhbmNlbF9yZWtleV9yb3V0ZUAxMDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weToxMDAKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MTYKICAgIC8vIGNsYXNzIFJlY292ZXJ5KEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MTAwCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgY2FuY2VsX3Jla2V5CiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3Jla2V5X3dhbGxldF9yb3V0ZUA5OgogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjYwCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjE2CiAgICAvLyBjbGFzcyBSZWNvdmVyeShBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjYwCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgcmVrZXlfd2FsbGV0CiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3NldF9yZWtleV9yZWNvcmRfcm91dGVAODoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo0NQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weToxNgogICAgLy8gY2xhc3MgUmVjb3ZlcnkoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDMKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo0NQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBjYWxsc3ViIHNldF9yZWtleV9yZWNvcmQKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5faGVsbG9fcm91dGVANzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo0MQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weToxNgogICAgLy8gY2xhc3MgUmVjb3ZlcnkoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NDEKICAgIC8vIEBhYmltZXRob2QoKQogICAgY2FsbHN1YiBoZWxsbwogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fZ2V0X3B1YmxpY19zaWdfcm91dGVANjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTozNwogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MTYKICAgIC8vIGNsYXNzIFJlY292ZXJ5KEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MzcKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIGNhbGxzdWIgZ2V0X3B1YmxpY19zaWcKICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3NldF9wdWJsaWNfc2lnX3JvdXRlQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MzIKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MTYKICAgIC8vIGNsYXNzIFJlY292ZXJ5KEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBleHRyYWN0IDIgMAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjMyCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgc2V0X3B1YmxpY19zaWcKICAgIHB1c2hieXRlcyAweDAwCiAgICBpbnRjXzEgLy8gMAogICAgdW5jb3ZlciAyCiAgICBzZXRiaXQKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fYmFyZV9yb3V0aW5nQDExOgogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjE2CiAgICAvLyBjbGFzcyBSZWNvdmVyeShBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAxMwogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMucmVjb3ZlcnkuY29udHJhY3QuUmVjb3Zlcnkuc2V0X3B1YmxpY19zaWcoYWNjb3VudDogYnl0ZXMsIHNpZzogYnl0ZXMpIC0+IHVpbnQ2NDoKc2V0X3B1YmxpY19zaWc6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MzItMzMKICAgIC8vIEBhYmltZXRob2QoKQogICAgLy8gZGVmIHNldF9wdWJsaWNfc2lnKHNlbGYsIGFjY291bnQ6IEFkZHJlc3MsIHNpZzogU3RyaW5nKSAtPiBib29sOgogICAgcHJvdG8gMiAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MzQKICAgIC8vIHNlbGYuZGJbYWNjb3VudF0gPSBzaWcKICAgIGJ5dGVjXzMgLy8gMHg3MDc1NjI3MzY5NjczYQogICAgZnJhbWVfZGlnIC0yCiAgICBjb25jYXQKICAgIGR1cAogICAgYm94X2RlbAogICAgcG9wCiAgICBmcmFtZV9kaWcgLTEKICAgIGJveF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTozNQogICAgLy8gcmV0dXJuIHNlbGYuZGJbYWNjb3VudF0gPT0gc2lnCiAgICBpbnRjXzAgLy8gMQogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLnJlY292ZXJ5LmNvbnRyYWN0LlJlY292ZXJ5LmdldF9wdWJsaWNfc2lnKGFjY291bnQ6IGJ5dGVzKSAtPiBieXRlczoKZ2V0X3B1YmxpY19zaWc6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MzctMzgKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIC8vIGRlZiBnZXRfcHVibGljX3NpZyhzZWxmLCBhY2NvdW50OiBBZGRyZXNzKSAtPiBTdHJpbmc6CiAgICBwcm90byAxIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTozOQogICAgLy8gcmV0dXJuIHNlbGYuZGJbYWNjb3VudF0KICAgIGJ5dGVjXzMgLy8gMHg3MDc1NjI3MzY5NjczYQogICAgZnJhbWVfZGlnIC0xCiAgICBjb25jYXQKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmRiIGVudHJ5IGV4aXN0cwogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLnJlY292ZXJ5LmNvbnRyYWN0LlJlY292ZXJ5LmhlbGxvKG5hbWU6IGJ5dGVzKSAtPiBieXRlczoKaGVsbG86CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NDEtNDIKICAgIC8vIEBhYmltZXRob2QoKQogICAgLy8gZGVmIGhlbGxvKHNlbGYsIG5hbWU6IFN0cmluZykgLT4gU3RyaW5nOgogICAgcHJvdG8gMSAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NDMKICAgIC8vIHJldHVybiAiSGVsbG8sICIgKyBuYW1lCiAgICBwdXNoYnl0ZXMgIkhlbGxvLCAiCiAgICBmcmFtZV9kaWcgLTEKICAgIGNvbmNhdAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLnJlY292ZXJ5LmNvbnRyYWN0LlJlY292ZXJ5LnNldF9yZWtleV9yZWNvcmQod2FsbGV0OiBieXRlcywgYWxsb3dlZF9zZW5kZXI6IGJ5dGVzLCByZWtleV90YXJnZXQ6IGJ5dGVzLCBub3RpZmljYXRpb25fd2luZG93OiB1aW50NjQpIC0+IHZvaWQ6CnNldF9yZWtleV9yZWNvcmQ6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NDUtNTIKICAgIC8vIEBhYmltZXRob2QoKQogICAgLy8gZGVmIHNldF9yZWtleV9yZWNvcmQoCiAgICAvLyAgICAgc2VsZiwKICAgIC8vICAgICB3YWxsZXQ6IEFkZHJlc3MsCiAgICAvLyAgICAgYWxsb3dlZF9zZW5kZXI6IEFkZHJlc3MsCiAgICAvLyAgICAgcmVrZXlfdGFyZ2V0OiBBZGRyZXNzLAogICAgLy8gICAgIG5vdGlmaWNhdGlvbl93aW5kb3c6IFVJbnQ2NCwKICAgIC8vICkgLT4gTm9uZToKICAgIHByb3RvIDQgMAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjUzCiAgICAvLyBhc3NlcnQgVHhuLnNlbmRlciA9PSBHbG9iYWwuY3JlYXRvcl9hZGRyZXNzCiAgICB0eG4gU2VuZGVyCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgID09CiAgICBhc3NlcnQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo1NAogICAgLy8gc2VsZi5yZWtleV9yZWNvcmRzW3dhbGxldF0gPSByZWtleV90YXJnZXQKICAgIGJ5dGVjIDQgLy8gMHg3MjY1NjM2ZjcyNjQ3MzNhCiAgICBmcmFtZV9kaWcgLTQKICAgIGNvbmNhdAogICAgZnJhbWVfZGlnIC0yCiAgICBib3hfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NTUKICAgIC8vIHNlbGYucmVrZXlfZGVhZGxpbmVzW3dhbGxldF0gPSBVSW50NjQoMCkKICAgIGJ5dGVjXzEgLy8gMHg2NDY1NjE2NDZjNjk2ZTY1M2EKICAgIGZyYW1lX2RpZyAtNAogICAgY29uY2F0CiAgICBpbnRjXzEgLy8gMAogICAgaXRvYgogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjU2CiAgICAvLyBzZWxmLnJla2V5X2NhbmNlbGxlZFt3YWxsZXRdID0gRmFsc2UKICAgIGJ5dGVjXzIgLy8gMHg2MzYxNmU2MzY1NmM2YzY1NjQzYQogICAgZnJhbWVfZGlnIC00CiAgICBjb25jYXQKICAgIGludGNfMSAvLyAwCiAgICBpdG9iCiAgICBib3hfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NTcKICAgIC8vIHNlbGYucmVrZXlfbm90aWNlX3BlcmlvZHNbd2FsbGV0XSA9IG5vdGlmaWNhdGlvbl93aW5kb3cKICAgIGJ5dGVjIDUgLy8gMHg2ZTZmNzQ2OTYzNjUzYQogICAgZnJhbWVfZGlnIC00CiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAtMQogICAgaXRvYgogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjU4CiAgICAvLyBzZWxmLmF1dGhvcml6ZWRfY2FsbGVyc1t3YWxsZXRdID0gYWxsb3dlZF9zZW5kZXIKICAgIGJ5dGVjIDYgLy8gMHg2MzYxNmM2YzY1NzIzYQogICAgZnJhbWVfZGlnIC00CiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAtMwogICAgYm94X3B1dAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLnJlY292ZXJ5LmNvbnRyYWN0LlJlY292ZXJ5LnJla2V5X3dhbGxldCh3YWxsZXQ6IGJ5dGVzLCBuZXdfYWRkcmVzczogYnl0ZXMpIC0+IHZvaWQ6CnJla2V5X3dhbGxldDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo2MC02MQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICAvLyBkZWYgcmVrZXlfd2FsbGV0KHNlbGYsIHdhbGxldDogQWRkcmVzcywgbmV3X2FkZHJlc3M6IEFkZHJlc3MpIC0+IE5vbmU6CiAgICBwcm90byAyIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo2MgogICAgLy8gc3RvcmVkX2FkZHJlc3MsIGV4aXN0cyA9IHNlbGYucmVrZXlfcmVjb3Jkcy5tYXliZSh3YWxsZXQpCiAgICBieXRlYyA0IC8vIDB4NzI2NTYzNmY3MjY0NzMzYQogICAgZnJhbWVfZGlnIC0yCiAgICBjb25jYXQKICAgIGJveF9nZXQKICAgIHN3YXAKICAgIGR1cAogICAgdW5jb3ZlciAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NjMKICAgIC8vIGFzc2VydCBleGlzdHMKICAgIGFzc2VydAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjY0CiAgICAvLyBhc3NlcnQgc3RvcmVkX2FkZHJlc3MgPT0gbmV3X2FkZHJlc3MKICAgIGZyYW1lX2RpZyAtMQogICAgPT0KICAgIGFzc2VydAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjY1CiAgICAvLyBhdXRob3JpemVkX3NlbmRlciwgaGFzX2F1dGhvcml6ZWQgPSBzZWxmLmF1dGhvcml6ZWRfY2FsbGVycy5tYXliZSh3YWxsZXQpCiAgICBieXRlYyA2IC8vIDB4NjM2MTZjNmM2NTcyM2EKICAgIGZyYW1lX2RpZyAtMgogICAgY29uY2F0CiAgICBib3hfZ2V0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NjYKICAgIC8vIGFzc2VydCBoYXNfYXV0aG9yaXplZAogICAgYXNzZXJ0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NjcKICAgIC8vIGFzc2VydCBUeG4uc2VuZGVyID09IGF1dGhvcml6ZWRfc2VuZGVyLm5hdGl2ZQogICAgdHhuIFNlbmRlcgogICAgPT0KICAgIGFzc2VydAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjY5CiAgICAvLyBjYW5jZWxsZWQsIGNhbmNlbF9leGlzdHMgPSBzZWxmLnJla2V5X2NhbmNlbGxlZC5tYXliZSh3YWxsZXQpCiAgICBieXRlY18yIC8vIDB4NjM2MTZlNjM2NTZjNmM2NTY0M2EKICAgIGZyYW1lX2RpZyAtMgogICAgY29uY2F0CiAgICBkdXAKICAgIGJveF9nZXQKICAgIHN3YXAKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo3MAogICAgLy8gYXNzZXJ0IGNhbmNlbF9leGlzdHMKICAgIHN3YXAKICAgIGFzc2VydAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjcxCiAgICAvLyBhc3NlcnQgbm90IGNhbmNlbGxlZAogICAgIQogICAgYXNzZXJ0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NzMKICAgIC8vIGRlYWRsaW5lLCBkZWFkbGluZV9leGlzdHMgPSBzZWxmLnJla2V5X2RlYWRsaW5lcy5tYXliZSh3YWxsZXQpCiAgICBieXRlY18xIC8vIDB4NjQ2NTYxNjQ2YzY5NmU2NTNhCiAgICBmcmFtZV9kaWcgLTIKICAgIGNvbmNhdAogICAgZHVwCiAgICBib3hfZ2V0CiAgICBzd2FwCiAgICBidG9pCiAgICBkdXAKICAgIGNvdmVyIDIKICAgIGNvdmVyIDMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo3NAogICAgLy8gYXNzZXJ0IGRlYWRsaW5lX2V4aXN0cwogICAgYXNzZXJ0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6NzUKICAgIC8vIG5vdGljZV9wZXJpb2QsIG5vdGljZV9leGlzdHMgPSBzZWxmLnJla2V5X25vdGljZV9wZXJpb2RzLm1heWJlKHdhbGxldCkKICAgIGJ5dGVjIDUgLy8gMHg2ZTZmNzQ2OTYzNjUzYQogICAgZnJhbWVfZGlnIC0yCiAgICBjb25jYXQKICAgIGJveF9nZXQKICAgIHN3YXAKICAgIGJ0b2kKICAgIGNvdmVyIDMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo3NgogICAgLy8gYXNzZXJ0IG5vdGljZV9leGlzdHMKICAgIGFzc2VydAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5Ojc3CiAgICAvLyBjdXJyZW50X3JvdW5kID0gR2xvYmFsLnJvdW5kCiAgICBnbG9iYWwgUm91bmQKICAgIGNvdmVyIDIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo3OAogICAgLy8gaWYgZGVhZGxpbmUgPT0gVUludDY0KDApOgogICAgYm56IHJla2V5X3dhbGxldF9hZnRlcl9pZl9lbHNlQDMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo3OQogICAgLy8gc2VsZi5yZWtleV9kZWFkbGluZXNbd2FsbGV0XSA9IGN1cnJlbnRfcm91bmQgKyBub3RpY2VfcGVyaW9kCiAgICBzd2FwCiAgICBmcmFtZV9kaWcgMwogICAgZHVwCiAgICBjb3ZlciAyCiAgICArCiAgICBpdG9iCiAgICB1bmNvdmVyIDIKICAgIHN3YXAKICAgIGJveF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weToyOQogICAgLy8gcm91bmRzX2J5dGVzID0gb3AuaXRvYihyb3VuZHMpCiAgICBpdG9iCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MjgKICAgIC8vIHN1ZmZpeCA9IEJ5dGVzKGIiIHJvdW5kcyB0byBwcmV2ZW50IHRoZSBvcGVyYXRpb24iKQogICAgcHVzaGJ5dGVzIDB4MjA3MjZmNzU2ZTY0NzMyMDc0NmYyMDcwNzI2NTc2NjU2ZTc0MjA3NDY4NjUyMDZmNzA2NTcyNjE3NDY5NmY2ZQogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjMwCiAgICAvLyByZXR1cm4gb3AuY29uY2F0KHByZWZpeCwgb3AuY29uY2F0KHJvdW5kc19ieXRlcywgc3VmZml4KSkKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjI3CiAgICAvLyBwcmVmaXggPSBCeXRlcyhiInNvbWVvbmUgd2FudHMgdG8gcmVrZXkgeW91ciB3YWxsZXQsIHlvdSBoYXZlICIpCiAgICBwdXNoYnl0ZXMgMHg3MzZmNmQ2NTZmNmU2NTIwNzc2MTZlNzQ3MzIwNzQ2ZjIwNzI2NTZiNjU3OTIwNzk2Zjc1NzIyMDc3NjE2YzZjNjU3NDJjMjA3OTZmNzUyMDY4NjE3NjY1MjAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTozMAogICAgLy8gcmV0dXJuIG9wLmNvbmNhdChwcmVmaXgsIG9wLmNvbmNhdChyb3VuZHNfYnl0ZXMsIHN1ZmZpeCkpCiAgICBzd2FwCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo4MS04NgogICAgLy8gaXR4bi5QYXltZW50KAogICAgLy8gICAgIHJlY2VpdmVyPUdsb2JhbC5jcmVhdG9yX2FkZHJlc3MsCiAgICAvLyAgICAgYW1vdW50PTAsCiAgICAvLyAgICAgbm90ZT1ub3RlX2J5dGVzLAogICAgLy8gICAgIGZlZT1HbG9iYWwubWluX3R4bl9mZWUsCiAgICAvLyApLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6ODUKICAgIC8vIGZlZT1HbG9iYWwubWluX3R4bl9mZWUsCiAgICBnbG9iYWwgTWluVHhuRmVlCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6ODIKICAgIC8vIHJlY2VpdmVyPUdsb2JhbC5jcmVhdG9yX2FkZHJlc3MsCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgIHVuY292ZXIgMgogICAgaXR4bl9maWVsZCBOb3RlCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6ODMKICAgIC8vIGFtb3VudD0wLAogICAgaW50Y18xIC8vIDAKICAgIGl0eG5fZmllbGQgQW1vdW50CiAgICBpdHhuX2ZpZWxkIFJlY2VpdmVyCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6ODEKICAgIC8vIGl0eG4uUGF5bWVudCgKICAgIGludGNfMCAvLyBwYXkKICAgIGl0eG5fZmllbGQgVHlwZUVudW0KICAgIGl0eG5fZmllbGQgRmVlCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6ODEtODYKICAgIC8vIGl0eG4uUGF5bWVudCgKICAgIC8vICAgICByZWNlaXZlcj1HbG9iYWwuY3JlYXRvcl9hZGRyZXNzLAogICAgLy8gICAgIGFtb3VudD0wLAogICAgLy8gICAgIG5vdGU9bm90ZV9ieXRlcywKICAgIC8vICAgICBmZWU9R2xvYmFsLm1pbl90eG5fZmVlLAogICAgLy8gKS5zdWJtaXQoKQogICAgaXR4bl9zdWJtaXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo4NwogICAgLy8gcmV0dXJuCiAgICByZXRzdWIKCnJla2V5X3dhbGxldF9hZnRlcl9pZl9lbHNlQDM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6ODkKICAgIC8vIGFzc2VydCBjdXJyZW50X3JvdW5kID49IGRlYWRsaW5lCiAgICBzd2FwCiAgICBmcmFtZV9kaWcgMgogICAgPj0KICAgIGFzc2VydAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjkxLTk2CiAgICAvLyBpdHhuLlBheW1lbnQoCiAgICAvLyAgICAgcmVjZWl2ZXI9d2FsbGV0Lm5hdGl2ZSwKICAgIC8vICAgICBhbW91bnQ9MCwKICAgIC8vICAgICByZWtleV90bz1zdG9yZWRfYWRkcmVzcy5uYXRpdmUsCiAgICAvLyAgICAgZmVlPTAsCiAgICAvLyApLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICBmcmFtZV9kaWcgMAogICAgaXR4bl9maWVsZCBSZWtleVRvCiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6OTMKICAgIC8vIGFtb3VudD0wLAogICAgaW50Y18xIC8vIDAKICAgIGl0eG5fZmllbGQgQW1vdW50CiAgICBmcmFtZV9kaWcgLTIKICAgIGl0eG5fZmllbGQgUmVjZWl2ZXIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weTo5MQogICAgLy8gaXR4bi5QYXltZW50KAogICAgaW50Y18wIC8vIHBheQogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5Ojk1CiAgICAvLyBmZWU9MCwKICAgIGludGNfMSAvLyAwCiAgICBpdHhuX2ZpZWxkIEZlZQogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjkxLTk2CiAgICAvLyBpdHhuLlBheW1lbnQoCiAgICAvLyAgICAgcmVjZWl2ZXI9d2FsbGV0Lm5hdGl2ZSwKICAgIC8vICAgICBhbW91bnQ9MCwKICAgIC8vICAgICByZWtleV90bz1zdG9yZWRfYWRkcmVzcy5uYXRpdmUsCiAgICAvLyAgICAgZmVlPTAsCiAgICAvLyApLnN1Ym1pdCgpCiAgICBpdHhuX3N1Ym1pdAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5Ojk3CiAgICAvLyBzZWxmLnJla2V5X2RlYWRsaW5lc1t3YWxsZXRdID0gVUludDY0KDApCiAgICBpbnRjXzEgLy8gMAogICAgaXRvYgogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5Ojk4CiAgICAvLyBzZWxmLnJla2V5X2NhbmNlbGxlZFt3YWxsZXRdID0gRmFsc2UKICAgIGludGNfMSAvLyAwCiAgICBpdG9iCiAgICBmcmFtZV9kaWcgMQogICAgc3dhcAogICAgYm94X3B1dAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLnJlY292ZXJ5LmNvbnRyYWN0LlJlY292ZXJ5LmNhbmNlbF9yZWtleSh3YWxsZXQ6IGJ5dGVzKSAtPiB2b2lkOgpjYW5jZWxfcmVrZXk6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MTAwLTEwMQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICAvLyBkZWYgY2FuY2VsX3Jla2V5KHNlbGYsIHdhbGxldDogQWRkcmVzcykgLT4gTm9uZToKICAgIHByb3RvIDEgMAogICAgLy8gc21hcnRfY29udHJhY3RzL3JlY292ZXJ5L2NvbnRyYWN0LnB5OjEwMgogICAgLy8gYXNzZXJ0IFR4bi5zZW5kZXIgPT0gR2xvYmFsLmNyZWF0b3JfYWRkcmVzcwogICAgdHhuIFNlbmRlcgogICAgZ2xvYmFsIENyZWF0b3JBZGRyZXNzCiAgICA9PQogICAgYXNzZXJ0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcmVjb3ZlcnkvY29udHJhY3QucHk6MTAzCiAgICAvLyBzZWxmLnJla2V5X2NhbmNlbGxlZFt3YWxsZXRdID0gVHJ1ZQogICAgYnl0ZWNfMiAvLyAweDYzNjE2ZTYzNjU2YzZjNjU2NDNhCiAgICBmcmFtZV9kaWcgLTEKICAgIGNvbmNhdAogICAgaW50Y18wIC8vIDEKICAgIGl0b2IKICAgIGJveF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9yZWNvdmVyeS9jb250cmFjdC5weToxMDQKICAgIC8vIHNlbGYucmVrZXlfZGVhZGxpbmVzW3dhbGxldF0gPSBVSW50NjQoMCkKICAgIGJ5dGVjXzEgLy8gMHg2NDY1NjE2NDZjNjk2ZTY1M2EKICAgIGZyYW1lX2RpZyAtMQogICAgY29uY2F0CiAgICBpbnRjXzEgLy8gMAogICAgaXRvYgogICAgYm94X3B1dAogICAgcmV0c3ViCg==", "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"}, "sourceInfo": {"approval": {"pcOffsetMethod": "none", "sourceInfo": [{"pc": [125, 140, 158, 183, 213, 240], "errorMessage": "OnCompletion is not NoOp"}, {"pc": [277], "errorMessage": "can only call when creating"}, {"pc": [128, 143, 161, 186, 216, 243], "errorMessage": "can only call when not creating"}, {"pc": [303], "errorMessage": "check self.db entry exists"}]}, "clear": {"pcOffsetMethod": "none", "sourceInfo": []}}, "templateVariables": {}}"""
 APP_SPEC = algokit_utils.Arc56Contract.from_json(_APP_SPEC_JSON)
 
 def _parse_abi_args(args: object | None = None) -> list[object] | None:
@@ -65,6 +65,25 @@ def _init_dataclass(cls: type, data: dict) -> object:
     return cls(**field_values)
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class SetPublicSigArgs:
+    """Dataclass for set_public_sig arguments"""
+    account: str
+    sig: str
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "set_public_sig(address,string)bool"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class GetPublicSigArgs:
+    """Dataclass for get_public_sig arguments"""
+    account: str
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "get_public_sig(address)string"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class HelloArgs:
     """Dataclass for hello arguments"""
     name: str
@@ -73,10 +92,67 @@ class HelloArgs:
     def abi_method_signature(self) -> str:
         return "hello(string)string"
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class SetRekeyRecordArgs:
+    """Dataclass for set_rekey_record arguments"""
+    wallet: str
+    allowed_sender: str
+    rekey_target: str
+    notification_window: int
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "set_rekey_record(address,address,address,uint64)void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class RekeyWalletArgs:
+    """Dataclass for rekey_wallet arguments"""
+    wallet: str
+    new_address: str
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "rekey_wallet(address,address)void"
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class CancelRekeyArgs:
+    """Dataclass for cancel_rekey arguments"""
+    wallet: str
+
+    @property
+    def abi_method_signature(self) -> str:
+        return "cancel_rekey(address)void"
+
 
 class RecoveryParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
+
+    def set_public_sig(
+        self,
+        args: tuple[str, str] | SetPublicSigArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "set_public_sig(address,string)bool",
+            "args": method_args,
+        }))
+
+    def get_public_sig(
+        self,
+        args: tuple[str] | GetPublicSigArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_public_sig(address)string",
+            "args": method_args,
+        }))
 
     def hello(
         self,
@@ -88,6 +164,45 @@ class RecoveryParams:
         return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
             "method": "hello(string)string",
+            "args": method_args,
+        }))
+
+    def set_rekey_record(
+        self,
+        args: tuple[str, str, str, int] | SetRekeyRecordArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "set_rekey_record(address,address,address,uint64)void",
+            "args": method_args,
+        }))
+
+    def rekey_wallet(
+        self,
+        args: tuple[str, str] | RekeyWalletArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "rekey_wallet(address,address)void",
+            "args": method_args,
+        }))
+
+    def cancel_rekey(
+        self,
+        args: tuple[str] | CancelRekeyArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.AppCallMethodCallParams:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.params.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "cancel_rekey(address)void",
             "args": method_args,
         }))
 
@@ -106,6 +221,32 @@ class RecoveryCreateTransactionParams:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
+    def set_public_sig(
+        self,
+        args: tuple[str, str] | SetPublicSigArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "set_public_sig(address,string)bool",
+            "args": method_args,
+        }))
+
+    def get_public_sig(
+        self,
+        args: tuple[str] | GetPublicSigArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_public_sig(address)string",
+            "args": method_args,
+        }))
+
     def hello(
         self,
         args: tuple[str] | HelloArgs,
@@ -116,6 +257,45 @@ class RecoveryCreateTransactionParams:
         return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
             **dataclasses.asdict(params),
             "method": "hello(string)string",
+            "args": method_args,
+        }))
+
+    def set_rekey_record(
+        self,
+        args: tuple[str, str, str, int] | SetRekeyRecordArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "set_rekey_record(address,address,address,uint64)void",
+            "args": method_args,
+        }))
+
+    def rekey_wallet(
+        self,
+        args: tuple[str, str] | RekeyWalletArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "rekey_wallet(address,address)void",
+            "args": method_args,
+        }))
+
+    def cancel_rekey(
+        self,
+        args: tuple[str] | CancelRekeyArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> algokit_utils.BuiltTransactions:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        return self.app_client.create_transaction.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "cancel_rekey(address)void",
             "args": method_args,
         }))
 
@@ -134,6 +314,38 @@ class RecoverySend:
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
 
+    def set_public_sig(
+        self,
+        args: tuple[str, str] | SetPublicSigArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[bool]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "set_public_sig(address,string)bool",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[bool], parsed_response)
+
+    def get_public_sig(
+        self,
+        args: tuple[str] | GetPublicSigArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[str]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "get_public_sig(address)string",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[str], parsed_response)
+
     def hello(
         self,
         args: tuple[str] | HelloArgs,
@@ -149,6 +361,54 @@ class RecoverySend:
         }), send_params=send_params)
         parsed_response = response
         return typing.cast(algokit_utils.SendAppTransactionResult[str], parsed_response)
+
+    def set_rekey_record(
+        self,
+        args: tuple[str, str, str, int] | SetRekeyRecordArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "set_rekey_record(address,address,address,uint64)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def rekey_wallet(
+        self,
+        args: tuple[str, str] | RekeyWalletArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "rekey_wallet(address,address)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
+
+    def cancel_rekey(
+        self,
+        args: tuple[str] | CancelRekeyArgs,
+        params: algokit_utils.CommonAppCallParams | None = None,
+        send_params: algokit_utils.SendParams | None = None
+    ) -> algokit_utils.SendAppTransactionResult[None]:
+        method_args = _parse_abi_args(args)
+        params = params or algokit_utils.CommonAppCallParams()
+        response = self.app_client.send.call(algokit_utils.AppClientMethodCallParams(**{
+            **dataclasses.asdict(params),
+            "method": "cancel_rekey(address)void",
+            "args": method_args,
+        }), send_params=send_params)
+        parsed_response = response
+        return typing.cast(algokit_utils.SendAppTransactionResult[None], parsed_response)
 
     def clear_state(
         self,
@@ -166,6 +426,125 @@ class RecoveryState:
 
     def __init__(self, app_client: algokit_utils.AppClient):
         self.app_client = app_client
+
+    @property
+    def box(
+        self
+    ) -> "_BoxState":
+            """Methods to access box for the current app"""
+            return _BoxState(self.app_client)
+
+class _BoxState:
+    def __init__(self, app_client: algokit_utils.AppClient):
+        self.app_client = app_client
+        
+        # Pre-generated mapping of value types to their struct classes
+        self._struct_classes: dict[str, typing.Type[typing.Any]] = {}
+
+    def get_all(self) -> dict[str, typing.Any]:
+        """Get all current keyed values from box state"""
+        result = self.app_client.state.box.get_all()
+        if not result:
+            return {}
+
+        converted = {}
+        for key, value in result.items():
+            key_info = self.app_client.app_spec.state.keys.box.get(key)
+            struct_class = self._struct_classes.get(key_info.value_type) if key_info else None
+            converted[key] = (
+                _init_dataclass(struct_class, value) if struct_class and isinstance(value, dict)
+                else value
+            )
+        return converted
+
+    @property
+    def rekey_records(self) -> "_MapState[str, str]":
+        """Get values from the rekey_records map in box state"""
+        return _MapState(
+            self.app_client.state.box,
+            "rekey_records",
+            None
+        )
+
+    @property
+    def rekey_deadlines(self) -> "_MapState[str, int]":
+        """Get values from the rekey_deadlines map in box state"""
+        return _MapState(
+            self.app_client.state.box,
+            "rekey_deadlines",
+            None
+        )
+
+    @property
+    def rekey_cancelled(self) -> "_MapState[str, int]":
+        """Get values from the rekey_cancelled map in box state"""
+        return _MapState(
+            self.app_client.state.box,
+            "rekey_cancelled",
+            None
+        )
+
+    @property
+    def rekey_notice_periods(self) -> "_MapState[str, int]":
+        """Get values from the rekey_notice_periods map in box state"""
+        return _MapState(
+            self.app_client.state.box,
+            "rekey_notice_periods",
+            None
+        )
+
+    @property
+    def db(self) -> "_MapState[str, str]":
+        """Get values from the db map in box state"""
+        return _MapState(
+            self.app_client.state.box,
+            "db",
+            None
+        )
+
+    @property
+    def authorized_callers(self) -> "_MapState[str, str]":
+        """Get values from the authorized_callers map in box state"""
+        return _MapState(
+            self.app_client.state.box,
+            "authorized_callers",
+            None
+        )
+
+_KeyType = typing.TypeVar("_KeyType")
+_ValueType = typing.TypeVar("_ValueType")
+
+class _AppClientStateMethodsProtocol(typing.Protocol):
+    def get_map(self, map_name: str) -> dict[typing.Any, typing.Any]:
+        ...
+    def get_map_value(self, map_name: str, key: typing.Any) -> typing.Any | None:
+        ...
+
+class _MapState(typing.Generic[_KeyType, _ValueType]):
+    """Generic class for accessing state maps with strongly typed keys and values"""
+
+    def __init__(self, state_accessor: _AppClientStateMethodsProtocol, map_name: str,
+                struct_class: typing.Type[_ValueType] | None = None):
+        self._state_accessor = state_accessor
+        self._map_name = map_name
+        self._struct_class = struct_class
+
+    def get_map(self) -> dict[_KeyType, _ValueType]:
+        """Get all current values in the map"""
+        result = self._state_accessor.get_map(self._map_name)
+        if self._struct_class and result:
+            return {k: _init_dataclass(self._struct_class, v) if isinstance(v, dict) else v
+                    for k, v in result.items()}  # type: ignore
+        return typing.cast(dict[_KeyType, _ValueType], result or {})
+
+    def get_value(self, key: _KeyType) -> _ValueType | None:
+        """Get a value from the map by key"""
+        key_value = dataclasses.asdict(key) if dataclasses.is_dataclass(key) else key  # type: ignore
+        value = self._state_accessor.get_map_value(self._map_name, key_value)
+        if value is not None and self._struct_class and isinstance(value, dict):
+            return _init_dataclass(self._struct_class, value)  # type: ignore
+        return typing.cast(_ValueType | None, value)
+
 
 class RecoveryClient:
     """Client for interacting with Recovery smart contract"""
@@ -313,9 +692,39 @@ class RecoveryClient:
     @typing.overload
     def decode_return_value(
         self,
+        method: typing.Literal["set_public_sig(address,string)bool"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> bool | None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["get_public_sig(address)string"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> str | None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
         method: typing.Literal["hello(string)string"],
         return_value: algokit_utils.ABIReturn | None
     ) -> str | None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["set_rekey_record(address,address,address,uint64)void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["rekey_wallet(address,address)void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
+    @typing.overload
+    def decode_return_value(
+        self,
+        method: typing.Literal["cancel_rekey(address)void"],
+        return_value: algokit_utils.ABIReturn | None
+    ) -> None: ...
     @typing.overload
     def decode_return_value(
         self,
@@ -327,7 +736,7 @@ class RecoveryClient:
         self,
         method: str,
         return_value: algokit_utils.ABIReturn | None
-    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None | str:
+    ) -> algokit_utils.ABIValue | algokit_utils.ABIStruct | None | bool | str:
         """Decode ABI return value for the given method."""
         if return_value is None:
             return None
@@ -498,6 +907,46 @@ class RecoveryFactoryCreateParams:
             algokit_utils.AppFactoryCreateParams(**dataclasses.asdict(params)),
             compilation_params=compilation_params)
 
+    def set_public_sig(
+        self,
+        args: tuple[str, str] | SetPublicSigArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the set_public_sig(address,string)bool ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "set_public_sig(address,string)bool",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def get_public_sig(
+        self,
+        args: tuple[str] | GetPublicSigArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the get_public_sig(address)string ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "get_public_sig(address)string",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
     def hello(
         self,
         args: tuple[str] | HelloArgs,
@@ -512,6 +961,66 @@ class RecoveryFactoryCreateParams:
                 **{
                 **dataclasses.asdict(params),
                 "method": "hello(string)string",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def set_rekey_record(
+        self,
+        args: tuple[str, str, str, int] | SetRekeyRecordArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the set_rekey_record(address,address,address,uint64)void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "set_rekey_record(address,address,address,uint64)void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def rekey_wallet(
+        self,
+        args: tuple[str, str] | RekeyWalletArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the rekey_wallet(address,address)void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "rekey_wallet(address,address)void",
+                "args": _parse_abi_args(args),
+                }
+            ),
+            compilation_params=compilation_params
+        )
+
+    def cancel_rekey(
+        self,
+        args: tuple[str] | CancelRekeyArgs,
+        *,
+        params: algokit_utils.CommonAppCallCreateParams | None = None,
+        compilation_params: algokit_utils.AppClientCompilationParams | None = None
+    ) -> algokit_utils.AppCreateMethodCallParams:
+        """Creates a new instance using the cancel_rekey(address)void ABI method"""
+        params = params or algokit_utils.CommonAppCallCreateParams()
+        return self.app_factory.params.create(
+            algokit_utils.AppFactoryCreateMethodCallParams(
+                **{
+                **dataclasses.asdict(params),
+                "method": "cancel_rekey(address)void",
                 "args": _parse_abi_args(args),
                 }
             ),
@@ -619,6 +1128,42 @@ class RecoveryComposer:
         self._composer = client.algorand.new_group()
         self._result_mappers: list[typing.Callable[[algokit_utils.ABIReturn | None], object] | None] = []
 
+    def set_public_sig(
+        self,
+        args: tuple[str, str] | SetPublicSigArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "RecoveryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.set_public_sig(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "set_public_sig(address,string)bool", v
+            )
+        )
+        return self
+
+    def get_public_sig(
+        self,
+        args: tuple[str] | GetPublicSigArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "RecoveryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.get_public_sig(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "get_public_sig(address)string", v
+            )
+        )
+        return self
+
     def hello(
         self,
         args: tuple[str] | HelloArgs,
@@ -633,6 +1178,60 @@ class RecoveryComposer:
         self._result_mappers.append(
             lambda v: self.client.decode_return_value(
                 "hello(string)string", v
+            )
+        )
+        return self
+
+    def set_rekey_record(
+        self,
+        args: tuple[str, str, str, int] | SetRekeyRecordArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "RecoveryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.set_rekey_record(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "set_rekey_record(address,address,address,uint64)void", v
+            )
+        )
+        return self
+
+    def rekey_wallet(
+        self,
+        args: tuple[str, str] | RekeyWalletArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "RecoveryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.rekey_wallet(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "rekey_wallet(address,address)void", v
+            )
+        )
+        return self
+
+    def cancel_rekey(
+        self,
+        args: tuple[str] | CancelRekeyArgs,
+        params: algokit_utils.CommonAppCallParams | None = None
+    ) -> "RecoveryComposer":
+        self._composer.add_app_call_method_call(
+            self.client.params.cancel_rekey(
+                args=args,
+                params=params,
+            )
+        )
+        self._result_mappers.append(
+            lambda v: self.client.decode_return_value(
+                "cancel_rekey(address)void", v
             )
         )
         return self
