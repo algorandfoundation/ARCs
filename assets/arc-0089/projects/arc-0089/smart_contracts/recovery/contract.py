@@ -64,7 +64,6 @@ class Recovery(ARC4Contract):
         assert stored_address == new_address
         authorized_sender, has_authorized = self.authorized_callers.maybe(wallet)
         assert has_authorized
-        assert Txn.sender == authorized_sender.native
 
         cancelled, cancel_exists = self.rekey_cancelled.maybe(wallet)
         assert cancel_exists
@@ -76,26 +75,22 @@ class Recovery(ARC4Contract):
         assert notice_exists
         current_round = Global.round
         if deadline == UInt64(0):
+            assert Txn.sender == authorized_sender.native
             self.rekey_deadlines[wallet] = current_round + notice_period
             note_bytes = self._build_notice_message(notice_period)
             itxn.Payment(
                 receiver=Global.creator_address,
                 amount=0,
                 note=note_bytes,
-                fee=Global.min_txn_fee,
+                fee=2 * Global.min_txn_fee,
             ).submit()
-            return
 
-        assert current_round >= deadline
-
-        itxn.Payment(
-            receiver=wallet.native,
-            amount=0,
-            rekey_to=stored_address.native,
-            fee=0,
-        ).submit()
-        self.rekey_deadlines[wallet] = UInt64(0)
-        self.rekey_cancelled[wallet] = False
+        else:
+            assert Txn.sender == Global.creator_address
+            assert current_round >= deadline
+            self.rekey_deadlines[wallet] = UInt64(0)
+            self.rekey_cancelled[wallet] = False
+        return
 
     @abimethod()
     def cancel_rekey(self, wallet: Address) -> None:

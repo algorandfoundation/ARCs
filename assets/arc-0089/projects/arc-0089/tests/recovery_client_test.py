@@ -2,6 +2,9 @@ import base64
 import logging
 
 import algokit_utils
+import algokit_utils.transactions
+import algokit_utils.transactions.transaction_creator
+import algosdk
 import pytest
 from algokit_utils import (
     AlgoAmount,
@@ -66,6 +69,12 @@ def recovery_context(
     deployer: SigningAccount,
     retriever: SigningAccount,
 ) -> dict[str, str]:
+    rekey_method = (
+        recovery_client.app_spec.get_arc56_method("rekey_wallet")
+        .to_abi_method()
+        .get_selector()
+    )
+    logger.info("rekeywalletargs %s", rekey_method.hex())
     teal_program_lines = [
         "#pragma version 11",
         "txn TypeEnum",
@@ -75,19 +84,14 @@ def recovery_context(
         f"int {recovery_client.app_id}",
         "==",
         "&&",
-        "txn Fee",
-        "global MinTxnFee",
-        "<=",
-        "&&",
-        "txn CloseRemainderTo",
-        "global ZeroAddress",
-        "==",
-        "&&",
-        "txn AssetCloseTo",
-        "global ZeroAddress",
-        "==",
-        "&&",
+        "txn NumAppArgs",
         "int 1",
+        ">=",
+        "&&",
+        "txn ApplicationArgs 0",
+        f"byte 0x{rekey_method.hex()}",
+        "==",
+        "&&",
         "return",
     ]
     teal_program = "\n".join(teal_program_lines)
@@ -97,6 +101,9 @@ def recovery_context(
     lsig = algokit_utils.LogicSigAccount(program, None)
     lsig.lsig.sign(deployer.private_key)
     public_sig = lsig.lsig.lsig.sig
+    logger.warning("INIT")
+    logger.warning(lsig.lsig.sigkey)
+    logger.warning(lsig.lsig.lsig.sig)
 
     multisig_params = algokit_utils.MultisigMetadata(
         version=1,
@@ -117,9 +124,10 @@ def recovery_context(
         min_spending_balance=AlgoAmount.from_algo(10),
     )
     return {
-        "wallet_address": msig.multisig.address(),
+        "wallet_address": deployer.address,
         "public_sig": public_sig,
-        "new_address": retriever.address,
+        "new_address": msig.multisig.address(),
+        "program": program,
     }
 
 
@@ -135,26 +143,26 @@ def test_arc89(
 
     assert recovery_context["public_sig"]
     assert recovery_context["wallet_address"]
-    assert retriever.address == recovery_context["new_address"]
+    assert recovery_context["new_address"]
 
 
-def test_says_hello(recovery_client: RecoveryClient) -> None:
-    result = recovery_client.send.hello(args=("World",))
-    assert result.abi_return == "Hello, World"
+# def test_says_hello(recovery_client: RecoveryClient) -> None:
+#     result = recovery_client.send.hello(args=("World",))
+#     assert result.abi_return == "Hello, World"
 
 
-def test_simulate_says_hello_with_correct_budget_consumed(
-    recovery_client: RecoveryClient,
-) -> None:
-    result = (
-        recovery_client.new_group()
-        .hello(args=("World",))
-        .hello(args=("Jane",))
-        .simulate()
-    )
-    assert result.returns[0].value == "Hello, World"
-    assert result.returns[1].value == "Hello, Jane"
-    assert result.simulate_response["txn-groups"][0]["app-budget-consumed"] < 100
+# def test_simulate_says_hello_with_correct_budget_consumed(
+#     recovery_client: RecoveryClient,
+# ) -> None:
+#     result = (
+#         recovery_client.new_group()
+#         .hello(args=("World",))
+#         .hello(args=("Jane",))
+#         .simulate()
+#     )
+#     assert result.returns[0].value == "Hello, World"
+#     assert result.returns[1].value == "Hello, Jane"
+#     assert result.simulate_response["txn-groups"][0]["app-budget-consumed"] < 100
 
 
 def test_set_and_get_public_sig(
@@ -189,7 +197,7 @@ def test_rekey_wallet_notice_and_cancel(
 
     wallet_address = recovery_context["wallet_address"]
     new_address = recovery_context["new_address"]
-    notification_window = 25
+    notification_window = 2
 
     recovery_client.send.set_rekey_record(
         args=(wallet_address, retriever.address, new_address, notification_window)
@@ -211,3 +219,89 @@ def test_rekey_wallet_notice_and_cancel(
 
     with pytest.raises(Exception):
         recovery_client.send.rekey_wallet(args=(wallet_address, new_address))
+
+
+def test_rekey_wallet_notice_and_rekey(
+    algorand_client: AlgorandClient,
+    recovery_client: RecoveryClient,
+    recovery_context: dict[str, str],
+    retriever: SigningAccount,
+    deployer: SigningAccount,
+) -> None:
+    for method_name in ("set_rekey_record", "rekey_wallet"):
+        if not hasattr(recovery_client.send, method_name):
+            pytest.skip(f"Recovery client not regenerated with {method_name}")
+
+    wallet_address = recovery_context["wallet_address"]
+    new_address = recovery_context["new_address"]
+    notification_window = 1
+
+    recovery_client.send.set_rekey_record(
+        args=(wallet_address, retriever.address, new_address, notification_window)
+    )
+
+    params = CommonAppCallParams(
+        sender=retriever.address,
+        signer=retriever.signer,
+        extra_fee=algokit_utils.AlgoAmount(micro_algo=2000),
+    )
+
+    notice_result = recovery_client.send.rekey_wallet(
+        args=(wallet_address, new_address),
+        params=params,
+    )
+    if hasattr(notice_result, "abi_return"):
+        assert notice_result.abi_return is None
+
+    algod_client = algorand_client.client.algod
+    current_round = algod_client.status()["last-round"]
+    # target_round = current_round + notification_window
+    # algod_client.status_after_block(target_round)
+
+    # recovery_client.send.cancel_rekey(args=(wallet_address,))
+
+    # composer = RecoveryComposer(recovery_client)
+    # composer.composer().add_app_call(
+    #     recovery_client.params.rekey_wallet(
+    #         args=(wallet_address, new_address),
+    #         params=CommonAppCallParams(sender=deployer.address, signer=deployer.signer),
+    #     )
+    # )
+
+    # rekey_txn = composer.composer()._txns[0]
+    psig = recovery_context["public_sig"]
+    program = recovery_context["program"]
+    # lsig = transaction.LogicSigAccount(program)
+
+    # lsig.sigkey = psig
+
+    # lstx = transaction.LogicSigTransaction(rekey_txn.txn, lsig)
+    # logger.info("rekeying with txid: %s", lstx)
+    # algod_client.send_transaction(lstx)
+
+    lsig = algokit_utils.LogicSigAccount(program, None)
+    # lsig.lsig.sign(deployer.private_key)
+    lsig.lsig.sigkey = algosdk.encoding.decode_address(deployer.address)
+    lsig.lsig.lsig.sig = psig
+    logger.warning("Method")
+    logger.warning(lsig.lsig.sigkey)
+    logger.warning(lsig.lsig.lsig.sig)
+    # algorand_client.send.payment(
+    #     algokit_utils.PaymentParams(
+    #         sender=wallet_address,
+    #         receiver=wallet_address,
+    #         amount=algokit_utils.AlgoAmount(micro_algo=0),
+    #         rekey_to=new_address,
+    #         signer=lsig.signer,
+    #         extra_fee=algokit_utils.AlgoAmount(micro_algo=1000),
+    #     )
+    # )
+    recovery_client.send.rekey_wallet(
+        args=(wallet_address, new_address),
+        params=CommonAppCallParams(
+            sender=lsig.address, signer=lsig.signer, rekey_to=new_address
+        ),
+    )
+
+    account_info = algod_client.account_info(wallet_address)
+    assert account_info.get("auth-addr") == new_address

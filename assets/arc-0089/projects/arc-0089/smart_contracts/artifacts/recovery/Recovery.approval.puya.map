@@ -3,7 +3,7 @@
   "sources": [
     "../../recovery/contract.py"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAeA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;AAAA;;AAoFK;;AAAA;AAAA;AAAA;;AAAA;AApFL;;;AAoFK;;;AAAA;;AAxCA;;AAAA;AAAA;AAAA;;AAAA;AA5CL;;;AAAA;;;AA4CK;;;AAAA;;AAfA;;AAAA;AAAA;AAAA;;AAAA;AA7BL;;;AAAA;;;AAAA;;;AAAA;;;AAAA;AA6BK;;;AAAA;;AAJA;;AAAA;AAAA;AAAA;;AAAA;AAzBL;;;AAAA;;;AAyBK;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAJA;;AAAA;AAAA;AAAA;;AAAA;AArBL;;;AAqBK;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AALA;;AAAA;AAAA;AAAA;;AAAA;AAhBL;;;AAAA;;;AAAA;;;AAgBK;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAhBL;;AAAA;;;;;;;;;AAgBA;;;AAEQ;AAAA;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AACO;AAAP;AAER;;;AAEe;AAAA;;AAAA;AAAA;AAAA;AAAP;AAER;;;AAEe;;;;;;;;;AAAA;;AAAA;AAAP;AAER;;;AAQe;;AAAc;;AAAd;AAAP;AACA;;AAAA;;AAAA;AAAA;;AAAA;AACA;AAAA;;AAAA;AAA+B;AAA/B;AAAA;AACA;AAAA;;AAAA;AAA+B;AAA/B;AAAA;AACA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AACA;;AAAA;;AAAA;AAAA;;AAAA;;AAER;;;AAEiC;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AACzB;AACO;;AAAA;AAAP;AACoC;;AAAA;;AAAA;AAAA;AACpC;AACO;;AAAA;AAAP;AAE2B;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAC3B;AAAA;AACO;AAAP;AAE4B;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAC5B;AAC+B;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAC/B;AACgB;;AAAhB;;AACR;;;AAC2C;AAAA;;AAAA;AAAA;;AAAA;AAA/B;AAAA;;AAAA;AAAA;AAlDW;AADN;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAEgB;AAHhB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAGF;AAAA;AAmDH;AAIQ;;AAHK;;;;;;AACF;;;;;AAFX;;;;;AAAA;AAMA;AAEG;AAAA;;AAAA;AAAP;AAEA;;;;;AAEW;;;;;;;AAFX;;;AAIQ;;;AAJR;AAM+B;AAA/B;AAAA;AAC+B;AAA/B;AAAA;;AAAA;AAAA;;AAER;;;AAEe;;AAAc;;AAAd;AAAP;AACA;AAAA;;AAAA;AAA+B;AAA/B;AAAA;AACA;AAAA;;AAAA;AAA+B;AAA/B;AAAA;",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAeA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;AAAA;;AAsFK;;AAAA;AAAA;AAAA;;AAAA;AAtFL;;;AAsFK;;;AAAA;;AA1CA;;AAAA;AAAA;AAAA;;AAAA;AA5CL;;;AAAA;;;AA4CK;;;AAAA;;AAfA;;AAAA;AAAA;AAAA;;AAAA;AA7BL;;;AAAA;;;AAAA;;;AAAA;;;AAAA;AA6BK;;;AAAA;;AAJA;;AAAA;AAAA;AAAA;;AAAA;AAzBL;;;AAAA;;;AAyBK;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAJA;;AAAA;AAAA;AAAA;;AAAA;AArBL;;;AAqBK;;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AALA;;AAAA;AAAA;AAAA;;AAAA;AAhBL;;;AAAA;;;AAAA;;;AAgBK;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAhBL;;AAAA;;;;;;;;;AAgBA;;;AAEQ;AAAA;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AACO;AAAP;AAER;;;AAEe;AAAA;;AAAA;AAAA;AAAA;AAAP;AAER;;;AAEe;;;;;;;;;AAAA;;AAAA;AAAP;AAER;;;AAQe;;AAAc;;AAAd;AAAP;AACA;;AAAA;;AAAA;AAAA;;AAAA;AACA;AAAA;;AAAA;AAA+B;AAA/B;AAAA;AACA;AAAA;;AAAA;AAA+B;AAA/B;AAAA;AACA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AACA;;AAAA;;AAAA;AAAA;;AAAA;;AAER;;;AAEiC;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AACzB;AACO;;AAAA;AAAP;AACoC;;AAAA;;AAAA;AAAA;AACpC;AAE2B;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAC3B;AAAA;AACO;AAAP;AAE4B;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAC5B;AAC+B;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAC/B;AACgB;;AAAhB;;AACR;;;AACmB;;AAAA;;AAAA;AAAP;AAC+B;AAAA;;AAAA;AAAA;;AAAA;AAA/B;AAAA;;AAAA;AAAA;AAlDW;AADN;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAEgB;AAHhB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAGF;AAAA;AAmDH;AAIQ;;AAAI;;AAAJ;AAHK;;;;;;AACF;;;;;AAFX;;;;;AAAA;AAmBJ;AAXW;;AAAc;;AAAd;AAAP;AACO;AAAA;;AAAA;AAAP;AAEA;AAIQ;;;;;;AAFG;;;;;;;AAFX;;;;;AAAA;AAM+B;AAA/B;AAAA;AAC+B;AAA/B;AAAA;;AAAA;AAAA;AACJ;AAER;;;AAEe;;AAAc;;AAAd;AAAP;AACA;AAAA;;AAAA;AAA+B;AAA/B;AAAA;AACA;AAAA;;AAAA;AAA+B;AAA/B;AAAA;",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -1543,80 +1543,58 @@
       ]
     },
     "395": {
-      "op": "txn Sender",
-      "defined_out": [
-        "authorized_sender#0",
-        "stored_address#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "stored_address#0",
-        "authorized_sender#0",
-        "tmp%1#0"
-      ]
-    },
-    "397": {
-      "op": "==",
-      "defined_out": [
-        "stored_address#0",
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "stored_address#0",
-        "tmp%2#0"
-      ]
-    },
-    "398": {
-      "op": "assert",
-      "stack_out": [
-        "stored_address#0"
-      ]
-    },
-    "399": {
       "op": "bytec_2 // 0x63616e63656c6c65643a",
       "defined_out": [
         "0x63616e63656c6c65643a",
+        "authorized_sender#0",
         "stored_address#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "0x63616e63656c6c65643a"
       ]
     },
-    "400": {
+    "396": {
       "op": "frame_dig -2",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "0x63616e63656c6c65643a",
         "wallet#0 (copy)"
       ]
     },
-    "402": {
+    "398": {
       "op": "concat",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "stored_address#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0"
       ]
     },
-    "403": {
+    "399": {
       "op": "dup",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "stored_address#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%2#0"
       ]
     },
-    "404": {
+    "400": {
       "op": "box_get",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "cancel_exists#0",
         "maybe_value%2#0",
@@ -1624,23 +1602,26 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "maybe_value%2#0",
         "cancel_exists#0"
       ]
     },
-    "405": {
+    "401": {
       "op": "swap",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "cancel_exists#0",
         "maybe_value%2#0"
       ]
     },
-    "406": {
+    "402": {
       "op": "btoi",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "cancel_exists#0",
         "cancelled#0",
@@ -1648,100 +1629,114 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "cancel_exists#0",
         "cancelled#0"
       ]
     },
-    "407": {
+    "403": {
       "op": "swap",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "cancelled#0",
         "cancel_exists#0"
       ]
     },
-    "408": {
+    "404": {
       "op": "assert",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "cancelled#0"
       ]
     },
-    "409": {
+    "405": {
       "op": "!",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "stored_address#0",
-        "tmp%3#0"
+        "tmp%1#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
-        "tmp%3#0"
+        "tmp%1#0"
       ]
     },
-    "410": {
+    "406": {
       "op": "assert",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0"
       ]
     },
-    "411": {
+    "407": {
       "op": "bytec_1 // 0x646561646c696e653a",
       "defined_out": [
         "0x646561646c696e653a",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "stored_address#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "0x646561646c696e653a"
       ]
     },
-    "412": {
+    "408": {
       "op": "frame_dig -2",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "0x646561646c696e653a",
         "wallet#0 (copy)"
       ]
     },
-    "414": {
+    "410": {
       "op": "concat",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "stored_address#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0"
       ]
     },
-    "415": {
+    "411": {
       "op": "dup",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "stored_address#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "box_prefixed_key%3#0"
       ]
     },
-    "416": {
+    "412": {
       "op": "box_get",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline_exists#0",
@@ -1750,25 +1745,28 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "maybe_value%3#0",
         "deadline_exists#0"
       ]
     },
-    "417": {
+    "413": {
       "op": "swap",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline_exists#0",
         "maybe_value%3#0"
       ]
     },
-    "418": {
+    "414": {
       "op": "btoi",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -1777,16 +1775,18 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline_exists#0",
         "deadline#0"
       ]
     },
-    "419": {
+    "415": {
       "op": "dup",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline_exists#0",
@@ -1794,10 +1794,11 @@
         "deadline#0 (copy)"
       ]
     },
-    "420": {
+    "416": {
       "op": "cover 2",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -1805,9 +1806,10 @@
         "deadline#0"
       ]
     },
-    "422": {
+    "418": {
       "op": "cover 3",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -1816,6 +1818,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "box_prefixed_key%3#0",
@@ -1823,20 +1826,22 @@
         "deadline_exists#0"
       ]
     },
-    "424": {
+    "420": {
       "op": "assert",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "box_prefixed_key%3#0",
         "deadline#0"
       ]
     },
-    "425": {
+    "421": {
       "op": "bytec 5 // 0x6e6f746963653a",
       "defined_out": [
         "0x6e6f746963653a",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -1844,6 +1849,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "box_prefixed_key%3#0",
@@ -1851,10 +1857,11 @@
         "0x6e6f746963653a"
       ]
     },
-    "427": {
+    "423": {
       "op": "frame_dig -2",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "box_prefixed_key%3#0",
@@ -1863,9 +1870,10 @@
         "wallet#0 (copy)"
       ]
     },
-    "429": {
+    "425": {
       "op": "concat",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "box_prefixed_key%4#0",
@@ -1874,6 +1882,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "box_prefixed_key%3#0",
@@ -1881,9 +1890,10 @@
         "box_prefixed_key%4#0"
       ]
     },
-    "430": {
+    "426": {
       "op": "box_get",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -1893,6 +1903,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "box_prefixed_key%3#0",
@@ -1901,10 +1912,11 @@
         "notice_exists#0"
       ]
     },
-    "431": {
+    "427": {
       "op": "swap",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "box_prefixed_key%3#0",
@@ -1913,9 +1925,10 @@
         "maybe_value%4#0"
       ]
     },
-    "432": {
+    "428": {
       "op": "btoi",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -1925,6 +1938,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "box_prefixed_key%3#0",
@@ -1933,9 +1947,10 @@
         "notice_period#0"
       ]
     },
-    "433": {
+    "429": {
       "op": "cover 3",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -1945,6 +1960,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -1953,10 +1969,11 @@
         "notice_exists#0"
       ]
     },
-    "435": {
+    "431": {
       "op": "assert",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -1964,9 +1981,10 @@
         "deadline#0"
       ]
     },
-    "436": {
+    "432": {
       "op": "global Round",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "current_round#0",
@@ -1976,6 +1994,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -1984,18 +2003,11 @@
         "current_round#0"
       ]
     },
-    "438": {
+    "434": {
       "op": "cover 2",
-      "defined_out": [
-        "box_prefixed_key%2#0",
-        "box_prefixed_key%3#0",
-        "current_round#0",
-        "deadline#0",
-        "notice_period#0",
-        "stored_address#0"
-      ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2004,10 +2016,11 @@
         "deadline#0"
       ]
     },
-    "440": {
-      "op": "bnz rekey_wallet_after_if_else@3",
+    "436": {
+      "op": "bnz rekey_wallet_else_body@3",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2015,10 +2028,83 @@
         "box_prefixed_key%3#0"
       ]
     },
+    "439": {
+      "op": "txn Sender",
+      "defined_out": [
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "box_prefixed_key%3#0",
+        "current_round#0",
+        "deadline#0",
+        "notice_period#0",
+        "stored_address#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "current_round#0",
+        "box_prefixed_key%3#0",
+        "tmp%3#0"
+      ]
+    },
+    "441": {
+      "op": "frame_dig 1",
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "current_round#0",
+        "box_prefixed_key%3#0",
+        "tmp%3#0",
+        "authorized_sender#0"
+      ]
+    },
     "443": {
+      "op": "==",
+      "defined_out": [
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "box_prefixed_key%3#0",
+        "current_round#0",
+        "deadline#0",
+        "notice_period#0",
+        "stored_address#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "current_round#0",
+        "box_prefixed_key%3#0",
+        "tmp%4#0"
+      ]
+    },
+    "444": {
+      "op": "assert",
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "current_round#0",
+        "box_prefixed_key%3#0"
+      ]
+    },
+    "445": {
       "op": "swap",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2026,10 +2112,11 @@
         "current_round#0"
       ]
     },
-    "444": {
-      "op": "frame_dig 3",
+    "446": {
+      "op": "frame_dig 4",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2038,9 +2125,10 @@
         "notice_period#0"
       ]
     },
-    "446": {
+    "448": {
       "op": "dup",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "current_round#0",
@@ -2051,6 +2139,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2060,10 +2149,11 @@
         "notice_period#0 (copy)"
       ]
     },
-    "447": {
+    "449": {
       "op": "cover 2",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2073,9 +2163,10 @@
         "notice_period#0 (copy)"
       ]
     },
-    "449": {
+    "451": {
       "op": "+",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -2085,6 +2176,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2093,9 +2185,10 @@
         "materialized_values%0#0"
       ]
     },
-    "450": {
+    "452": {
       "op": "itob",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "box_prefixed_key%3#0",
         "deadline#0",
@@ -2105,6 +2198,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2113,10 +2207,11 @@
         "encoded_value%0#0"
       ]
     },
-    "451": {
+    "453": {
       "op": "uncover 2",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2125,10 +2220,11 @@
         "box_prefixed_key%3#0"
       ]
     },
-    "453": {
+    "455": {
       "op": "swap",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2137,19 +2233,21 @@
         "encoded_value%0#0"
       ]
     },
-    "454": {
+    "456": {
       "op": "box_put",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "notice_period#0"
       ]
     },
-    "455": {
+    "457": {
       "op": "itob",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2158,16 +2256,18 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "rounds_bytes#0"
       ]
     },
-    "456": {
+    "458": {
       "op": "pushbytes 0x20726f756e647320746f2070726576656e7420746865206f7065726174696f6e",
       "defined_out": [
         "0x20726f756e647320746f2070726576656e7420746865206f7065726174696f6e",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2176,6 +2276,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2183,9 +2284,10 @@
         "0x20726f756e647320746f2070726576656e7420746865206f7065726174696f6e"
       ]
     },
-    "490": {
+    "492": {
       "op": "concat",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2194,16 +2296,18 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "tmp%0#1"
       ]
     },
-    "491": {
+    "493": {
       "op": "pushbytes 0x736f6d656f6e652077616e747320746f2072656b657920796f75722077616c6c65742c20796f75206861766520",
       "defined_out": [
         "0x736f6d656f6e652077616e747320746f2072656b657920796f75722077616c6c65742c20796f75206861766520",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2212,6 +2316,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2219,10 +2324,11 @@
         "0x736f6d656f6e652077616e747320746f2072656b657920796f75722077616c6c65742c20796f75206861766520"
       ]
     },
-    "538": {
+    "540": {
       "op": "swap",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2230,9 +2336,10 @@
         "tmp%0#1"
       ]
     },
-    "539": {
+    "541": {
       "op": "concat",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "note_bytes#0",
@@ -2241,18 +2348,55 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "note_bytes#0"
       ]
     },
-    "540": {
+    "542": {
       "op": "itxn_begin"
     },
-    "541": {
+    "543": {
+      "op": "pushint 2 // 2",
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "note_bytes#0",
+        "2"
+      ]
+    },
+    "545": {
       "op": "global MinTxnFee",
       "defined_out": [
+        "2",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "note_bytes#0",
+        "notice_period#0",
+        "stored_address#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "note_bytes#0",
+        "2",
+        "tmp%5#0"
+      ]
+    },
+    "547": {
+      "op": "*",
+      "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "inner_txn_params%0%%param_Fee_idx_0#0",
@@ -2262,6 +2406,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2269,9 +2414,10 @@
         "inner_txn_params%0%%param_Fee_idx_0#0"
       ]
     },
-    "543": {
+    "548": {
       "op": "global CreatorAddress",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "inner_txn_params%0%%param_Fee_idx_0#0",
@@ -2282,6 +2428,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2290,10 +2437,11 @@
         "inner_txn_params%0%%param_Receiver_idx_0#0"
       ]
     },
-    "545": {
+    "550": {
       "op": "uncover 2",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2302,10 +2450,11 @@
         "note_bytes#0"
       ]
     },
-    "547": {
+    "552": {
       "op": "itxn_field Note",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2313,10 +2462,11 @@
         "inner_txn_params%0%%param_Receiver_idx_0#0"
       ]
     },
-    "549": {
+    "554": {
       "op": "intc_1 // 0",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2325,10 +2475,11 @@
         "0"
       ]
     },
-    "550": {
+    "555": {
       "op": "itxn_field Amount",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2336,19 +2487,21 @@
         "inner_txn_params%0%%param_Receiver_idx_0#0"
       ]
     },
-    "552": {
+    "557": {
       "op": "itxn_field Receiver",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "inner_txn_params%0%%param_Fee_idx_0#0"
       ]
     },
-    "554": {
+    "559": {
       "op": "intc_0 // pay",
       "defined_out": [
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "inner_txn_params%0%%param_Fee_idx_0#0",
@@ -2358,6 +2511,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2365,48 +2519,114 @@
         "pay"
       ]
     },
-    "555": {
+    "560": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "inner_txn_params%0%%param_Fee_idx_0#0"
       ]
     },
-    "557": {
+    "562": {
       "op": "itxn_field Fee",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0"
       ]
     },
-    "559": {
+    "564": {
       "op": "itxn_submit"
     },
-    "560": {
+    "565": {
       "retsub": true,
       "op": "retsub"
     },
-    "561": {
-      "block": "rekey_wallet_after_if_else@3",
+    "566": {
+      "block": "rekey_wallet_else_body@3",
       "stack_in": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "current_round#0",
         "box_prefixed_key%3#0"
       ],
+      "op": "txn Sender",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "current_round#0",
+        "box_prefixed_key%3#0",
+        "tmp%6#0"
+      ]
+    },
+    "568": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "tmp%6#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "current_round#0",
+        "box_prefixed_key%3#0",
+        "tmp%6#0",
+        "tmp%7#0"
+      ]
+    },
+    "570": {
+      "op": "==",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "current_round#0",
+        "box_prefixed_key%3#0",
+        "tmp%8#0"
+      ]
+    },
+    "571": {
+      "op": "assert",
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "current_round#0",
+        "box_prefixed_key%3#0"
+      ]
+    },
+    "572": {
       "op": "swap",
       "defined_out": [
         "current_round#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2414,14 +2634,15 @@
         "current_round#0"
       ]
     },
-    "562": {
-      "op": "frame_dig 2",
+    "573": {
+      "op": "frame_dig 3",
       "defined_out": [
         "current_round#0",
         "deadline#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2430,165 +2651,194 @@
         "deadline#0"
       ]
     },
-    "564": {
+    "575": {
       "op": ">=",
       "defined_out": [
         "deadline#0",
-        "tmp%5#0"
+        "tmp%9#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "box_prefixed_key%3#0",
-        "tmp%5#0"
+        "tmp%9#0"
       ]
     },
-    "565": {
+    "576": {
       "op": "assert",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "box_prefixed_key%3#0"
       ]
     },
-    "566": {
+    "577": {
       "op": "itxn_begin"
     },
-    "567": {
-      "op": "frame_dig 0",
+    "578": {
+      "op": "global MinTxnFee",
       "defined_out": [
         "deadline#0",
-        "stored_address#0"
+        "inner_txn_params%1%%param_Fee_idx_0#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "box_prefixed_key%3#0",
-        "stored_address#0"
+        "inner_txn_params%1%%param_Fee_idx_0#0"
       ]
     },
-    "569": {
-      "op": "itxn_field RekeyTo",
+    "580": {
+      "op": "frame_dig 0",
+      "defined_out": [
+        "deadline#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0",
+        "stored_address#0"
+      ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
-        "box_prefixed_key%3#0"
+        "box_prefixed_key%3#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0",
+        "stored_address#0"
       ]
     },
-    "571": {
+    "582": {
+      "op": "itxn_field RekeyTo",
+      "stack_out": [
+        "stored_address#0",
+        "authorized_sender#0",
+        "box_prefixed_key%2#0",
+        "deadline#0",
+        "notice_period#0",
+        "box_prefixed_key%3#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0"
+      ]
+    },
+    "584": {
       "op": "intc_1 // 0",
       "defined_out": [
         "0",
         "deadline#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0",
         "stored_address#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "box_prefixed_key%3#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0",
         "0"
       ]
     },
-    "572": {
+    "585": {
       "op": "itxn_field Amount",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
-        "box_prefixed_key%3#0"
+        "box_prefixed_key%3#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0"
       ]
     },
-    "574": {
+    "587": {
       "op": "frame_dig -2",
       "defined_out": [
         "deadline#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0",
         "stored_address#0",
         "wallet#0 (copy)"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "box_prefixed_key%3#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0",
         "wallet#0 (copy)"
       ]
     },
-    "576": {
+    "589": {
       "op": "itxn_field Receiver",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
-        "box_prefixed_key%3#0"
+        "box_prefixed_key%3#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0"
       ]
     },
-    "578": {
+    "591": {
       "op": "intc_0 // pay",
       "defined_out": [
         "deadline#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0",
         "pay",
         "stored_address#0"
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "box_prefixed_key%3#0",
+        "inner_txn_params%1%%param_Fee_idx_0#0",
         "pay"
       ]
     },
-    "579": {
+    "592": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "stored_address#0",
-        "box_prefixed_key%2#0",
-        "deadline#0",
-        "notice_period#0",
-        "box_prefixed_key%3#0"
-      ]
-    },
-    "581": {
-      "op": "intc_1 // 0",
-      "stack_out": [
-        "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "box_prefixed_key%3#0",
-        "0"
+        "inner_txn_params%1%%param_Fee_idx_0#0"
       ]
     },
-    "582": {
+    "594": {
       "op": "itxn_field Fee",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "box_prefixed_key%3#0"
       ]
     },
-    "584": {
+    "596": {
       "op": "itxn_submit"
     },
-    "585": {
+    "597": {
       "op": "intc_1 // 0",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2596,7 +2846,7 @@
         "0"
       ]
     },
-    "586": {
+    "598": {
       "op": "itob",
       "defined_out": [
         "box_prefixed_key%3#0",
@@ -2606,6 +2856,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2613,26 +2864,28 @@
         "encoded_value%1#0"
       ]
     },
-    "587": {
+    "599": {
       "op": "box_put",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0"
       ]
     },
-    "588": {
+    "600": {
       "op": "intc_1 // 0",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "0"
       ]
     },
-    "589": {
+    "601": {
       "op": "itob",
       "defined_out": [
         "deadline#0",
@@ -2641,14 +2894,15 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
         "encoded_value%2#0"
       ]
     },
-    "590": {
-      "op": "frame_dig 1",
+    "602": {
+      "op": "frame_dig 2",
       "defined_out": [
         "box_prefixed_key%2#0",
         "deadline#0",
@@ -2657,6 +2911,7 @@
       ],
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2664,10 +2919,11 @@
         "box_prefixed_key%2#0"
       ]
     },
-    "592": {
+    "604": {
       "op": "swap",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0",
@@ -2675,20 +2931,21 @@
         "encoded_value%2#0"
       ]
     },
-    "593": {
+    "605": {
       "op": "box_put",
       "stack_out": [
         "stored_address#0",
+        "authorized_sender#0",
         "box_prefixed_key%2#0",
         "deadline#0",
         "notice_period#0"
       ]
     },
-    "594": {
+    "606": {
       "retsub": true,
       "op": "retsub"
     },
-    "595": {
+    "607": {
       "subroutine": "smart_contracts.recovery.contract.Recovery.cancel_rekey",
       "params": {
         "wallet#0": "bytes"
@@ -2697,7 +2954,7 @@
       "stack_in": [],
       "op": "proto 1 0"
     },
-    "598": {
+    "610": {
       "op": "txn Sender",
       "defined_out": [
         "tmp%0#0"
@@ -2706,7 +2963,7 @@
         "tmp%0#0"
       ]
     },
-    "600": {
+    "612": {
       "op": "global CreatorAddress",
       "defined_out": [
         "tmp%0#0",
@@ -2717,7 +2974,7 @@
         "tmp%1#0"
       ]
     },
-    "602": {
+    "614": {
       "op": "==",
       "defined_out": [
         "tmp%2#0"
@@ -2726,11 +2983,11 @@
         "tmp%2#0"
       ]
     },
-    "603": {
+    "615": {
       "op": "assert",
       "stack_out": []
     },
-    "604": {
+    "616": {
       "op": "bytec_2 // 0x63616e63656c6c65643a",
       "defined_out": [
         "0x63616e63656c6c65643a"
@@ -2739,7 +2996,7 @@
         "0x63616e63656c6c65643a"
       ]
     },
-    "605": {
+    "617": {
       "op": "frame_dig -1",
       "defined_out": [
         "0x63616e63656c6c65643a",
@@ -2750,7 +3007,7 @@
         "wallet#0 (copy)"
       ]
     },
-    "607": {
+    "619": {
       "op": "concat",
       "defined_out": [
         "box_prefixed_key%0#0"
@@ -2759,7 +3016,7 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "608": {
+    "620": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1",
@@ -2770,7 +3027,7 @@
         "1"
       ]
     },
-    "609": {
+    "621": {
       "op": "itob",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -2781,11 +3038,11 @@
         "encoded_value%0#0"
       ]
     },
-    "610": {
+    "622": {
       "op": "box_put",
       "stack_out": []
     },
-    "611": {
+    "623": {
       "op": "bytec_1 // 0x646561646c696e653a",
       "defined_out": [
         "0x646561646c696e653a"
@@ -2794,14 +3051,14 @@
         "0x646561646c696e653a"
       ]
     },
-    "612": {
+    "624": {
       "op": "frame_dig -1",
       "stack_out": [
         "0x646561646c696e653a",
         "wallet#0 (copy)"
       ]
     },
-    "614": {
+    "626": {
       "op": "concat",
       "defined_out": [
         "box_prefixed_key%1#0"
@@ -2810,7 +3067,7 @@
         "box_prefixed_key%1#0"
       ]
     },
-    "615": {
+    "627": {
       "op": "intc_1 // 0",
       "defined_out": [
         "0",
@@ -2821,7 +3078,7 @@
         "0"
       ]
     },
-    "616": {
+    "628": {
       "op": "itob",
       "defined_out": [
         "box_prefixed_key%1#0",
@@ -2832,11 +3089,11 @@
         "encoded_value%1#0"
       ]
     },
-    "617": {
+    "629": {
       "op": "box_put",
       "stack_out": []
     },
-    "618": {
+    "630": {
       "retsub": true,
       "op": "retsub"
     }

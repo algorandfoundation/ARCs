@@ -20,7 +20,7 @@ main_after_if_else@13:
     return
 
 main_cancel_rekey_route@10:
-    // smart_contracts/recovery/contract.py:100
+    // smart_contracts/recovery/contract.py:102
     // @abimethod()
     txn OnCompletion
     !
@@ -30,7 +30,7 @@ main_cancel_rekey_route@10:
     // smart_contracts/recovery/contract.py:16
     // class Recovery(ARC4Contract):
     txna ApplicationArgs 1
-    // smart_contracts/recovery/contract.py:100
+    // smart_contracts/recovery/contract.py:102
     // @abimethod()
     callsub cancel_rekey
     intc_0 // 1
@@ -312,12 +312,7 @@ rekey_wallet:
     // smart_contracts/recovery/contract.py:66
     // assert has_authorized
     assert
-    // smart_contracts/recovery/contract.py:67
-    // assert Txn.sender == authorized_sender.native
-    txn Sender
-    ==
-    assert
-    // smart_contracts/recovery/contract.py:69
+    // smart_contracts/recovery/contract.py:68
     // cancelled, cancel_exists = self.rekey_cancelled.maybe(wallet)
     bytec_2 // 0x63616e63656c6c65643a
     frame_dig -2
@@ -326,15 +321,15 @@ rekey_wallet:
     box_get
     swap
     btoi
-    // smart_contracts/recovery/contract.py:70
+    // smart_contracts/recovery/contract.py:69
     // assert cancel_exists
     swap
     assert
-    // smart_contracts/recovery/contract.py:71
+    // smart_contracts/recovery/contract.py:70
     // assert not cancelled
     !
     assert
-    // smart_contracts/recovery/contract.py:73
+    // smart_contracts/recovery/contract.py:72
     // deadline, deadline_exists = self.rekey_deadlines.maybe(wallet)
     bytec_1 // 0x646561646c696e653a
     frame_dig -2
@@ -346,10 +341,10 @@ rekey_wallet:
     dup
     cover 2
     cover 3
-    // smart_contracts/recovery/contract.py:74
+    // smart_contracts/recovery/contract.py:73
     // assert deadline_exists
     assert
-    // smart_contracts/recovery/contract.py:75
+    // smart_contracts/recovery/contract.py:74
     // notice_period, notice_exists = self.rekey_notice_periods.maybe(wallet)
     bytec 5 // 0x6e6f746963653a
     frame_dig -2
@@ -358,20 +353,26 @@ rekey_wallet:
     swap
     btoi
     cover 3
-    // smart_contracts/recovery/contract.py:76
+    // smart_contracts/recovery/contract.py:75
     // assert notice_exists
     assert
-    // smart_contracts/recovery/contract.py:77
+    // smart_contracts/recovery/contract.py:76
     // current_round = Global.round
     global Round
     cover 2
-    // smart_contracts/recovery/contract.py:78
+    // smart_contracts/recovery/contract.py:77
     // if deadline == UInt64(0):
-    bnz rekey_wallet_after_if_else@3
+    bnz rekey_wallet_else_body@3
+    // smart_contracts/recovery/contract.py:78
+    // assert Txn.sender == authorized_sender.native
+    txn Sender
+    frame_dig 1
+    ==
+    assert
     // smart_contracts/recovery/contract.py:79
     // self.rekey_deadlines[wallet] = current_round + notice_period
     swap
-    frame_dig 3
+    frame_dig 4
     dup
     cover 2
     +
@@ -400,12 +401,14 @@ rekey_wallet:
     //     receiver=Global.creator_address,
     //     amount=0,
     //     note=note_bytes,
-    //     fee=Global.min_txn_fee,
+    //     fee=2 * Global.min_txn_fee,
     // ).submit()
     itxn_begin
     // smart_contracts/recovery/contract.py:85
-    // fee=Global.min_txn_fee,
+    // fee=2 * Global.min_txn_fee,
+    pushint 2 // 2
     global MinTxnFee
+    *
     // smart_contracts/recovery/contract.py:82
     // receiver=Global.creator_address,
     global CreatorAddress
@@ -426,80 +429,88 @@ rekey_wallet:
     //     receiver=Global.creator_address,
     //     amount=0,
     //     note=note_bytes,
-    //     fee=Global.min_txn_fee,
+    //     fee=2 * Global.min_txn_fee,
     // ).submit()
     itxn_submit
-    // smart_contracts/recovery/contract.py:87
+    // smart_contracts/recovery/contract.py:100
     // return
     retsub
 
-rekey_wallet_after_if_else@3:
+rekey_wallet_else_body@3:
     // smart_contracts/recovery/contract.py:89
-    // assert current_round >= deadline
-    swap
-    frame_dig 2
-    >=
-    assert
-    // smart_contracts/recovery/contract.py:91-96
-    // itxn.Payment(
-    //     receiver=wallet.native,
-    //     amount=0,
-    //     rekey_to=stored_address.native,
-    //     fee=0,
-    // ).submit()
-    itxn_begin
-    frame_dig 0
-    itxn_field RekeyTo
-    // smart_contracts/recovery/contract.py:93
-    // amount=0,
-    intc_1 // 0
-    itxn_field Amount
-    frame_dig -2
-    itxn_field Receiver
-    // smart_contracts/recovery/contract.py:91
-    // itxn.Payment(
-    intc_0 // pay
-    itxn_field TypeEnum
-    // smart_contracts/recovery/contract.py:95
-    // fee=0,
-    intc_1 // 0
-    itxn_field Fee
-    // smart_contracts/recovery/contract.py:91-96
-    // itxn.Payment(
-    //     receiver=wallet.native,
-    //     amount=0,
-    //     rekey_to=stored_address.native,
-    //     fee=0,
-    // ).submit()
-    itxn_submit
-    // smart_contracts/recovery/contract.py:97
-    // self.rekey_deadlines[wallet] = UInt64(0)
-    intc_1 // 0
-    itob
-    box_put
-    // smart_contracts/recovery/contract.py:98
-    // self.rekey_cancelled[wallet] = False
-    intc_1 // 0
-    itob
-    frame_dig 1
-    swap
-    box_put
-    retsub
-
-
-// smart_contracts.recovery.contract.Recovery.cancel_rekey(wallet: bytes) -> void:
-cancel_rekey:
-    // smart_contracts/recovery/contract.py:100-101
-    // @abimethod()
-    // def cancel_rekey(self, wallet: Address) -> None:
-    proto 1 0
-    // smart_contracts/recovery/contract.py:102
     // assert Txn.sender == Global.creator_address
     txn Sender
     global CreatorAddress
     ==
     assert
-    // smart_contracts/recovery/contract.py:103
+    // smart_contracts/recovery/contract.py:90
+    // assert current_round >= deadline
+    swap
+    frame_dig 3
+    >=
+    assert
+    // smart_contracts/recovery/contract.py:92-97
+    // itxn.Payment(
+    //     receiver=wallet.native,
+    //     amount=0,
+    //     rekey_to=stored_address.native,
+    //     fee=Global.min_txn_fee,
+    // ).submit()
+    itxn_begin
+    // smart_contracts/recovery/contract.py:96
+    // fee=Global.min_txn_fee,
+    global MinTxnFee
+    frame_dig 0
+    itxn_field RekeyTo
+    // smart_contracts/recovery/contract.py:94
+    // amount=0,
+    intc_1 // 0
+    itxn_field Amount
+    frame_dig -2
+    itxn_field Receiver
+    // smart_contracts/recovery/contract.py:92
+    // itxn.Payment(
+    intc_0 // pay
+    itxn_field TypeEnum
+    itxn_field Fee
+    // smart_contracts/recovery/contract.py:92-97
+    // itxn.Payment(
+    //     receiver=wallet.native,
+    //     amount=0,
+    //     rekey_to=stored_address.native,
+    //     fee=Global.min_txn_fee,
+    // ).submit()
+    itxn_submit
+    // smart_contracts/recovery/contract.py:98
+    // self.rekey_deadlines[wallet] = UInt64(0)
+    intc_1 // 0
+    itob
+    box_put
+    // smart_contracts/recovery/contract.py:99
+    // self.rekey_cancelled[wallet] = False
+    intc_1 // 0
+    itob
+    frame_dig 2
+    swap
+    box_put
+    // smart_contracts/recovery/contract.py:100
+    // return
+    retsub
+
+
+// smart_contracts.recovery.contract.Recovery.cancel_rekey(wallet: bytes) -> void:
+cancel_rekey:
+    // smart_contracts/recovery/contract.py:102-103
+    // @abimethod()
+    // def cancel_rekey(self, wallet: Address) -> None:
+    proto 1 0
+    // smart_contracts/recovery/contract.py:104
+    // assert Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    assert
+    // smart_contracts/recovery/contract.py:105
     // self.rekey_cancelled[wallet] = True
     bytec_2 // 0x63616e63656c6c65643a
     frame_dig -1
@@ -507,7 +518,7 @@ cancel_rekey:
     intc_0 // 1
     itob
     box_put
-    // smart_contracts/recovery/contract.py:104
+    // smart_contracts/recovery/contract.py:106
     // self.rekey_deadlines[wallet] = UInt64(0)
     bytec_1 // 0x646561646c696e653a
     frame_dig -1
