@@ -7,6 +7,7 @@ sidebar:
 ---
 
 Welcome to the Algorand ARCs (Algorand Request for Comments) page. Here you'll find information on Algorand Improvement Proposals.
+New ideas for ARCs are discussed through <a href="https://github.com/algorandfoundation/ARCs/pulls"> Pull Requests </a> — you can find and contribute to them in the  <a href="https://github.com/algorandfoundation/ARCs"> ARC repository </a>.
 
 <ArcsList>
 
