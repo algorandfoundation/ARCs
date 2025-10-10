@@ -1,7 +1,6 @@
-import { GlobalState, uint64, Global, assert, Account, Bytes, Application, itxn, abimethod, TemplateVar } from '@algorandfoundation/algorand-typescript';
+import { GlobalState, uint64, Global, assert, Account, Bytes, Application, itxn, TemplateVar } from '@algorandfoundation/algorand-typescript';
 import { Address, Contract } from '@algorandfoundation/algorand-typescript/arc4';
 import { getSpendingAccount, rekeyAddress } from '../../utils/plugins';
-import { fee } from '../../utils/constants';
 
 /** How frequent this payment can be made */
 const FREQUENCY: uint64 = TemplateVar<uint64>('FREQUENCY'); // 1
@@ -29,8 +28,7 @@ export class SubscriptionPlugin extends Contract {
         sender,
         amount: AMOUNT,
         receiver: Account(Bytes.fromBase32("46XYR7OTRZXISI2TRSBDWPUVQT4ECBWNI7TFWPPS6EKAPJ7W5OBXSNG66M").slice(0, 32)),
-        rekeyTo: rekeyAddress(rekeyBack, wallet),
-        fee,
+        rekeyTo: rekeyAddress(rekeyBack, wallet)
       })
       .submit();
   }

@@ -1,12 +1,10 @@
 {
   "version": 3,
   "sources": [
-    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/abstracted_account/constants.ts",
     "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/plugins/subscription/contract.algo.ts",
-    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/utils/constants.ts",
     "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/utils/plugins.ts"
   ],
-  "mappings": ";;;;;ACYE;AAAkD;AAAlD;AAFF;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAIE;;AAAA;AAAA;AAAA;;AAAA;AAJF;;;AAAA;AAAA;;;;AAAA;AAAA;;;AAIE;;;AAAA;;AAJF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAIE;;;AEmB+B;;AH1B4B;;;;;;;;;;;;;;;;;;AG0B5B;AAAA;AFVf;;AAXhB;AAAA;AAAA;AAAA;AAWS;AAjBe;AAiBf;AAAP;AAXF;AAYkC;;AAAhC;AAEA;AAlBmB;AEiCjB;;AAAA;;;AACY;;;;AFZQ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAJtB;;;ACxBuB;;;ADwBvB;;AEmBY;;AAAA;;AAAA;AFdC",
+  "mappings": ";;;;;AAWE;AAAkD;AAAlD;AAFF;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAIE;;AAAA;AAAA;AAAA;;AAAA;AAJF;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;;;AAIE;;;AAAA;;AAJF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAIE;;;ACoB+B;;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;ADXf;;AAAyB;AAXzC;AAWyC;AAAA;AAAhC;AAAwC;AAAxC;AAAP;AAXF;AAYkC;;AAAhC;AAEA;AAGY;ACaV;;AAAA;;;AACY;;;;ADbQ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAJtB;;;AAAA;;;AAAA;;ACoBY;;AAAA;;AAAA;ADfC",
   "op_pc_offset": 2,
   "pc_events": {
     "0": {
@@ -142,10 +140,10 @@
     "35": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
-        "reinterpret_bytes[8]%0#0"
+        "reinterpret_Encoded(uint64)%0#0"
       ],
       "stack_out": [
-        "reinterpret_bytes[8]%0#0"
+        "reinterpret_Encoded(uint64)%0#0"
       ]
     },
     "38": {
@@ -160,49 +158,49 @@
     "39": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
-        "reinterpret_bytes[1]%0#0",
+        "reinterpret_Encoded(bool8)%0#0",
         "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "reinterpret_bytes[1]%0#0"
+        "reinterpret_Encoded(bool8)%0#0"
       ]
     },
     "42": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
-        "reinterpret_bytes[1]%0#0",
+        "reinterpret_Encoded(bool8)%0#0",
         "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "reinterpret_bytes[1]%0#0",
+        "reinterpret_Encoded(bool8)%0#0",
         "0"
       ]
     },
     "43": {
       "op": "getbit",
       "defined_out": [
-        "tmp%7#0",
-        "tmp%8#0"
+        "aggregate%get_bit%0#0",
+        "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "tmp%8#0"
+        "aggregate%get_bit%0#0"
       ]
     },
     "44": {
       "op": "txna ApplicationArgs 3",
       "defined_out": [
-        "reinterpret_bytes[32]%0#0",
-        "tmp%7#0",
-        "tmp%8#0"
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "tmp%8#0",
-        "reinterpret_bytes[32]%0#0"
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0"
       ]
     },
     "47": {
@@ -308,12 +306,12 @@
     "86": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "_#0",
+        "awst_tmp%1#0",
         "spendingAddressBytes#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
-        "_#0"
+        "awst_tmp%1#0"
       ]
     },
     "87": {
@@ -329,18 +327,18 @@
       "op": "global Round",
       "defined_out": [
         "spendingAddressBytes#0",
-        "tmp%0#0"
+        "tmp%1#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
-        "tmp%0#0"
+        "tmp%1#0"
       ]
     },
     "90": {
       "op": "intc_0 // 0",
       "stack_out": [
         "spendingAddressBytes#0",
-        "tmp%0#0",
+        "tmp%1#0",
         "0"
       ]
     },
@@ -350,11 +348,11 @@
         "\"lastPayment\"",
         "0",
         "spendingAddressBytes#0",
-        "tmp%0#0"
+        "tmp%1#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
-        "tmp%0#0",
+        "tmp%1#0",
         "0",
         "\"lastPayment\""
       ]
@@ -365,11 +363,11 @@
         "maybe_exists%0#0",
         "maybe_value%0#0",
         "spendingAddressBytes#0",
-        "tmp%0#0"
+        "tmp%1#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
-        "tmp%0#0",
+        "tmp%1#0",
         "maybe_value%0#0",
         "maybe_exists%0#0"
       ]
@@ -379,7 +377,7 @@
       "op": "assert // check GlobalState exists",
       "stack_out": [
         "spendingAddressBytes#0",
-        "tmp%0#0",
+        "tmp%1#0",
         "maybe_value%0#0"
       ]
     },
@@ -387,11 +385,11 @@
       "op": "-",
       "defined_out": [
         "spendingAddressBytes#0",
-        "tmp%1#0"
+        "tmp%2#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
-        "tmp%1#0"
+        "tmp%2#0"
       ]
     },
     "95": {
@@ -399,11 +397,11 @@
       "defined_out": [
         "TMPL_FREQUENCY",
         "spendingAddressBytes#0",
-        "tmp%1#0"
+        "tmp%2#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
-        "tmp%1#0",
+        "tmp%2#0",
         "TMPL_FREQUENCY"
       ]
     },
@@ -411,11 +409,11 @@
       "op": ">",
       "defined_out": [
         "spendingAddressBytes#0",
-        "tmp%2#0"
+        "tmp%3#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
-        "tmp%2#0"
+        "tmp%3#0"
       ]
     },
     "97": {
@@ -435,13 +433,13 @@
       "op": "global Round",
       "defined_out": [
         "\"lastPayment\"",
-        "materialized_values%0#0",
-        "spendingAddressBytes#0"
+        "spendingAddressBytes#0",
+        "tmp%4#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
         "\"lastPayment\"",
-        "materialized_values%0#0"
+        "tmp%4#0"
       ]
     },
     "101": {

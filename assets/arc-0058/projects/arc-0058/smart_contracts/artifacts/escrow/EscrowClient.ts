@@ -22,9 +22,8 @@ import { AppFactory as _AppFactory, AppFactoryAppClientParams, AppFactoryResolve
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
-import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"name":"Escrow","structs":{},"methods":[{"name":"rekey","args":[{"type":"account","name":"rekeyTo"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"delete","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["DeleteApplication"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[38],"errorMessage":"OnCompletion is not DeleteApplication"},{"pc":[50],"errorMessage":"OnCompletion is not NoOp"},{"pc":[73],"errorMessage":"can only call when creating"},{"pc":[41,53],"errorMessage":"can only call when not creating"},{"pc":[84],"errorMessage":"only the creator can rekey an escrow contract"},{"pc":[110],"errorMessage":"only the factory can delete an escrow contract"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgMSAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6NgogICAgLy8gZXhwb3J0IGNsYXNzIEVzY3JvdyBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX2JhcmVfcm91dGluZ0A3CiAgICBwdXNoYnl0ZXNzIDB4MDBiODZjYWYgMHgyNDM3OGQzYyAvLyBtZXRob2QgInJla2V5KGFjY291bnQpdm9pZCIsIG1ldGhvZCAiZGVsZXRlKCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9yZWtleV9yb3V0ZUAzIG1haW5fZGVsZXRlX3JvdXRlQDQKCm1haW5fYWZ0ZXJfaWZfZWxzZUAxMToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo2CiAgICAvLyBleHBvcnQgY2xhc3MgRXNjcm93IGV4dGVuZHMgQ29udHJhY3QgewogICAgaW50Y18xIC8vIDAKICAgIHJldHVybgoKbWFpbl9kZWxldGVfcm91dGVANDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoyMQogICAgLy8gQGFiaW1ldGhvZCh7IGFsbG93QWN0aW9uczogJ0RlbGV0ZUFwcGxpY2F0aW9uJyB9KQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgcHVzaGludCA1IC8vIERlbGV0ZUFwcGxpY2F0aW9uCiAgICA9PQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgRGVsZXRlQXBwbGljYXRpb24KICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgY2FsbHN1YiBkZWxldGUKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fcmVrZXlfcm91dGVAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo4CiAgICAvLyByZWtleShyZWtleVRvOiBBY2NvdW50KTogdm9pZCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo2CiAgICAvLyBleHBvcnQgY2xhc3MgRXNjcm93IGV4dGVuZHMgQ29udHJhY3QgewogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgYnRvaQogICAgdHhuYXMgQWNjb3VudHMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo4CiAgICAvLyByZWtleShyZWtleVRvOiBBY2NvdW50KTogdm9pZCB7CiAgICBjYWxsc3ViIHJla2V5CiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A3OgogICAgLy8gc21hcnRfY29udHJhY3RzL2VzY3Jvdy9jb250cmFjdC5hbGdvLnRzOjYKICAgIC8vIGV4cG9ydCBjbGFzcyBFc2Nyb3cgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDExCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo6RXNjcm93LnJla2V5KHJla2V5VG86IGJ5dGVzKSAtPiB2b2lkOgpyZWtleToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo4CiAgICAvLyByZWtleShyZWtleVRvOiBBY2NvdW50KTogdm9pZCB7CiAgICBwcm90byAxIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo5CiAgICAvLyBhc3NlcnQoVHhuLnNlbmRlciA9PT0gR2xvYmFsLmNyZWF0b3JBZGRyZXNzLCBFUlJfT05MWV9DUkVBVE9SX0NBTl9SRUtFWSkKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyBvbmx5IHRoZSBjcmVhdG9yIGNhbiByZWtleSBhbiBlc2Nyb3cgY29udHJhY3QKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoxMS0xOAogICAgLy8gaXR4bgogICAgLy8gICAucGF5bWVudCh7CiAgICAvLyAgICAgYW1vdW50OiAwLAogICAgLy8gICAgIHJlY2VpdmVyOiBHbG9iYWwuY3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcywKICAgIC8vICAgICByZWtleVRvLAogICAgLy8gICAgIGZlZSwKICAgIC8vICAgfSkKICAgIC8vICAgLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MTQKICAgIC8vIHJlY2VpdmVyOiBHbG9iYWwuY3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcywKICAgIGdsb2JhbCBDdXJyZW50QXBwbGljYXRpb25BZGRyZXNzCiAgICBmcmFtZV9kaWcgLTEKICAgIGl0eG5fZmllbGQgUmVrZXlUbwogICAgaXR4bl9maWVsZCBSZWNlaXZlcgogICAgLy8gc21hcnRfY29udHJhY3RzL2VzY3Jvdy9jb250cmFjdC5hbGdvLnRzOjEzCiAgICAvLyBhbW91bnQ6IDAsCiAgICBpbnRjXzEgLy8gMAogICAgaXR4bl9maWVsZCBBbW91bnQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoxMS0xNwogICAgLy8gaXR4bgogICAgLy8gICAucGF5bWVudCh7CiAgICAvLyAgICAgYW1vdW50OiAwLAogICAgLy8gICAgIHJlY2VpdmVyOiBHbG9iYWwuY3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcywKICAgIC8vICAgICByZWtleVRvLAogICAgLy8gICAgIGZlZSwKICAgIC8vICAgfSkKICAgIGludGNfMCAvLyAxCiAgICBpdHhuX2ZpZWxkIFR5cGVFbnVtCiAgICAvLyBzbWFydF9jb250cmFjdHMvdXRpbHMvY29uc3RhbnRzLnRzOjMKICAgIC8vIGV4cG9ydCBjb25zdCBmZWU6IHVpbnQ2NCA9IDAKICAgIGludGNfMSAvLyAwCiAgICBpdHhuX2ZpZWxkIEZlZQogICAgLy8gc21hcnRfY29udHJhY3RzL2VzY3Jvdy9jb250cmFjdC5hbGdvLnRzOjExLTE4CiAgICAvLyBpdHhuCiAgICAvLyAgIC5wYXltZW50KHsKICAgIC8vICAgICBhbW91bnQ6IDAsCiAgICAvLyAgICAgcmVjZWl2ZXI6IEdsb2JhbC5jdXJyZW50QXBwbGljYXRpb25BZGRyZXNzLAogICAgLy8gICAgIHJla2V5VG8sCiAgICAvLyAgICAgZmVlLAogICAgLy8gICB9KQogICAgLy8gICAuc3VibWl0KCkKICAgIGl0eG5fc3VibWl0CiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6OkVzY3Jvdy5kZWxldGUoKSAtPiB2b2lkOgpkZWxldGU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MjMKICAgIC8vIGFzc2VydChUeG4uc2VuZGVyID09PSBHbG9iYWwuY3JlYXRvckFkZHJlc3MsIEVSUl9PTkxZX0ZBQ1RPUllfQ0FOX0RFTEVURSkKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyBvbmx5IHRoZSBmYWN0b3J5IGNhbiBkZWxldGUgYW4gZXNjcm93IGNvbnRyYWN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MjUtMjcKICAgIC8vIGl0eG4KICAgIC8vICAgLnBheW1lbnQoeyBjbG9zZVJlbWFpbmRlclRvOiBHbG9iYWwuY3JlYXRvckFkZHJlc3MgfSkKICAgIC8vICAgLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MjYKICAgIC8vIC5wYXltZW50KHsgY2xvc2VSZW1haW5kZXJUbzogR2xvYmFsLmNyZWF0b3JBZGRyZXNzIH0pCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgIGl0eG5fZmllbGQgQ2xvc2VSZW1haW5kZXJUbwogICAgLy8gc21hcnRfY29udHJhY3RzL2VzY3Jvdy9jb250cmFjdC5hbGdvLnRzOjI1LTI2CiAgICAvLyBpdHhuCiAgICAvLyAgIC5wYXltZW50KHsgY2xvc2VSZW1haW5kZXJUbzogR2xvYmFsLmNyZWF0b3JBZGRyZXNzIH0pCiAgICBpbnRjXzAgLy8gMQogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgaW50Y18xIC8vIDAKICAgIGl0eG5fZmllbGQgRmVlCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MjUtMjcKICAgIC8vIGl0eG4KICAgIC8vICAgLnBheW1lbnQoeyBjbG9zZVJlbWFpbmRlclRvOiBHbG9iYWwuY3JlYXRvckFkZHJlc3MgfSkKICAgIC8vICAgLnN1Ym1pdCgpCiAgICBpdHhuX3N1Ym1pdAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg=="},"byteCode":{"approval":"CiACAQAxG0EAN4ICBAC4bK8EJDeNPDYaAI4CABAAAiNDMRmBBRJEMRhEiAA8IkMxGRREMRhENhoBF8AciAANIkMxGUD/2TEYFEQiQ4oBADEAMgkSRLEyCov/siCyByOyCCKyECOyAbOJMQAyCRJEsTIJsgkishAjsgGziQ==","clear":"CoEBQw=="},"compilerInfo":{"compiler":"puya","compilerVersion":{"major":4,"minor":9,"patch":0}},"events":[],"templateVariables":{}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"Escrow","structs":{},"methods":[{"name":"create","args":[{"type":"byte[]","name":"creator"}],"returns":{"type":"void"},"actions":{"create":["NoOp"],"call":[]},"readonly":false,"events":[],"recommendations":{}},{"name":"rekey","args":[{"type":"address","name":"rekeyTo"}],"returns":{"type":"void"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"delete","args":[],"returns":{"type":"void"},"actions":{"create":[],"call":["DeleteApplication"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":1},"local":{"ints":0,"bytes":0}},"keys":{"global":{"creator":{"keyType":"AVMString","valueType":"AVMBytes","key":"Y3JlYXRvcg=="}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":[],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[45],"errorMessage":"OnCompletion is not DeleteApplication"},{"pc":[57,72],"errorMessage":"OnCompletion is not NoOp"},{"pc":[76],"errorMessage":"can only call when creating"},{"pc":[48,60],"errorMessage":"can only call when not creating"},{"pc":[112],"errorMessage":"only the creator can rekey an escrow contract"},{"pc":[138],"errorMessage":"only the factory can delete an escrow contract"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgMSAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6NgogICAgLy8gZXhwb3J0IGNsYXNzIEVzY3JvdyBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX2FmdGVyX2lmX2Vsc2VAOQogICAgcHVzaGJ5dGVzcyAweDhlNzkzNThkIDB4NjVhOTdiY2MgMHgyNDM3OGQzYyAvLyBtZXRob2QgImNyZWF0ZShieXRlW10pdm9pZCIsIG1ldGhvZCAicmVrZXkoYWRkcmVzcyl2b2lkIiwgbWV0aG9kICJkZWxldGUoKXZvaWQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX2NyZWF0ZV9yb3V0ZUAzIG1haW5fcmVrZXlfcm91dGVANCBtYWluX2RlbGV0ZV9yb3V0ZUA1CgptYWluX2FmdGVyX2lmX2Vsc2VAOToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo2CiAgICAvLyBleHBvcnQgY2xhc3MgRXNjcm93IGV4dGVuZHMgQ29udHJhY3QgewogICAgaW50Y18xIC8vIDAKICAgIHJldHVybgoKbWFpbl9kZWxldGVfcm91dGVANToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoyNwogICAgLy8gQGFiaW1ldGhvZCh7IGFsbG93QWN0aW9uczogJ0RlbGV0ZUFwcGxpY2F0aW9uJyB9KQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgcHVzaGludCA1IC8vIERlbGV0ZUFwcGxpY2F0aW9uCiAgICA9PQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgRGVsZXRlQXBwbGljYXRpb24KICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgY2FsbHN1YiBkZWxldGUKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fcmVrZXlfcm91dGVANDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoxNQogICAgLy8gcmVrZXkocmVrZXlUbzogQWNjb3VudCk6IHZvaWQgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6NgogICAgLy8gZXhwb3J0IGNsYXNzIEVzY3JvdyBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoxNQogICAgLy8gcmVrZXkocmVrZXlUbzogQWNjb3VudCk6IHZvaWQgewogICAgY2FsbHN1YiByZWtleQogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9jcmVhdGVfcm91dGVAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoxMAogICAgLy8gQGFiaW1ldGhvZCh7IG9uQ3JlYXRlOiAncmVxdWlyZScgfSkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6NgogICAgLy8gZXhwb3J0IGNsYXNzIEVzY3JvdyBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MTAKICAgIC8vIEBhYmltZXRob2QoeyBvbkNyZWF0ZTogJ3JlcXVpcmUnIH0pCiAgICBjYWxsc3ViIGNyZWF0ZQogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo6RXNjcm93LmNyZWF0ZShjcmVhdG9yOiBieXRlcykgLT4gdm9pZDoKY3JlYXRlOgogICAgLy8gc21hcnRfY29udHJhY3RzL2VzY3Jvdy9jb250cmFjdC5hbGdvLnRzOjEwLTExCiAgICAvLyBAYWJpbWV0aG9kKHsgb25DcmVhdGU6ICdyZXF1aXJlJyB9KQogICAgLy8gY3JlYXRlKGNyZWF0b3I6IGJ5dGVzKTogdm9pZCB7CiAgICBwcm90byAxIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo4CiAgICAvLyBjcmVhdG9yID0gR2xvYmFsU3RhdGU8Ynl0ZXM+KHsga2V5OiBFc2Nyb3dHbG9iYWxTdGF0ZUtleXNDcmVhdG9yIH0pCiAgICBwdXNoYnl0ZXMgImNyZWF0b3IiCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MTIKICAgIC8vIHRoaXMuY3JlYXRvci52YWx1ZSA9IGNyZWF0b3IKICAgIGZyYW1lX2RpZyAtMQogICAgYXBwX2dsb2JhbF9wdXQKICAgIHJldHN1YgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czo6RXNjcm93LnJla2V5KHJla2V5VG86IGJ5dGVzKSAtPiB2b2lkOgpyZWtleToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoxNQogICAgLy8gcmVrZXkocmVrZXlUbzogQWNjb3VudCk6IHZvaWQgewogICAgcHJvdG8gMSAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MTYKICAgIC8vIGFzc2VydChUeG4uc2VuZGVyID09PSBHbG9iYWwuY3JlYXRvckFkZHJlc3MsIEVSUl9PTkxZX0NSRUFUT1JfQ0FOX1JFS0VZKQogICAgdHhuIFNlbmRlcgogICAgZ2xvYmFsIENyZWF0b3JBZGRyZXNzCiAgICA9PQogICAgYXNzZXJ0IC8vIG9ubHkgdGhlIGNyZWF0b3IgY2FuIHJla2V5IGFuIGVzY3JvdyBjb250cmFjdAogICAgLy8gc21hcnRfY29udHJhY3RzL2VzY3Jvdy9jb250cmFjdC5hbGdvLnRzOjE4LTI0CiAgICAvLyBpdHhuCiAgICAvLyAgIC5wYXltZW50KHsKICAgIC8vICAgICBhbW91bnQ6IDAsCiAgICAvLyAgICAgcmVjZWl2ZXI6IEdsb2JhbC5jdXJyZW50QXBwbGljYXRpb25BZGRyZXNzLAogICAgLy8gICAgIHJla2V5VG8KICAgIC8vICAgfSkKICAgIC8vICAgLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MjEKICAgIC8vIHJlY2VpdmVyOiBHbG9iYWwuY3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcywKICAgIGdsb2JhbCBDdXJyZW50QXBwbGljYXRpb25BZGRyZXNzCiAgICBmcmFtZV9kaWcgLTEKICAgIGl0eG5fZmllbGQgUmVrZXlUbwogICAgaXR4bl9maWVsZCBSZWNlaXZlcgogICAgLy8gc21hcnRfY29udHJhY3RzL2VzY3Jvdy9jb250cmFjdC5hbGdvLnRzOjIwCiAgICAvLyBhbW91bnQ6IDAsCiAgICBpbnRjXzEgLy8gMAogICAgaXR4bl9maWVsZCBBbW91bnQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9lc2Nyb3cvY29udHJhY3QuYWxnby50czoxOC0yMwogICAgLy8gaXR4bgogICAgLy8gICAucGF5bWVudCh7CiAgICAvLyAgICAgYW1vdW50OiAwLAogICAgLy8gICAgIHJlY2VpdmVyOiBHbG9iYWwuY3VycmVudEFwcGxpY2F0aW9uQWRkcmVzcywKICAgIC8vICAgICByZWtleVRvCiAgICAvLyAgIH0pCiAgICBpbnRjXzAgLy8gMQogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgaW50Y18xIC8vIDAKICAgIGl0eG5fZmllbGQgRmVlCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MTgtMjQKICAgIC8vIGl0eG4KICAgIC8vICAgLnBheW1lbnQoewogICAgLy8gICAgIGFtb3VudDogMCwKICAgIC8vICAgICByZWNlaXZlcjogR2xvYmFsLmN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MsCiAgICAvLyAgICAgcmVrZXlUbwogICAgLy8gICB9KQogICAgLy8gICAuc3VibWl0KCkKICAgIGl0eG5fc3VibWl0CiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6OkVzY3Jvdy5kZWxldGUoKSAtPiB2b2lkOgpkZWxldGU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MjkKICAgIC8vIGFzc2VydChUeG4uc2VuZGVyID09PSBHbG9iYWwuY3JlYXRvckFkZHJlc3MsIEVSUl9PTkxZX0ZBQ1RPUllfQ0FOX0RFTEVURSkKICAgIHR4biBTZW5kZXIKICAgIGdsb2JhbCBDcmVhdG9yQWRkcmVzcwogICAgPT0KICAgIGFzc2VydCAvLyBvbmx5IHRoZSBmYWN0b3J5IGNhbiBkZWxldGUgYW4gZXNjcm93IGNvbnRyYWN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MzEtMzMKICAgIC8vIGl0eG4KICAgIC8vICAgLnBheW1lbnQoeyBjbG9zZVJlbWFpbmRlclRvOiBHbG9iYWwuY3JlYXRvckFkZHJlc3MgfSkKICAgIC8vICAgLnN1Ym1pdCgpCiAgICBpdHhuX2JlZ2luCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MzIKICAgIC8vIC5wYXltZW50KHsgY2xvc2VSZW1haW5kZXJUbzogR2xvYmFsLmNyZWF0b3JBZGRyZXNzIH0pCiAgICBnbG9iYWwgQ3JlYXRvckFkZHJlc3MKICAgIGl0eG5fZmllbGQgQ2xvc2VSZW1haW5kZXJUbwogICAgLy8gc21hcnRfY29udHJhY3RzL2VzY3Jvdy9jb250cmFjdC5hbGdvLnRzOjMxLTMyCiAgICAvLyBpdHhuCiAgICAvLyAgIC5wYXltZW50KHsgY2xvc2VSZW1haW5kZXJUbzogR2xvYmFsLmNyZWF0b3JBZGRyZXNzIH0pCiAgICBpbnRjXzAgLy8gMQogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgaW50Y18xIC8vIDAKICAgIGl0eG5fZmllbGQgRmVlCiAgICAvLyBzbWFydF9jb250cmFjdHMvZXNjcm93L2NvbnRyYWN0LmFsZ28udHM6MzEtMzMKICAgIC8vIGl0eG4KICAgIC8vICAgLnBheW1lbnQoeyBjbG9zZVJlbWFpbmRlclRvOiBHbG9iYWwuY3JlYXRvckFkZHJlc3MgfSkKICAgIC8vICAgLnN1Ym1pdCgpCiAgICBpdHhuX3N1Ym1pdAogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg=="},"byteCode":{"approval":"CiACAQAxG0EAHIIDBI55NY0EZal7zAQkN408NhoAjgMAHwAQAAIjQzEZgQUSRDEYRIgAUSJDMRkURDEYRDYaAYgAJSJDMRkURDEYFEQ2GgFXAgCIAAIiQ4oBAIAHY3JlYXRvcov/Z4mKAQAxADIJEkSxMgqL/7IgsgcjsggishAjsgGziTEAMgkSRLEyCbIJIrIQI7IBs4k=","clear":"CoEBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -71,8 +70,11 @@ export type EscrowArgs = {
    * The object representation of the arguments for each method
    */
   obj: {
-    'rekey(account)void': {
-      rekeyTo: Uint8Array | string
+    'create(byte[])void': {
+      creator: Uint8Array
+    }
+    'rekey(address)void': {
+      rekeyTo: string
     }
     'delete()void': Record<string, never>
   }
@@ -80,7 +82,8 @@ export type EscrowArgs = {
    * The tuple representation of the arguments for each method
    */
   tuple: {
-    'rekey(account)void': [rekeyTo: Uint8Array | string]
+    'create(byte[])void': [creator: Uint8Array]
+    'rekey(address)void': [rekeyTo: string]
     'delete()void': []
   }
 }
@@ -89,7 +92,8 @@ export type EscrowArgs = {
  * The return type for each method
  */
 export type EscrowReturns = {
-  'rekey(account)void': void
+  'create(byte[])void': void
+  'rekey(address)void': void
   'delete()void': void
 }
 
@@ -101,26 +105,38 @@ export type EscrowTypes = {
    * Maps method signatures / names to their argument and return types.
    */
   methods:
-    & Record<'rekey(account)void' | 'rekey', {
-      argsObj: EscrowArgs['obj']['rekey(account)void']
-      argsTuple: EscrowArgs['tuple']['rekey(account)void']
-      returns: EscrowReturns['rekey(account)void']
+    & Record<'create(byte[])void' | 'create', {
+      argsObj: EscrowArgs['obj']['create(byte[])void']
+      argsTuple: EscrowArgs['tuple']['create(byte[])void']
+      returns: EscrowReturns['create(byte[])void']
+    }>
+    & Record<'rekey(address)void' | 'rekey', {
+      argsObj: EscrowArgs['obj']['rekey(address)void']
+      argsTuple: EscrowArgs['tuple']['rekey(address)void']
+      returns: EscrowReturns['rekey(address)void']
     }>
     & Record<'delete()void' | 'delete', {
       argsObj: EscrowArgs['obj']['delete()void']
       argsTuple: EscrowArgs['tuple']['delete()void']
       returns: EscrowReturns['delete()void']
     }>
+  /**
+   * Defines the shape of the state of the application.
+   */
+  state: {
+    global: {
+      keys: {
+        creator: BinaryState
+      }
+      maps: {}
+    }
+  }
 }
 
 /**
  * Defines the possible abi call signatures.
  */
 export type EscrowSignatures = keyof EscrowTypes['methods']
-/**
- * Defines the possible abi call signatures for methods that return a non-void value.
- */
-export type EscrowNonVoidMethodSignatures = keyof EscrowTypes['methods'] extends infer T ? T extends keyof EscrowTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
@@ -140,12 +156,18 @@ export type MethodArgs<TSignature extends EscrowSignatures> = EscrowTypes['metho
  */
 export type MethodReturn<TSignature extends EscrowSignatures> = EscrowTypes['methods'][TSignature]['returns']
 
+/**
+ * Defines the shape of the keyed global state of the application.
+ */
+export type GlobalKeysState = EscrowTypes['state']['global']['keys']
+
 
 /**
  * Defines supported create method params for this smart contract
  */
 export type EscrowCreateCallParams =
-  | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<EscrowArgs['obj']['create(byte[])void'] | EscrowArgs['tuple']['create(byte[])void']> & {method: 'create'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
+  | Expand<CallParams<EscrowArgs['obj']['create(byte[])void'] | EscrowArgs['tuple']['create(byte[])void']> & {method: 'create(byte[])void'} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines supported delete method params for this smart contract
  */
@@ -171,6 +193,36 @@ export type EscrowDeployParams = Expand<Omit<AppFactoryDeployParams, 'createPara
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the Escrow smart contract
  */
 export abstract class EscrowParamsFactory {
+  /**
+   * Gets available create ABI call param factories
+   */
+  static get create() {
+    return {
+      _resolveByMethod<TParams extends EscrowCreateCallParams & {method: string}>(params: TParams) {
+        switch(params.method) {
+          case 'create':
+          case 'create(byte[])void':
+            return EscrowParamsFactory.create.create(params)
+        }
+        throw new Error(`Unknown ' + verb + ' method`)
+      },
+
+      /**
+       * Constructs create ABI call params for the Escrow smart contract using the create(byte[])void ABI method
+       *
+       * @param params Parameters for the call
+       * @returns An `AppClientMethodCallParams` object for the call
+       */
+      create(params: CallParams<EscrowArgs['obj']['create(byte[])void'] | EscrowArgs['tuple']['create(byte[])void']> & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC}): AppClientMethodCallParams & AppClientCompilationParams & {onComplete?: OnApplicationComplete.NoOpOC} {
+        return {
+          ...params,
+          method: 'create(byte[])void' as const,
+          args: Array.isArray(params.args) ? params.args : [params.args.creator],
+        }
+      },
+    }
+  }
+
   /**
    * Gets available delete ABI call param factories
    */
@@ -202,15 +254,15 @@ export abstract class EscrowParamsFactory {
   }
 
   /**
-   * Constructs a no op call for the rekey(account)void ABI method
+   * Constructs a no op call for the rekey(address)void ABI method
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static rekey(params: CallParams<EscrowArgs['obj']['rekey(account)void'] | EscrowArgs['tuple']['rekey(account)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static rekey(params: CallParams<EscrowArgs['obj']['rekey(address)void'] | EscrowArgs['tuple']['rekey(address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'rekey(account)void' as const,
+      method: 'rekey(address)void' as const,
       args: Array.isArray(params.args) ? params.args : [params.args.rekeyTo],
     }
   }
@@ -288,6 +340,7 @@ export class EscrowFactory {
   public async deploy(params: EscrowDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
+      createParams: params.createParams?.method ? EscrowParamsFactory.create._resolveByMethod(params.createParams) : params.createParams ? params.createParams as (EscrowCreateCallParams & { args: Uint8Array[] }) : undefined,
       deleteParams: params.deleteParams?.method ? EscrowParamsFactory.delete._resolveByMethod(params.deleteParams) : params.deleteParams ? params.deleteParams as (EscrowDeleteCallParams & { args: Uint8Array[] }) : undefined,
     })
     return { result: result.result, appClient: new EscrowClient(result.appClient) }
@@ -302,13 +355,13 @@ export class EscrowFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Escrow smart contract using a bare call.
+       * Creates a new instance of the Escrow smart contract using the create(byte[])void ABI method.
        *
-       * @param params The params for the bare (raw) call
-       * @returns The params for a create call
+       * @param params The params for the smart contract call
+       * @returns The create params
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
-        return this.appFactory.params.bare.create(params)
+      create: (params: CallParams<EscrowArgs['obj']['create(byte[])void'] | EscrowArgs['tuple']['create(byte[])void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        return this.appFactory.params.create(EscrowParamsFactory.create.create(params))
       },
     },
 
@@ -338,13 +391,13 @@ export class EscrowFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Escrow smart contract using a bare call.
+       * Creates a new instance of the Escrow smart contract using the create(byte[])void ABI method.
        *
-       * @param params The params for the bare (raw) call
-       * @returns The transaction for a create call
+       * @param params The params for the smart contract call
+       * @returns The create transaction
        */
-      bare: (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
-        return this.appFactory.createTransaction.bare.create(params)
+      create: (params: CallParams<EscrowArgs['obj']['create(byte[])void'] | EscrowArgs['tuple']['create(byte[])void']> & AppClientCompilationParams & CreateSchema & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        return this.appFactory.createTransaction.create(EscrowParamsFactory.create.create(params))
       },
     },
 
@@ -359,14 +412,14 @@ export class EscrowFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Escrow smart contract using a bare call.
+       * Creates a new instance of the Escrow smart contract using an ABI method call using the create(byte[])void ABI method.
        *
-       * @param params The params for the bare (raw) call
+       * @param params The params for the smart contract call
        * @returns The create result
        */
-      bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
-        const result = await this.appFactory.send.bare.create(params)
-        return { result: result.result, appClient: new EscrowClient(result.appClient) }
+      create: async (params: CallParams<EscrowArgs['obj']['create(byte[])void'] | EscrowArgs['tuple']['create(byte[])void']> & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+        const result = await this.appFactory.send.create(EscrowParamsFactory.create.create(params))
+        return { result: { ...result.result, return: result.result.return as unknown as (undefined | EscrowReturns['create(byte[])void']) }, appClient: new EscrowClient(result.appClient) }
       },
     },
 
@@ -400,15 +453,7 @@ export class EscrowClient {
       appSpec: APP_SPEC,
     })
   }
-  
-  /**
-   * Checks for decode errors on the given return value and maps the return value to the return type for the given method
-   * @returns The typed return value or undefined if there was no value
-   */
-  decodeReturnValue<TSignature extends EscrowNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
-    return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
-  }
-  
+
   /**
    * Returns a new `EscrowClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
@@ -487,12 +532,12 @@ export class EscrowClient {
     },
 
     /**
-     * Makes a call to the Escrow smart contract using the `rekey(account)void` ABI method.
+     * Makes a call to the Escrow smart contract using the `rekey(address)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    rekey: (params: CallParams<EscrowArgs['obj']['rekey(account)void'] | EscrowArgs['tuple']['rekey(account)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    rekey: (params: CallParams<EscrowArgs['obj']['rekey(address)void'] | EscrowArgs['tuple']['rekey(address)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(EscrowParamsFactory.rekey(params))
     },
 
@@ -529,12 +574,12 @@ export class EscrowClient {
     },
 
     /**
-     * Makes a call to the Escrow smart contract using the `rekey(account)void` ABI method.
+     * Makes a call to the Escrow smart contract using the `rekey(address)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    rekey: (params: CallParams<EscrowArgs['obj']['rekey(account)void'] | EscrowArgs['tuple']['rekey(account)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    rekey: (params: CallParams<EscrowArgs['obj']['rekey(address)void'] | EscrowArgs['tuple']['rekey(address)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(EscrowParamsFactory.rekey(params))
     },
 
@@ -572,14 +617,14 @@ export class EscrowClient {
     },
 
     /**
-     * Makes a call to the Escrow smart contract using the `rekey(account)void` ABI method.
+     * Makes a call to the Escrow smart contract using the `rekey(address)void` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    rekey: async (params: CallParams<EscrowArgs['obj']['rekey(account)void'] | EscrowArgs['tuple']['rekey(account)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    rekey: async (params: CallParams<EscrowArgs['obj']['rekey(address)void'] | EscrowArgs['tuple']['rekey(address)void']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(EscrowParamsFactory.rekey(params))
-      return {...result, return: result.return as unknown as (undefined | EscrowReturns['rekey(account)void'])}
+      return {...result, return: result.return as unknown as (undefined | EscrowReturns['rekey(address)void'])}
     },
 
   }
@@ -598,6 +643,24 @@ export class EscrowClient {
    * Methods to access state for the current Escrow app
    */
   state = {
+    /**
+     * Methods to access global state for the current Escrow app
+     */
+    global: {
+      /**
+       * Get all current keyed values from global state
+       */
+      getAll: async (): Promise<Partial<Expand<GlobalKeysState>>> => {
+        const result = await this.appClient.state.global.getAll()
+        return {
+          creator: new BinaryStateValue(result.creator),
+        }
+      },
+      /**
+       * Get the current value of the creator key in global state
+       */
+      creator: async (): Promise<BinaryState> => { return new BinaryStateValue((await this.appClient.state.global.getValue("creator")) as Uint8Array | undefined) },
+    },
   }
 
   public newGroup(): EscrowComposer {
@@ -607,9 +670,9 @@ export class EscrowClient {
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
-       * Add a rekey(account)void method call against the Escrow contract
+       * Add a rekey(address)void method call against the Escrow contract
        */
-      rekey(params: CallParams<EscrowArgs['obj']['rekey(account)void'] | EscrowArgs['tuple']['rekey(account)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      rekey(params: CallParams<EscrowArgs['obj']['rekey(address)void'] | EscrowArgs['tuple']['rekey(address)void']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.rekey(params)))
         resultMappers.push(undefined)
         return this
@@ -659,13 +722,13 @@ export class EscrowClient {
 }
 export type EscrowComposer<TReturns extends [...any[]] = []> = {
   /**
-   * Calls the rekey(account)void ABI method.
+   * Calls the rekey(address)void ABI method.
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  rekey(params?: CallParams<EscrowArgs['obj']['rekey(account)void'] | EscrowArgs['tuple']['rekey(account)void']>): EscrowComposer<[...TReturns, EscrowReturns['rekey(account)void'] | undefined]>
+  rekey(params?: CallParams<EscrowArgs['obj']['rekey(address)void'] | EscrowArgs['tuple']['rekey(address)void']>): EscrowComposer<[...TReturns, EscrowReturns['rekey(address)void'] | undefined]>
 
   /**
    * Gets available delete methods
@@ -703,9 +766,9 @@ export type EscrowComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<EscrowComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<EscrowComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<EscrowComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(): Promise<EscrowComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<EscrowComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<EscrowComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */

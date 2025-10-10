@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1
-    // smart_contracts/plugins/pay/contract.algo.ts:6
+    // smart_contracts/plugins/pay/contract.algo.ts:5
     // export class PayPlugin extends Contract {
     txn NumAppArgs
     bz main_bare_routing@6
@@ -13,20 +13,20 @@ main:
     match main_pay_route@3
 
 main_after_if_else@10:
-    // smart_contracts/plugins/pay/contract.algo.ts:6
+    // smart_contracts/plugins/pay/contract.algo.ts:5
     // export class PayPlugin extends Contract {
     intc_0 // 0
     return
 
 main_pay_route@3:
-    // smart_contracts/plugins/pay/contract.algo.ts:8
+    // smart_contracts/plugins/pay/contract.algo.ts:7
     // pay(walletID: uint64, rekeyBack: boolean, receiver: Address, asset: uint64, amount: uint64): void {
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // smart_contracts/plugins/pay/contract.algo.ts:6
+    // smart_contracts/plugins/pay/contract.algo.ts:5
     // export class PayPlugin extends Contract {
     txna ApplicationArgs 1
     btoi
@@ -38,14 +38,14 @@ main_pay_route@3:
     btoi
     txna ApplicationArgs 5
     btoi
-    // smart_contracts/plugins/pay/contract.algo.ts:8
+    // smart_contracts/plugins/pay/contract.algo.ts:7
     // pay(walletID: uint64, rekeyBack: boolean, receiver: Address, asset: uint64, amount: uint64): void {
     callsub pay
     intc_1 // 1
     return
 
 main_bare_routing@6:
-    // smart_contracts/plugins/pay/contract.algo.ts:6
+    // smart_contracts/plugins/pay/contract.algo.ts:5
     // export class PayPlugin extends Contract {
     txn OnCompletion
     bnz main_after_if_else@10
@@ -81,7 +81,7 @@ rekeyAddress_after_if_else@2:
 
 // smart_contracts/plugins/pay/contract.algo.ts::PayPlugin.pay(walletID: uint64, rekeyBack: uint64, receiver: bytes, asset: uint64, amount: uint64) -> void:
 pay:
-    // smart_contracts/plugins/pay/contract.algo.ts:8
+    // smart_contracts/plugins/pay/contract.algo.ts:7
     // pay(walletID: uint64, rekeyBack: boolean, receiver: Address, asset: uint64, amount: uint64): void {
     proto 5 0
     // smart_contracts/utils/plugins.ts:34-37
@@ -90,8 +90,8 @@ pay:
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     frame_dig -5
-    // smart_contracts/abstracted_account/constants.ts:8
-    // export const AbstractAccountGlobalStateKeysSpendingAddress = 'spending_address'
+    // smart_contracts/utils/plugins.ts:36
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
     // smart_contracts/utils/plugins.ts:34-37
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
@@ -100,23 +100,22 @@ pay:
     // )
     app_global_get_ex
     pop
-    // smart_contracts/plugins/pay/contract.algo.ts:12
+    // smart_contracts/plugins/pay/contract.algo.ts:11
     // if (asset === 0) {
     frame_dig -2
     bnz pay_else_body@3
-    // smart_contracts/plugins/pay/contract.algo.ts:13-21
+    // smart_contracts/plugins/pay/contract.algo.ts:12-19
     // itxn
     //   .payment({
     //     sender,
     //     receiver: receiver.native,
     //     amount,
-    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
-    //     fee,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet)
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/plugins/pay/contract.algo.ts:18
-    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // smart_contracts/plugins/pay/contract.algo.ts:17
+    // rekeyTo: rekeyAddress(rekeyBack, wallet)
     frame_dig -4
     frame_dig -5
     callsub rekeyAddress
@@ -126,49 +125,44 @@ pay:
     frame_dig -3
     itxn_field Receiver
     itxn_field Sender
-    // smart_contracts/plugins/pay/contract.algo.ts:13-20
+    // smart_contracts/plugins/pay/contract.algo.ts:12-18
     // itxn
     //   .payment({
     //     sender,
     //     receiver: receiver.native,
     //     amount,
-    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
-    //     fee,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet)
     //   })
     intc_1 // 1
     itxn_field TypeEnum
-    // smart_contracts/utils/constants.ts:3
-    // export const fee: uint64 = 0
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugins/pay/contract.algo.ts:13-21
+    // smart_contracts/plugins/pay/contract.algo.ts:12-19
     // itxn
     //   .payment({
     //     sender,
     //     receiver: receiver.native,
     //     amount,
-    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
-    //     fee,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet)
     //   })
     //   .submit()
     itxn_submit
     retsub
 
 pay_else_body@3:
-    // smart_contracts/plugins/pay/contract.algo.ts:23-32
+    // smart_contracts/plugins/pay/contract.algo.ts:21-29
     // itxn
     //   .assetTransfer({
     //     sender,
     //     assetReceiver: receiver.native,
     //     assetAmount: amount,
     //     xferAsset: asset,
-    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
-    //     fee,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet)
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/plugins/pay/contract.algo.ts:29
-    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // smart_contracts/plugins/pay/contract.algo.ts:27
+    // rekeyTo: rekeyAddress(rekeyBack, wallet)
     frame_dig -4
     frame_dig -5
     callsub rekeyAddress
@@ -180,31 +174,27 @@ pay_else_body@3:
     frame_dig -3
     itxn_field AssetReceiver
     itxn_field Sender
-    // smart_contracts/plugins/pay/contract.algo.ts:23-31
+    // smart_contracts/plugins/pay/contract.algo.ts:21-28
     // itxn
     //   .assetTransfer({
     //     sender,
     //     assetReceiver: receiver.native,
     //     assetAmount: amount,
     //     xferAsset: asset,
-    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
-    //     fee,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet)
     //   })
     pushint 4 // 4
     itxn_field TypeEnum
-    // smart_contracts/utils/constants.ts:3
-    // export const fee: uint64 = 0
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugins/pay/contract.algo.ts:23-32
+    // smart_contracts/plugins/pay/contract.algo.ts:21-29
     // itxn
     //   .assetTransfer({
     //     sender,
     //     assetReceiver: receiver.native,
     //     assetAmount: amount,
     //     xferAsset: asset,
-    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
-    //     fee,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet)
     //   })
     //   .submit()
     itxn_submit

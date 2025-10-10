@@ -1,6 +1,5 @@
 import { Application, itxn, uint64, Contract } from "@algorandfoundation/algorand-typescript";
 import { getSpendingAccount, rekeyAddress } from "../../utils/plugins";
-import { fee } from "../../utils/constants";
 import { Address } from "@algorandfoundation/algorand-typescript/arc4";
 
 export class PayPlugin extends Contract {
@@ -15,8 +14,7 @@ export class PayPlugin extends Contract {
           sender,
           receiver: receiver.native,
           amount,
-          rekeyTo: rekeyAddress(rekeyBack, wallet),
-          fee,
+          rekeyTo: rekeyAddress(rekeyBack, wallet)
         })
         .submit()
     } else {
@@ -26,8 +24,7 @@ export class PayPlugin extends Contract {
           assetReceiver: receiver.native,
           assetAmount: amount,
           xferAsset: asset,
-          rekeyTo: rekeyAddress(rekeyBack, wallet),
-          fee,
+          rekeyTo: rekeyAddress(rekeyBack, wallet)
         })
         .submit()
     }

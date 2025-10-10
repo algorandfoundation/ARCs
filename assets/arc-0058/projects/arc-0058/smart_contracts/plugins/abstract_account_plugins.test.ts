@@ -126,21 +126,23 @@ describe('Abstracted Subscription Program', () => {
       await abstractedAccountClient.send.arc58AddPlugin({
         args: {
           // Add the subscription plugin
-          app: subPluginID,
+          plugin: subPluginID,
           // Set address to ZERO_ADDRESS so anyone can call it
-          allowedCaller: ZERO_ADDRESS,
+          caller: ZERO_ADDRESS,
+          // Dont create an escrow for this plugin
+          escrow: '',
           // Set adminPrivileges to false so it cant change the admin account
           admin: false,
           // Delegation type of other
           delegationType: 3,
-          // Dont create an escrow for this plugin
-          escrow: '',
           // Set end to maxUint64 so it never expires
           lastValid: maxUint64,
           // Set cooldown to 0 so it can always be called
           cooldown: 0,
           methods: [],
           useRounds: false,
+          useExecutionKey: false,
+          defaultToEscrow: false
         },
       });
     });
@@ -189,6 +191,7 @@ describe('Abstracted Subscription Program', () => {
           args: {
             plugin: subPluginID,
             global: true,
+            escrow: '',
             methodOffsets: [],
             fundsRequest: []
           },
@@ -258,8 +261,8 @@ describe('Abstracted Subscription Program', () => {
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
           name: 'optIn',
-          app: optInPluginID,
-          allowedCaller: ZERO_ADDRESS,
+          plugin: optInPluginID,
+          caller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
           escrow: '',
@@ -267,6 +270,8 @@ describe('Abstracted Subscription Program', () => {
           cooldown: 0,
           methods: [],
           useRounds: false,
+          useExecutionKey: false,
+          defaultToEscrow: false
         }
       });
     });
@@ -306,6 +311,7 @@ describe('Abstracted Subscription Program', () => {
           args: {
             name: 'optIn',
             global: true,
+            escrow: '',
             methodOffsets: [],
             fundsRequest: []
           },

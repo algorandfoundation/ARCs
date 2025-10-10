@@ -81,6 +81,7 @@ describe('ARC58 Plugin Permissions', () => {
         args: {
           plugin: payPlugin,
           global,
+          escrow,
           methodOffsets: offsets,
           fundsRequest: [[asset, amount]]
         },
@@ -135,6 +136,7 @@ describe('ARC58 Plugin Permissions', () => {
         args: {
           plugin,
           global,
+          escrow,
           methodOffsets: offsets,
           fundsRequest: []
         },
@@ -246,7 +248,7 @@ describe('ARC58 Plugin Permissions', () => {
     let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
     expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
-    const mbr = (await abstractedAccountClient.send.mbr({ args: { methodCount: 0, pluginName: '', escrowName: '' } })).return
+    const mbr = (await abstractedAccountClient.send.mbr({ args: { methodCount: 0, plugin: '', escrow: '', groups: 0n } })).return
 
     if (mbr === undefined) {
       throw new Error('MBR is undefined');
@@ -259,29 +261,33 @@ describe('ARC58 Plugin Permissions', () => {
 
     await abstractedAccountClient.send.arc58AddPlugin({
       args: {
-        app: plugin,
-        allowedCaller: caller.addr.toString(),
+        plugin,
+        caller: caller.addr.toString(),
         admin: false,
         delegationType: 3,
         escrow: '',
         lastValid: MAX_UINT64,
         cooldown: 0,
         methods: [],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
     await abstractedAccountClient.send.arc58AddPlugin({
       args: {
-        app: plugin,
-        allowedCaller: ZERO_ADDRESS,
+        plugin,
+        caller: ZERO_ADDRESS,
         admin: false,
         delegationType: 3,
         escrow: '',
         lastValid: MAX_UINT64,
         cooldown: 1,
         methods: [],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -318,8 +324,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -335,15 +342,17 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: ZERO_ADDRESS,
+        plugin,
+        caller: ZERO_ADDRESS,
         admin: false,
         delegationType: 3,
         escrow: '',
         lastValid: MAX_UINT64,
         cooldown: 1,
         methods: [],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -380,8 +389,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -397,15 +407,17 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: caller.addr.toString(),
+        plugin,
+        caller: caller.addr.toString(),
         admin: false,
         delegationType: 3,
         escrow: '',
         lastValid: MAX_UINT64,
         cooldown: 1,
         methods: [],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -442,8 +454,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 3,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -460,8 +473,8 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: caller.addr.toString(),
+        plugin,
+        caller: caller.addr.toString(),
         admin: false,
         delegationType: 3,
         escrow: '',
@@ -472,7 +485,9 @@ describe('ARC58 Plugin Permissions', () => {
           [Buffer.from('dddd'), 0],
           [Buffer.from('aaaa'), 0]
         ],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -514,8 +529,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 1,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -532,8 +548,8 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: ZERO_ADDRESS,
+        plugin,
+        caller: ZERO_ADDRESS,
         admin: false,
         delegationType: 3,
         escrow: '',
@@ -542,7 +558,9 @@ describe('ARC58 Plugin Permissions', () => {
         methods: [
           [optInToAssetSelector, 100] // cooldown of 1 so we can call it at most once per round
         ],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -590,8 +608,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 1,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -607,8 +626,8 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: ZERO_ADDRESS,
+        plugin,
+        caller: ZERO_ADDRESS,
         admin: false,
         delegationType: 3,
         escrow: '',
@@ -617,7 +636,9 @@ describe('ARC58 Plugin Permissions', () => {
         methods: [
           [optInToAssetSelector, 1] // cooldown of 1 so we can call it at most once per round
         ],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -683,7 +704,8 @@ describe('ARC58 Plugin Permissions', () => {
             plugin,
             global: true,
             methodOffsets: [0, 0],
-            fundsRequest: []
+            fundsRequest: [],
+            escrow: ''
           },
           extraFee: (1000).microAlgos()
         })
@@ -717,8 +739,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -734,15 +757,17 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: caller.addr.toString(),
+        plugin,
+        caller: caller.addr.toString(),
         admin: false,
         delegationType: 3,
         escrow: '',
         lastValid: MAX_UINT64,
         cooldown: 100,
         methods: [],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -785,8 +810,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -802,15 +828,17 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: ZERO_ADDRESS,
+        plugin,
+        caller: ZERO_ADDRESS,
         admin: false,
         delegationType: 3,
         escrow: '',
         lastValid: 1,
         cooldown: 0,
         methods: [],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -839,8 +867,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -856,15 +885,17 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: ZERO_ADDRESS,
+        plugin,
+        caller: ZERO_ADDRESS,
         admin: false,
         delegationType: 3,
         escrow: '',
         lastValid: MAX_UINT64,
         cooldown: 0,
         methods: [],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -884,15 +915,17 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: plugin,
-          allowedCaller: caller.addr.toString(),
+          plugin,
+          caller: caller.addr.toString(),
           admin: false,
           delegationType: 3,
           escrow: '',
           lastValid: MAX_UINT64,
           cooldown: 0,
           methods: [],
-          useRounds: false
+          useRounds: false,
+          useExecutionKey: false,
+          defaultToEscrow: false
         }
       })
     ).transactions[0];
@@ -923,6 +956,7 @@ describe('ARC58 Plugin Permissions', () => {
           args: {
             plugin,
             global: true,
+            escrow,
             methodOffsets: [],
             fundsRequest: []
           },
@@ -957,8 +991,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 1,
-        pluginName: '',
-        escrowName: ''
+        plugin: '',
+        escrow: '',
+groups: 0n
       }
     })).return
 
@@ -974,8 +1009,8 @@ describe('ARC58 Plugin Permissions', () => {
       sender: aliceEOA.addr,
       signer: makeBasicAccountTransactionSigner(aliceEOA),
       args: {
-        app: plugin,
-        allowedCaller: ZERO_ADDRESS,
+        plugin,
+        caller: ZERO_ADDRESS,
         admin: false,
         delegationType: 0,
         escrow: '',
@@ -984,7 +1019,9 @@ describe('ARC58 Plugin Permissions', () => {
         methods: [
           [new Uint8Array(Buffer.from('dddd')), 0]
         ],
-        useRounds: false
+        useRounds: false,
+        useExecutionKey: false,
+        defaultToEscrow: false
       }
     });
 
@@ -1010,8 +1047,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
-        pluginName: '',
-        escrowName: escrow
+        plugin: '',
+        escrow,
+        groups: 0n
       }
     })).return
 
@@ -1042,15 +1080,17 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: plugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin,
+          caller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
           escrow: '',
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
-          useRounds: false
+          useRounds: false,
+          useExecutionKey: false,
+          defaultToEscrow: false
         }
       })
 
@@ -1090,15 +1130,17 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: payPlugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin: payPlugin,
+          caller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
           escrow,
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
-          useRounds: false
+          useRounds: false,
+          useExecutionKey: false,
+          defaultToEscrow: false
         }
       })
       .arc58AddAllowances({
@@ -1120,8 +1162,9 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: payPlugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin: payPlugin,
+          caller: ZERO_ADDRESS,
+          escrow,
           assets: [asset],
           mbrPayment,
         },
@@ -1193,8 +1236,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
-        pluginName: '',
-        escrowName: escrow,
+        plugin: '',
+        escrow,
+        groups: 0n
       }
     })).return
 
@@ -1225,15 +1269,17 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: plugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin,
+          caller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
           escrow: '',
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
-          useRounds: false
+          useRounds: false,
+          useExecutionKey: false,
+          defaultToEscrow: false
         }
       })
 
@@ -1266,15 +1312,17 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: payPlugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin: payPlugin,
+          caller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
           escrow,
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
-          useRounds: false
+          useRounds: false,
+          useExecutionKey: false,
+          defaultToEscrow: false
         }
       })
       .arc58AddAllowances({
@@ -1298,8 +1346,9 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: payPlugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin: payPlugin,
+          caller: ZERO_ADDRESS,
+          escrow,
           assets: [asset],
           mbrPayment,
         },
@@ -1404,8 +1453,9 @@ describe('ARC58 Plugin Permissions', () => {
     const mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
-        pluginName: '',
-        escrowName: escrow,
+        plugin: '',
+        escrow,
+        groups: 0n        
       }
     })).return
 
@@ -1436,15 +1486,17 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: plugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin,
+          caller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
           escrow: '',
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
-          useRounds: false
+          useRounds: false,
+          useExecutionKey: false,
+          defaultToEscrow: false
         }
       })
 
@@ -1477,15 +1529,17 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: payPlugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin: payPlugin,
+          caller: ZERO_ADDRESS,
           admin: false,
           delegationType: 3,
           escrow,
           lastValid: MAX_UINT64,
           cooldown: 1,
           methods: [],
-          useRounds: true
+          useRounds: true,
+          useExecutionKey: false,
+          defaultToEscrow: false
         }
       })
       .arc58AddAllowances({
@@ -1509,10 +1563,11 @@ describe('ARC58 Plugin Permissions', () => {
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
         args: {
-          app: payPlugin,
-          allowedCaller: ZERO_ADDRESS,
+          plugin: payPlugin,
+          caller: ZERO_ADDRESS,
+          escrow,
           assets: [asset],
-          mbrPayment,
+          mbrPayment
         },
         extraFee: (8000).microAlgos(),
       })

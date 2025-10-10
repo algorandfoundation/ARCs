@@ -1,12 +1,10 @@
 {
   "version": 3,
   "sources": [
-    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/abstracted_account/constants.ts",
     "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/plugins/pay/contract.algo.ts",
-    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/utils/constants.ts",
     "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/utils/plugins.ts"
   ],
-  "mappings": ";;;;;ACKA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAEE;;AAAA;AAAA;AAAA;;AAAA;AAFF;;;AAAA;AAAA;;;;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;;;AAAA;AAEE;;;AAAA;;AAFF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AEmCA;;;AACM;;AAAA;;;AACY;;AAAd;AAGY;;AAAA;;AAAA;AAAd;AFtCA;;;AE0B+B;;AH1B4B;;;;;;;;;;;;;;;;;;AG0B5B;AAAA;AFtB7B;;AAAA;;;AACE;AAKa;;AAAA;;AAAA;;;;;;;;;;;;;;;AALb;;;ACVqB;;;ADUrB;;AAUA;AAMa;;AAAA;;AAAA;;;;;;;;;;;;;;;;;;;AANb;;;;ACpBqB;;;ADoBrB;",
+  "mappings": ";;;;;AAIA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAEE;;AAAA;AAAA;AAAA;;AAAA;AAFF;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;;;AAAA;AAEE;;;AAAA;;AAFF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;ACoCA;;;AACM;;AAAA;;;AACY;;AAAd;AAGY;;AAAA;;AAAA;AAAd;ADvCA;;;AC2B+B;;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;ADvB7B;;AAAA;;;AACE;AAKa;;AAAA;;AAAA;;;;;;;;;;;;;;;AALb;;;AAAA;;;AAAA;;AASA;AAMa;;AAAA;;AAAA;;;;;;;;;;;;;;;;;;;AANb;;;;AAAA;;;AAAA;",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -110,10 +108,10 @@
     "32": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
-        "reinterpret_bytes[8]%0#0"
+        "reinterpret_Encoded(uint64)%0#0"
       ],
       "stack_out": [
-        "reinterpret_bytes[8]%0#0"
+        "reinterpret_Encoded(uint64)%0#0"
       ]
     },
     "35": {
@@ -128,111 +126,111 @@
     "36": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
-        "reinterpret_bytes[1]%0#0",
+        "reinterpret_Encoded(bool8)%0#0",
         "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "reinterpret_bytes[1]%0#0"
+        "reinterpret_Encoded(bool8)%0#0"
       ]
     },
     "39": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
-        "reinterpret_bytes[1]%0#0",
+        "reinterpret_Encoded(bool8)%0#0",
         "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "reinterpret_bytes[1]%0#0",
+        "reinterpret_Encoded(bool8)%0#0",
         "0"
       ]
     },
     "40": {
       "op": "getbit",
       "defined_out": [
-        "tmp%7#0",
-        "tmp%8#0"
+        "aggregate%get_bit%0#0",
+        "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "tmp%8#0"
+        "aggregate%get_bit%0#0"
       ]
     },
     "41": {
       "op": "txna ApplicationArgs 3",
       "defined_out": [
-        "reinterpret_bytes[32]%0#0",
-        "tmp%7#0",
-        "tmp%8#0"
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "tmp%8#0",
-        "reinterpret_bytes[32]%0#0"
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0"
       ]
     },
     "44": {
       "op": "txna ApplicationArgs 4",
       "defined_out": [
-        "reinterpret_bytes[32]%0#0",
-        "reinterpret_bytes[8]%1#0",
-        "tmp%7#0",
-        "tmp%8#0"
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint64)%1#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "tmp%7#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "tmp%8#0",
-        "reinterpret_bytes[32]%0#0",
-        "reinterpret_bytes[8]%1#0"
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
+        "reinterpret_Encoded(uint64)%1#0"
       ]
     },
     "47": {
       "op": "btoi",
       "defined_out": [
-        "reinterpret_bytes[32]%0#0",
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%7#0",
-        "tmp%8#0",
         "tmp%9#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "tmp%8#0",
-        "reinterpret_bytes[32]%0#0",
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%9#0"
       ]
     },
     "48": {
       "op": "txna ApplicationArgs 5",
       "defined_out": [
-        "reinterpret_bytes[32]%0#0",
-        "reinterpret_bytes[8]%2#0",
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint64)%2#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%7#0",
-        "tmp%8#0",
         "tmp%9#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "tmp%8#0",
-        "reinterpret_bytes[32]%0#0",
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%9#0",
-        "reinterpret_bytes[8]%2#0"
+        "reinterpret_Encoded(uint64)%2#0"
       ]
     },
     "51": {
       "op": "btoi",
       "defined_out": [
-        "reinterpret_bytes[32]%0#0",
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%10#0",
         "tmp%7#0",
-        "tmp%8#0",
         "tmp%9#0"
       ],
       "stack_out": [
         "tmp%7#0",
-        "tmp%8#0",
-        "reinterpret_bytes[32]%0#0",
+        "aggregate%get_bit%0#0",
+        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%9#0",
         "tmp%10#0"
       ]
@@ -411,12 +409,12 @@
     "108": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "_#0",
+        "awst_tmp%1#0",
         "spendingAddressBytes#0"
       ],
       "stack_out": [
         "spendingAddressBytes#0",
-        "_#0"
+        "awst_tmp%1#0"
       ]
     },
     "109": {
