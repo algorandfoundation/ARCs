@@ -21,7 +21,7 @@ describe('Abstracted Subscription Program', () => {
   /** The client for the subscription plugin */
   let subPluginClient: SubscriptionPluginClient;
   /** The ID of the subscription plugin */
-  let subPluginID: bigint;
+  let subPluginID: bigint; 
   /** The client for the opt-in plugin */
   let optInPluginClient: OptInPluginClient;
   /** The ID of the opt-in plugin */
@@ -202,7 +202,7 @@ describe('Abstracted Subscription Program', () => {
         // Step two: Call the plugin
         .addTransaction(makePaymentTxn, testAccount.signer)
         // Step three: Call verify auth addr to rekey back to the abstracted account
-        .arc58VerifyAuthAddr()
+        .arc58VerifyAuthAddress()
         .send();
 
       // Verify the payment was made
@@ -324,7 +324,7 @@ describe('Abstracted Subscription Program', () => {
         // Add the opt-in plugin call
         .addTransaction(optInGroup[1], makeBasicAccountTransactionSigner(bob)) // optInToAsset
         // Call verify auth addr to verify the abstracted account is rekeyed back to itself
-        .arc58VerifyAuthAddr()
+        .arc58VerifyAuthAddress()
         .send();
     });
   });

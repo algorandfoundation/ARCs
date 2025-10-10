@@ -88,7 +88,7 @@ describe('ARC58 Plugin Permissions', () => {
         extraFee: (2000).microAlgos()
       })
       .addTransaction(payPluginTxn, makeBasicAccountTransactionSigner(caller))
-      .arc58VerifyAuthAddr({
+      .arc58VerifyAuthAddress({
         sender: caller.addr,
         signer: makeBasicAccountTransactionSigner(caller),
         args: {}
@@ -146,7 +146,7 @@ describe('ARC58 Plugin Permissions', () => {
       .addTransaction(optInGroup[0], makeBasicAccountTransactionSigner(caller)) // mbrPayment
       // Add the opt-in plugin call
       .addTransaction(optInGroup[1], makeBasicAccountTransactionSigner(caller)) // optInToAsset
-      .arc58VerifyAuthAddr({
+      .arc58VerifyAuthAddress({
         sender: caller.addr,
         signer: makeBasicAccountTransactionSigner(caller),
         args: {}
@@ -715,7 +715,7 @@ describe('ARC58 Plugin Permissions', () => {
         .addTransaction(optInGroup[1], makeBasicAccountTransactionSigner(caller)) // optInToAsset
         .addTransaction(optInGroupTwo[0], makeBasicAccountTransactionSigner(caller)) // mbrPayment
         .addTransaction(optInGroupTwo[1], makeBasicAccountTransactionSigner(caller)) // optInToAsset
-        .arc58VerifyAuthAddr({
+        .arc58VerifyAuthAddress({
           sender: caller.addr,
           signer: makeBasicAccountTransactionSigner(caller),
           args: {}
@@ -967,7 +967,7 @@ describe('ARC58 Plugin Permissions', () => {
         // Add the opt-in plugin call
         .addTransaction(optInGroup[1], makeBasicAccountTransactionSigner(caller)) // optInToAsset
         .addTransaction(erroneousAppCall, makeBasicAccountTransactionSigner(aliceEOA)) // erroneous app call
-        .arc58VerifyAuthAddr({
+        .arc58VerifyAuthAddress({
           sender: caller.addr,
           signer: makeBasicAccountTransactionSigner(caller),
           args: {}
@@ -993,7 +993,7 @@ describe('ARC58 Plugin Permissions', () => {
         methodCount: 1,
         plugin: '',
         escrow: '',
-groups: 0n
+        groups: 0n
       }
     })).return
 
@@ -1450,12 +1450,12 @@ groups: 0n
     let accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
     expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
-    const mbr = (await abstractedAccountClient.send.mbr({
+    let mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
         plugin: '',
-        escrow,
-        groups: 0n        
+        escrow: '',
+        groups: 0n
       }
     })).return
 
@@ -1506,6 +1506,19 @@ groups: 0n
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
 
     const escrowCreationCost = BigInt(112_100 + 100_000) // Global.minBalance
+    mbr = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        plugin: '',
+        escrow,
+        groups: 0n
+      }
+    })).return
+
+    if (mbr === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
     const amount = mbr.plugins + mbr.allowances + mbr.escrows + escrowCreationCost;
     console.log(`Funding arc58 account with amount: ${amount}`)
     await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, amount.microAlgo());
@@ -1551,7 +1564,7 @@ groups: 0n
             [
               asset,
               3, // type
-              1_000_000, // allowed
+              1_000_000, // amount
               50_000_000, // max
               1, // interval
               true, // useRounds

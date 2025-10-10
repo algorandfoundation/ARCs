@@ -508,7 +508,7 @@ export class AbstractedAccount extends Contract {
   /**
    * Verify the abstracted account is rekeyed to this app
   */
-  arc58_verifyAuthAddr(): void {
+  arc58_verifyAuthAddress(): void {
     assert(this.spendingAddress.value.authAddress === this.getAuthAddress());
     this.spendingAddress.value = Global.zeroAddress
     this.currentPlugin.value = { plugin: 0, caller: Global.currentApplicationAddress, escrow: '' }
@@ -1003,6 +1003,7 @@ export class AbstractedAccount extends Contract {
     assert(this.escrows(escrow).value.locked, ERR_ESCROW_LOCKED)
 
     const escrowID = this.escrows(escrow).value.id
+
     assert(
       Txn.sender === Application(plugin).address ||
       Txn.sender === caller.native ||
@@ -1055,6 +1056,7 @@ export class AbstractedAccount extends Contract {
   arc58_addAllowances(escrow: string, allowances: AddAllowanceInfo[]): void {
     assert(Txn.sender === this.admin.value, ERR_ADMIN_ONLY);
     assert(this.escrows(escrow).exists, ERR_ESCROW_DOES_NOT_EXIST);
+    assert(!this.escrows(escrow).value.locked, ERR_ESCROW_LOCKED);
 
     if (this.controlledAddress.value !== Global.currentApplicationAddress) {
       itxn
