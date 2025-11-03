@@ -8,7 +8,7 @@ Smart ASA examples deployed on TestNet:
 
 | App ID                                                             | App Spec                                                                                                                               |
 |--------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| [735663461](https://lora.algokit.io/testnet/application/735663461) | [ARC-56](https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0020/smart_contracts/artifacts/smart_asa/SmartAsa.arc56.json) |
+| [749063457](https://lora.algokit.io/testnet/application/749063457) | [ARC-56](https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0020/smart_contracts/artifacts/smart_asa/SmartAsa.arc56.json) |
 
 1. Download the App Spec JSON file;
 1. Navigate to the [Lora App Lab](https://lora.algokit.io/testnet/app-lab);
