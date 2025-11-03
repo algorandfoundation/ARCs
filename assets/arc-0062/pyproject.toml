@@ -1,27 +1,27 @@
 [tool.poetry]
-name = "arc62"
-version = "1.0.0"
-description = "ARC-62: ASA Circulating Supply reference implementation"
+name = "asa-circulating-supply"
+version = "0.1.0"
+description = "Algorand smart contracts"
 authors = ["cusma <cosimo.bassi@gmail.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
-algokit-utils = "^4.0.1"
-python-dotenv = "^1.1.0"
-algorand-python = "^2.8.0"
-algorand-python-testing = "^0.5.0"
+algokit-utils = "^4.2.2"
+python-dotenv = "^1.2.1"
+algorand-python = "^3.1.1"
 
 [tool.poetry.group.dev.dependencies]
-algokit-client-generator = "^2.0.0"
+algokit-client-generator = "^2.2.0"
 black = {extras = ["d"], version = "*"}
-ruff = "^0.11.10"
-mypy = "*"
-pytest = "*"
-pytest-cov = "*"
-pip-audit = "*"
-pre-commit = "*"
-puyapy = "*"
+ruff = "^0.14.3"
+mypy = "^1.18.2"
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+pip-audit = "^2.9.0"
+pre-commit = "^4.3.0"
+puyapy = "^5.4.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -29,14 +29,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 120
-select = ["E", "F", "ANN", "UP", "N", "C4", "B", "A", "YTT", "W", "FBT", "Q", "RUF", "I"]
-ignore = [
-  "ANN101", # no type for self
-  "ANN102", # no type for cls
-]
-unfixable = ["B", "RUF"]
+lint.select = ["E", "F", "ANN", "UP", "N", "C4", "B", "A", "YTT", "W", "FBT", "Q", "RUF", "I"]
+lint.unfixable = ["B", "RUF"]
 
-[tool.ruff.flake8-annotations]
+[tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
 suppress-none-returning = true
 
