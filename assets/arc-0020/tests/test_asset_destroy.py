@@ -1,7 +1,6 @@
 import pytest
 from algokit_utils import AlgoAmount, CommonAppCallParams, LogicError, SigningAccount
 from algosdk.constants import ZERO_ADDRESS
-from algosdk.encoding import encode_address
 from algosdk.error import AlgodHTTPError
 
 import smart_contracts.errors as err
@@ -36,10 +35,10 @@ def test_pass_destroy(
     assert smart_asa.name == ""
     assert smart_asa.url == ""
     assert smart_asa.metadata_hash == ""
-    assert encode_address(smart_asa.manager_addr) == ZERO_ADDRESS
-    assert encode_address(smart_asa.reserve_addr) == ZERO_ADDRESS
-    assert encode_address(smart_asa.freeze_addr) == ZERO_ADDRESS
-    assert encode_address(smart_asa.clawback_addr) == ZERO_ADDRESS
+    assert smart_asa.manager_addr == ZERO_ADDRESS
+    assert smart_asa.reserve_addr == ZERO_ADDRESS
+    assert smart_asa.freeze_addr == ZERO_ADDRESS
+    assert smart_asa.clawback_addr == ZERO_ADDRESS
     assert smart_asa.smart_asa_id == 0
     assert not smart_asa.global_frozen
 
