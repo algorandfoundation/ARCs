@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "asa-circulating-supply"
-version = "0.1.0"
-description = "Algorand smart contracts"
+name = "arc62"
+version = "1.1.0"
+description = "ARC-62: ASA Circulating Supply reference implementation"
 authors = ["cusma <cosimo.bassi@gmail.com>"]
 readme = "README.md"
 package-mode = false
