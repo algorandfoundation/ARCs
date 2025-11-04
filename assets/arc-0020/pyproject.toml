@@ -13,22 +13,21 @@ keywords = ["algorand", "blockchain", "tokenization"]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-algokit-utils = "^3.0.2"
-python-dotenv = "^1.0.0"
-algorand-python = "^2.7.0"
-algorand-python-testing = "^0.5.0"
+algokit-utils = "^4.2.2"
+python-dotenv = "^1.2.1"
+algorand-python = "^3.1.1"
 
 [tool.poetry.group.dev.dependencies]
-algokit-client-generator = "^2.0.1b3"
+algokit-client-generator = "^2.2.0"
 black = {extras = ["d"], version = "25.1.0"}
-ruff = "^0.9.10"
-mypy = "^1.15.0"
-pytest = "^8.3.5"
-pytest-cov = "^6.0.0"
-pytest-sugar = "^1.0.0"
-pip-audit = "^2.8.0"
-pre-commit = "^4.1.0"
-puyapy = "^4.4.4"
+ruff = "^0.14.3"
+mypy = "^1.18.2"
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+pytest-sugar = "^1.1.1"
+pip-audit = "^2.9.0"
+pre-commit = "^4.3.0"
+puyapy = "^5.4.0"
 
 [build-system]
 requires = ["poetry-core"]

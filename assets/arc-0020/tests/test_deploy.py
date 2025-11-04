@@ -1,5 +1,4 @@
 from algosdk.constants import ZERO_ADDRESS
-from algosdk.encoding import encode_address
 
 from smart_contracts.artifacts.smart_asa.smart_asa_client import SmartAsaClient
 
@@ -14,10 +13,10 @@ def test_pass_create(smart_asa_client_no_asset: SmartAsaClient) -> None:
     assert state.name == ""
     assert state.url == ""
     assert state.metadata_hash == ""
-    assert encode_address(state.manager_addr) == ZERO_ADDRESS
-    assert encode_address(state.reserve_addr) == ZERO_ADDRESS
-    assert encode_address(state.freeze_addr) == ZERO_ADDRESS
-    assert encode_address(state.clawback_addr) == ZERO_ADDRESS
+    assert state.manager_addr == ZERO_ADDRESS
+    assert state.reserve_addr == ZERO_ADDRESS
+    assert state.freeze_addr == ZERO_ADDRESS
+    assert state.clawback_addr == ZERO_ADDRESS
     assert state.smart_asa_id == 0
     assert not state.global_frozen
 

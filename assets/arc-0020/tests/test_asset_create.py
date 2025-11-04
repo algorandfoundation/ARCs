@@ -1,6 +1,5 @@
 import pytest
 from algokit_utils import AlgoAmount, CommonAppCallParams, LogicError, SigningAccount
-from algosdk.encoding import encode_address
 
 import smart_contracts.errors as err
 import smart_contracts.smart_asa.config as cfg
@@ -47,10 +46,10 @@ def test_pass_asset_create(
     assert state.name == asa_config.name
     assert state.url == asa_config.url
     assert state.metadata_hash == asa_config.metadata_hash
-    assert encode_address(state.manager_addr) == asa_config.manager_addr
-    assert encode_address(state.reserve_addr) == asa_config.reserve_addr
-    assert encode_address(state.freeze_addr) == asa_config.freeze_addr
-    assert encode_address(state.clawback_addr) == asa_config.clawback_addr
+    assert state.manager_addr == asa_config.manager_addr
+    assert state.reserve_addr == asa_config.reserve_addr
+    assert state.freeze_addr == asa_config.freeze_addr
+    assert state.clawback_addr == asa_config.clawback_addr
     assert state.smart_asa_id == smart_asa_id
 
 
