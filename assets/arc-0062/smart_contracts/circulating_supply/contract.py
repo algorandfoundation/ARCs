@@ -36,7 +36,7 @@ class CirculatingSupply(ARC4Contract):
     @abimethod()
     def set_asset(self, asset_id: UInt64) -> None:
         """
-        Set the ASA ID for the circulating supply - Authorization: ASA Manager Address
+        Set the ASA ID for the circulating supply - Authorization: ASA Manager Address.
 
         Args:
             asset_id: ASA ID of the circulating supply
@@ -50,7 +50,7 @@ class CirculatingSupply(ARC4Contract):
     @abimethod()
     def set_not_circulating_address(self, address: Address, label: String) -> None:
         """
-        Set non-circulating supply addresses - Authorization: ASA Manager Address
+        Set non-circulating supply addresses - Authorization: ASA Manager Address.
 
         Args:
             address: Address to assign to the label to
@@ -74,7 +74,7 @@ class CirculatingSupply(ARC4Contract):
     @abimethod(readonly=True)
     def arc62_get_circulating_supply(self, asset_id: UInt64) -> UInt64:
         """
-        Get ASA circulating supply
+        Get ASA circulating supply.
 
         Args:
             asset_id: ASA ID of the circulating supply
