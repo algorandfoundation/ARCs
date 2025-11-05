@@ -83,7 +83,7 @@ export class EscrowFactory extends Contract {
       assert(btoi(creator) === Global.callerApplicationId, ERR_INVALID_CREATOR)
     } else {
       creator = Bytes(itob(Global.callerApplicationId))
-      assert(app === Global.callerApplicationId, ERR_INVALID_APP)
+      app = Global.callerApplicationId
     }
 
     const appAddress = bytes16(Application(app).address)

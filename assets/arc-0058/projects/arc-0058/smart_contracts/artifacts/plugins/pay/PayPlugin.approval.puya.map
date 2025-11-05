@@ -1,10 +1,10 @@
 {
   "version": 3,
   "sources": [
-    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/plugins/pay/contract.algo.ts",
-    "/Users/kylebreeding/algorand/ARCs/assets/arc-0058/projects/arc-0058/smart_contracts/utils/plugins.ts"
+    "../../../plugins/pay/contract.algo.ts",
+    "../../../utils/plugins.ts"
   ],
-  "mappings": ";;;;;AAIA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAEE;;AAAA;AAAA;AAAA;;AAAA;AAFF;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;;;AAAA;AAEE;;;AAAA;;AAFF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;ACoCA;;;AACM;;AAAA;;;AACY;;AAAd;AAGY;;AAAA;;AAAA;AAAd;ADvCA;;;AC2B+B;;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;ADvB7B;;AAAA;;;AACE;AAKa;;AAAA;;AAAA;;;;;;;;;;;;;;;AALb;;;AAAA;;;AAAA;;AASA;AAMa;;AAAA;;AAAA;;;;;;;;;;;;;;;;;;;AANb;;;;AAAA;;;AAAA;",
+  "mappings": ";;;;;;AAIA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAEE;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAFF;;AAAA;AAAA;;AAAA;AAAA;AAAA;ACoCA;;;AACM;;AAAA;;;AACK;;AAAP;AAGK;;AAAA;;AAAA;AAAP;ADvCA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AC2B+B;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;AAAA;;ADxB7B;;;AACE;AAKa;;;;;;;;;;;;;;;;AALb;;;AAAA;;;AAAA;AAJJ;AAAA;AAaI;AAMa;;;;;;;;;;;;;;;;;;;;AANb;;;;AAAA;;;AAAA;",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -12,9 +12,9 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 0 1"
+      "op": "intcblock 8 1 0"
     },
-    "5": {
+    "6": {
       "op": "txn NumAppArgs",
       "defined_out": [
         "tmp%0#1"
@@ -23,11 +23,11 @@
         "tmp%0#1"
       ]
     },
-    "7": {
-      "op": "bz main_bare_routing@6",
+    "8": {
+      "op": "bz main___algots__.defaultCreate@5",
       "stack_out": []
     },
-    "10": {
+    "11": {
       "op": "pushbytes 0x93d588b9 // method \"pay(uint64,bool,address,uint64,uint64)void\"",
       "defined_out": [
         "Method(pay(uint64,bool,address,uint64,uint64)void)"
@@ -36,7 +36,7 @@
         "Method(pay(uint64,bool,address,uint64,uint64)void)"
       ]
     },
-    "16": {
+    "17": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(pay(uint64,bool,address,uint64,uint64)void)",
@@ -47,24 +47,12 @@
         "tmp%2#0"
       ]
     },
-    "19": {
+    "20": {
       "op": "match main_pay_route@3",
       "stack_out": []
     },
-    "23": {
-      "block": "main_after_if_else@10",
-      "stack_in": [],
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
     "24": {
-      "op": "return",
-      "stack_out": []
+      "op": "err"
     },
     "25": {
       "block": "main_pay_route@3",
@@ -87,224 +75,91 @@
       ]
     },
     "28": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "29": {
       "op": "txn ApplicationID",
       "defined_out": [
+        "tmp%4#0",
         "tmp%5#0"
       ],
       "stack_out": [
+        "tmp%4#0",
         "tmp%5#0"
+      ]
+    },
+    "30": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
       ]
     },
     "31": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
+      "error": "OnCompletion must be NoOp && can only call when not creating",
+      "op": "assert // OnCompletion must be NoOp && can only call when not creating",
       "stack_out": []
     },
     "32": {
-      "op": "txna ApplicationArgs 1",
-      "defined_out": [
-        "reinterpret_Encoded(uint64)%0#0"
-      ],
-      "stack_out": [
-        "reinterpret_Encoded(uint64)%0#0"
-      ]
+      "op": "b pay"
     },
     "35": {
-      "op": "btoi",
+      "block": "main___algots__.defaultCreate@5",
+      "stack_in": [],
+      "op": "txn OnCompletion",
       "defined_out": [
-        "tmp%7#0"
+        "tmp%8#0"
       ],
       "stack_out": [
-        "tmp%7#0"
+        "tmp%8#0"
       ]
     },
-    "36": {
-      "op": "txna ApplicationArgs 2",
+    "37": {
+      "op": "!",
       "defined_out": [
-        "reinterpret_Encoded(bool8)%0#0",
-        "tmp%7#0"
-      ],
-      "stack_out": [
-        "tmp%7#0",
-        "reinterpret_Encoded(bool8)%0#0"
-      ]
-    },
-    "39": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0",
-        "reinterpret_Encoded(bool8)%0#0",
-        "tmp%7#0"
-      ],
-      "stack_out": [
-        "tmp%7#0",
-        "reinterpret_Encoded(bool8)%0#0",
-        "0"
-      ]
-    },
-    "40": {
-      "op": "getbit",
-      "defined_out": [
-        "aggregate%get_bit%0#0",
-        "tmp%7#0"
-      ],
-      "stack_out": [
-        "tmp%7#0",
-        "aggregate%get_bit%0#0"
-      ]
-    },
-    "41": {
-      "op": "txna ApplicationArgs 3",
-      "defined_out": [
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
-        "tmp%7#0"
-      ],
-      "stack_out": [
-        "tmp%7#0",
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint8[32])%0#0"
-      ]
-    },
-    "44": {
-      "op": "txna ApplicationArgs 4",
-      "defined_out": [
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint64)%1#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
-        "tmp%7#0"
-      ],
-      "stack_out": [
-        "tmp%7#0",
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
-        "reinterpret_Encoded(uint64)%1#0"
-      ]
-    },
-    "47": {
-      "op": "btoi",
-      "defined_out": [
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
-        "tmp%7#0",
         "tmp%9#0"
       ],
       "stack_out": [
-        "tmp%7#0",
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%9#0"
       ]
     },
-    "48": {
-      "op": "txna ApplicationArgs 5",
+    "38": {
+      "op": "txn ApplicationID",
       "defined_out": [
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint64)%2#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
-        "tmp%7#0",
-        "tmp%9#0"
-      ],
-      "stack_out": [
-        "tmp%7#0",
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
-        "tmp%9#0",
-        "reinterpret_Encoded(uint64)%2#0"
-      ]
-    },
-    "51": {
-      "op": "btoi",
-      "defined_out": [
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%10#0",
-        "tmp%7#0",
         "tmp%9#0"
       ],
       "stack_out": [
-        "tmp%7#0",
-        "aggregate%get_bit%0#0",
-        "reinterpret_Encoded(uint8[32])%0#0",
         "tmp%9#0",
         "tmp%10#0"
       ]
     },
-    "52": {
-      "callsub": "smart_contracts/plugins/pay/contract.algo.ts::PayPlugin.pay",
-      "op": "callsub pay",
-      "stack_out": []
-    },
-    "55": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "56": {
-      "op": "return",
-      "stack_out": []
-    },
-    "57": {
-      "block": "main_bare_routing@6",
-      "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%11#0"
-      ],
-      "stack_out": [
-        "tmp%11#0"
-      ]
-    },
-    "59": {
-      "op": "bnz main_after_if_else@10",
-      "stack_out": []
-    },
-    "62": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%12#0"
-      ],
-      "stack_out": [
-        "tmp%12#0"
-      ]
-    },
-    "64": {
+    "40": {
       "op": "!",
       "defined_out": [
-        "tmp%13#0"
+        "tmp%11#0",
+        "tmp%9#0"
       ],
       "stack_out": [
-        "tmp%13#0"
+        "tmp%9#0",
+        "tmp%11#0"
       ]
     },
-    "65": {
-      "error": "can only call when creating",
-      "op": "assert // can only call when creating",
-      "stack_out": []
-    },
-    "66": {
-      "op": "intc_1 // 1",
+    "41": {
+      "op": "&&",
       "defined_out": [
-        "tmp%0#0"
+        "tmp%12#0"
       ],
       "stack_out": [
-        "tmp%0#0"
+        "tmp%12#0"
       ]
     },
-    "67": {
-      "op": "return",
+    "42": {
+      "error": "OnCompletion must be NoOp && can only call when creating",
+      "op": "return // on error: OnCompletion must be NoOp && can only call when creating",
+      "defined_out": [],
       "stack_out": []
     },
-    "68": {
+    "43": {
       "subroutine": "smart_contracts/utils/plugins.ts::rekeyAddress",
       "params": {
         "rekeyBack#0": "uint64",
@@ -314,7 +169,7 @@
       "stack_in": [],
       "op": "proto 2 1"
     },
-    "71": {
+    "46": {
       "op": "frame_dig -2",
       "defined_out": [
         "rekeyBack#0 (copy)"
@@ -323,11 +178,11 @@
         "rekeyBack#0 (copy)"
       ]
     },
-    "73": {
+    "48": {
       "op": "bnz rekeyAddress_after_if_else@2",
       "stack_out": []
     },
-    "76": {
+    "51": {
       "op": "global ZeroAddress",
       "defined_out": [
         "tmp%0#0"
@@ -336,11 +191,11 @@
         "tmp%0#0"
       ]
     },
-    "78": {
+    "53": {
       "retsub": true,
       "op": "retsub"
     },
-    "79": {
+    "54": {
       "block": "rekeyAddress_after_if_else@2",
       "stack_in": [],
       "op": "frame_dig -1",
@@ -351,7 +206,7 @@
         "wallet#0 (copy)"
       ]
     },
-    "81": {
+    "56": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "check%0#0",
@@ -362,328 +217,1036 @@
         "check%0#0"
       ]
     },
-    "83": {
+    "58": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
         "value%0#0"
       ]
     },
-    "84": {
+    "59": {
       "retsub": true,
       "op": "retsub"
     },
-    "85": {
-      "subroutine": "smart_contracts/plugins/pay/contract.algo.ts::PayPlugin.pay",
-      "params": {
-        "walletID#0": "uint64",
-        "rekeyBack#0": "uint64",
-        "receiver#0": "bytes",
-        "asset#0": "uint64",
-        "amount#0": "uint64"
-      },
+    "60": {
+      "subroutine": "smart_contracts/plugins/pay/contract.algo.ts::PayPlugin.pay[routing]",
+      "params": {},
       "block": "pay",
       "stack_in": [],
-      "op": "proto 5 0"
-    },
-    "88": {
-      "op": "frame_dig -5",
+      "op": "txna ApplicationArgs 1",
       "defined_out": [
-        "walletID#0 (copy)"
+        "tmp%0#0"
       ],
       "stack_out": [
-        "walletID#0 (copy)"
+        "tmp%0#0"
       ]
     },
-    "90": {
-      "op": "pushbytes \"spending_address\"",
+    "63": {
+      "op": "dup",
       "defined_out": [
-        "\"spending_address\"",
-        "walletID#0 (copy)"
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
       ],
       "stack_out": [
-        "walletID#0 (copy)",
-        "\"spending_address\""
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "64": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "65": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "66": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "67": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "68": {
+      "op": "btoi",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "69": {
+      "op": "dup",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0"
+      ]
+    },
+    "70": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "73": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "74": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "75": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "len%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0",
+        "1"
+      ]
+    },
+    "76": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "77": {
+      "error": "invalid number of bytes for bool8",
+      "op": "assert // invalid number of bytes for bool8",
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "78": {
+      "op": "intc_2 // 0",
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "0"
+      ]
+    },
+    "79": {
+      "op": "getbit",
+      "defined_out": [
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "rekeyBack#0"
+      ]
+    },
+    "80": {
+      "op": "cover 2",
+      "defined_out": [
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0"
+      ]
+    },
+    "82": {
+      "op": "txna ApplicationArgs 3"
+    },
+    "85": {
+      "op": "dup",
+      "defined_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "receiver#0",
+        "receiver#0"
+      ]
+    },
+    "86": {
+      "op": "cover 4",
+      "defined_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "receiver#0"
+      ]
+    },
+    "88": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "len%2#0"
+      ]
+    },
+    "89": {
+      "op": "pushint 32 // 32",
+      "defined_out": [
+        "32",
+        "len%2#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "len%2#0",
+        "32"
+      ]
+    },
+    "91": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "eq%2#0"
+      ]
+    },
+    "92": {
+      "error": "invalid number of bytes for uint8[32]",
+      "op": "assert // invalid number of bytes for uint8[32]",
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0"
+      ]
+    },
+    "93": {
+      "op": "txna ApplicationArgs 4",
+      "defined_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "tmp%5#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "tmp%5#0"
+      ]
+    },
+    "96": {
+      "op": "dup",
+      "defined_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "tmp%5#0",
+        "tmp%5#0 (copy)",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "tmp%5#0",
+        "tmp%5#0 (copy)"
+      ]
+    },
+    "97": {
+      "op": "len",
+      "defined_out": [
+        "len%3#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "tmp%5#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "tmp%5#0",
+        "len%3#0"
+      ]
+    },
+    "98": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "tmp%5#0",
+        "len%3#0",
+        "8"
+      ]
+    },
+    "99": {
+      "op": "==",
+      "defined_out": [
+        "eq%3#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "tmp%5#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "tmp%5#0",
+        "eq%3#0"
+      ]
+    },
+    "100": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "tmp%5#0"
+      ]
+    },
+    "101": {
+      "op": "btoi",
+      "defined_out": [
+        "asset#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0"
+      ]
+    },
+    "102": {
+      "op": "dup",
+      "stack_out": [
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0",
+        "asset#0"
+      ]
+    },
+    "103": {
+      "op": "cover 4",
+      "defined_out": [
+        "asset#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0"
+      ]
+    },
+    "105": {
+      "op": "txna ApplicationArgs 5",
+      "defined_out": [
+        "asset#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "tmp%7#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0",
+        "tmp%7#0"
       ]
     },
     "108": {
-      "op": "app_global_get_ex",
+      "op": "dup",
       "defined_out": [
-        "awst_tmp%1#0",
-        "spendingAddressBytes#0"
+        "asset#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "tmp%7#0",
+        "tmp%7#0 (copy)",
+        "wallet#0"
       ],
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0",
+        "tmp%7#0",
+        "tmp%7#0 (copy)"
+      ]
+    },
+    "109": {
+      "op": "len",
+      "defined_out": [
+        "asset#0",
+        "len%4#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "tmp%7#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0",
+        "tmp%7#0",
+        "len%4#0"
+      ]
+    },
+    "110": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0",
+        "tmp%7#0",
+        "len%4#0",
+        "8"
+      ]
+    },
+    "111": {
+      "op": "==",
+      "defined_out": [
+        "asset#0",
+        "eq%4#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "tmp%7#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0",
+        "tmp%7#0",
+        "eq%4#0"
+      ]
+    },
+    "112": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0",
+        "tmp%7#0"
+      ]
+    },
+    "113": {
+      "op": "btoi",
+      "defined_out": [
+        "amount#0",
+        "asset#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0",
+        "amount#0"
+      ]
+    },
+    "114": {
+      "op": "cover 4",
+      "defined_out": [
+        "amount#0",
+        "asset#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0",
+        "asset#0"
+      ]
+    },
+    "116": {
+      "op": "swap",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "asset#0",
+        "wallet#0"
+      ]
+    },
+    "117": {
+      "op": "pushbytes \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "amount#0",
+        "asset#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "asset#0",
+        "wallet#0",
+        "\"spending_address\""
+      ]
+    },
+    "135": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amount#0",
+        "asset#0",
+        "awst_tmp%1#0",
+        "receiver#0",
+        "rekeyBack#0",
+        "spendingAddressBytes#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "asset#0",
         "spendingAddressBytes#0",
         "awst_tmp%1#0"
       ]
     },
-    "109": {
+    "136": {
       "op": "pop",
-      "defined_out": [
-        "spendingAddressBytes#0"
-      ],
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "asset#0",
         "spendingAddressBytes#0"
       ]
     },
-    "110": {
-      "op": "frame_dig -2",
+    "137": {
+      "op": "cover 3",
       "defined_out": [
-        "asset#0 (copy)",
-        "spendingAddressBytes#0"
-      ],
-      "stack_out": [
+        "amount#0",
+        "asset#0",
+        "receiver#0",
+        "rekeyBack#0",
         "spendingAddressBytes#0",
-        "asset#0 (copy)"
-      ]
-    },
-    "112": {
-      "op": "bnz pay_else_body@3",
+        "wallet#0"
+      ],
       "stack_out": [
-        "spendingAddressBytes#0"
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "wallet#0",
+        "asset#0"
       ]
     },
-    "115": {
+    "139": {
+      "op": "bnz pay_else_body@4",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ]
+    },
+    "142": {
       "op": "itxn_begin"
     },
-    "116": {
-      "op": "frame_dig -4",
-      "defined_out": [
-        "rekeyBack#0 (copy)",
-        "spendingAddressBytes#0"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "rekeyBack#0 (copy)"
-      ]
-    },
-    "118": {
-      "op": "frame_dig -5",
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "rekeyBack#0 (copy)",
-        "walletID#0 (copy)"
-      ]
-    },
-    "120": {
+    "143": {
       "callsub": "smart_contracts/utils/plugins.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
+        "amount#0",
+        "asset#0",
         "inner_txn_params%0%%param_RekeyTo_idx_0#0",
+        "receiver#0",
         "spendingAddressBytes#0"
       ],
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0",
         "inner_txn_params%0%%param_RekeyTo_idx_0#0"
       ]
     },
-    "123": {
+    "146": {
       "op": "itxn_field RekeyTo",
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0"
       ]
     },
-    "125": {
-      "op": "frame_dig -1",
-      "defined_out": [
-        "amount#0 (copy)",
-        "spendingAddressBytes#0"
-      ],
+    "148": {
+      "op": "dig 1",
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0",
-        "amount#0 (copy)"
+        "amount#0"
       ]
     },
-    "127": {
+    "150": {
       "op": "itxn_field Amount",
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0"
       ]
     },
-    "129": {
-      "op": "frame_dig -3",
-      "defined_out": [
-        "receiver#0 (copy)",
-        "spendingAddressBytes#0"
-      ],
+    "152": {
+      "op": "dig 3",
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0",
-        "receiver#0 (copy)"
+        "receiver#0"
       ]
     },
-    "131": {
+    "154": {
       "op": "itxn_field Receiver",
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0"
       ]
     },
-    "133": {
-      "op": "itxn_field Sender",
-      "stack_out": []
+    "156": {
+      "op": "dup",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0"
+      ]
     },
-    "135": {
+    "157": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "159": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "1"
+      ]
+    },
+    "160": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "162": {
+      "op": "intc_2 // 0",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "0"
+      ]
+    },
+    "163": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "165": {
+      "op": "itxn_submit"
+    },
+    "166": {
+      "block": "pay_after_if_else@6",
+      "stack_in": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ],
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
       ],
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
         "1"
       ]
     },
-    "136": {
-      "op": "itxn_field TypeEnum",
-      "stack_out": []
-    },
-    "138": {
-      "op": "intc_0 // 0",
+    "167": {
+      "op": "return",
       "stack_out": [
-        "0"
-      ]
-    },
-    "139": {
-      "op": "itxn_field Fee",
-      "stack_out": []
-    },
-    "141": {
-      "op": "itxn_submit"
-    },
-    "142": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "143": {
-      "block": "pay_else_body@3",
-      "stack_in": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0"
-      ],
-      "op": "itxn_begin"
-    },
-    "144": {
-      "op": "frame_dig -4",
-      "defined_out": [
-        "rekeyBack#0 (copy)"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "rekeyBack#0 (copy)"
       ]
     },
-    "146": {
-      "op": "frame_dig -5",
-      "defined_out": [
-        "rekeyBack#0 (copy)",
-        "walletID#0 (copy)"
-      ],
-      "stack_out": [
+    "168": {
+      "block": "pay_else_body@4",
+      "stack_in": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0",
-        "rekeyBack#0 (copy)",
-        "walletID#0 (copy)"
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "op": "itxn_begin",
+      "defined_out": [
+        "rekeyBack#0",
+        "wallet#0"
       ]
     },
-    "148": {
+    "169": {
       "callsub": "smart_contracts/utils/plugins.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "inner_txn_params%1%%param_RekeyTo_idx_0#0"
       ],
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0",
         "inner_txn_params%1%%param_RekeyTo_idx_0#0"
       ]
     },
-    "151": {
+    "172": {
       "op": "itxn_field RekeyTo",
       "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
         "spendingAddressBytes#0"
       ]
-    },
-    "153": {
-      "op": "frame_dig -2",
-      "defined_out": [
-        "asset#0 (copy)"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "asset#0 (copy)"
-      ]
-    },
-    "155": {
-      "op": "itxn_field XferAsset",
-      "stack_out": [
-        "spendingAddressBytes#0"
-      ]
-    },
-    "157": {
-      "op": "frame_dig -1",
-      "defined_out": [
-        "amount#0 (copy)"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "amount#0 (copy)"
-      ]
-    },
-    "159": {
-      "op": "itxn_field AssetAmount",
-      "stack_out": [
-        "spendingAddressBytes#0"
-      ]
-    },
-    "161": {
-      "op": "frame_dig -3",
-      "defined_out": [
-        "receiver#0 (copy)"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0",
-        "receiver#0 (copy)"
-      ]
-    },
-    "163": {
-      "op": "itxn_field AssetReceiver",
-      "defined_out": [
-        "spendingAddressBytes#0"
-      ],
-      "stack_out": [
-        "spendingAddressBytes#0"
-      ]
-    },
-    "165": {
-      "op": "itxn_field Sender",
-      "stack_out": []
-    },
-    "167": {
-      "op": "pushint 4 // 4",
-      "defined_out": [
-        "4"
-      ],
-      "stack_out": [
-        "4"
-      ]
-    },
-    "169": {
-      "op": "itxn_field TypeEnum",
-      "stack_out": []
-    },
-    "171": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "172": {
-      "op": "itxn_field Fee",
-      "stack_out": []
     },
     "174": {
+      "op": "dig 2",
+      "defined_out": [
+        "asset#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "asset#0"
+      ]
+    },
+    "176": {
+      "op": "itxn_field XferAsset",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "178": {
+      "op": "dig 1",
+      "defined_out": [
+        "amount#0",
+        "asset#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "amount#0"
+      ]
+    },
+    "180": {
+      "op": "itxn_field AssetAmount",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "182": {
+      "op": "dig 3",
+      "defined_out": [
+        "amount#0",
+        "asset#0",
+        "receiver#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "receiver#0"
+      ]
+    },
+    "184": {
+      "op": "itxn_field AssetReceiver",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "186": {
+      "op": "dup",
+      "defined_out": [
+        "amount#0",
+        "asset#0",
+        "receiver#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "187": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "189": {
+      "op": "pushint 4 // 4",
+      "defined_out": [
+        "4",
+        "amount#0",
+        "asset#0",
+        "receiver#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "4"
+      ]
+    },
+    "191": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "193": {
+      "op": "intc_2 // 0",
+      "defined_out": [
+        "0",
+        "amount#0",
+        "asset#0",
+        "receiver#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "0"
+      ]
+    },
+    "194": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "receiver#0",
+        "asset#0",
+        "amount#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "196": {
       "op": "itxn_submit"
     },
-    "175": {
-      "retsub": true,
-      "op": "retsub"
+    "197": {
+      "op": "b pay_after_if_else@6"
     }
   }
 }

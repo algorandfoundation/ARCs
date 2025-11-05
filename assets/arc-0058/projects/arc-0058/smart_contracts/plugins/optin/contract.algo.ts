@@ -5,8 +5,7 @@ import { getSpendingAccount, rekeyAddress } from "../../utils/plugins";
 
 export class OptInPlugin extends Contract {
 
-  optInToAsset(walletID: uint64, rekeyBack: boolean, assets: uint64[], mbrPayment: gtxn.PaymentTxn): void {
-    const wallet = Application(walletID)
+  optInToAsset(wallet: Application, rekeyBack: boolean, assets: uint64[], mbrPayment: gtxn.PaymentTxn): void {
     const sender = getSpendingAccount(wallet)
 
     assertMatch(

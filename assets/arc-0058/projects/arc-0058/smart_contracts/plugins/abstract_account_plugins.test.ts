@@ -119,8 +119,21 @@ describe('Abstracted Subscription Program', () => {
     test('Alice adds the app to the abstracted account', async () => {
       // const { algorand } = fixture.context;
 
+      const mbr = (await abstractedAccountClient.send.mbr({
+        args: {
+          methodCount: 0,
+          plugin: '',
+          escrow: '',
+          groups: 0n
+        }
+      })).return
+
+      if (mbr === undefined) {
+        throw new Error('MBR is undefined');
+      }
+
       await abstractedAccountClient.appClient.fundAppAccount({
-        amount: algokit.microAlgos(37700)
+        amount: mbr.plugins.microAlgo()
       });
 
       await abstractedAccountClient.send.arc58AddPlugin({
@@ -171,7 +184,7 @@ describe('Abstracted Subscription Program', () => {
             sender: testAccount.addr,
             // Send a payment from the abstracted account to Joe
             args: {
-              walletId: abstractedAccountClient.appId,
+              wallet: abstractedAccountClient.appId,
               rekeyBack: true,
               _acctRef: joe
             },
@@ -249,10 +262,23 @@ describe('Abstracted Subscription Program', () => {
     });
 
     test('Alice adds the app to the abstracted account', async () => {
+      const mbr = (await abstractedAccountClient.send.mbr({
+        args: {
+          methodCount: 0,
+          plugin: 'optIn',
+          escrow: '',
+          groups: 0n
+        }
+      })).return
+
+      if (mbr === undefined) {
+        throw new Error('MBR is undefined');
+      }
+
       await abstractedAccountClient.appClient.fundAppAccount({
         sender: aliceEOA.addr,
         signer: makeBasicAccountTransactionSigner(aliceEOA),
-        amount: algokit.microAlgos(58600)
+        amount: algokit.microAlgos(Number(mbr.plugins + mbr.namedPlugins))
       });
 
       // Add opt-in plugin
@@ -292,7 +318,7 @@ describe('Abstracted Subscription Program', () => {
           .optInToAsset({
             sender: bob.addr,
             args: {
-              walletId: abstractedAccountClient.appId,
+              wallet: abstractedAccountClient.appId,
               rekeyBack: true,
               assets: [asset],
               mbrPayment

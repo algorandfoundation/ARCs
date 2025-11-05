@@ -91,20 +91,17 @@ export class AbstractedAccount extends Contract {
         .submit()
     }
 
-    const id = abiCall(
-      EscrowFactory.prototype.new,
-      {
-        sender: this.controlledAddress.value,
-        appId: this.escrowFactory.value,
-        args: [
-          itxn.payment({
-            sender: this.controlledAddress.value,
-            amount: NewCostForARC58 + Global.minBalance,
-            receiver: this.escrowFactory.value.address
-          }),
-        ]
-      }
-    ).returnValue
+    const id = abiCall<typeof EscrowFactory.prototype.new>({
+      sender: this.controlledAddress.value,
+      appId: this.escrowFactory.value,
+      args: [
+        itxn.payment({
+          sender: this.controlledAddress.value,
+          amount: NewCostForARC58 + Global.minBalance,
+          receiver: this.escrowFactory.value.address
+        }),
+      ]
+    }).returnValue
 
     this.escrows(escrow).value = { id, locked: false }
 
@@ -438,19 +435,16 @@ export class AbstractedAccount extends Contract {
       app = this.escrows(escrow).value.id
     }
 
-    abiCall(
-      EscrowFactory.prototype.register,
-      {
-        appId: this.escrowFactory.value,
-        args: [
-          itxn.payment({
-            receiver: this.escrowFactory.value.address,
-            amount: ARC58WalletIDsByAccountsMbr
-          }),
-          app
-        ]
-      }
-    )
+    abiCall<typeof EscrowFactory.prototype.register>({
+      appId: this.escrowFactory.value,
+      args: [
+        itxn.payment({
+          receiver: this.escrowFactory.value.address,
+          amount: ARC58WalletIDsByAccountsMbr
+        }),
+        app
+      ]
+    })
   }
 
   /**
@@ -1000,7 +994,7 @@ export class AbstractedAccount extends Contract {
 
     assert(this.plugins(key).exists, ERR_PLUGIN_DOES_NOT_EXIST)
     assert(this.escrows(escrow).exists, ERR_ESCROW_DOES_NOT_EXIST)
-    assert(this.escrows(escrow).value.locked, ERR_ESCROW_LOCKED)
+    assert(!this.escrows(escrow).value.locked, ERR_ESCROW_LOCKED)
 
     const escrowID = this.escrows(escrow).value.id
 

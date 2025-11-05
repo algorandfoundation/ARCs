@@ -23,8 +23,8 @@ export const DynamicOffsetAndLength: uint64 = 4
 export const DynamicOffset: uint64 = 2
 export const DynamicLength: uint64 = 2
 
-export const MinPluginMBR: uint64 = 36_100
-export const MinNamedPluginMBR: uint64 = 18_900
-export const MinEscrowsMBR: uint64 = 6_100
+export const MinPluginMBR: uint64 = 38_900
+export const MinNamedPluginMBR: uint64 = 21_700
+export const MinEscrowsMBR: uint64 = 6_500
 export const MinAllowanceMBR: uint64 = 27_700
 export const MinExecutionsMBR: uint64 = 20_500

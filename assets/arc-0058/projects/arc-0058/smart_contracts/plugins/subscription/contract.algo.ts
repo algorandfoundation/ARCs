@@ -12,12 +12,11 @@ export class SubscriptionPlugin extends Contract {
   lastPayment = GlobalState<uint64>({ initialValue: 0 });
 
   makePayment(
-    walletID: uint64,
+    wallet: Application,
     rekeyBack: boolean,
     // eslint-disable-next-line no-unused-vars
     _acctRef: Address
   ): void {
-    const wallet = Application(walletID);
     const sender = getSpendingAccount(wallet);
 
     assert(Global.round - this.lastPayment.value > FREQUENCY);

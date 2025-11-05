@@ -3,17 +3,18 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import * as algokit from '@algorandfoundation/algokit-utils';
 import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk';
 import { ERR_ALLOWANCE_EXCEEDED, ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY, ERR_MALFORMED_OFFSETS, ERR_METHOD_ON_COOLDOWN, ERR_PLUGIN_DOES_NOT_EXIST, ERR_PLUGIN_EXPIRED, ERR_PLUGIN_ON_COOLDOWN } from './errors';
-import { AbstractedAccountClient, AbstractedAccountFactory } from '../artifacts/abstracted_account/AbstractedAccountClient';
+import { AbstractedAccountClient, AbstractedAccountFactory, EscrowInfo } from '../artifacts/abstracted_account/AbstractedAccountClient';
 import { OptInPluginClient, OptInPluginFactory } from '../artifacts/plugins/optin/OptInPluginClient';
 import { EscrowFactoryFactory } from '../artifacts/escrow/EscrowFactoryClient';
 import { PayPluginClient, PayPluginFactory } from '../artifacts/plugins/pay/PayPluginClient';
+import { getABIEncodedValue } from '@algorandfoundation/algokit-utils/types/app-arc56';
 
 const ZERO_ADDRESS = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ';
 
 const PluginInfoAbiType = algosdk.ABIType.from('(bool,uint8,uint64,uint64,uint64,(byte[4],uint64,uint64)[],bool,bool,uint64,uint64)')
 type PluginInfoTuple = [boolean, bigint, bigint, bigint, bigint, [string, bigint, bigint][], boolean, boolean, number, number]
 
-const EscrowInfoAbiType = algosdk.ABIType.from('uint64');
+const EscrowInfoAbiType = algosdk.ABIType.from('(uint64,bool)');
 
 const AllowanceInfoAbiType = algosdk.ABIType.from('(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)');
 type AllowanceInfoTuple = [bigint, bigint, bigint, bigint, bigint, bigint, bigint, boolean];
@@ -63,7 +64,7 @@ describe('ARC58 Plugin Permissions', () => {
           sender: caller.addr,
           signer: makeBasicAccountTransactionSigner(caller),
           args: {
-            walletId: abstractedAccountClient.appId,
+            wallet: abstractedAccountClient.appId,
             rekeyBack: true,
             receiver,
             asset,
@@ -119,7 +120,7 @@ describe('ARC58 Plugin Permissions', () => {
           sender: caller.addr,
           signer: makeBasicAccountTransactionSigner(caller),
           args: {
-            walletId: abstractedAccountClient.appId,
+            wallet: abstractedAccountClient.appId,
             rekeyBack: true,
             assets: [asset],
             mbrPayment
@@ -296,21 +297,12 @@ describe('ARC58 Plugin Permissions', () => {
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
 
-    const globalPluginBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('p'),
-          Buffer.from(algosdk.encodeUint64(plugin)),
-          algosdk.decodeAddress(ZERO_ADDRESS).publicKey,
-        ])
-      ),
-      PluginInfoAbiType
-    )) as PluginInfoTuple;
+    const globalPluginBox = await abstractedAccountClient.state.box.plugins.value({ plugin, caller: ZERO_ADDRESS, escrow })
 
     const ts = (await algorand.client.algod.status().do())
     const block = (await algorand.client.algod.block((ts.lastRound - 1n)).do());
 
-    expect(globalPluginBox[8]).toBe(BigInt(block.block.header.timestamp));
+    expect(globalPluginBox?.lastCalled).toBe(BigInt(block.block.header.timestamp));
   });
 
   test('global valid, global is used', async () => {
@@ -361,21 +353,12 @@ describe('ARC58 Plugin Permissions', () => {
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
 
-    const globalPluginBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('p'),
-          Buffer.from(algosdk.encodeUint64(plugin)),
-          algosdk.decodeAddress(ZERO_ADDRESS).publicKey,
-        ])
-      ),
-      PluginInfoAbiType
-    )) as PluginInfoTuple;
+    const globalPluginBox = await abstractedAccountClient.state.box.plugins.value({ plugin, caller: ZERO_ADDRESS, escrow })
 
     const ts = (await algorand.client.algod.status().do())
     const block = (await algorand.client.algod.block(ts.lastRound - 1n).do());
 
-    expect(globalPluginBox[8]).toBe(BigInt(block.block.header.timestamp));
+    expect(globalPluginBox?.lastCalled).toBe(BigInt(block.block.header.timestamp));
   });
 
   test('global does not exist, sender valid', async () => {
@@ -426,21 +409,12 @@ describe('ARC58 Plugin Permissions', () => {
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], false);
 
-    const callerPluginBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('p'),
-          Buffer.from(algosdk.encodeUint64(plugin)),
-          caller.addr.publicKey,
-        ])
-      ),
-      PluginInfoAbiType
-    )) as PluginInfoTuple;
+    const callerPluginBox = await abstractedAccountClient.state.box.plugins.value({ plugin, caller: caller.addr.toString(), escrow })
 
     const ts = (await algorand.client.algod.status().do())
     const block = (await algorand.client.algod.block(ts.lastRound - 1n).do());
 
-    expect(callerPluginBox[8]).toBe(BigInt(block.block.header.timestamp));
+    expect(callerPluginBox?.lastCalled).toBe(BigInt(block.block.header.timestamp));
   });
 
   test('global does not exist, sender valid, method allowed', async () => {
@@ -498,24 +472,12 @@ describe('ARC58 Plugin Permissions', () => {
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [0], false);
 
-    // const capturedLogs = logs.testLogger.capturedLogs
-    // console.log('capturedLogs', capturedLogs)
-
-    const callerPluginBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('p'),
-          Buffer.from(algosdk.encodeUint64(plugin)),
-          caller.addr.publicKey,
-        ])
-      ),
-      PluginInfoAbiType
-    )) as PluginInfoTuple;
+    const callerPluginBox = await abstractedAccountClient.state.box.plugins.value({ plugin, caller: caller.addr.toString(), escrow })
 
     const ts = (await algorand.client.algod.status().do())
     const block = (await algorand.client.algod.block(ts.lastRound - 1n).do());
 
-    expect(callerPluginBox[8]).toBe(BigInt(block.block.header.timestamp));
+    expect(callerPluginBox?.lastCalled).toBe(BigInt(block.block.header.timestamp));
   });
 
   test('methods on cooldown', async () => {
@@ -556,7 +518,7 @@ describe('ARC58 Plugin Permissions', () => {
         lastValid: MAX_UINT64,
         cooldown: 0,
         methods: [
-          [optInToAssetSelector, 100] // cooldown of 1 so we can call it at most once per round
+          [optInToAssetSelector, 100]
         ],
         useRounds: false,
         useExecutionKey: false,
@@ -569,21 +531,12 @@ describe('ARC58 Plugin Permissions', () => {
 
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [0]);
 
-    const callerPluginBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('p'),
-          Buffer.from(algosdk.encodeUint64(plugin)),
-          algosdk.decodeAddress(ZERO_ADDRESS).publicKey,
-        ])
-      ),
-      PluginInfoAbiType
-    )) as PluginInfoTuple;
+    const callerPluginBox = await abstractedAccountClient.state.box.plugins.value({ plugin, caller: ZERO_ADDRESS, escrow })
 
     const ts = (await algorand.client.algod.status().do());
     const block = (await algorand.client.algod.block(ts.lastRound - 1n).do());
 
-    expect(callerPluginBox[5][0][2]).toBe(BigInt(block.block.header.timestamp));
+    expect(callerPluginBox?.methods[0][2]).toBe(BigInt(block.block.header.timestamp));
 
     let error = 'no error';
     try {
@@ -659,7 +612,7 @@ describe('ARC58 Plugin Permissions', () => {
           sender: caller.addr,
           signer: makeBasicAccountTransactionSigner(caller),
           args: {
-            walletId: abstractedAccountClient.appId,
+            wallet: abstractedAccountClient.appId,
             rekeyBack: false,
             assets: [asset],
             mbrPayment
@@ -683,7 +636,7 @@ describe('ARC58 Plugin Permissions', () => {
           sender: caller.addr,
           signer: makeBasicAccountTransactionSigner(caller),
           args: {
-            walletId: abstractedAccountClient.appId,
+            wallet: abstractedAccountClient.appId,
             rekeyBack: true,
             assets: [asset],
             mbrPayment: mbrPaymentTwo
@@ -937,7 +890,7 @@ describe('ARC58 Plugin Permissions', () => {
           sender: caller.addr,
           signer: makeBasicAccountTransactionSigner(caller),
           args: {
-            walletId: abstractedAccountClient.appId,
+            wallet: abstractedAccountClient.appId,
             rekeyBack: true,
             assets: [asset],
             mbrPayment
@@ -1048,7 +1001,7 @@ describe('ARC58 Plugin Permissions', () => {
       args: {
         methodCount: 0,
         plugin: '',
-        escrow,
+        escrow: '',
         groups: 0n
       }
     })).return
@@ -1097,10 +1050,28 @@ describe('ARC58 Plugin Permissions', () => {
     accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
     expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
+    const savedEscrow = escrow;
+    escrow = ''; // Plugin was added without escrow, so we need to call it without escrow
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
+    escrow = savedEscrow; // Restore escrow for later use
 
-    const escrowCreationCost = BigInt(112_100 + 100_000) // Global.minBalance
-    const amount = mbr.plugins + mbr.allowances + mbr.escrows + escrowCreationCost
+    const escrowCreationCost = BigInt(150_000 + 100_000) // NewCostForARC58 + Global.minBalance
+    
+    // Recalculate MBR with the escrow name for the second plugin
+    const mbrWithEscrow = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        plugin: '',
+        escrow,
+        groups: 0n
+      }
+    })).return
+
+    if (mbrWithEscrow === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    const amount = mbrWithEscrow.plugins + mbrWithEscrow.allowances + mbrWithEscrow.escrows + escrowCreationCost
 
     console.log(`Funding arc58 account with amount: ${amount}`)
     await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, amount.microAlgo())
@@ -1178,40 +1149,15 @@ describe('ARC58 Plugin Permissions', () => {
     // use the full amount
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 6_000_000n, [], true);
 
-    const escrowAppID = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(Buffer.concat([Buffer.from('e'), Buffer.from('pay_plugin')])),
-      EscrowInfoAbiType
-    )) as bigint;
+    let allowanceBox = await abstractedAccountClient.state.box.allowances.value({ escrow, asset });
 
-    console.log('escrowAppID', escrowAppID);
-
-    let allowanceBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('a'),
-          Buffer.from(algosdk.encodeUint64(escrowAppID)),
-          Buffer.from(algosdk.encodeUint64(asset)),
-        ])
-      ),
-      AllowanceInfoAbiType
-    )) as AllowanceInfoTuple;
-
-    expect(allowanceBox[3]).toBe(6_000_000n); // type 2 is window
+    expect(allowanceBox?.spent).toBe(6_000_000n); // type 2 is window
 
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 2_000_000n, [], true);
 
-    allowanceBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('a'),
-          Buffer.from(algosdk.encodeUint64(escrowAppID)),
-          Buffer.from(algosdk.encodeUint64(asset)),
-        ])
-      ),
-      AllowanceInfoAbiType
-    )) as AllowanceInfoTuple;
+    allowanceBox = await abstractedAccountClient.state.box.allowances.value({ escrow, asset });
 
-    expect(allowanceBox[3]).toBe(8_000_000n); // type 2 is window
+    expect(allowanceBox?.spent).toBe(8_000_000n); // type 2 is window
 
     // try to use more
     let error = 'no error';
@@ -1237,7 +1183,7 @@ describe('ARC58 Plugin Permissions', () => {
       args: {
         methodCount: 0,
         plugin: '',
-        escrow,
+        escrow: '',
         groups: 0n
       }
     })).return
@@ -1286,10 +1232,28 @@ describe('ARC58 Plugin Permissions', () => {
     accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
     expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
+    const savedEscrow = escrow;
+    escrow = ''; // Plugin was added without escrow, so we need to call it without escrow
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
+    escrow = savedEscrow; // Restore escrow for later use
 
-    const escrowCreationCost = BigInt(112_100 + 100_000) // Global.minBalance
-    const amount = mbr.plugins + mbr.allowances + mbr.escrows + escrowCreationCost
+    const escrowCreationCost = BigInt(150_000 + 100_000) // NewCostForARC58 + Global.minBalance
+    
+    // Recalculate MBR with the escrow name for the second plugin
+    const mbrWithEscrow = (await abstractedAccountClient.send.mbr({
+      args: {
+        methodCount: 0,
+        plugin: '',
+        escrow,
+        groups: 0n
+      }
+    })).return
+
+    if (mbrWithEscrow === undefined) {
+      throw new Error('MBR is undefined');
+    }
+
+    const amount = mbrWithEscrow.plugins + mbrWithEscrow.allowances + mbrWithEscrow.escrows + escrowCreationCost
     console.log(`Funding arc58 account with amount: ${amount}`)
     await algorand.account.ensureFunded(abstractedAccountClient.appAddress, dispenser, amount.microAlgo())
 
@@ -1362,36 +1326,13 @@ describe('ARC58 Plugin Permissions', () => {
     // use the full amount
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 10_000_000n, [], true);
 
-    const escrowAppID = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(Buffer.concat([Buffer.from('e'), Buffer.from('pay_plugin_window')])),
-      EscrowInfoAbiType
-    )) as bigint;
+    let allowanceBox = await abstractedAccountClient.state.box.allowances.value({ escrow, asset });
 
-    let allowanceBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('a'),
-          Buffer.from(algosdk.encodeUint64(escrowAppID)),
-          Buffer.from(algosdk.encodeUint64(asset)),
-        ])
-      ),
-      AllowanceInfoAbiType
-    )) as AllowanceInfoTuple;
+    expect(allowanceBox?.spent).toBe(10_000_000n); // type 2 is window
 
-    expect(allowanceBox[3]).toBe(10_000_000n); // type 2 is window
+    let globalPluginBox = await abstractedAccountClient.state.box.plugins.value({ plugin: payPlugin, caller: ZERO_ADDRESS, escrow });
 
-    let globalPluginBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('p'),
-          Buffer.from(algosdk.encodeUint64(payPlugin)),
-          algosdk.decodeAddress(ZERO_ADDRESS).publicKey,
-        ])
-      ),
-      PluginInfoAbiType
-    )) as PluginInfoTuple;
-
-    const spendingAddress = algosdk.getApplicationAddress(globalPluginBox[2]);
+    const spendingAddress = algosdk.getApplicationAddress(globalPluginBox?.escrow ?? 0n);
 
     const spendingAddressInfo = await algorand.account.getInformation(spendingAddress.toString())
 
@@ -1415,18 +1356,9 @@ describe('ARC58 Plugin Permissions', () => {
     // use more
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 1_000_000n, [], true);
 
-    allowanceBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('a'),
-          Buffer.from(algosdk.encodeUint64(escrowAppID)),
-          Buffer.from(algosdk.encodeUint64(asset)),
-        ])
-      ),
-      AllowanceInfoAbiType
-    )) as AllowanceInfoTuple;
+    allowanceBox = await abstractedAccountClient.state.box.allowances.value({ escrow, asset });
 
-    expect(allowanceBox[3]).toBe(1_000_000n); // type 2 is window
+    expect(allowanceBox?.spent).toBe(1_000_000n); // type 2 is window
 
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 8_000_000n, [], true);
 
@@ -1503,9 +1435,12 @@ describe('ARC58 Plugin Permissions', () => {
     accountInfo = await algorand.account.getInformation(abstractedAccountClient.appAddress)
     expect(accountInfo.balance.microAlgos).toEqual(accountInfo.minBalance.microAlgos)
 
+    const savedEscrow = escrow;
+    escrow = ''; // Plugin was added without escrow, so we need to call it without escrow
     await callOptinPlugin(caller, abstractedAccountClient.appAddress.toString(), suggestedParams, optInPluginClient, asset, [], true);
+    escrow = savedEscrow; // Restore escrow for later use
 
-    const escrowCreationCost = BigInt(112_100 + 100_000) // Global.minBalance
+    const escrowCreationCost = BigInt(150_000 + 100_000) // Global.minBalance
     mbr = (await abstractedAccountClient.send.mbr({
       args: {
         methodCount: 0,
@@ -1589,23 +1524,9 @@ describe('ARC58 Plugin Permissions', () => {
     // use the full amount
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 1_000_000n, [], true);
 
-    const escrowAppID = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(Buffer.concat([Buffer.from('e'), Buffer.from('pay_plugin_drip')])),
-      EscrowInfoAbiType
-    )) as bigint;
+    let allowanceBox = await abstractedAccountClient.state.box.allowances.value({ escrow, asset });
 
-    let allowanceBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('a'),
-          Buffer.from(algosdk.encodeUint64(escrowAppID)),
-          Buffer.from(algosdk.encodeUint64(asset)),
-        ])
-      ),
-      AllowanceInfoAbiType
-    )) as AllowanceInfoTuple;
-
-    expect(allowanceBox[3]).toBe(49_000_000n);
+    expect(allowanceBox?.spent).toBe(49_000_000n);
 
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 48_000_000n, [], true)
 
@@ -1626,17 +1547,8 @@ describe('ARC58 Plugin Permissions', () => {
 
     await callPayPlugin(caller, payPluginClient, randomAccount.addr.toString(), asset, 0n, [], true);
 
-    allowanceBox = (await abstractedAccountClient.appClient.getBoxValueFromABIType(
-      new Uint8Array(
-        Buffer.concat([
-          Buffer.from('a'),
-          Buffer.from(algosdk.encodeUint64(escrowAppID)),
-          Buffer.from(algosdk.encodeUint64(asset)),
-        ])
-      ),
-      AllowanceInfoAbiType
-    )) as AllowanceInfoTuple;
+    allowanceBox = await abstractedAccountClient.state.box.allowances.value({ escrow, asset });
 
-    expect(allowanceBox[3]).toBe(6_000_000n);
+    expect(allowanceBox?.spent).toBe(6_000_000n);
   })
 });

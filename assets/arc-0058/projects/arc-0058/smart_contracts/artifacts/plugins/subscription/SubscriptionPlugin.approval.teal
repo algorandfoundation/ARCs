@@ -1,4 +1,4 @@
-#pragma version 10
+#pragma version 11
 #pragma typetrack false
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
@@ -17,77 +17,74 @@ main_after_if_else@2:
     // smart_contracts/plugins/subscription/contract.algo.ts:10
     // export class SubscriptionPlugin extends Contract {
     txn NumAppArgs
-    bz main_bare_routing@8
+    bz main___algots__.defaultCreate@7
     pushbytes 0xb060ba58 // method "makePayment(uint64,bool,address)void"
     txna ApplicationArgs 0
     match main_makePayment_route@5
-
-main_after_if_else@12:
-    // smart_contracts/plugins/subscription/contract.algo.ts:10
-    // export class SubscriptionPlugin extends Contract {
-    intc_0 // 0
-    return
+    err
 
 main_makePayment_route@5:
     // smart_contracts/plugins/subscription/contract.algo.ts:14-19
     // makePayment(
-    //   walletID: uint64,
+    //   wallet: Application,
     //   rekeyBack: boolean,
     //   // eslint-disable-next-line no-unused-vars
     //   _acctRef: Address
     // ): void {
     txn OnCompletion
     !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
-    assert // can only call when not creating
-    // smart_contracts/plugins/subscription/contract.algo.ts:10
-    // export class SubscriptionPlugin extends Contract {
-    txna ApplicationArgs 1
-    btoi
-    txna ApplicationArgs 2
-    intc_0 // 0
-    getbit
-    txna ApplicationArgs 3
-    // smart_contracts/plugins/subscription/contract.algo.ts:14-19
-    // makePayment(
-    //   walletID: uint64,
-    //   rekeyBack: boolean,
-    //   // eslint-disable-next-line no-unused-vars
-    //   _acctRef: Address
-    // ): void {
-    callsub makePayment
-    intc_1 // 1
-    return
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b makePayment
 
-main_bare_routing@8:
+main___algots__.defaultCreate@7:
     // smart_contracts/plugins/subscription/contract.algo.ts:10
     // export class SubscriptionPlugin extends Contract {
     txn OnCompletion
-    bnz main_after_if_else@12
+    !
     txn ApplicationID
     !
-    assert // can only call when creating
-    intc_1 // 1
-    return
+    &&
+    return // on error: OnCompletion must be NoOp && can only call when creating
 
 
-// smart_contracts/plugins/subscription/contract.algo.ts::SubscriptionPlugin.makePayment(walletID: uint64, rekeyBack: uint64, _acctRef: bytes) -> void:
+// smart_contracts/plugins/subscription/contract.algo.ts::SubscriptionPlugin.makePayment[routing]() -> void:
 makePayment:
     // smart_contracts/plugins/subscription/contract.algo.ts:14-19
     // makePayment(
-    //   walletID: uint64,
+    //   wallet: Application,
     //   rekeyBack: boolean,
     //   // eslint-disable-next-line no-unused-vars
     //   _acctRef: Address
     // ): void {
-    proto 3 0
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for bool8
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid number of bytes for uint8[32]
     // smart_contracts/utils/plugins.ts:34-37
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
-    frame_dig -3
+    swap
     // smart_contracts/utils/plugins.ts:36
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
@@ -98,14 +95,15 @@ makePayment:
     // )
     app_global_get_ex
     pop
-    // smart_contracts/plugins/subscription/contract.algo.ts:23
+    swap
+    // smart_contracts/plugins/subscription/contract.algo.ts:22
     // assert(Global.round - this.lastPayment.value > FREQUENCY);
     global Round
     intc_0 // 0
     // smart_contracts/plugins/subscription/contract.algo.ts:12
     // lastPayment = GlobalState<uint64>({ initialValue: 0 });
     bytec_0 // "lastPayment"
-    // smart_contracts/plugins/subscription/contract.algo.ts:23
+    // smart_contracts/plugins/subscription/contract.algo.ts:22
     // assert(Global.round - this.lastPayment.value > FREQUENCY);
     app_global_get_ex
     assert // check GlobalState exists
@@ -116,11 +114,11 @@ makePayment:
     // smart_contracts/plugins/subscription/contract.algo.ts:12
     // lastPayment = GlobalState<uint64>({ initialValue: 0 });
     bytec_0 // "lastPayment"
-    // smart_contracts/plugins/subscription/contract.algo.ts:24
+    // smart_contracts/plugins/subscription/contract.algo.ts:23
     // this.lastPayment.value = Global.round;
     global Round
     app_global_put
-    // smart_contracts/plugins/subscription/contract.algo.ts:26-33
+    // smart_contracts/plugins/subscription/contract.algo.ts:25-32
     // itxn
     //   .payment({
     //     sender,
@@ -130,28 +128,28 @@ makePayment:
     //   })
     //   .submit();
     itxn_begin
-    // smart_contracts/plugins/subscription/contract.algo.ts:29
+    // smart_contracts/plugins/subscription/contract.algo.ts:28
     // amount: AMOUNT,
     intc_3 // TMPL_AMOUNT
+    swap
     // smart_contracts/utils/plugins.ts:42
     // if (!rekeyBack) {
-    frame_dig -2
-    bnz makePayment_after_if_else@6
+    bnz makePayment_after_if_else@5
     // smart_contracts/utils/plugins.ts:43
     // return Global.zeroAddress
     global ZeroAddress
 
-makePayment_after_inlined_smart_contracts/utils/plugins.ts::rekeyAddress@7:
+makePayment_after_inlined_smart_contracts/utils/plugins.ts::rekeyAddress@6:
     itxn_field RekeyTo
-    // smart_contracts/plugins/subscription/contract.algo.ts:30
+    // smart_contracts/plugins/subscription/contract.algo.ts:29
     // receiver: Account(Bytes.fromBase32("46XYR7OTRZXISI2TRSBDWPUVQT4ECBWNI7TFWPPS6EKAPJ7W5OBXSNG66M").slice(0, 32)),
     pushbytes base32(46XYR7OTRZXISI2TRSBDWPUVQT4ECBWNI7TFWPPS6EKAPJ7W5OBQ)
     itxn_field Receiver
-    frame_dig 1
+    dup
     itxn_field Amount
-    frame_dig 0
+    dig 1
     itxn_field Sender
-    // smart_contracts/plugins/subscription/contract.algo.ts:26-32
+    // smart_contracts/plugins/subscription/contract.algo.ts:25-31
     // itxn
     //   .payment({
     //     sender,
@@ -163,7 +161,7 @@ makePayment_after_inlined_smart_contracts/utils/plugins.ts::rekeyAddress@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugins/subscription/contract.algo.ts:26-33
+    // smart_contracts/plugins/subscription/contract.algo.ts:25-32
     // itxn
     //   .payment({
     //     sender,
@@ -173,14 +171,22 @@ makePayment_after_inlined_smart_contracts/utils/plugins.ts::rekeyAddress@7:
     //   })
     //   .submit();
     itxn_submit
-    retsub
+    // smart_contracts/plugins/subscription/contract.algo.ts:14-19
+    // makePayment(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   // eslint-disable-next-line no-unused-vars
+    //   _acctRef: Address
+    // ): void {
+    intc_1 // 1
+    return
 
-makePayment_after_if_else@6:
+makePayment_after_if_else@5:
     // smart_contracts/utils/plugins.ts:46
     // return wallet.address
-    frame_dig -3
+    dig 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/plugins/subscription/contract.algo.ts:31
+    // smart_contracts/plugins/subscription/contract.algo.ts:30
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    b makePayment_after_inlined_smart_contracts/utils/plugins.ts::rekeyAddress@7
+    b makePayment_after_inlined_smart_contracts/utils/plugins.ts::rekeyAddress@6

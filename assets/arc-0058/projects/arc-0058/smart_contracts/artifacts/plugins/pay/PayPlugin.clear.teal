@@ -1,4 +1,4 @@
-#pragma version 10
+#pragma version 11
 #pragma typetrack false
 
 // @algorandfoundation/algorand-typescript/base-contract.d.ts::BaseContract.clearStateProgram() -> uint64:

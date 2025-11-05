@@ -4,8 +4,7 @@ import { Address } from "@algorandfoundation/algorand-typescript/arc4";
 
 export class PayPlugin extends Contract {
 
-  pay(walletID: uint64, rekeyBack: boolean, receiver: Address, asset: uint64, amount: uint64): void {
-    const wallet = Application(walletID)
+  pay(wallet: Application, rekeyBack: boolean, receiver: Address, asset: uint64, amount: uint64): void {
     const sender = getSpendingAccount(wallet)
 
     if (asset === 0) {
