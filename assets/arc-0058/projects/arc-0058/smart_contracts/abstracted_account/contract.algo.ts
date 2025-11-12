@@ -203,14 +203,10 @@ export class AbstractedAccount extends Contract {
 
     const { useRounds, useExecutionKey } = this.plugins(key).value
 
-    const epochRef = useRounds
-      ? Global.round
-      : Global.latestTimestamp;
-
     if (useExecutionKey && !(Txn.sender === this.admin.value)) {
       assert(this.executions(Txn.lease).exists, ERR_EXECUTION_KEY_NOT_FOUND);
-      assert(this.executions(Txn.lease).value.firstValid <= epochRef, ERR_EXECUTION_NOT_READY);
-      assert(epochRef < this.executions(Txn.lease).value.lastValid, ERR_EXECUTION_EXPIRED);
+      assert(this.executions(Txn.lease).value.firstValid <= Global.round, ERR_EXECUTION_NOT_READY);
+      assert(this.executions(Txn.lease).value.lastValid >= Global.round, ERR_EXECUTION_EXPIRED);
 
       const groups = this.executions(Txn.lease).value.groups as Readonly<bytes<32>[]>;
 
@@ -230,6 +226,10 @@ export class AbstractedAccount extends Contract {
     assert(initialCheck.exists, ERR_PLUGIN_DOES_NOT_EXIST);
     assert(!initialCheck.expired, ERR_PLUGIN_EXPIRED);
     assert(!initialCheck.onCooldown, ERR_PLUGIN_ON_COOLDOWN);
+
+    const epochRef = useRounds
+      ? Global.round
+      : Global.latestTimestamp;
 
     let rekeysBack = false;
     let methodIndex: uint64 = 0;
