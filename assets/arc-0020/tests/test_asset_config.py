@@ -1,7 +1,6 @@
 import pytest
 from algokit_utils import CommonAppCallParams, LogicError, SigningAccount
 from algosdk.constants import ZERO_ADDRESS
-from algosdk.encoding import encode_address
 
 import smart_contracts.errors as err
 from smart_contracts.artifacts.smart_asa.smart_asa_client import (
@@ -46,10 +45,10 @@ def test_pass_asset_config(
     assert state.name == ASA_CONFIG.name
     assert state.url == ASA_CONFIG.url
     assert state.metadata_hash == ASA_CONFIG.metadata_hash
-    assert encode_address(state.manager_addr) == ASA_CONFIG.manager_addr
-    assert encode_address(state.reserve_addr) == ASA_CONFIG.reserve_addr
-    assert encode_address(state.freeze_addr) == ASA_CONFIG.freeze_addr
-    assert encode_address(state.clawback_addr) == ASA_CONFIG.clawback_addr
+    assert state.manager_addr == ASA_CONFIG.manager_addr
+    assert state.reserve_addr == ASA_CONFIG.reserve_addr
+    assert state.freeze_addr == ASA_CONFIG.freeze_addr
+    assert state.clawback_addr == ASA_CONFIG.clawback_addr
 
 
 def test_fail_missing_ctrl_asa(

@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
-from typing import Callable, Final
+from typing import Final
 
 import pytest
 from algokit_utils import (
