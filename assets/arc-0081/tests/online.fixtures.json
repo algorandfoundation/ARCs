@@ -1,0 +1,54 @@
+{
+  "empty": {
+    "params": {
+      "genesisHashB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "account": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+      "selectionKeyB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "voteKeyB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "stateProofKeyB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "voteFirstValid": 0,
+      "voteLastValid": 0,
+      "keyDilution": 0
+    },
+    "expected": "J5UPK3SPRM2PY"
+  },
+  "fixture1": {
+    "params": {
+      "genesisHashB64": "kUt08LxeVAAGHnh4JoAoAMM9ql/hBwSoiFtlnKNeOxA=",
+      "account": "ROBOTMMVHPOETOTAX3J26UXYKVZX6QB7FHHYGBC44JNBUXMTABD5I3CODE",
+      "selectionKeyB64": "AniTlT3G6bQ5svv4HcmIp82TfmabTH7QbUxwTnFAgEU=",
+      "voteKeyB64": "nmnpvyyj9W2jtjzo41zHEGwnY1R03v1wwwlLuqWVYJk=",
+      "stateProofKeyB64": "NHS/AFnNW9UvaZeO+d84Dt8IaL84QXKAjZ9Fd0Pp+Jhh8eWEaIhWVGVdkw4pmJ5+/+zHgNSx5Dhxzv+LRFO6rw==",
+      "voteFirstValid": 10000,
+      "voteLastValid": 20000,
+      "keyDilution": 100
+    },
+    "expected": "S4626H5HM6F7Y"
+  },
+  "fixture1ZeroFirstValid": {
+    "params": {
+      "genesisHashB64": "kUt08LxeVAAGHnh4JoAoAMM9ql/hBwSoiFtlnKNeOxA=",
+      "account": "ROBOTMMVHPOETOTAX3J26UXYKVZX6QB7FHHYGBC44JNBUXMTABD5I3CODE",
+      "selectionKeyB64": "AniTlT3G6bQ5svv4HcmIp82TfmabTH7QbUxwTnFAgEU=",
+      "voteKeyB64": "nmnpvyyj9W2jtjzo41zHEGwnY1R03v1wwwlLuqWVYJk=",
+      "stateProofKeyB64": "NHS/AFnNW9UvaZeO+d84Dt8IaL84QXKAjZ9Fd0Pp+Jhh8eWEaIhWVGVdkw4pmJ5+/+zHgNSx5Dhxzv+LRFO6rw==",
+      "voteFirstValid": 0,
+      "voteLastValid": 20000,
+      "keyDilution": 100
+    },
+    "expected": "NDNRRGSZREUXI"
+  },
+  "fixture2": {
+    "params": {
+      "genesisHashB64": "kUt08LxeVAAGHnh4JoAoAMM9ql/hBwSoiFtlnKNeOxA=",
+      "account": "OHQTAISSIGRGIGVN6TVJ6WYLBHFTUC437T4E2LRRXGWVNJ4GSZOXKPH7N4",
+      "selectionKeyB64": "e4kBLu7zXOorjLVzJHOiAn+IhOBsYBCqqHKaJCiCdJs=",
+      "voteKeyB64": "WWHePYtNZ2T3sHkqdd/38EvoFWrnIKPrTo6xN/4T1l4=",
+      "stateProofKeyB64": "1GdNPOck+t6yXvuXxrDEPKqgi4I2sTaNugV1kd5ksUW2G1U6x1FT0WR3aT3ZSSmbYoDt3cVrB3vIPJA8GkqSYg==",
+      "voteFirstValid": 3118965,
+      "voteLastValid": 4104516,
+      "keyDilution": 993
+    },
+    "expected": "2P4RW3CRB7VKA"
+  }
+}
