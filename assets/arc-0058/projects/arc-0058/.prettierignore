@@ -1,0 +1,13 @@
+# don't ever format node_modules
+node_modules
+# don't lint format output (make sure it's set to your correct build folder name)
+dist
+build
+# don't format nyc coverage output
+coverage
+# don't format generated types
+**/generated/types.d.ts
+**/generated/types.ts
+# don't format ide files
+.idea
+smart_contracts/artifacts
