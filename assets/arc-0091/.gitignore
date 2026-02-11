@@ -1,0 +1,5 @@
+node_modules
+debug-traces
+coverage
+.algokit
+smart_contracts/artifacts
