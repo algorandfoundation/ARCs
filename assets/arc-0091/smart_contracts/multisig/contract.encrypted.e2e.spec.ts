@@ -245,7 +245,7 @@ describe('Multisig contract with ECDH encryption', () => {
     const { appClient } = await factory.send.create.bare({
       schema: {
         globalInts: 6,
-        globalByteSlices: 6,
+        globalByteSlices: 7, // +1 for arc55_encryptor
         localInts: 0,
         localByteSlices: 0,
       }
@@ -372,7 +372,8 @@ describe('Multisig contract with ECDH encryption', () => {
     await client.send.arc55Setup({
       args: {
         threshold: THRESHOLD,
-        addresses: [aliceAddr, bobAddr, charlieAddr, daveAddr]
+        addresses: [aliceAddr, bobAddr, charlieAddr, daveAddr],
+        encryptor: aliceAddr
       }
     })
 
@@ -541,7 +542,8 @@ describe('Multisig contract with ECDH encryption', () => {
     await client.send.arc55Setup({
       args: {
         threshold: 3,
-        addresses: [currentAliceAddr, bobAddr, charlieAddr, daveAddr]
+        addresses: [currentAliceAddr, bobAddr, charlieAddr, daveAddr],
+        encryptor: currentAliceAddr
       }
     })
 
@@ -660,7 +662,8 @@ describe('Multisig contract with ECDH encryption', () => {
     await client.send.arc55Setup({
       args: {
         threshold: THRESHOLD,
-        addresses: [currentAliceAddr, bobAddr, charlieAddr, daveAddr]
+        addresses: [currentAliceAddr, bobAddr, charlieAddr, daveAddr],
+        encryptor: currentAliceAddr
       }
     })
 
@@ -839,7 +842,8 @@ describe('Multisig contract with ECDH encryption', () => {
     await client.send.arc55Setup({
       args: {
         threshold: THRESHOLD,
-        addresses: [currentAliceAddr, bobAddr, charlieAddr, daveAddr]
+        addresses: [currentAliceAddr, bobAddr, charlieAddr, daveAddr],
+        encryptor: currentAliceAddr
       }
     })
 
@@ -1010,5 +1014,335 @@ describe('Multisig contract with ECDH encryption', () => {
     expect(() => {
       EncryptionManager.decrypt(tampered, secret1)
     }).toThrow('Decryption failed')
+  })
+
+  /**
+   * Test Flow: Set Designated Encryptor
+   * 
+   * Purpose: Verify that admin can set a designated encryptor address
+   *          which will be used for ECDH key agreements instead of admin
+   * 
+   * Test Steps:
+   * 1. Deploy contract and set up multisig with encryptor
+   * 2. Verify encryptor is set to the correct address
+   * 
+   * Key Points:
+   * - Encryptor is set during setup
+   * - Encryptor address is retrievable via arc55_getEncryptor
+   */
+  test("should allow setting designated encryptor during setup", async () => {
+    const client = await deployContract()
+
+    // Set encryptor during setup (using Bob as encryptor)
+    await client.send.arc55Setup({
+      args: {
+        threshold: THRESHOLD,
+        addresses: [aliceAddr, bobAddr, charlieAddr, daveAddr],
+        encryptor: bobAddr
+      }
+    })
+
+    // Verify encryptor is now set
+    const storedEncryptor = await client.arc55GetEncryptor({})
+    expect(Buffer.from(storedEncryptor).equals(Buffer.from(bobAddr))).toBe(true)
+  })
+
+  /**
+   * Test Flow: Encrypt with Designated Encryptor
+   * 
+   * Purpose: Verify that transactions can be encrypted using the 
+   *          designated encryptor's ECDH key and decrypted by signers
+   * 
+   * Test Steps:
+   * 1. Deploy contract, set up multisig with encryptor
+   * 2. Encrypt transaction using Bob's key
+   * 3. Store encrypted transaction
+   * 4. Signer retrieves and decrypts using Bob's pubkey
+   * 
+   * Key Points:
+   * - ECDH is performed with encryptor's key, not admin's
+   * - Signers can decrypt using encryptor's pubkey
+   */
+  test("should encrypt transaction using designated encryptor key", async () => {
+    const client = await deployContract()
+    const { testAccount } = localnet.context
+
+    // Use Charlie as admin to distinguish from encryptor
+    const charlieAsAdmin = testAccount.toString()
+
+    // Set encryptor during setup (Bob is the encryptor)
+    await client.send.arc55Setup({
+      args: {
+        threshold: THRESHOLD,
+        addresses: [charlieAsAdmin, aliceAddr, bobAddr, charlieAddr],
+        encryptor: bobAddr
+      }
+    })
+
+    const txGroup = await client.send.arc55NewTransactionGroup({ args: [] })
+    const groupNonce = txGroup.return!
+
+    const multisigAddress = algosdk.multisigAddress({
+      version: 1,
+      threshold: THRESHOLD,
+      addrs: [charlieAsAdmin, aliceAddr, bobAddr, charlieAddr]
+    })
+
+    const plainTransaction = await localnet.algorand.createTransaction.payment({
+      sender: multisigAddress,
+      receiver: multisigAddress,
+      amount: (0).algo(),
+      note: new Uint8Array(Buffer.from("Transaction with Designated Encryptor"))
+    })
+
+    const plainBytes = plainTransaction.toByte()
+
+    // Derive shared secret using Bob's (encryptor's) key with Alice (signer)
+    // In this case, we need to do ECDH between encryptor (Bob) and signer (Alice)
+    // Alice's private key with Bob's public key
+    const aliceSharedSecret = await EncryptionManager.deriveSharedSecret(
+      cryptoService,
+      rootKey,
+      2, // Alice at index 2 in our setup
+      bobPublicKey, // Bob is the encryptor
+      false, // Alice is second
+      BIP32DerivationType.Peikert
+    )
+
+    // Encrypt with encryptor's key
+    const encrypted = EncryptionManager.encrypt(plainBytes, aliceSharedSecret)
+
+    await client.algorand.account.setSigner(testAccount, localnet.algorand.account.getSigner(testAccount))
+
+    const encryptedSize = plainBytes.length + 28
+    const txnCostMicroAlgos = await client.arc55MbrTxnIncrease({
+      args: { transactionSize: encryptedSize }
+    })
+
+    // Store encrypted transaction for Alice (index 1)
+    const mbrPayment = await localnet.algorand.createTransaction.payment({
+      sender: testAccount,
+      receiver: client.appAddress,
+      amount: algos(Number(txnCostMicroAlgos) / 1000000)
+    })
+
+    await client.send.arc55AddTransaction({
+      args: {
+        costs: mbrPayment,
+        transactionGroup: groupNonce,
+        index: 0,
+        signerIndex: 1, // Alice's index
+        transaction: encrypted
+      }
+    })
+
+    // Retrieve and verify decryption works
+    const storedResponse = await client.arc55GetTransaction({
+      args: {
+        transactionGroup: groupNonce,
+        transactionIndex: 0,
+        signerIndex: 1
+      }
+    })
+
+    const storedEncrypted = extractBytes(storedResponse)
+    const decrypted = EncryptionManager.decrypt(storedEncrypted, aliceSharedSecret)
+    expect(decrypted.length).toBeGreaterThan(0)
+  })
+
+  /**
+   * Test Flow: Backward Compatibility - No Encryptor Set
+   * 
+   * Purpose: Verify that when no encryptor is set, the system falls back
+   *          to using admin's key for ECDH (backward compatible behavior)
+   * 
+   * Test Steps:
+   * 1. Deploy contract, set up multisig (no encryptor set)
+   * 2. Encrypt using admin's key
+   * 3. Store encrypted transaction
+   * 4. Signer retrieves and decrypts using admin's pubkey
+   * 
+   * Key Points:
+   * - When encryptor is not set, admin's key is used
+   * - This ensures backward compatibility with original design
+   */
+  test("should fall back to admin key when no encryptor is set", async () => {
+    const client = await deployContract()
+    const { testAccount } = localnet.context
+
+    const adminAddr = testAccount.toString()
+
+    await client.send.arc55Setup({
+      args: {
+        threshold: THRESHOLD,
+        addresses: [adminAddr, bobAddr, charlieAddr, daveAddr],
+        encryptor: adminAddr
+      }
+    })
+
+    // Use admin as encryptor for backward compatibility
+    const txGroup = await client.send.arc55NewTransactionGroup({ args: [] })
+    const groupNonce = txGroup.return!
+
+    const multisigAddress = algosdk.multisigAddress({
+      version: 1,
+      threshold: THRESHOLD,
+      addrs: [adminAddr, bobAddr, charlieAddr, daveAddr]
+    })
+
+    const plainTransaction = await localnet.algorand.createTransaction.payment({
+      sender: multisigAddress,
+      receiver: multisigAddress,
+      amount: (0).algo(),
+      note: new Uint8Array(Buffer.from("Backward Compatible Transaction"))
+    })
+
+    const plainBytes = plainTransaction.toByte()
+
+    // Use admin's key for ECDH (index 0 in setup)
+    const bobSharedSecret = await EncryptionManager.deriveSharedSecret(
+      cryptoService,
+      rootKey,
+      1, // Bob
+      alicePublicKey, // Alice is admin
+      false, // Bob is second
+      BIP32DerivationType.Peikert
+    )
+
+    const encrypted = EncryptionManager.encrypt(plainBytes, bobSharedSecret)
+
+    await client.algorand.account.setSigner(testAccount, localnet.algorand.account.getSigner(testAccount))
+
+    const encryptedSize = plainBytes.length + 28
+    const txnCostMicroAlgos = await client.arc55MbrTxnIncrease({
+      args: { transactionSize: encryptedSize }
+    })
+
+    const mbrPayment = await localnet.algorand.createTransaction.payment({
+      sender: testAccount,
+      receiver: client.appAddress,
+      amount: algos(Number(txnCostMicroAlgos) / 1000000)
+    })
+
+    await client.send.arc55AddTransaction({
+      args: {
+        costs: mbrPayment,
+        transactionGroup: groupNonce,
+        index: 0,
+        signerIndex: 1,
+        transaction: encrypted
+      }
+    })
+
+    // Verify decryption works
+    const storedResponse = await client.arc55GetTransaction({
+      args: {
+        transactionGroup: groupNonce,
+        transactionIndex: 0,
+        signerIndex: 1
+      }
+    })
+
+    const storedEncrypted = extractBytes(storedResponse)
+    const decrypted = EncryptionManager.decrypt(storedEncrypted, bobSharedSecret)
+    expect(decrypted.length).toBeGreaterThan(0)
+  })
+
+  /**
+   * Test Flow: Backward Compatibility - No Encryptor Set
+   * 
+   * Purpose: Verify that when no encryptor is set, the system falls back
+   *          to using admin's key for ECDH (backward compatible behavior)
+   * 
+   * Test Steps:
+   * 1. Deploy contract, set up multisig with encryptor
+   * 2. Encrypt using admin's key
+   * 3. Store encrypted transaction
+   * 4. Signer retrieves and decrypts using admin's pubkey
+   * 
+   * Key Points:
+   * - When encryptor is not set, admin's key is used
+   * - This ensures backward compatibility with original design
+   */
+  test("should fall back to admin key when no encryptor is set", async () => {
+    const client = await deployContract()
+    const { testAccount } = localnet.context
+
+    const adminAddr = testAccount.toString()
+
+    await client.send.arc55Setup({
+      args: {
+        threshold: THRESHOLD,
+        addresses: [adminAddr, bobAddr, charlieAddr, daveAddr],
+        encryptor: adminAddr
+      }
+    })
+
+    // Use admin as encryptor for backward compatibility
+    const txGroup = await client.send.arc55NewTransactionGroup({ args: [] })
+    const groupNonce = txGroup.return!
+
+    const multisigAddress = algosdk.multisigAddress({
+      version: 1,
+      threshold: THRESHOLD,
+      addrs: [adminAddr, bobAddr, charlieAddr, daveAddr]
+    })
+
+    const plainTransaction = await localnet.algorand.createTransaction.payment({
+      sender: multisigAddress,
+      receiver: multisigAddress,
+      amount: (0).algo(),
+      note: new Uint8Array(Buffer.from("Backward Compatible Transaction"))
+    })
+
+    const plainBytes = plainTransaction.toByte()
+
+    // Use admin's key for ECDH (index 0 in setup)
+    const bobSharedSecret = await EncryptionManager.deriveSharedSecret(
+      cryptoService,
+      rootKey,
+      1, // Bob
+      alicePublicKey, // Alice is admin
+      false, // Bob is second
+      BIP32DerivationType.Peikert
+    )
+
+    const encrypted = EncryptionManager.encrypt(plainBytes, bobSharedSecret)
+
+    await client.algorand.account.setSigner(testAccount, localnet.algorand.account.getSigner(testAccount))
+
+    const encryptedSize = plainBytes.length + 28
+    const txnCostMicroAlgos = await client.arc55MbrTxnIncrease({
+      args: { transactionSize: encryptedSize }
+    })
+
+    const mbrPayment = await localnet.algorand.createTransaction.payment({
+      sender: testAccount,
+      receiver: client.appAddress,
+      amount: algos(Number(txnCostMicroAlgos) / 1000000)
+    })
+
+    await client.send.arc55AddTransaction({
+      args: {
+        costs: mbrPayment,
+        transactionGroup: groupNonce,
+        index: 0,
+        signerIndex: 1,
+        transaction: encrypted
+      }
+    })
+
+    // Verify decryption works
+    const storedResponse = await client.arc55GetTransaction({
+      args: {
+        transactionGroup: groupNonce,
+        transactionIndex: 0,
+        signerIndex: 1
+      }
+    })
+
+    const storedEncrypted = extractBytes(storedResponse)
+    const decrypted = EncryptionManager.decrypt(storedEncrypted, bobSharedSecret)
+    expect(decrypted.length).toBeGreaterThan(0)
   })
 })

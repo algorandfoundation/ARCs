@@ -112,7 +112,7 @@ describe('MsigApp contract', () => {
     const { appClient } = await factory.send.create.bare({
       schema: {
         globalInts: 6,
-        globalByteSlices: 6,
+        globalByteSlices: 7, // +1 for arc55_encryptor
         localInts: 0,
         localByteSlices: 0,
       }
@@ -155,7 +155,8 @@ describe('MsigApp contract', () => {
     await client.send.arc55Setup({
       args: {
         threshold: THRESHOLD,
-        addresses: [currentAlice, bobAddr, charlieAddr, daveAddr]
+        addresses: [currentAlice, bobAddr, charlieAddr, daveAddr],
+        encryptor: currentAlice
       }
     })
 
@@ -205,7 +206,8 @@ describe('MsigApp contract', () => {
     await client.send.arc55Setup({
       args: {
         threshold: THRESHOLD,
-        addresses: [currentAlice, bobAddr, charlieAddr, daveAddr]
+        addresses: [currentAlice, bobAddr, charlieAddr, daveAddr],
+        encryptor: currentAlice
       }
     })
 
@@ -261,7 +263,8 @@ describe('MsigApp contract', () => {
     await client.send.arc55Setup({
       args: {
         threshold: THRESHOLD,
-        addresses: [currentAlice, bobAddr, charlieAddr, daveAddr]
+        addresses: [currentAlice, bobAddr, charlieAddr, daveAddr],
+        encryptor: currentAlice
       }
     })
 
@@ -395,7 +398,8 @@ describe('MsigApp contract', () => {
     await client.send.arc55Setup({
       args: {
         threshold: THRESHOLD_3_OF_4,
-        addresses: [aliceAddr, bobAddr, charlieAddr, daveAddr]
+        addresses: [aliceAddr, bobAddr, charlieAddr, daveAddr],
+        encryptor: aliceAddr
       }
     })
 

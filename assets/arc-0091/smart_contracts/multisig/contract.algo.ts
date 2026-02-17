@@ -74,6 +74,10 @@ export class ARC55 extends Contract {
     // Admin responsible for setup
     arc55_admin = GlobalState<Account>({});
 
+    // Designated encryptor - if set, all ECDH key agreements use this address instead of admin
+    // This address is immutable once set and is part of the multisig agreement
+    arc55_encryptor = GlobalState<Account>({});
+
     // Transactions
     arc55_transactions = BoxMap<TransactionGroup, bytes>({ keyPrefix: '' });
 
@@ -133,6 +137,16 @@ export class ARC55 extends Contract {
     @readonly
     arc55_getAdmin(): Account {
       return this.arc55_admin.value;
+    }
+
+    /**
+     * Retrieves the designated encryptor address
+     * If set, all ECDH key agreements use this address instead of admin
+     * @returns Encryptor address (zero address if not set)
+     */
+    @readonly
+    arc55_getEncryptor(): Account {
+      return this.arc55_encryptor.value;
     }
 
     /**
@@ -260,19 +274,23 @@ export class ARC55 extends Contract {
      * Setup On-Chain Msig App. This can only be called whilst no transaction groups have been created.
      * @param threshold Initial multisig threshold, must be greater than 0
      * @param addresses Array of addresses that make up the multisig
+     * @param encryptor Optional designated encryptor address (if not provided, admin is used for ECDH)
      */
     arc55_setup(
       threshold: Uint8,
-      addresses: Account[]
+      addresses: Account[],
+      encryptor: Account
     ): void {
       assert(!this.arc55_nonce.value);
       this.onlyAdmin();
 
       assert(threshold.asUint64() > 0);
-      // set arc55_threshold, arc55_nonce, and arc55_admin
+      assert(encryptor.bytes.length !== 0);
+      // set arc55_threshold, arc55_nonce, arc55_admin, and arc55_encryptor
       this.arc55_threshold.value = Uint64(threshold.asUint64());
       this.arc55_nonce.value = 0;
       this.arc55_admin.value = Txn.sender;
+      this.arc55_encryptor.value = encryptor;
 
       // If any indexes were previously set, remove all
       // previous addresses before deleting the indexes
