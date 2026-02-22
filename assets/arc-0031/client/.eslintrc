@@ -1,0 +1,45 @@
+{
+  "extends": [
+    "@nuxtjs/eslint-config-typescript"
+  ],
+  "parserOptions": {
+    "project": [
+      "**/tsconfig.json"
+    ],
+    "extraFileExtensions": [
+      ".vue"
+    ]
+  },
+  "rules": {
+    "@typescript-eslint/consistent-type-exports": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/indent": ["error", 2]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.{js,ts,vue}"
+      ],
+      "rules": {
+        "import/order": [
+          "error",
+          {
+            "newlines-between": "always",
+            "alphabetize": {
+              "order": "asc",
+              "orderImportKind": "asc"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "**/*.vue"
+      ],
+      "rules": {
+        "vue/multi-word-component-names": "warn"
+      }
+    }
+  ]
+}

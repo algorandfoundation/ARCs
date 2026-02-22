@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "types": [],
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "outDir": "dist",
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitThis": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
+  },
+  "include": [
+    "**/*",
+    ".eslintrc.cjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
