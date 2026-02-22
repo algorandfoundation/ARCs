@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "ignoreDeprecations": "5.0",
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "declaration": true,
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "target": "ES2022",
+  }
+}
