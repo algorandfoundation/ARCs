@@ -2,7 +2,7 @@
 arc: <to be assigned>
 title: Algo X EVM Accounts
 description: A LogicSig standard enabling EVM wallets to control Algorand accounts via EIP-712 signed ECDSA secp256k1 signature verification.
-author: Tassos Bitsios (@tasos-bitsios)
+author: Tasos Bitsios (@tasosbit)
 discussions-to: https://github.com/algorandfoundation/ARCs/issues/<to be assigned>
 status: Draft
 type: Standards Track
