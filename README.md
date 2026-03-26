@@ -1,41 +1,84 @@
-# ARCs: Algorand Requests for Comments
+# Algorand Request for Comments (ARCs)
 
-## Mission
-This repository serves to provide a location for the proposal and discussion of ARCs.
+This is the official repository for _Algorand Request for Comments_ (ARCs).
 
-To know an ARC's status, please refer to https://arc.algorand.foundation/.
+Responsibilities:
 
-## Status
-Please consider anything which is not published on https://github.com/algorandfoundation/ARCs as a working paper.
+- defining the canonical process / style guidelines / artifacts for ARCs,
+- enforcing the process and artifacts correctness,
+- storing ARCs artifacts and history.
 
-And please consider anything published at https://github.com/algorandfoundation/ARCs with a status of "draft" as an incomplete draft.
+## Canonical Venues
 
-We recommend only using ARCs with the status "Final", "Living" or "Last Call".
+Before submitting a new ARC, please refer to the [ARC-0](./ARCs/arc-0000.md).
 
-## Process
-Before submitting a new ARC, please have a look at [ARC-0](ARCs/arc-0000.md).
+### 1. Pre-ARC discussion
 
-## Validation
+Canonical venue: GitHub Discussions
 
-Pull requests in this repository must pass automated validation checks:
+Used for:
+- validating whether a new ARC is needed,
+- checking duplication with existing ARCs,
+- collecting early ecosystem feedback,
+- determining sponsor classification,
+- deciding whether a reference implementation is required.
 
-* HTML formatting and broken links are checked using [html-proofer](https://rubygems.org/gems/html-proofer).
+### 2. ARC text
 
-* ARC front matter and formatting are [checked](https://github.com/algorandfoundation/ARCs/blob/master/.github/workflows/auto-merge-bot.yml) using [ARC Validator](https://github.com/algorandfoundation/arcw).
+Canonical venue: one GitHub Pull Request per numbered ARC
 
-To install `arcw` and validate the ARCs repository:
+Used for:
+- normative ARC content,
+- revisions to the specification,
+- status field updates,
+- corrections and clarifications.
 
-> You will need [Rust/cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
+### 3. ARC tracking
 
-```console
-git clone git@github.com:algorandfoundation/arcw.git
-cargo install --path=arcw arcw
-arcw Path-to-ARCs-Folder/ARCs/ARCs/arc-xxxx.md
-```
+Canonical venue: one GitHub Issue per numbered ARC
 
+Used for:
+- gate decisions,
+- checklist completion,
+- status transition records,
+- links to the reference implementation,
+- link to the adoption summary artifact.
 
-Here is a dedicated part on the [forum](https://forum.algorand.org/c/arc/19) to talk  about ARCs.
+### 4. Reference implementation
 
-To discuss ARCs ideas, see the open [Pull Requests](https://github.com/algorandfoundation/ARCs/pulls) of this repository. 
+Canonical venue: dedicated implementation repository
 
-To discuss ARC drafts, use the corresponding issue in the [issue tracker](https://github.com/algorandfoundation/ARCs/issues).
+Used for:
+- code,
+- tests,
+- examples,
+- conformance artifacts,
+- implementation issue tracking.
+
+When `sponsor: Foundation`, the canonical implementation repository lives under
+the <a href="https://github.com/algorandfoundation">Algorand Foundation organization</a>.
+
+When `sponsor: Ecosystem`, the canonical implementation repository lives under
+the <a href="https://github.com/algorandecosystem">Algorand Ecosystem organization</a>.
+
+### 5. External discussion channels
+
+Mailing lists, Discord, forums, calls, and social channels are non-canonical.
+
+Any material conclusion reached outside GitHub must be copied into the relevant
+Pre-ARC discussion or ARC tracking issue.
+
+## Pull Request Templates
+
+Use the appropriate PR template for the type of change:
+
+- New ARC draft: [`arc-draft.md`](./.github/PULL_REQUEST_TEMPLATE/arc-draft.md)
+- Transition to Review: [`arc-review.md`](./.github/PULL_REQUEST_TEMPLATE/arc-review.md)
+- Transition to Last Call: [`arc-last-call.md`](./.github/PULL_REQUEST_TEMPLATE/arc-last-call.md)
+- Transition to Final: [`arc-final.md`](./.github/PULL_REQUEST_TEMPLATE/arc-final.md)
+- Adoption or implementation update: [`arc-adoption-or-implementation.md`](./.github/PULL_REQUEST_TEMPLATE/arc-adoption-or-implementation.md)
+- Editorial-only change: [`arc-edit.md`](./.github/PULL_REQUEST_TEMPLATE/arc-edit.md)
+
+## Pull Request Validation
+
+TBD

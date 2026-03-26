@@ -1,0 +1,53 @@
+arc: "<arc-number>"
+title: "Replace with ARC title"
+status: "Draft"
+last-reviewed: "<YYYY-MM-DD>"
+
+authors:
+  github: "@example"
+
+sponsor: "Foundation" # or "Ecosystem"
+
+implementation-required: true
+
+reference-implementation:
+  repository: "https://github.com/<org>/arc<unpadded-number>"
+  owner: "@owner-or-team"
+  maintainer:
+    - "@maintainer1"
+    - "@maintainer2"
+  status: "planned" # planned | in_progress | testable | shipped | archived
+  notes: ""
+
+adoption:
+  wallets:
+    - name: ""
+      status: "planned" # planned | in_progress | shipped | declined
+      evidence: ""
+      notes: ""
+  explorers:
+    - name: ""
+      status: "planned"
+      evidence: ""
+      notes: ""
+  sdk-libraries:
+    - name: ""
+      status: "planned"
+      evidence: ""
+      notes: ""
+  infra:
+    - name: ""
+      status: "planned"
+      evidence: ""
+      notes: ""
+  dapps-protocols:
+    - name: ""
+      status: "planned"
+      evidence: ""
+      notes: ""
+
+summary:
+  adoption-readiness: "low" # low | medium | high
+  blockers:
+    - ""
+  notes: ""
