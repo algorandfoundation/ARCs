@@ -81,4 +81,5 @@ Use the appropriate PR template for the type of change:
 
 ## Pull Request Validation
 
-TBD
+The repository CI/CD and release policy is defined in
+[`arckit/ci-cd-release-spec.md`](./arckit/ci-cd-release-spec.md).
