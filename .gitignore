@@ -1,5 +1,1 @@
-vendor
-
-.bundle
-_site/*
 _devportal/content/*.md
