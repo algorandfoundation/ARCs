@@ -1,7 +1,7 @@
-arc: 0
+arc: "<arc-number>"
 title: "Replace with ARC title"
 status: "Draft"
-last-reviewed: "2026-03-23"
+last-reviewed: "<YYYY-MM-DD>"
 
 authors:
   github: "@example"

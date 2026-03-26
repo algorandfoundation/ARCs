@@ -17,7 +17,7 @@ extends: <optional, remove if not needed>
 extended-by: <optional, remove if not needed>
 sponsor: <Foundation or Ecosystem>
 implementation-required: <true or false>
-implementation-repo: <URL, leave blank until Review if not yet created>
+implementation-url: <URL, leave blank until Review if not yet created>
 implementation-maintainer: <GitHub username(s) or GitHub organization>
 adoption-summary: ../adoption/arc-####.yaml
 ---

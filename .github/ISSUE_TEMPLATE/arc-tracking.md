@@ -26,7 +26,7 @@ labels: ["arc-tracking"]
 ### Gate 0 - Need Validation
 - [ ] Pre-ARC discussion completed
 - [ ] Existing ARCs reviewed
-- [ ] Outcome: accepted for draft
+- [ ] Outcome: `accepted-for-draft`
 
 ### Gate 1 - Draft
 - [ ] ARC number assigned

@@ -25,7 +25,7 @@ Used for:
 
 ### 2. ARC text
 
-Canonical venue: one GitHub Pull Requests per numbered ARC
+Canonical venue: one GitHub Pull Request per numbered ARC
 
 Used for:
 - normative ARC content,
