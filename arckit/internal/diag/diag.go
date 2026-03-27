@@ -1,7 +1,6 @@
 package diag
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 )
@@ -131,14 +130,6 @@ func SortDiagnostics(diagnostics []Diagnostic) {
 		}
 		return diagnostics[i].Message < diagnostics[j].Message
 	})
-}
-
-func JSON(value any) string {
-	data, err := json.Marshal(value)
-	if err != nil {
-		return "{}"
-	}
-	return string(data)
 }
 
 func FormatLocation(file string, line, column int) string {
