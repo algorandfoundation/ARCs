@@ -58,11 +58,12 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		require(document.Status == "Last Call", "transition to Final requires current status Last Call")
 		require(document.LastCallDeadline != "", "last-call-deadline is required for transition to Final")
 		summary := loadSummary(document, &diagnostics)
-		require(summary != nil, "transition to Final requires a valid adoption summary")
-		if summary != nil {
-			require(summary.HasAnyEvidence(), "transition to Final requires at least one non-empty evidence entry")
+		if summary == nil {
+			require(false, "transition to Final requires a valid adoption summary")
+			break
 		}
-		if document.ImplementationRequired && summary != nil {
+		require(summary.HasAnyEvidence(), "transition to Final requires at least one non-empty evidence entry")
+		if document.ImplementationRequired {
 			require(document.ImplementationURL != "" && document.ImplementationMaintainer != "", "reference implementation metadata is required in the ARC file")
 			require(summary.ReferenceImplementation != nil, "reference-implementation metadata is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
@@ -73,8 +74,9 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 	case "Idle":
 		require(document.Status == "Final", "transition to Idle requires current status Final")
 		require(document.IdleSince != "", "idle-since is required for transition to Idle")
-		summary := loadSummary(document, &diagnostics)
-		require(summary != nil, "transition to Idle requires a valid adoption summary")
+		if summary := loadSummary(document, &diagnostics); summary == nil {
+			require(false, "transition to Idle requires a valid adoption summary")
+		}
 	}
 
 	for _, reminder := range []string{
