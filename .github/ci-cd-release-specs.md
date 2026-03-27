@@ -8,8 +8,8 @@ repository.
 This specification is derived from:
 
 1. [ARC-0000](../ARCs/arc-0000.md)
-1. [arckit Specification](./specs.md)
-1. [arckit Tech Stack](./tech-stack.md)
+1. [arckit Specification](../arckit/_docs/specs.md)
+1. [arckit Tech Stack](../arckit/_docs/tech-stack.md)
 
 ## 2. Goals
 
@@ -91,18 +91,21 @@ validation gate for ARC repository artifacts.
 
 ### 5.2 Hygiene Check
 
-The pipeline must include a hygiene check for tracked text files.
+The pipeline must include a hygiene check driven by the repository-root
+`.pre-commit-config.yaml`.
 
-At minimum it must detect:
+Its default hook surface must cover:
 
-1. trailing whitespace;
-1. missing final newline;
 1. merge conflict markers;
 1. line-ending policy violations;
-1. invalid YAML in `.github/**` and `adoption/**`.
+1. final-newline policy;
+1. trailing whitespace;
+1. YAML syntax and formatting for `.github/**`, `adoption/**`, and `templates/**`;
+1. generic Markdown linting through `markdownlint-cli2`.
 
-This check exists outside the CLI so repository-level hygiene can be enforced even
-when it is not part of the `arckit` command surface.
+This check exists outside the CLI so generic Markdown, YAML, and text-file
+hygiene is version-pinned once in `pre-commit` rather than duplicated inside
+`arckit`.
 
 ### 5.3 arckit Tool Check
 
@@ -157,7 +160,7 @@ Tracking issue creation is a required author action, not an automatic workflow a
 PR validation should also include:
 
 ```text
-arckit validate repo . --online
+pre-commit run lychee --hook-stage manual
 ```
 
 This check is assistive only.
@@ -166,7 +169,7 @@ It may report:
 
 1. external link failures;
 1. network-specific failures;
-1. backend availability differences.
+1. `pre-commit` or hook-environment failures that reduce online coverage.
 
 It must not be the canonical blocking merge gate.
 
@@ -368,7 +371,6 @@ The CI/CD implementation that follows this specification must:
 
 The following are explicitly out of scope for this specification:
 
-1. local git hooks;
 1. stale-issue automation;
 1. automatic status changes;
 1. automatic tracking issue creation;

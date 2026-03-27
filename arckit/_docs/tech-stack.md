@@ -18,13 +18,12 @@ These choices are fixed for v1:
 
 1. `arckit` is a single Go binary.
 1. Core validation must work with just Go and the repository contents.
-1. Optional backend tooling may add Markdown style checks and online link checks, but
-   must never be required for core offline validation.
+1. Generic Markdown, YAML, whitespace, and external-link hygiene is owned by the
+   repository-root `.pre-commit-config.yaml`, not by `arckit`.
 1. The CLI remains broad, but internal variability is kept small:
    - no `.arckit.yaml`
    - no user-local config
    - no profile system
-   - no per-backend mode matrix
    - no SARIF in v1
 1. `arckit validate repo .` is the canonical CI validation command.
 
@@ -85,11 +84,9 @@ Use the standard library for:
 
 1. JSON rendering;
 1. file walking and path validation;
-1. process execution for backend tools;
 1. testing;
 1. fixture loading;
-1. backend version probing;
-1. conservative file rewriting in `fmt`;
+1. conservative ARC front matter rewriting in `fmt`;
 1. command exit handling and logging.
 
 ### 4.3 Explicitly Rejected for v1
@@ -119,7 +116,6 @@ arckit/
 ├── internal/adoption/
 ├── internal/repo/
 ├── internal/transition/
-├── internal/backend/
 ├── internal/diag/
 ├── internal/scaffold/
 ├── testdata/
@@ -171,16 +167,7 @@ Owns:
 1. machine-verifiable transition checks;
 1. manual-check reminder diagnostics.
 
-### 5.6 `backend`
-
-Owns:
-
-1. backend detection on `PATH`;
-1. Docker fallback invocation;
-1. version discovery;
-1. backend-unavailable diagnostics.
-
-### 5.7 `diag`
+### 5.6 `diag`
 
 Owns:
 
@@ -189,45 +176,26 @@ Owns:
 1. file positions;
 1. text and JSON-friendly diagnostic structures.
 
-### 5.8 `scaffold`
+### 5.7 `scaffold`
 
 Owns:
 
 1. `init arc` templates;
 1. deterministic ARC and adoption stub generation.
 
-## 6. Backend Strategy
+## 6. Hygiene Boundary
 
-### 6.1 Supported Backends
+The repository-root `.pre-commit-config.yaml` owns generic hygiene and is the
+single version-pinning surface for:
 
-Only these external tools are supported in v1:
+1. `markdownlint-cli2`;
+1. `lychee`;
+1. YAML syntax/formatting hooks;
+1. whitespace, newline, and merge-conflict hooks.
 
-1. `markdownlint-cli2`
-1. `lychee`
-
-### 6.2 Resolution Policy
-
-Backend resolution is fixed:
-
-1. try the system binary first;
-1. otherwise try a pinned Docker image digest;
-1. otherwise emit a backend-unavailable diagnostic and continue native validation.
-
-There is no repo config or user config for backends in v1.
-
-### 6.3 When Backends Are Used
-
-Use `markdownlint-cli2` only for:
-
-1. generic Markdown linting during validation;
-1. generic Markdown autofix during `fmt`.
-
-Use `lychee` only for:
-
-1. external link reachability in `--online` mode.
-
-Do not move repo-semantic rules into external tools. Relative ARC links, adoption-path
-rules, asset-tree rules, and transition rules stay inside `arckit`.
+Do not move repo-semantic rules into external tools. Relative ARC links,
+adoption-path rules, asset-tree rules, front matter ordering, and transition
+rules stay inside `arckit`.
 
 ## 7. Developer Workflow
 
@@ -237,23 +205,24 @@ For core development and usage, require only:
 
 1. Go `1.26.1`
 
-Optional local tooling:
-
-1. `markdownlint-cli2`
-1. `lychee`
-1. Docker
-
-Users without those optional tools must still be able to run native validation successfully.
+Repository contributors should additionally install `pre-commit` to run the
+shared generic hygiene hooks locally.
 
 ### 7.2 Default Commands
 
-Prefer plain Go commands and a thin `Makefile` if a wrapper is useful.
+Prefer plain Go commands plus `pre-commit`.
 
 The default developer command set should be:
 
 ```make
+hygiene:
+	pre-commit run --all-files
+
+links:
+	pre-commit run lychee --all-files --hook-stage manual
+
 fmt:
-	cd arckit && gofmt -w -s ./...
+	cd arckit && go run ./cmd/arckit fmt ..
 
 vet:
 	cd arckit && go vet ./...
@@ -265,8 +234,6 @@ build:
 	cd arckit && go build ./cmd/arckit
 ```
 
-Do not introduce extra task runners in v1.
-
 ## 8. Testing Strategy
 
 Use the standard library test stack only.
@@ -275,7 +242,7 @@ Use the standard library test stack only.
 
 Use:
 
-1. unit tests for parsers, validators, and backend resolution;
+1. unit tests for parsers, validators, and ARC front matter formatting;
 1. fixture tests for repo-like validation scenarios;
 1. golden tests for text and JSON output, `rules`, `explain`, and `init arc`;
 1. CLI integration tests for each public command.
@@ -289,14 +256,13 @@ Required fixture coverage:
 1. valid ARC without adoption file where one is not yet required;
 1. ARC missing an adoption file when one is required;
 1. transition to `Review`, `Last Call`, `Final`, and `Idle`;
-1. backend present through system binary;
-1. backend present through Docker;
-1. backend unavailable with native validation still succeeding;
-1. online link failures reported separately from semantic failures.
+1. `fmt` reordering front matter without rewriting body whitespace;
+1. `validate links` over ARC files and directories;
+1. online link failures reported separately from semantic failures by the CI-side `lychee` adapter.
 
 ## 9. CI/CD Workflows
 
-Keep CI explicit and small. v1 needs three workflows.
+Keep CI explicit and small. v1 needs four workflows.
 
 ### 9.1 PR Tool Workflow
 
@@ -311,7 +277,18 @@ Steps:
 1. run `go test ./...`;
 1. run `go build ./cmd/arckit`.
 
-### 9.2 PR Repo Validation Workflow
+### 9.2 PR Hygiene Workflow
+
+Run on pull requests.
+
+Steps:
+
+1. checkout;
+1. set up pinned Python for `pre-commit`;
+1. install pinned `pre-commit`;
+1. run `pre-commit` on the PR diff.
+
+### 9.3 PR Repo Validation Workflow
 
 Run when `ARCs/**`, `adoption/**`, `templates/**`, or `arckit/**` changes.
 
@@ -324,17 +301,16 @@ Steps:
 
 This is the canonical required validation gate.
 
-### 9.3 Scheduled or Manual Online Workflow
+### 9.4 Scheduled or Manual Online Workflow
 
 Run on a schedule and by manual dispatch.
 
 Steps:
 
 1. checkout;
-1. set up pinned Go `1.26.1`;
-1. make the pinned backend tools available;
-1. build `arckit`;
-1. run `arckit validate repo . --online`.
+1. set up pinned Python for `pre-commit`;
+1. install pinned `pre-commit`;
+1. run the shared `lychee` hook.
 
 This workflow may be separately triaged if external network instability causes failures.
 
@@ -390,8 +366,8 @@ Pin:
 
 1. every GitHub Action to a full commit SHA;
 1. the Go patch version in every workflow;
-1. backend package versions exactly when installed directly;
-1. backend Docker images by digest, not mutable tags.
+1. the `pre-commit` version in every workflow that installs it;
+1. hook repository revisions in `.pre-commit-config.yaml`.
 
 Do not use floating `latest`, `stable`, or major-only tags in CI.
 
