@@ -89,6 +89,9 @@ arckit validate repo .
 This check is required for relevant pull requests and is the authoritative machine
 validation gate for ARC repository artifacts.
 
+When present, the repository-root `.arckit.jsonc` is applied implicitly by this
+command. Invalid `.arckit.jsonc` content must fail the gate.
+
 ### 5.2 Hygiene Check
 
 The pipeline must include a hygiene check driven by the repository-root

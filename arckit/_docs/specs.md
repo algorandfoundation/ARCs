@@ -39,7 +39,7 @@ repository-root `.pre-commit-config.yaml`, not by `arckit`.
 The CLI must follow these principles:
 
 1. **Native-first.** Core behavior must work with just Go and the repository contents.
-1. **Zero-config.** v1 must not require `.arckit.yaml`, user-local config, or pluggable policy.
+1. **Repo-local only.** v1 may read an optional repo-root `.arckit.jsonc`, but must not require user-local config, a `--config` flag, or pluggable policy.
 1. **Offline-first.** Native validation must work without network access.
 1. **Deterministic.** The same inputs must produce the same diagnostics and exit codes.
 1. **Explainable.** Each rule failure must include a stable identifier, severity, message, and hint.
@@ -53,6 +53,7 @@ The CLI must follow these principles:
 1. ARC documents live in `ARCs/arc-####.md`.
 1. Adoption summaries live in `adoption/arc-####.yaml`.
 1. ARC assets, when present, live in `assets/arc-####/`.
+1. Optional repo-local validation suppressions live in `.arckit.jsonc` at the repository root.
 1. Templates live in `templates/`.
 1. The repository contents, not remote GitHub state, are the source of truth for machine checks.
 
@@ -67,10 +68,31 @@ It must:
 
 1. run all ARC, adoption, repository, and transition validations locally;
 1. validate local file links and relative ARC links;
+1. auto-discover the optional repo-root `.arckit.jsonc` for `validate` commands only;
 1. avoid network requests and external tool resolution;
 1. keep generic Markdown, YAML, whitespace, and external-link hygiene outside the CLI.
 
 Native validation remains authoritative for repository semantics.
+
+### 5.1 Repo-Local Ignore Configuration
+
+`arckit` may read one optional `.arckit.jsonc` file from the repository root.
+
+Supported keys are:
+
+- `ignoreArcs`
+- `ignoreRules`
+- `ignoreByArc`
+
+`ignoreArcs` suppresses one ARC number across its ARC, adoption, asset, and
+repo-attributed diagnostics.
+
+`ignoreRules` suppresses one rule globally.
+
+`ignoreByArc` suppresses one or more rules for exact ARC selectors like `43` or
+inclusive ARC ranges like `50-60`.
+
+Invalid `.arckit.jsonc` content must stop validation with exit code `2`.
 
 ## 6. Command-Line Interface
 
@@ -100,7 +122,7 @@ The only global flags required in v1 are:
 - `--quiet`
 
 The CLI must not expose `--config`, `--severity`, profile flags, or SARIF output
-in v1.
+in v1. Repo-local `.arckit.jsonc` loading is implicit.
 
 ### 6.3 Exit Codes
 
@@ -201,7 +223,8 @@ It must perform:
 1. native local link validation.
 
 This is the single canonical CI gate. Required PR validation jobs should build `arckit`
-and run `arckit validate repo .`.
+and run `arckit validate repo .`. When present, the repo-root `.arckit.jsonc` is
+applied implicitly.
 
 ### 8.5 `validate transition`
 
@@ -596,7 +619,7 @@ The repository guidance for v1 is:
 
 The following are intentionally out of scope:
 
-1. `.arckit.yaml` or user-local configuration;
+1. `.arckit.yaml`, user-local configuration, or an explicit `--config` flag;
 1. generic Markdown, YAML, whitespace, or external-link hygiene inside `arckit`;
 1. GitHub API lookups and repository mutation;
 1. SARIF output;
@@ -610,6 +633,7 @@ An implementation conforms to this specification if it:
 1. provides the required command surface or a compatible equivalent;
 1. performs native offline validation of ARC, adoption, repository, and transition rules;
 1. emits stable diagnostics and exit codes;
+1. supports the optional repo-root `.arckit.jsonc` ignore model without adding user-local config;
 1. keeps generic hygiene outside the CLI and ARC semantics inside the CLI;
 1. keeps CI centered on `arckit validate repo .`;
 1. does not require extra local tooling beyond Go for core validation.

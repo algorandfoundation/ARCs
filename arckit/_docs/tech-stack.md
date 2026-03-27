@@ -21,8 +21,9 @@ These choices are fixed for v1:
 1. Generic Markdown, YAML, whitespace, and external-link hygiene is owned by the
    repository-root `.pre-commit-config.yaml`, not by `arckit`.
 1. The CLI remains broad, but internal variability is kept small:
-   - no `.arckit.yaml`
+   - optional repo-root `.arckit.jsonc` only
    - no user-local config
+   - no `--config` flag
    - no profile system
    - no SARIF in v1
 1. `arckit validate repo .` is the canonical CI validation command.
@@ -112,6 +113,7 @@ Keep the package layout compact and behavior-oriented:
 arckit/
 ├── cmd/arckit/
 ├── internal/cli/
+├── internal/config/
 ├── internal/arc/
 ├── internal/adoption/
 ├── internal/repo/
@@ -143,7 +145,16 @@ Owns:
 1. ARC-only validation;
 1. local ARC link and asset rules.
 
-### 5.3 `adoption`
+### 5.3 `config`
+
+Owns:
+
+1. repo-root `.arckit.jsonc` loading;
+1. JSONC comment stripping and schema validation;
+1. ARC selector parsing;
+1. diagnostic suppression helpers.
+
+### 5.4 `adoption`
 
 Owns:
 
@@ -151,7 +162,7 @@ Owns:
 1. enum validation;
 1. adoption summary consistency checks.
 
-### 5.4 `repo`
+### 5.5 `repo`
 
 Owns:
 
@@ -160,14 +171,14 @@ Owns:
 1. asset tree checks;
 1. cross-file relationship reciprocity.
 
-### 5.5 `transition`
+### 5.6 `transition`
 
 Owns:
 
 1. machine-verifiable transition checks;
 1. manual-check reminder diagnostics.
 
-### 5.6 `diag`
+### 5.7 `diag`
 
 Owns:
 
@@ -176,7 +187,7 @@ Owns:
 1. file positions;
 1. text and JSON-friendly diagnostic structures.
 
-### 5.7 `scaffold`
+### 5.8 `scaffold`
 
 Owns:
 
@@ -255,6 +266,8 @@ Required fixture coverage:
 
 1. valid ARC without adoption file where one is not yet required;
 1. ARC missing an adoption file when one is required;
+1. repo-local `.arckit.jsonc` suppression coverage for ignored ARCs and ignored rules;
+1. invalid `.arckit.jsonc` coverage for exit-code `2` behavior;
 1. transition to `Review`, `Last Call`, `Final`, and `Idle`;
 1. `fmt` reordering front matter without rewriting body whitespace;
 1. `validate links` over ARC files and directories;
@@ -299,7 +312,8 @@ Steps:
 1. build `arckit`;
 1. run `arckit validate repo .`.
 
-This is the canonical required validation gate.
+This is the canonical required validation gate and implicitly applies the repo-root
+`.arckit.jsonc` when present.
 
 ### 9.4 Scheduled or Manual Online Workflow
 
