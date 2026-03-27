@@ -74,9 +74,8 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 	case "Idle":
 		require(document.Status == "Final", "transition to Idle requires current status Final")
 		require(document.IdleSince != "", "idle-since is required for transition to Idle")
-		if summary := loadSummary(document, &diagnostics); summary == nil {
-			require(false, "transition to Idle requires a valid adoption summary")
-		}
+		hasSummary := loadSummary(document, &diagnostics) != nil
+		require(hasSummary, "transition to Idle requires a valid adoption summary")
 	}
 
 	for _, reminder := range []string{
