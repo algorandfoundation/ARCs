@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/adoption"
@@ -118,8 +119,10 @@ func validateAssets(root string, documents map[int]*arc.Document, cfg config.Con
 		if len(matches) != 2 {
 			continue
 		}
-		number := 0
-		fmt.Sscanf(matches[1], "%d", &number)
+		number, err := strconv.Atoi(matches[1])
+		if err != nil {
+			continue
+		}
 		if cfg.IgnoreARC(number) {
 			continue
 		}

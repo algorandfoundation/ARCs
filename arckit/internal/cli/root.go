@@ -56,7 +56,9 @@ func ExecuteArgs(args []string, stdout io.Writer, stderr io.Writer) int {
 
 	if err := rootCmd.Execute(); err != nil {
 		report := newInvocationFailureReport("arckit", err)
-		render(stderr, report, *opts)
+		if renderErr := render(stderr, report, *opts); renderErr != nil {
+			return 2
+		}
 		return 2
 	}
 	return exitCode
@@ -184,7 +186,9 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 	}
 	var targetStatus string
 	transitionCmd.Flags().StringVar(&targetStatus, "to", "", "target ARC status")
-	transitionCmd.MarkFlagRequired("to")
+	if err := transitionCmd.MarkFlagRequired("to"); err != nil {
+		panic(err)
+	}
 	transitionCmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
 			if strings.TrimSpace(targetStatus) == "" {
@@ -328,7 +332,9 @@ func runCommand(opts *options, exitCode *int, stdout io.Writer, runner func() (d
 			report.ExitCode = diag.ExitCode(report.Diagnostics)
 		}
 	}
-	render(stdout, report, *opts)
+	if err := render(stdout, report, *opts); err != nil {
+		return err
+	}
 	*exitCode = report.ExitCode
 	return nil
 }
@@ -364,49 +370,83 @@ func newConfigFailureReport(command, root string, err error) diag.Report {
 	}
 }
 
-func render(stdout io.Writer, report diag.Report, opts options) {
+func render(stdout io.Writer, report diag.Report, opts options) error {
 	if opts.Format == "json" {
 		encoder := json.NewEncoder(stdout)
 		encoder.SetIndent("", "  ")
-		_ = encoder.Encode(report)
-		return
+		return encoder.Encode(report)
+	}
+	writef := func(format string, args ...any) error {
+		_, err := fmt.Fprintf(stdout, format, args...)
+		return err
+	}
+	writeln := func(value string) error {
+		_, err := fmt.Fprintln(stdout, value)
+		return err
 	}
 
 	if report.Rule != nil {
-		fmt.Fprintf(stdout, "%s\n", report.Rule.ID)
-		fmt.Fprintf(stdout, "severity: %s\n", report.Rule.Severity)
-		fmt.Fprintf(stdout, "title: %s\n", report.Rule.Title)
-		fmt.Fprintf(stdout, "auto-fixable: %t\n\n", report.Rule.AutoFixable)
-		fmt.Fprintf(stdout, "%s\n\n", report.Rule.Description)
-		fmt.Fprintf(stdout, "Rationale: %s\n", report.Rule.Rationale)
-		fmt.Fprintf(stdout, "Hint: %s\n", report.Rule.Hint)
-		return
+		if err := writef("%s\n", report.Rule.ID); err != nil {
+			return err
+		}
+		if err := writef("severity: %s\n", report.Rule.Severity); err != nil {
+			return err
+		}
+		if err := writef("title: %s\n", report.Rule.Title); err != nil {
+			return err
+		}
+		if err := writef("auto-fixable: %t\n\n", report.Rule.AutoFixable); err != nil {
+			return err
+		}
+		if err := writef("%s\n\n", report.Rule.Description); err != nil {
+			return err
+		}
+		if err := writef("Rationale: %s\n", report.Rule.Rationale); err != nil {
+			return err
+		}
+		if err := writef("Hint: %s\n", report.Rule.Hint); err != nil {
+			return err
+		}
+		return nil
 	}
 	if len(report.Rules) > 0 {
 		for _, rule := range report.Rules {
-			fmt.Fprintf(stdout, "%s\t%s\tautofix=%t\t%s\n", rule.ID, rule.Severity, rule.AutoFixable, rule.Title)
+			if err := writef("%s\t%s\tautofix=%t\t%s\n", rule.ID, rule.Severity, rule.AutoFixable, rule.Title); err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	}
 	if len(report.Created) > 0 {
 		for _, path := range report.Created {
-			fmt.Fprintln(stdout, path)
+			if err := writeln(path); err != nil {
+				return err
+			}
 		}
 	}
 	for _, diagnostic := range report.Diagnostics {
 		location := diag.FormatLocation(diagnostic.File, diagnostic.Line, diagnostic.Column)
 		if location != "" {
-			fmt.Fprintf(stdout, "%s %s %s: %s\n", strings.ToUpper(string(diagnostic.Severity)), diagnostic.RuleID, location, diagnostic.Message)
+			if err := writef("%s %s %s: %s\n", strings.ToUpper(string(diagnostic.Severity)), diagnostic.RuleID, location, diagnostic.Message); err != nil {
+				return err
+			}
 		} else {
-			fmt.Fprintf(stdout, "%s %s: %s\n", strings.ToUpper(string(diagnostic.Severity)), diagnostic.RuleID, diagnostic.Message)
+			if err := writef("%s %s: %s\n", strings.ToUpper(string(diagnostic.Severity)), diagnostic.RuleID, diagnostic.Message); err != nil {
+				return err
+			}
 		}
 		if !opts.Quiet && diagnostic.Hint != "" {
-			fmt.Fprintf(stdout, "  hint: %s\n", diagnostic.Hint)
+			if err := writef("  hint: %s\n", diagnostic.Hint); err != nil {
+				return err
+			}
 		}
 	}
 	if !opts.Quiet {
-		fmt.Fprintf(stdout, "summary: %d error(s), %d warning(s), %d info\n", report.Summary.Errors, report.Summary.Warnings, report.Summary.Info)
+		if err := writef("summary: %d error(s), %d warning(s), %d info\n", report.Summary.Errors, report.Summary.Warnings, report.Summary.Info); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func collectARCFiles(paths []string) ([]string, error) {
