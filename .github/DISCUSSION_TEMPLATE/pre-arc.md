@@ -55,8 +55,10 @@
 
 ## Outcome
 
-> This will be requested by the ARC editor after discussion:
-> - `accepted-for-draft`,
-> - `rejected-no-arc-needed`,
-> - `redirected-to-existing-arc`,
-> - `recast-as-meta`.
+> This will be provided by the ARC editor after discussion:
+> 1. Status:
+>    - `accepted-for-draft`,
+>    - `rejected-no-arc-needed`,
+>    - `redirected-to-existing-arc`,
+>    - `recast-as-meta`.
+> 1. ARC number.

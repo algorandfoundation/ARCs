@@ -1,0 +1,135 @@
+package config
+
+import (
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
+)
+
+func TestLoadMissingConfig(t *testing.T) {
+	root := t.TempDir()
+	cfg, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.IgnoreARC(42) {
+		t.Fatalf("IgnoreARC(42) = true, want false")
+	}
+}
+
+func TestLoadValidJSONCConfig(t *testing.T) {
+	root := t.TempDir()
+	writeConfig(t, root, `{
+  // Ignore one ARC completely.
+  "ignoreArcs": [42],
+  "ignoreRules": ["R:020"],
+  /* Ignore these rules for exact and range selectors. */
+  "ignoreByArc": {
+    "0043": ["R:009", "R:013"],
+    "50-60": ["R:011"]
+  }
+}`)
+
+	cfg, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if !cfg.IgnoreARC(42) {
+		t.Fatalf("IgnoreARC(42) = false, want true")
+	}
+	if !cfg.IgnoreRule("R:020") {
+		t.Fatalf("IgnoreRule(R:020) = false, want true")
+	}
+	if !cfg.IgnoreRuleForARC("R:009", 43) {
+		t.Fatalf("IgnoreRuleForARC(R:009, 43) = false, want true")
+	}
+	if !cfg.IgnoreRuleForARC("R:011", 55) {
+		t.Fatalf("IgnoreRuleForARC(R:011, 55) = false, want true")
+	}
+}
+
+func TestLoadInvalidConfig(t *testing.T) {
+	tests := []struct {
+		name    string
+		content string
+		wantErr string
+	}{
+		{
+			name:    "invalid-json",
+			content: `{"ignoreArcs":[}`,
+			wantErr: "could not parse",
+		},
+		{
+			name:    "unknown-key",
+			content: `{"extra":true}`,
+			wantErr: "unknown top-level key",
+		},
+		{
+			name:    "reversed-range",
+			content: `{"ignoreByArc":{"60-50":["R:011"]}}`,
+			wantErr: "greater than end",
+		},
+		{
+			name:    "unknown-rule",
+			content: `{"ignoreRules":["R:999"]}`,
+			wantErr: "unknown rule",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			root := t.TempDir()
+			writeConfig(t, root, test.content)
+			_, err := Load(root)
+			if err == nil || !strings.Contains(err.Error(), test.wantErr) {
+				t.Fatalf("Load() error = %v, want substring %q", err, test.wantErr)
+			}
+		})
+	}
+}
+
+func TestFilterDiagnostics(t *testing.T) {
+	cfg := Config{
+		ignoreArcs: map[int]struct{}{
+			42: {},
+		},
+		ignoreRules: map[string]struct{}{
+			"R:020": {},
+		},
+		ignoreByArc: []arcRuleIgnore{
+			{
+				start: 50,
+				end:   60,
+				rules: map[string]struct{}{
+					"R:011": {},
+				},
+			},
+		},
+	}
+
+	diagnostics := []diag.Diagnostic{
+		{RuleID: "R:020", File: filepath.Join("ARCs", "arc-0041.md")},
+		{RuleID: "R:012", File: filepath.Join("ARCs", "arc-0042.md")},
+		{RuleID: "R:011", File: filepath.Join("assets", "arc-0055", "example.txt")},
+		{RuleID: "R:009", File: filepath.Join("ARCs", "arc-0061.md")},
+	}
+
+	filtered := cfg.FilterDiagnostics(diagnostics)
+	if len(filtered) != 1 {
+		t.Fatalf("len(FilterDiagnostics()) = %d, want 1", len(filtered))
+	}
+	if filtered[0].RuleID != "R:009" {
+		t.Fatalf("FilterDiagnostics()[0].RuleID = %q, want R:009", filtered[0].RuleID)
+	}
+}
+
+func writeConfig(t *testing.T, root string, content string) {
+	t.Helper()
+	path := filepath.Join(root, FileName)
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile(%s) error = %v", path, err)
+	}
+}
