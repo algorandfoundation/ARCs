@@ -41,16 +41,8 @@ As of March 26, 2026, the default pinned version is:
 Implementation policy:
 
 1. declare the exact version in `arckit/go.mod`;
-1. declare the same preferred toolchain with a `toolchain` line;
 1. pin CI to the same exact patch release;
 1. do not use floating `stable`, major-only, or major-minor-only Go version selectors.
-
-The initial `go.mod` policy should be:
-
-```go
-go 1.26.1
-toolchain go1.26.1
-```
 
 ### 3.2 Module Layout
 
