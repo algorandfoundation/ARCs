@@ -133,6 +133,19 @@ go build ./cmd/arckit
 go run ./cmd/arckit validate repo ..
 ```
 
+The default `pre-commit` hooks are fail-only. They report hygiene violations but
+do not rewrite files.
+
+If you want hook-managed autofix locally, run the manual-stage fixers explicitly
+and then rerun `pre-commit run --all-files`:
+
+```sh
+pre-commit run mixed-line-ending-fix --all-files --hook-stage manual
+pre-commit run end-of-file-fix --all-files --hook-stage manual
+pre-commit run trailing-whitespace-fix --all-files --hook-stage manual
+pre-commit run yamlfmt-fix --all-files --hook-stage manual
+```
+
 Useful related commands:
 
 ```sh
