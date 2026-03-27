@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -177,6 +178,24 @@ func TestCLIValidateCommandsRejectInvalidConfig(t *testing.T) {
 		t.Fatalf("ExecuteArgs() exit code = %d, want 2, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
 	}
 	assertContains(t, stdout.String(), "R:028")
+}
+
+func TestCLIWriterFailureReturnsInvocationError(t *testing.T) {
+	stdout := failingWriter{}
+	stderr := &bytes.Buffer{}
+
+	exitCode := ExecuteArgs([]string{"rules"}, stdout, stderr)
+	if exitCode != 2 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 2, stderr=%s", exitCode, stderr.String())
+	}
+	assertContains(t, stderr.String(), "R:026")
+	assertContains(t, stderr.String(), "write failed")
+}
+
+type failingWriter struct{}
+
+func (failingWriter) Write(p []byte) (int, error) {
+	return 0, errors.New("write failed")
 }
 
 func copyRepoFixture(t *testing.T, src string) string {
