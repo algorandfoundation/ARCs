@@ -82,4 +82,72 @@ Use the appropriate PR template for the type of change:
 ## Pull Request Validation
 
 The repository CI/CD and release policy is defined in
-[`arckit/ci-cd-release-spec.md`](./arckit/ci-cd-release-spec.md).
+[`.github/ci-cd-release-specs.md`](.github/ci-cd-release-specs.md).
+
+### ARC-Kit
+
+[`arckit`](./arckit/README.md) is the ARC repository validator and scaffolding CLI
+used by the pull request workflows for ARC-specific validation only.
+
+Generic repository hygiene is handled separately through the repository-root
+`.pre-commit-config.yaml`. That shared hook config owns Markdown linting,
+whitespace/newline checks, YAML syntax/formatting, and advisory external link
+checks.
+
+The canonical offline repository gate is:
+
+```text
+arckit validate repo .
+```
+
+This is the authoritative machine validation check for ARC repository artifacts.
+
+When present, the repository-root `.arckit.jsonc` file is applied automatically by
+all `arckit validate ...` commands. It supports repo-local suppressions for:
+
+- `ignoreArcs`: skip an ARC number across its ARC, adoption, and asset footprint;
+- `ignoreRules`: skip a rule everywhere;
+- `ignoreByArc`: skip rules for exact ARC numbers or inclusive ARC ranges.
+
+Invalid `.arckit.jsonc` content fails validation.
+
+Example:
+
+```jsonc
+{
+  "ignoreArcs": [42],
+  "ignoreRules": ["R:020"],
+  "ignoreByArc": {
+    "43": ["R:009", "R:013"],
+    "50-60": ["R:011"]
+  }
+}
+```
+
+To run the same validation locally, use both layers:
+
+```sh
+pre-commit run --all-files
+cd arckit
+go build ./cmd/arckit
+go run ./cmd/arckit validate repo ..
+```
+
+Useful related commands:
+
+```sh
+pre-commit run lychee --all-files --hook-stage manual
+cd arckit
+go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
+go run ./cmd/arckit validate links ../ARCs/arc-0000.md
+```
+
+If your pull request changes `arckit/**`, also run the tool validation checks:
+
+```sh
+cd arckit
+find . -name '*.go' -print0 | xargs -0 gofmt -w -s
+go vet ./...
+go test ./...
+go build ./cmd/arckit
+```

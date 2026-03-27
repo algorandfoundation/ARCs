@@ -1,0 +1,26 @@
+arc: 44
+title: Transition Ready ARC
+status: Last Call
+last-reviewed: 2026-03-26
+sponsor: Foundation
+implementation-required: true
+reference-implementation:
+  repository: https://github.com/example/arc-0044
+  maintainers:
+    - "@maintainer"
+  status: testable
+  notes: ""
+adoption:
+  wallets:
+    - name: Example Wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: medium
+  blockers: []
+  notes: ""

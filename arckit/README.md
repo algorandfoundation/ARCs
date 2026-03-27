@@ -1,0 +1,56 @@
+# arckit
+
+`arckit` is the ARC repository validator and scaffolding CLI.
+
+## Requirements
+
+- Go `1.26.1`
+
+Generic Markdown/YAML/text hygiene for this repository is handled by the
+repository-root `.pre-commit-config.yaml`, not by `arckit`.
+
+## Repo-Local Config
+
+`arckit` auto-discovers an optional repository-root `.arckit.jsonc` file for all
+`validate` commands. The file is JSON with comments and supports only repo-local
+suppression rules. There is no `--config` flag and no user-local configuration.
+
+Supported keys:
+
+- `ignoreArcs`: ignore an ARC number across its ARC, adoption, and asset footprint
+- `ignoreRules`: ignore a rule everywhere
+- `ignoreByArc`: ignore rules for exact ARC numbers or inclusive ARC ranges like `50-60`
+
+Example:
+
+```jsonc
+{
+  "ignoreArcs": [42],
+  "ignoreRules": ["R:020"],
+  "ignoreByArc": {
+    "43": ["R:009", "R:013"],
+    "50-60": ["R:011"]
+  }
+}
+```
+
+Invalid `.arckit.jsonc` content stops validation with exit code `2`.
+
+## Common Commands
+
+```sh
+cd arckit
+find . -name '*.go' -print0 | xargs -0 gofmt -w -s
+go vet ./...
+go test ./...
+go build ./cmd/arckit
+```
+
+## Examples
+
+```sh
+cd arckit
+go run ./cmd/arckit validate repo ..
+go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
+go run ./cmd/arckit validate links ../ARCs/arc-0000.md
+```
