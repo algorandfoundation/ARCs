@@ -1,0 +1,56 @@
+minimum_pre_commit_version: 4.4.0
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args:
+          - --fix=lf
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args:
+          - --markdown-linebreak-ext=md
+      - id: check-yaml
+        files: ^(\.github/|adoption/|templates/).+\.ya?ml$
+
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt
+        files: ^(\.github/|adoption/|templates/).+\.ya?ml$
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.22.0
+    hooks:
+      - id: markdownlint-cli2
+        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
+
+  - repo: https://github.com/lycheeverse/lychee.git
+    rev: lychee-v0.23.0
+    hooks:
+      - id: lychee
+        stages:
+          - pre-push
+          - manual
+        args:
+          - --no-progress
+          - --scheme
+          - https,http
+        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
+      - id: lychee
+        alias: lychee-json
+        name: lychee-json
+        stages:
+          - manual
+        args:
+          - --no-progress
+          - --scheme
+          - https,http
+          - --format
+          - json
+        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
