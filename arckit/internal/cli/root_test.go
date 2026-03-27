@@ -194,7 +194,7 @@ func TestCLIWriterFailureReturnsInvocationError(t *testing.T) {
 
 type failingWriter struct{}
 
-func (failingWriter) Write(p []byte) (int, error) {
+func (failingWriter) Write([]byte) (int, error) {
 	return 0, errors.New("write failed")
 }
 
