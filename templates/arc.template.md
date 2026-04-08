@@ -29,6 +29,7 @@ adoption-summary: ../adoption/arc-####.yaml
 ## Motivation
 
 > Describe the real problem being solved. Include:
+>
 > - who is affected,
 > - what fragmentation or user harm exists today,
 > - why this requires standardization.
@@ -53,6 +54,7 @@ are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.
 ## Reference Implementation
 
 > If `implementation-required: true`, this section is mandatory. Include:
+>
 > - canonical repository,
 > - implementation scope,
 > - conformance or example artifacts,

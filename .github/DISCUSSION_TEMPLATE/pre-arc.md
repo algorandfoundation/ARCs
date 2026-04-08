@@ -9,6 +9,7 @@
 ## Why this needs an ARC
 
 > Explain why this should be standardized instead of being handled as:
+>
 > - an application-specific feature,
 > - an SDK or library change,
 > - an implementation detail,
@@ -22,6 +23,7 @@
 
 > Who would need to implement, support, or understand this proposal?
 > Examples:
+>
 > - wallets
 > - explorers
 > - SDKs
@@ -32,12 +34,14 @@
 ## Sponsor Classification
 
 > Choose one:
+>
 > - `Foundation`
 > - `Ecosystem`
 
 ## Reference Implementation Requirement
 
 > Does this proposal require a canonical reference implementation?
+>
 > - `true`
 > - `false`
 
@@ -56,6 +60,7 @@
 ## Outcome
 
 > This will be provided by the ARC editor after discussion:
+>
 > 1. Status:
 >    - `accepted-for-draft`,
 >    - `rejected-no-arc-needed`,
