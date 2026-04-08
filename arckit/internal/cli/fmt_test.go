@@ -61,10 +61,73 @@ Text`
 	if !strings.Contains(text, "arc: 1\ntitle: Example\n") {
 		t.Fatalf("expected reordered front matter, got:\n%s", text)
 	}
-	if !strings.Contains(text, "## Abstract    \n\nText    \n") {
+	if !strings.Contains(text, "created: 2026-03-26\n") {
+		t.Fatalf("expected created to remain YYYY-MM-DD, got:\n%s", text)
+	}
+	if !strings.Contains(text, "## Abstract\n\nText\n\n## Motivation\n") {
 		t.Fatalf("expected body whitespace to be preserved, got:\n%s", text)
 	}
 	if !strings.HasSuffix(text, "Text") {
 		t.Fatalf("expected final newline policy to remain unchanged, got:\n%s", text)
+	}
+}
+
+func TestApplyNativeFixKeepsDateFieldsAsDateOnly(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author: Example Author
+discussions-to: https://example.com/discussion
+status: Last Call
+type: Meta
+created: 2026-03-26
+last-call-deadline: 2026-04-01
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyNativeFix(path); err != nil {
+		t.Fatalf("applyNativeFix() error = %v", err)
+	}
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	text := string(updated)
+	if strings.Contains(text, "T00:00:00Z") {
+		t.Fatalf("expected date-only fields, got:\n%s", text)
+	}
+	if !strings.Contains(text, "created: 2026-03-26\n") || !strings.Contains(text, "last-call-deadline: 2026-04-01\n") {
+		t.Fatalf("expected date-only fields, got:\n%s", text)
 	}
 }

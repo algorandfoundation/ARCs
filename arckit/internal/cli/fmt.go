@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/arc"
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
@@ -58,7 +59,16 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 		}
 		builder.WriteString(key)
 		builder.WriteString(":")
-		encoded, err := yaml.Marshal(value)
+		normalized := normalizeFrontMatterValue(key, value)
+		if isDateField(key) {
+			if text, ok := normalized.(string); ok {
+				builder.WriteString(" ")
+				builder.WriteString(text)
+				builder.WriteString("\n")
+				continue
+			}
+		}
+		encoded, err := yaml.Marshal(normalized)
 		if err != nil {
 			return "", err
 		}
@@ -79,4 +89,28 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 	builder.WriteString("---\n\n")
 	builder.Write(document.Body)
 	return builder.String(), nil
+}
+
+func normalizeFrontMatterValue(key string, value any) any {
+	if !isDateField(key) {
+		return value
+	}
+	switch typed := value.(type) {
+	case time.Time:
+		return typed.Format("2006-01-02")
+	case string:
+		if parsed, err := time.Parse(time.RFC3339, typed); err == nil {
+			return parsed.Format("2006-01-02")
+		}
+	}
+	return value
+}
+
+func isDateField(key string) bool {
+	switch key {
+	case "created", "updated", "last-call-deadline", "idle-since":
+		return true
+	default:
+		return false
+	}
 }
