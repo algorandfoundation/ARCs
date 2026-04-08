@@ -82,6 +82,7 @@ type Document struct {
 	Raw                      []byte
 	FrontMatter              []byte
 	Body                     []byte
+	BodyStartLine            int
 	Fields                   map[string]any
 	FieldOrder               []string
 	FieldLines               map[string]int
@@ -135,10 +136,11 @@ func Load(path string) (*Document, []diag.Diagnostic, error) {
 		document.Number = number
 	}
 
-	frontMatter, body, parseDiagnostics := splitFrontMatter(document.Path, content)
+	frontMatter, body, bodyStartLine, parseDiagnostics := splitFrontMatter(document.Path, content)
 	diagnostics = append(diagnostics, parseDiagnostics...)
 	document.FrontMatter = frontMatter
 	document.Body = body
+	document.BodyStartLine = bodyStartLine
 	if len(frontMatter) == 0 {
 		parseMarkdown(document)
 		return document, diagnostics, nil
@@ -391,15 +393,15 @@ func OrderedFields() []string {
 	return out
 }
 
-func splitFrontMatter(path string, content []byte) ([]byte, []byte, []diag.Diagnostic) {
+func splitFrontMatter(path string, content []byte) ([]byte, []byte, int, []diag.Diagnostic) {
 	if !bytes.HasPrefix(content, []byte("---")) {
-		return nil, content, []diag.Diagnostic{
+		return nil, content, 1, []diag.Diagnostic{
 			diag.NewWithHint("R:001", diag.OriginNative, path, 1, 1, "ARC files must start with a YAML front matter block", "Add a front matter block delimited by --- at the top of the file."),
 		}
 	}
 	lines := bytes.Split(content, []byte("\n"))
 	if len(lines) == 0 || strings.TrimSpace(string(lines[0])) != "---" {
-		return nil, content, []diag.Diagnostic{
+		return nil, content, 1, []diag.Diagnostic{
 			diag.NewWithHint("R:001", diag.OriginNative, path, 1, 1, "front matter must start with a line containing only ---", "Start the file with --- on its own line."),
 		}
 	}
@@ -411,11 +413,11 @@ func splitFrontMatter(path string, content []byte) ([]byte, []byte, []diag.Diagn
 			frontMatter := content[len(lines[0])+1 : offset-1]
 			body := content[offset+len(lines[index]):]
 			body = bytes.TrimPrefix(body, []byte("\n"))
-			return frontMatter, body, nil
+			return frontMatter, body, index + 2, nil
 		}
 		offset += len(lines[index]) + 1
 	}
-	return nil, content, []diag.Diagnostic{
+	return nil, content, 1, []diag.Diagnostic{
 		diag.NewWithHint("R:001", diag.OriginNative, path, 1, 1, "front matter is not closed with a second --- delimiter", "Terminate the front matter block with --- on its own line."),
 	}
 }
@@ -425,6 +427,10 @@ func parseMarkdown(document *Document) {
 	reader := text.NewReader(document.Body)
 	tree := parser.Parser().Parse(reader)
 	source := document.Body
+	bodyStartLine := document.BodyStartLine
+	if bodyStartLine == 0 {
+		bodyStartLine = 1
+	}
 	_ = ast.Walk(tree, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
 			return ast.WalkContinue, nil
@@ -435,11 +441,11 @@ func parseMarkdown(document *Document) {
 				return ast.WalkContinue, nil
 			}
 			title := strings.TrimSpace(plainText(source, typed))
-			document.Sections[title] = nodeLine(source, typed)
+			document.Sections[title] = nodeLine(source, typed, bodyStartLine)
 		case *ast.Link:
 			document.Links = append(document.Links, Link{
 				Destination: string(typed.Destination),
-				Line:        nodeLine(source, typed),
+				Line:        nodeLine(source, typed, bodyStartLine),
 			})
 		}
 		return ast.WalkContinue, nil
@@ -463,16 +469,21 @@ func plainText(source []byte, node ast.Node) string {
 	return builder.String()
 }
 
-func nodeLine(source []byte, node ast.Node) int {
+func nodeLine(source []byte, node ast.Node, baseLine int) int {
 	if lines := safeLines(node); lines != nil && lines.Len() > 0 {
-		return bytes.Count(source[:lines.At(0).Start], []byte("\n")) + 1
+		return baseLine + bytes.Count(source[:lines.At(0).Start], []byte("\n"))
 	}
 	for child := node.FirstChild(); child != nil; child = child.NextSibling() {
-		if line := nodeLine(source, child); line > 0 {
+		if line := nodeLine(source, child, baseLine); line > 0 {
 			return line
 		}
 	}
-	return 1
+	for parent := node.Parent(); parent != nil; parent = parent.Parent() {
+		if lines := safeLines(parent); lines != nil && lines.Len() > 0 {
+			return baseLine + bytes.Count(source[:lines.At(0).Start], []byte("\n"))
+		}
+	}
+	return baseLine
 }
 
 func includesARCNumber(value string, number int) bool {
