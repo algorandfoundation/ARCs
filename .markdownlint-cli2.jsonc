@@ -2,6 +2,7 @@
   "config": {
     "MD010": { "code_blocks": false },
     "MD013": false,
+    "MD024": { "siblings_only": true},
     "MD028": false,
     "MD033": false,
     "MD040": false
