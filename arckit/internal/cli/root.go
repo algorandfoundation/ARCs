@@ -222,8 +222,23 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 					return newInvocationFailureReport("fmt", fileErr), nil
 				}
 				diagnostics := make([]diag.Diagnostic, 0)
+				configs := map[string]config.Config{}
 				for _, path := range files {
-					if err := applyNativeFix(path); err != nil {
+					root := arc.FindRepoRoot(filepath.Dir(path))
+					cfg, ok := configs[root]
+					if !ok {
+						loaded, configErr := config.Load(root)
+						if configErr != nil {
+							diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, configErr.Error(), "Check the file permissions and content, then retry."))
+							continue
+						}
+						cfg = loaded
+						configs[root] = cfg
+					}
+					if shouldIgnorePath(cfg, path) {
+						continue
+					}
+					if err := applyNativeFixWithConfig(path, cfg); err != nil {
 						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "Check the file permissions and content, then retry."))
 					}
 				}

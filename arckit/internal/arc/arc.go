@@ -79,6 +79,7 @@ type Link struct {
 type Document struct {
 	Path                     string
 	Raw                      []byte
+	FrontMatter              []byte
 	Body                     []byte
 	Fields                   map[string]any
 	FieldOrder               []string
@@ -133,6 +134,7 @@ func Load(path string) (*Document, []diag.Diagnostic, error) {
 
 	frontMatter, body, parseDiagnostics := splitFrontMatter(document.Path, content)
 	diagnostics = append(diagnostics, parseDiagnostics...)
+	document.FrontMatter = frontMatter
 	document.Body = body
 	if len(frontMatter) == 0 {
 		parseMarkdown(document)

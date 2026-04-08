@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/algorandfoundation/ARCs/arckit/internal/config"
 )
 
 func TestApplyNativeFixReordersFrontMatterWithoutNormalizingBodyWhitespace(t *testing.T) {
@@ -129,5 +131,75 @@ Text`
 	}
 	if !strings.Contains(text, "created: 2026-03-26\n") || !strings.Contains(text, "last-call-deadline: 2026-04-01\n") {
 		t.Fatalf("expected date-only fields, got:\n%s", text)
+	}
+}
+
+func TestApplyNativeFixWithConfigHonorsIgnoredRulesAndPreservesUnknownFieldText(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	configPath := filepath.Join(root, config.FileName)
+	if err := os.WriteFile(configPath, []byte("{\"ignoreRules\":[\"R:006\"]}"), 0o644); err != nil {
+		t.Fatalf("WriteFile(%s) error = %v", configPath, err)
+	}
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author: Example Author
+discussions-to: https://example.com/discussion
+status: Idle
+idle-since: 2026-04-01
+type: Standards Track
+category: Core
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyNativeFixWithConfig(path, cfg); err != nil {
+		t.Fatalf("applyNativeFixWithConfig() error = %v", err)
+	}
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	text := string(updated)
+	if !strings.Contains(text, "status: Idle\ntype: Standards Track\ncategory: Core\ncreated: 2026-03-26\n") {
+		t.Fatalf("expected type/category/created ordering with category preserved, got:\n%s", text)
+	}
+	if !strings.Contains(text, "implementation-required: false\nidle-since: 2026-04-01\n") {
+		t.Fatalf("expected idle-since after required implementation fields, got:\n%s", text)
 	}
 }
