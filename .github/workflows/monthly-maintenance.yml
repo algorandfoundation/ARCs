@@ -1,18 +1,14 @@
 name: Monthly ARC maintenance
-
 on:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 env:
   GO_VERSION: "1.26.1"
   PYTHON_VERSION: "3.12"
   PRE_COMMIT_VERSION: "4.4.0"
   GOCACHE: /tmp/arckit-go-cache
   GOMODCACHE: /tmp/arckit-go-mod-cache
-
 jobs:
   monthly-maintenance:
     name: monthly-maintenance

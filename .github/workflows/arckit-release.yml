@@ -1,18 +1,14 @@
 name: arckit release
-
 on:
   push:
     tags:
       - "arckit/v*"
-
 permissions:
   contents: read
-
 env:
   GO_VERSION: "1.26.1"
   GOCACHE: /tmp/arckit-go-cache
   GOMODCACHE: /tmp/arckit-go-mod-cache
-
 jobs:
   release:
     name: arckit-release

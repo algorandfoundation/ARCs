@@ -1,18 +1,14 @@
 name: PR validation
-
 on:
   pull_request:
-
 permissions:
   contents: read
-
 env:
   GO_VERSION: "1.26.1"
   PYTHON_VERSION: "3.12"
   PRE_COMMIT_VERSION: "4.4.0"
   GOCACHE: /tmp/arckit-go-cache
   GOMODCACHE: /tmp/arckit-go-mod-cache
-
 jobs:
   hygiene:
     name: hygiene
@@ -33,7 +29,6 @@ jobs:
       - name: Run hygiene checks
         run: |
           pre-commit run --from-ref "${{ github.event.pull_request.base.sha }}" --to-ref "${{ github.event.pull_request.head.sha }}" --show-diff-on-failure
-
   arckit-tool:
     name: arckit-tool
     runs-on: ubuntu-latest
@@ -88,7 +83,6 @@ jobs:
           chmod +x .github/scripts/build-arckit-release.sh
           RELEASE_DIR="$(.github/scripts/build-arckit-release.sh "${RUNNER_TEMP}/arckit-release" "v0.0.0-dev")"
           test -f "${RELEASE_DIR}/SHA256SUMS"
-
   repo-validate-offline:
     name: repo-validate-offline
     runs-on: ubuntu-latest
@@ -122,7 +116,6 @@ jobs:
         if: steps.changes.outputs.run == 'true'
         run: |
           "${RUNNER_TEMP}/arckit" validate repo .
-
   online-validation:
     name: online-validation
     runs-on: ubuntu-latest
