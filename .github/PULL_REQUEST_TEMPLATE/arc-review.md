@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
 ## ARC Transition to Review
 
 Use this template when requesting transition of an ARC from `Draft` to `Review`.

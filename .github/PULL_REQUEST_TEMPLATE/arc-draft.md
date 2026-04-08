@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
 ## ARC Draft Submission
 
 Use this template when proposing a **new numbered ARC draft** after `Pre-ARC` acceptance.

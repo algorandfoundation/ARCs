@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
 ## ARC Transition to Last Call
 
 Use this template when requesting transition of an ARC from `Review` to `Last Call`.

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
 ## Editorial / Non-Normative ARC Update
 
 Use this template for spelling, formatting, broken links, wording clarifications,
