@@ -52,7 +52,7 @@ Text
 
 ## Security Considerations
 
-Text    
+Text
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}

@@ -15,7 +15,7 @@ func TestApplyNativeFixReordersFrontMatterWithoutNormalizingBodyWhitespace(t *te
 	}
 	path := filepath.Join(arcDir, "arc-0001.md")
 	content := `---
-title: Example    
+title: Example
 arc: 1
 description: Example description
 author: Example Author
@@ -27,9 +27,9 @@ sponsor: Foundation
 implementation-required: false
 ---
 
-## Abstract    
+## Abstract
 
-Text    
+Text
 
 ## Motivation
 
