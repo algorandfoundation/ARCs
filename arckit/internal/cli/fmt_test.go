@@ -159,7 +159,7 @@ discussions-to: https://example.com/discussion
 status: Idle
 idle-since: 2026-04-01
 type: Standards Track
-category: Core
+custom-field: keep me
 created: 2026-03-26
 sponsor: Foundation
 implementation-required: false
@@ -196,8 +196,8 @@ Text`
 		t.Fatalf("ReadFile() error = %v", err)
 	}
 	text := string(updated)
-	if !strings.Contains(text, "status: Idle\ntype: Standards Track\ncategory: Core\ncreated: 2026-03-26\n") {
-		t.Fatalf("expected type/category/created ordering with category preserved, got:\n%s", text)
+	if !strings.Contains(text, "status: Idle\ntype: Standards Track\ncustom-field: keep me\ncreated: 2026-03-26\n") {
+		t.Fatalf("expected type/custom-field/created ordering with unknown field preserved, got:\n%s", text)
 	}
 	if !strings.Contains(text, "implementation-required: false\nidle-since: 2026-04-01\n") {
 		t.Fatalf("expected idle-since after required implementation fields, got:\n%s", text)

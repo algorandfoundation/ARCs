@@ -71,7 +71,7 @@ Text
 		{name: "validate-repo", args: []string{"validate", "repo", validDraftRoot}, wantCode: 0, wantInOut: "summary:"},
 		{name: "validate-transition", args: []string{"validate", "transition", transitionARC, "--to", "Final"}, wantCode: 0, wantInOut: "R:020"},
 		{name: "fmt", args: []string{"fmt", fmtPath}, wantCode: 0, wantInOut: "summary:"},
-		{name: "init", args: []string{"init", "arc", "--root", tempRoot, "--number", "77", "--title", "CLI Init ARC", "--type", "Meta", "--sponsor", "Foundation"}, wantCode: 0, wantInOut: "arc-0077.md"},
+		{name: "init", args: []string{"init", "arc", "--root", tempRoot, "--number", "77", "--title", "CLI Init ARC", "--type", "Standards Track", "--category", "Interface", "--sub-category", "Application", "--sponsor", "Foundation"}, wantCode: 0, wantInOut: "arc-0077.md"},
 	}
 
 	for _, test := range tests {

@@ -15,6 +15,8 @@ type InitOptions struct {
 	Number                 int
 	Title                  string
 	Type                   string
+	Category               string
+	SubCategory            string
 	Sponsor                string
 	Author                 string
 	Description            string
@@ -71,41 +73,51 @@ func InitARC(options InitOptions) ([]string, []diag.Diagnostic, error) {
 
 func renderARC(options InitOptions, author string, description string, now string) string {
 	number := fmt.Sprintf("%04d", options.Number)
-	return fmt.Sprintf(`---
-arc: %d
-title: %s
-description: %s
-author: %s
-discussions-to:
-status: Draft
-type: %s
-created: %s
-sponsor: %s
-implementation-required: %t
-adoption-summary: adoption/arc-%s.yaml
----
-
-## Abstract
-
-TODO: add the abstract.
-
-## Motivation
-
-TODO: explain the problem or opportunity.
-
-## Specification
-
-TODO: define the proposed behavior.
-
-## Rationale
-
-TODO: explain the design tradeoffs.
-
-## Security Considerations
-
-TODO: document the relevant security considerations.
-
-`, options.Number, options.Title, description, author, options.Type, now, options.Sponsor, options.ImplementationRequired, number)
+	lines := []string{
+		"---",
+		fmt.Sprintf("arc: %d", options.Number),
+		fmt.Sprintf("title: %s", options.Title),
+		fmt.Sprintf("description: %s", description),
+		fmt.Sprintf("author: %s", author),
+		"discussions-to:",
+		"status: Draft",
+		fmt.Sprintf("type: %s", options.Type),
+	}
+	if category := strings.TrimSpace(options.Category); category != "" {
+		lines = append(lines, fmt.Sprintf("category: %s", category))
+	}
+	if subCategory := strings.TrimSpace(options.SubCategory); subCategory != "" {
+		lines = append(lines, fmt.Sprintf("sub-category: %s", subCategory))
+	}
+	lines = append(lines,
+		fmt.Sprintf("created: %s", now),
+		fmt.Sprintf("sponsor: %s", options.Sponsor),
+		fmt.Sprintf("implementation-required: %t", options.ImplementationRequired),
+		fmt.Sprintf("adoption-summary: adoption/arc-%s.yaml", number),
+		"---",
+		"",
+		"## Abstract",
+		"",
+		"TODO: add the abstract.",
+		"",
+		"## Motivation",
+		"",
+		"TODO: explain the problem or opportunity.",
+		"",
+		"## Specification",
+		"",
+		"TODO: define the proposed behavior.",
+		"",
+		"## Rationale",
+		"",
+		"TODO: explain the design tradeoffs.",
+		"",
+		"## Security Considerations",
+		"",
+		"TODO: document the relevant security considerations.",
+		"",
+	)
+	return strings.Join(lines, "\n")
 }
 
 func renderAdoption(options InitOptions, now string) string {

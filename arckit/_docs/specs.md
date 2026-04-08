@@ -109,7 +109,7 @@ arckit validate adoption <adoption-file>
 arckit validate links <path...>
 arckit validate repo [repo-root]
 arckit validate transition <arc-file> --to <status>
-arckit init arc --number <n> --title <title> --type <type> --sponsor <sponsor>
+arckit init arc --number <n> --title <title> --type <type> [--category <category>] [--sub-category <sub-category>] --sponsor <sponsor>
 arckit rules
 arckit explain <rule-id>
 ```
@@ -262,6 +262,7 @@ Recognized fields, in required order when present, are:
 1. `discussions-to`
 1. `status`
 1. `type`
+1. `category`
 1. `sub-category`
 1. `created`
 1. `updated`

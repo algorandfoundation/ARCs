@@ -286,6 +286,8 @@ func newInitCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comma
 	initArcCmd.Flags().IntVar(&initOptions.Number, "number", 0, "ARC number")
 	initArcCmd.Flags().StringVar(&initOptions.Title, "title", "", "ARC title")
 	initArcCmd.Flags().StringVar(&initOptions.Type, "type", "", "ARC type")
+	initArcCmd.Flags().StringVar(&initOptions.Category, "category", "", "ARC category")
+	initArcCmd.Flags().StringVar(&initOptions.SubCategory, "sub-category", "", "ARC sub-category")
 	initArcCmd.Flags().StringVar(&initOptions.Sponsor, "sponsor", "", "ARC sponsor")
 	initArcCmd.Flags().StringVar(&initOptions.Author, "author", "", "ARC author")
 	initArcCmd.Flags().StringVar(&initOptions.Description, "description", "", "ARC description")

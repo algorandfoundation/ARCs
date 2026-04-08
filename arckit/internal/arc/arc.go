@@ -33,6 +33,7 @@ var fieldOrder = []string{
 	"discussions-to",
 	"status",
 	"type",
+	"category",
 	"sub-category",
 	"created",
 	"updated",
@@ -92,6 +93,8 @@ type Document struct {
 	Description              string
 	Status                   string
 	Type                     string
+	Category                 string
+	SubCategory              string
 	Sponsor                  string
 	ImplementationRequired   bool
 	ImplementationURL        string
@@ -210,6 +213,8 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	document.Description = stringField(document, "description")
 	document.Status = stringField(document, "status")
 	document.Type = stringField(document, "type")
+	document.Category = stringField(document, "category")
+	document.SubCategory = stringField(document, "sub-category")
 	document.Sponsor = stringField(document, "sponsor")
 	document.ImplementationURL = stringField(document, "implementation-url")
 	document.ImplementationMaintainer = stringField(document, "implementation-maintainer")
