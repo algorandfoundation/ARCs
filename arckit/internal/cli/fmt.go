@@ -68,7 +68,7 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 		builder.WriteString("\n")
 	}
 
-	for _, entry := range reorderedEntries(document, entries) {
+	for _, entry := range reorderedEntries(entries) {
 		for _, line := range normalizeDateChunk(document, entry) {
 			builder.WriteString(line)
 			builder.WriteString("\n")
@@ -174,7 +174,7 @@ func frontMatterEntries(document *arc.Document) ([]frontMatterEntry, []string, [
 	return entries, preamble, suffix, nil
 }
 
-func reorderedEntries(document *arc.Document, entries []frontMatterEntry) []frontMatterEntry {
+func reorderedEntries(entries []frontMatterEntry) []frontMatterEntry {
 	if len(entries) == 0 {
 		return entries
 	}
