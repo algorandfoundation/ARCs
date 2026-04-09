@@ -163,6 +163,7 @@ func Load(path string) (*Document, []diag.Diagnostic, error) {
 		parseMarkdown(document)
 		return document, diagnostics, nil
 	}
+	diagnostics = append(diagnostics, frontMatterBlankLineDiagnostics(document.Path, frontMatter)...)
 
 	root := yaml.Node{}
 	if err := yaml.Unmarshal(frontMatter, &root); err != nil {
@@ -534,6 +535,18 @@ func splitFrontMatter(path string, content []byte) ([]byte, []byte, int, []diag.
 	return nil, content, 1, []diag.Diagnostic{
 		diag.NewWithHint("R:001", diag.OriginNative, path, 1, 1, "front matter is not closed with a second --- delimiter", "Terminate the front matter block with --- on its own line."),
 	}
+}
+
+func frontMatterBlankLineDiagnostics(path string, frontMatter []byte) []diag.Diagnostic {
+	lines := strings.Split(string(frontMatter), "\n")
+	diagnostics := make([]diag.Diagnostic, 0)
+	for index, line := range lines {
+		if strings.TrimSpace(line) != "" {
+			continue
+		}
+		diagnostics = append(diagnostics, diag.NewWithHint("R:024", diag.OriginNative, path, index+2, 1, "front matter must not contain empty lines", "Remove empty lines from the front matter block or run arckit fmt."))
+	}
+	return diagnostics
 }
 
 func parseMarkdown(document *Document) {

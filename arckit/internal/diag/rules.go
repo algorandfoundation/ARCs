@@ -186,6 +186,14 @@ var rules = []Rule{
 		Hint:        "Use a lower-kebab adopter name from adoption/vetted-adopters.yaml in the matching category.",
 	},
 	{
+		ID:          "R:024",
+		Severity:    SeverityError,
+		Title:       "Blank line in front matter",
+		Description: "ARC front matter must not contain empty lines.",
+		Rationale:   "Blank lines inside the front matter block make canonical formatting and line-based tooling less deterministic.",
+		Hint:        "Remove empty lines from the front matter block or run arckit fmt.",
+	},
+	{
 		ID:          "R:026",
 		Severity:    SeverityError,
 		Title:       "Invalid invocation",

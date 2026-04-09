@@ -191,7 +191,7 @@ JSON output must include at least:
 It must perform:
 
 1. filename validation;
-1. front matter parsing and header order validation;
+1. front matter parsing, blank-line detection, and header order validation;
 1. required field checks;
 1. conditional field checks;
 1. body section presence checks;
@@ -576,6 +576,7 @@ remain editorial, including:
 It must:
 
 1. normalize front matter spacing;
+1. remove empty lines from the front matter block;
 1. normalize front matter field ordering;
 1. normalize canonical YAML sequence fields without coercing invalid scalar-list legacy encodings;
 1. preserve semantic content.

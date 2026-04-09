@@ -64,18 +64,24 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 	builder.WriteString("---\n")
 
 	for _, line := range preamble {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
 		builder.WriteString(line)
 		builder.WriteString("\n")
 	}
 
 	for _, entry := range reorderedEntries(entries) {
-		for _, line := range normalizedEntryLines(document, entry) {
+		for _, line := range filteredFrontMatterLines(normalizedEntryLines(document, entry)) {
 			builder.WriteString(line)
 			builder.WriteString("\n")
 		}
 	}
 
 	for _, line := range suffix {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
 		builder.WriteString(line)
 		builder.WriteString("\n")
 	}
@@ -267,12 +273,12 @@ func nearestKnownOrder(entries []frontMatterEntry, start int, step int) (int, bo
 
 func normalizedEntryLines(document *arc.Document, entry frontMatterEntry) []string {
 	if lines := normalizeStringSequenceChunk(document, entry); len(lines) > 0 {
-		return lines
+		return filteredFrontMatterLines(lines)
 	}
 	if lines := normalizeIntSequenceChunk(document, entry); len(lines) > 0 {
-		return lines
+		return filteredFrontMatterLines(lines)
 	}
-	return normalizeDateChunk(document, entry)
+	return filteredFrontMatterLines(normalizeDateChunk(document, entry))
 }
 
 func normalizeStringSequenceChunk(document *arc.Document, entry frontMatterEntry) []string {
@@ -376,4 +382,15 @@ func intListField(document *arc.Document, key string) []int {
 	default:
 		return nil
 	}
+}
+
+func filteredFrontMatterLines(lines []string) []string {
+	filtered := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		filtered = append(filtered, line)
+	}
+	return filtered
 }
