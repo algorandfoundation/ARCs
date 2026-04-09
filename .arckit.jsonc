@@ -1,7 +1,6 @@
 {
   "ignoreRules": [
-    "R:004",
-    "R:012"
+    "R:004"
   ],
   "ignoreByArc": {
     "0": ["R:008"],

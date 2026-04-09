@@ -1,0 +1,16 @@
+arc: 6
+title: Algorand Wallet Address Discovery API
+status: Deprecated
+last-reviewed: 2026-04-09
+sponsor: ""
+implementation-required: false
+adoption:
+  wallets: []
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
