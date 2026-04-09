@@ -194,6 +194,14 @@ var rules = []Rule{
 		Hint:        "Remove empty lines from the front matter block or run arckit fmt.",
 	},
 	{
+		ID:          "R:025",
+		Severity:    SeverityError,
+		Title:       "Final ARC has no tracked adoption",
+		Description: "An ARC in Final status must not have all adoption categories empty.",
+		Rationale:   "Final ARCs must record at least one concrete ecosystem adopter so the repository does not treat empty placeholder summaries as real adoption.",
+		Hint:        "Add at least one vetted adopter entry to the adoption summary before marking the ARC Final.",
+	},
+	{
 		ID:          "R:026",
 		Severity:    SeverityError,
 		Title:       "Invalid invocation",

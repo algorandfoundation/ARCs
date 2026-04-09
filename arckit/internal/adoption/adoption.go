@@ -145,6 +145,10 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 		}
 	}
 
+	if summary.hasEffectiveStatus(document, "Final") && !summary.HasAnyActors() {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:025", diag.OriginNative, summary.Path, 1, 1, "Final ARC adoption summaries must include at least one adopter entry", "Add at least one vetted adopter to an adoption category before marking the ARC Final."))
+	}
+
 	if document == nil {
 		return diagnostics
 	}
@@ -175,8 +179,24 @@ func (summary *Summary) HasAnyEvidence() bool {
 	return false
 }
 
+func (summary *Summary) HasAnyActors() bool {
+	for _, actors := range summary.actorGroups() {
+		if len(actors) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func (summary *Summary) HasActorEvidence() bool {
 	return summary.HasAnyEvidence()
+}
+
+func (summary *Summary) hasEffectiveStatus(document *arc.Document, want string) bool {
+	if strings.TrimSpace(summary.Status) == want {
+		return true
+	}
+	return document != nil && strings.TrimSpace(document.Status) == want
 }
 
 func (summary *Summary) actorGroups() map[string][]Actor {

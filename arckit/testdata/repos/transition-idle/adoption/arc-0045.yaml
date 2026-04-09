@@ -5,7 +5,11 @@ last-reviewed: 2026-03-26
 sponsor: Foundation
 implementation-required: false
 adoption:
-  wallets: []
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
   explorers: []
   sdk-libraries: []
   infra: []

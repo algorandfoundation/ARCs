@@ -1,4 +1,5 @@
-wallets: []
+wallets:
+  - example-wallet
 explorers: []
 sdk-libraries: []
 infra: []
