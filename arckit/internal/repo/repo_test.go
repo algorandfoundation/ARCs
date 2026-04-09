@@ -178,6 +178,65 @@ Text
 	}
 }
 
+func TestValidateRepoIncludesARCZeroInState(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	content := `---
+arc: 0
+title: ARC Zero
+description: Repository process document.
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Living
+type: Meta
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0000.md"), []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	state, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Validate() diagnostics = %+v", diagnostics)
+	}
+	if _, ok := state.ARCs[0]; !ok {
+		t.Fatalf("expected ARC 0 to be included in repo state, got %+v", state.ARCs)
+	}
+}
+
 func copyRepoFixture(t *testing.T, src string) string {
 	t.Helper()
 	dst := t.TempDir()

@@ -48,7 +48,7 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 			continue
 		}
 		diagnostics = append(diagnostics, arc.Validate(document, state.Root)...)
-		if document.Number != 0 {
+		if document.HasNumber {
 			numberToPaths[document.Number] = append(numberToPaths[document.Number], document.Path)
 			if _, exists := state.ARCs[document.Number]; !exists {
 				state.ARCs[document.Number] = document
