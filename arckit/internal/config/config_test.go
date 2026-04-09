@@ -24,10 +24,11 @@ func TestLoadValidJSONCConfig(t *testing.T) {
 	root := t.TempDir()
 	writeConfig(t, root, `{
   // Ignore one ARC completely.
-  "ignoreArcs": [42],
+  "ignoreArcs": [0, 42],
   "ignoreRules": ["R:020"],
   /* Ignore these rules for exact and range selectors. */
   "ignoreByArc": {
+    "0": ["R:008"],
     "0043": ["R:009", "R:013"],
     "50-60": ["R:011"]
   }
@@ -40,8 +41,14 @@ func TestLoadValidJSONCConfig(t *testing.T) {
 	if !cfg.IgnoreARC(42) {
 		t.Fatalf("IgnoreARC(42) = false, want true")
 	}
+	if !cfg.IgnoreARC(0) {
+		t.Fatalf("IgnoreARC(0) = false, want true")
+	}
 	if !cfg.IgnoreRule("R:020") {
 		t.Fatalf("IgnoreRule(R:020) = false, want true")
+	}
+	if !cfg.IgnoreRuleForARC("R:008", 0) {
+		t.Fatalf("IgnoreRuleForARC(R:008, 0) = false, want true")
 	}
 	if !cfg.IgnoreRuleForARC("R:009", 43) {
 		t.Fatalf("IgnoreRuleForARC(R:009, 43) = false, want true")
@@ -94,12 +101,20 @@ func TestLoadInvalidConfig(t *testing.T) {
 func TestFilterDiagnostics(t *testing.T) {
 	cfg := Config{
 		ignoreArcs: map[int]struct{}{
+			0:  {},
 			42: {},
 		},
 		ignoreRules: map[string]struct{}{
 			"R:020": {},
 		},
 		ignoreByArc: []arcRuleIgnore{
+			{
+				start: 0,
+				end:   0,
+				rules: map[string]struct{}{
+					"R:008": {},
+				},
+			},
 			{
 				start: 50,
 				end:   60,
@@ -111,6 +126,7 @@ func TestFilterDiagnostics(t *testing.T) {
 	}
 
 	diagnostics := []diag.Diagnostic{
+		{RuleID: "R:008", File: filepath.Join("ARCs", "arc-0000.md")},
 		{RuleID: "R:020", File: filepath.Join("ARCs", "arc-0041.md")},
 		{RuleID: "R:012", File: filepath.Join("ARCs", "arc-0042.md")},
 		{RuleID: "R:011", File: filepath.Join("assets", "arc-0055", "example.txt")},

@@ -89,8 +89,8 @@ repo-attributed diagnostics.
 
 `ignoreRules` suppresses one rule globally.
 
-`ignoreByArc` suppresses one or more rules for exact ARC selectors like `43` or
-inclusive ARC ranges like `50-60`.
+`ignoreByArc` suppresses one or more rules for exact ARC selectors like `0` or `43`
+or inclusive ARC ranges like `50-60`.
 
 Invalid `.arckit.jsonc` content must stop validation with exit code `2`.
 
