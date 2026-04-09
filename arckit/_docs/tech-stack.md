@@ -304,6 +304,7 @@ Steps:
 1. set up pinned Go `1.26.1`;
 1. build `arckit`;
 1. run `arckit validate repo .`.
+1. run changed-file ARC validation with `--enforce-rule R:021` so canonical YAML front matter is enforced during migration without dropping unrelated suppressions.
 
 This is the canonical required validation gate and implicitly applies the repo-root
 `.arckit.jsonc` when present.

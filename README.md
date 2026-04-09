@@ -115,6 +115,10 @@ all `arckit validate ...` commands. It supports repo-local suppressions for:
 
 Invalid `.arckit.jsonc` content fails validation.
 
+During staged metadata migrations, `.arckit.jsonc` may temporarily suppress rules
+for historical ARC files. New or edited ARC Markdown files should still be checked
+without config suppression before merge.
+
 Example:
 
 ```jsonc

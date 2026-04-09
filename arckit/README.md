@@ -21,6 +21,9 @@ Supported keys:
 - `ignoreRules`: ignore a rule everywhere
 - `ignoreByArc`: ignore rules for exact ARC numbers or inclusive ARC ranges like `50-60`
 
+Migration suppressions are allowed temporarily when the repository is moving historical
+ARC files to a new canonical encoding.
+
 Example:
 
 ```jsonc
@@ -52,5 +55,7 @@ go build ./cmd/arckit
 cd arckit
 go run ./cmd/arckit validate repo ..
 go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
+go run ./cmd/arckit validate arc --enforce-rule R:021 ../ARCs/arc-0000.md
+go run ./cmd/arckit validate arc --ignore-config ../ARCs/arc-0000.md
 go run ./cmd/arckit validate links ../ARCs/arc-0000.md
 ```

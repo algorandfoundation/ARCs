@@ -92,6 +92,14 @@ validation gate for ARC repository artifacts.
 When present, the repository-root `.arckit.jsonc` is applied implicitly by this
 command. Invalid `.arckit.jsonc` content must fail the gate.
 
+During staged metadata migrations, repo-local suppressions may temporarily keep
+historical ARC files green in this repository-wide gate.
+
+When ARC Markdown files change, the workflow must also run a changed-file
+validation pass that enforces `R:021` even when `.arckit.jsonc` suppresses that
+rule at the repository level. This targeted pass must keep unrelated suppressions
+intact so historical ARC-specific waivers do not become false failures.
+
 ### 5.2 Hygiene Check
 
 The pipeline must include a hygiene check driven by the repository-root
@@ -244,7 +252,8 @@ Each ARC entry should include:
 1. the deterministic evidence or advisory signal;
 1. a concrete next step.
 
-When author handles can be parsed from ARC front matter, the report should mention them.
+When author handles can be parsed from ARC front matter, including YAML sequence-valued
+author fields, the report should mention them.
 
 ## 7. Inactivity and Status Suggestions
 

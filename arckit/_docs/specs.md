@@ -92,6 +92,10 @@ repo-attributed diagnostics.
 `ignoreByArc` suppresses one or more rules for exact ARC selectors like `0` or `43`
 or inclusive ARC ranges like `50-60`.
 
+Migration-specific suppressions are allowed when the repository is moving from one
+canonical ARC encoding to another, as long as the steady-state target remains the
+documented spec.
+
 Invalid `.arckit.jsonc` content must stop validation with exit code `2`.
 
 ## 6. Command-Line Interface
@@ -123,6 +127,10 @@ The only global flags required in v1 are:
 
 The CLI must not expose `--config`, `--severity`, profile flags, or SARIF output
 in v1. Repo-local `.arckit.jsonc` loading is implicit.
+
+Validation commands may expose `--ignore-config` to bypass repo-local suppressions
+entirely and `--enforce-rule <RULE_ID>` to unsuppress a specific rule while
+preserving all other config behavior.
 
 ### 6.3 Exit Codes
 
