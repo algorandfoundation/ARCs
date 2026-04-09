@@ -17,6 +17,7 @@ Before submitting a new ARC, please refer to the [ARC-0](./ARCs/arc-0000.md).
 Canonical venue: GitHub Discussions
 
 Used for:
+
 - validating whether a new ARC is needed,
 - checking duplication with existing ARCs,
 - collecting early ecosystem feedback,
@@ -28,6 +29,7 @@ Used for:
 Canonical venue: one GitHub Pull Request per numbered ARC
 
 Used for:
+
 - normative ARC content,
 - revisions to the specification,
 - status field updates,
@@ -38,6 +40,7 @@ Used for:
 Canonical venue: one GitHub Issue per numbered ARC
 
 Used for:
+
 - gate decisions,
 - checklist completion,
 - status transition records,
@@ -49,6 +52,7 @@ Used for:
 Canonical venue: dedicated implementation repository
 
 Used for:
+
 - code,
 - tests,
 - examples,
@@ -110,6 +114,10 @@ all `arckit validate ...` commands. It supports repo-local suppressions for:
 - `ignoreByArc`: skip rules for exact ARC numbers or inclusive ARC ranges.
 
 Invalid `.arckit.jsonc` content fails validation.
+
+During staged metadata migrations, `.arckit.jsonc` may temporarily suppress rules
+for historical ARC files. New or edited ARC Markdown files should still be checked
+without config suppression before merge.
 
 Example:
 

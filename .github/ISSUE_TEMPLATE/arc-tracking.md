@@ -24,17 +24,20 @@ labels: ["arc-tracking"]
 ## Gate Checklist
 
 ### Gate 0 - Need Validation
+
 - [ ] Pre-ARC discussion completed
 - [ ] Existing ARCs reviewed
 - [ ] Outcome: `accepted-for-draft`
 
 ### Gate 1 - Draft
+
 - [ ] ARC number assigned
 - [ ] Draft merged
 - [ ] Tracking issue created
 - [ ] Required metadata present
 
 ### Gate 2 - Review
+
 - [ ] Specification complete
 - [ ] Security Considerations complete
 - [ ] `implementation-required` declared
@@ -42,6 +45,7 @@ labels: ["arc-tracking"]
 - [ ] Implementation maintainer assigned
 
 ### Gate 3 - Last Call
+
 - [ ] No unresolved normative issues
 - [ ] Adoption summary file created and current
 - [ ] Reference implementation is active and testable
@@ -49,6 +53,7 @@ labels: ["arc-tracking"]
 - [ ] Last call deadline set
 
 ### Gate 4 - Final
+
 - [ ] Public adoption evidence documented
 - [ ] Reference implementation maintained
 - [ ] Review comments resolved

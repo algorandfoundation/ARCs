@@ -71,10 +71,12 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 
 	matches := adoptionPathPattern.FindStringSubmatch(filepath.ToSlash(summary.Path))
 	expectedNumber := 0
+	hasExpectedNumber := false
 	if len(matches) != 3 {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:014", diag.OriginNative, summary.Path, 1, 1, "adoption summaries must live under adoption/arc-####.yaml", "Move or rename the file to adoption/arc-####.yaml."))
 	} else {
 		expectedNumber, _ = strconv.Atoi(matches[2])
+		hasExpectedNumber = true
 	}
 
 	root := yaml.Node{}
@@ -93,7 +95,7 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 		return summary, diagnostics, nil
 	}
 
-	if expectedNumber != 0 && summary.Arc != 0 && expectedNumber != summary.Arc {
+	if hasExpectedNumber && summary.Arc != 0 && expectedNumber != summary.Arc {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("filename ARC number %d does not match arc value %d", expectedNumber, summary.Arc), "Keep the filename and the arc field aligned."))
 	}
 	return summary, diagnostics, nil
@@ -143,7 +145,7 @@ func Validate(summary *Summary, document *arc.Document) []diag.Diagnostic {
 		return diagnostics
 	}
 
-	if summary.Arc != 0 && document.Number != 0 && summary.Arc != document.Number {
+	if summary.Arc != 0 && document.HasNumber && summary.Arc != document.Number {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("arc %d does not match ARC file number %d", summary.Arc, document.Number), "Keep the ARC and adoption summary numbers aligned."))
 	}
 	if summary.Sponsor != "" && document.Sponsor != "" && summary.Sponsor != document.Sponsor {

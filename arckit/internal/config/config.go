@@ -114,7 +114,7 @@ func Load(root string) (Config, error) {
 }
 
 func (config Config) IgnoreARC(number int) bool {
-	if number <= 0 {
+	if number < 0 {
 		return false
 	}
 	_, ok := config.ignoreArcs[number]
@@ -127,7 +127,7 @@ func (config Config) IgnoreRule(ruleID string) bool {
 }
 
 func (config Config) IgnoreRuleForARC(ruleID string, number int) bool {
-	if number <= 0 {
+	if number < 0 {
 		return false
 	}
 	for _, entry := range config.ignoreByArc {
@@ -160,6 +160,40 @@ func (config Config) FilterDiagnostics(diagnostics []diag.Diagnostic) []diag.Dia
 		filtered = append(filtered, diagnostic)
 	}
 	return filtered
+}
+
+func (config Config) WithRuleEnforced(ruleID string) Config {
+	cloned := Config{
+		ignoreArcs:  make(map[int]struct{}, len(config.ignoreArcs)),
+		ignoreRules: make(map[string]struct{}, len(config.ignoreRules)),
+		ignoreByArc: make([]arcRuleIgnore, 0, len(config.ignoreByArc)),
+	}
+
+	for number := range config.ignoreArcs {
+		cloned.ignoreArcs[number] = struct{}{}
+	}
+	for ignoredRuleID := range config.ignoreRules {
+		if ignoredRuleID == ruleID {
+			continue
+		}
+		cloned.ignoreRules[ignoredRuleID] = struct{}{}
+	}
+	for _, entry := range config.ignoreByArc {
+		rules := make(map[string]struct{}, len(entry.rules))
+		for ignoredRuleID := range entry.rules {
+			if ignoredRuleID == ruleID {
+				continue
+			}
+			rules[ignoredRuleID] = struct{}{}
+		}
+		cloned.ignoreByArc = append(cloned.ignoreByArc, arcRuleIgnore{
+			start: entry.start,
+			end:   entry.end,
+			rules: rules,
+		})
+	}
+
+	return cloned
 }
 
 func ARCNumberForPath(path string) (int, bool) {
@@ -257,8 +291,8 @@ func parseARCValue(value any) (int, error) {
 		if typed != math.Trunc(typed) {
 			return 0, fmt.Errorf("expected an integer ARC number, got %v", typed)
 		}
-		if typed <= 0 {
-			return 0, fmt.Errorf("ARC numbers must be positive, got %v", typed)
+		if typed < 0 {
+			return 0, fmt.Errorf("ARC numbers must be non-negative, got %v", typed)
 		}
 		return int(typed), nil
 	case string:
@@ -307,8 +341,8 @@ func parseARCString(value string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	if number <= 0 {
-		return 0, fmt.Errorf("ARC numbers must be positive, got %d", number)
+	if number < 0 {
+		return 0, fmt.Errorf("ARC numbers must be non-negative, got %d", number)
 	}
 	return number, nil
 }

@@ -1,7 +1,12 @@
 {
   "config": {
+    "MD007": false,
+    "MD010": { "code_blocks": false, "spaces_per_tab": 4 },
     "MD013": false,
+    "MD024": { "siblings_only": true },
+    "MD028": false,
     "MD033": false,
+    "MD036": { "punctuation": ":" },
     "MD040": false
   }
 }

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
 ## ARC Adoption / Implementation Update
 
 Use this template when updating only the adoption artifact, implementation status,

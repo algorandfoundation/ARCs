@@ -65,10 +65,14 @@ func ExecuteArgs(args []string, stdout io.Writer, stderr io.Writer) int {
 }
 
 func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Command {
+	var ignoreConfig bool
+	var enforceRules []string
 	validateCmd := &cobra.Command{
 		Use:   "validate",
 		Short: "Validate ARC repository artifacts",
 	}
+	validateCmd.PersistentFlags().BoolVar(&ignoreConfig, "ignore-config", false, "do not load .arckit.jsonc suppressions")
+	validateCmd.PersistentFlags().StringSliceVar(&enforceRules, "enforce-rule", nil, "validate these rule IDs even if .arckit.jsonc suppresses them")
 
 	validateCmd.AddCommand(&cobra.Command{
 		Use:   "arc <arc-file>",
@@ -77,7 +81,7 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
 				root := arc.FindRepoRoot(filepath.Dir(args[0]))
-				cfg, configErr := config.Load(root)
+				cfg, configErr := loadValidationConfig(root, ignoreConfig, enforceRules)
 				if configErr != nil {
 					return newConfigFailureReport("validate arc", root, configErr), nil
 				}
@@ -102,7 +106,7 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
 				root := arc.FindRepoRoot(filepath.Dir(args[0]))
-				cfg, configErr := config.Load(root)
+				cfg, configErr := loadValidationConfig(root, ignoreConfig, enforceRules)
 				if configErr != nil {
 					return newConfigFailureReport("validate adoption", root, configErr), nil
 				}
@@ -133,7 +137,7 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
 				root := resolveRepoRoot(args[0])
-				cfg, configErr := config.Load(root)
+				cfg, configErr := loadValidationConfig(root, ignoreConfig, enforceRules)
 				if configErr != nil {
 					return newConfigFailureReport("validate links", root, configErr), nil
 				}
@@ -169,7 +173,7 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 					root = args[0]
 				}
 				root = resolveRepoRoot(root)
-				cfg, configErr := config.Load(root)
+				cfg, configErr := loadValidationConfig(root, ignoreConfig, enforceRules)
 				if configErr != nil {
 					return newConfigFailureReport("validate repo", root, configErr), nil
 				}
@@ -195,7 +199,7 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 				return newInvocationFailureReport("validate transition", errors.New("missing --to status")), nil
 			}
 			root := arc.FindRepoRoot(filepath.Dir(args[0]))
-			cfg, configErr := config.Load(root)
+			cfg, configErr := loadValidationConfig(root, ignoreConfig, enforceRules)
 			if configErr != nil {
 				return newConfigFailureReport("validate transition", root, configErr), nil
 			}
@@ -210,6 +214,23 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 	return validateCmd
 }
 
+func loadValidationConfig(root string, ignoreConfig bool, enforceRules []string) (config.Config, error) {
+	if ignoreConfig {
+		return config.Config{}, nil
+	}
+	cfg, err := config.Load(root)
+	if err != nil {
+		return config.Config{}, err
+	}
+	for _, ruleID := range enforceRules {
+		if _, ok := diag.Lookup(ruleID); !ok {
+			return config.Config{}, fmt.Errorf("invalid enforced rule %q: unknown rule", ruleID)
+		}
+		cfg = cfg.WithRuleEnforced(ruleID)
+	}
+	return cfg, nil
+}
+
 func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:   "fmt <path...>",
@@ -222,8 +243,23 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 					return newInvocationFailureReport("fmt", fileErr), nil
 				}
 				diagnostics := make([]diag.Diagnostic, 0)
+				configs := map[string]config.Config{}
 				for _, path := range files {
-					if err := applyNativeFix(path); err != nil {
+					root := arc.FindRepoRoot(filepath.Dir(path))
+					cfg, ok := configs[root]
+					if !ok {
+						loaded, configErr := config.Load(root)
+						if configErr != nil {
+							diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, configErr.Error(), "Check the file permissions and content, then retry."))
+							continue
+						}
+						cfg = loaded
+						configs[root] = cfg
+					}
+					if shouldIgnorePath(cfg, path) {
+						continue
+					}
+					if err := applyNativeFixWithConfig(path, cfg); err != nil {
 						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "Check the file permissions and content, then retry."))
 					}
 				}
@@ -271,6 +307,8 @@ func newInitCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comma
 	initArcCmd.Flags().IntVar(&initOptions.Number, "number", 0, "ARC number")
 	initArcCmd.Flags().StringVar(&initOptions.Title, "title", "", "ARC title")
 	initArcCmd.Flags().StringVar(&initOptions.Type, "type", "", "ARC type")
+	initArcCmd.Flags().StringVar(&initOptions.Category, "category", "", "ARC category")
+	initArcCmd.Flags().StringVar(&initOptions.SubCategory, "sub-category", "", "ARC sub-category")
 	initArcCmd.Flags().StringVar(&initOptions.Sponsor, "sponsor", "", "ARC sponsor")
 	initArcCmd.Flags().StringVar(&initOptions.Author, "author", "", "ARC author")
 	initArcCmd.Flags().StringVar(&initOptions.Description, "description", "", "ARC description")

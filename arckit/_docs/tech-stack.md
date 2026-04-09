@@ -262,6 +262,7 @@ Required fixture coverage:
 1. invalid `.arckit.jsonc` coverage for exit-code `2` behavior;
 1. transition to `Review`, `Last Call`, `Final`, and `Idle`;
 1. `fmt` reordering front matter without rewriting body whitespace;
+1. canonical YAML sequence normalization for list-valued ARC fields;
 1. `validate links` over ARC files and directories;
 1. online link failures reported separately from semantic failures by the CI-side `lychee` adapter.
 
@@ -303,6 +304,7 @@ Steps:
 1. set up pinned Go `1.26.1`;
 1. build `arckit`;
 1. run `arckit validate repo .`.
+1. run changed-file ARC validation with `--enforce-rule R:021` so canonical YAML front matter is enforced during migration without dropping unrelated suppressions.
 
 This is the canonical required validation gate and implicitly applies the repo-root
 `.arckit.jsonc` when present.

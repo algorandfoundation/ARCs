@@ -52,7 +52,7 @@ Text
 
 ## Security Considerations
 
-Text    
+Text
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -71,7 +71,7 @@ Text
 		{name: "validate-repo", args: []string{"validate", "repo", validDraftRoot}, wantCode: 0, wantInOut: "summary:"},
 		{name: "validate-transition", args: []string{"validate", "transition", transitionARC, "--to", "Final"}, wantCode: 0, wantInOut: "R:020"},
 		{name: "fmt", args: []string{"fmt", fmtPath}, wantCode: 0, wantInOut: "summary:"},
-		{name: "init", args: []string{"init", "arc", "--root", tempRoot, "--number", "77", "--title", "CLI Init ARC", "--type", "Meta", "--sponsor", "Foundation"}, wantCode: 0, wantInOut: "arc-0077.md"},
+		{name: "init", args: []string{"init", "arc", "--root", tempRoot, "--number", "77", "--title", "CLI Init ARC", "--type", "Standards Track", "--category", "Interface", "--sub-category", "Application", "--sponsor", "Foundation"}, wantCode: 0, wantInOut: "arc-0077.md"},
 	}
 
 	for _, test := range tests {
@@ -178,6 +178,136 @@ func TestCLIValidateCommandsRejectInvalidConfig(t *testing.T) {
 		t.Fatalf("ExecuteArgs() exit code = %d, want 2, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
 	}
 	assertContains(t, stdout.String(), "R:028")
+}
+
+func TestCLIValidateArcIgnoreConfigBypassesRepoSuppressions(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	writeConfig(t, root, `{
+  "ignoreRules": ["R:021"]
+}`)
+
+	path := filepath.Join(root, "ARCs", "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author: Example Author, Other Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: false
+requires: 4, 22
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "arc", path}, stdout, stderr)
+	assertCommandSucceeded(t, exitCode, stdout, stderr)
+	assertContains(t, stdout.String(), "summary: 0 error(s), 0 warning(s), 0 info")
+
+	stdout.Reset()
+	stderr.Reset()
+	exitCode = ExecuteArgs([]string{"validate", "--ignore-config", "arc", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "R:021")
+}
+
+func TestCLIValidateArcEnforceRuleBypassesOnlyMatchingSuppressions(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	writeConfig(t, root, `{
+  "ignoreRules": ["R:021"],
+  "ignoreByArc": {
+    "0": ["R:008"]
+  }
+}`)
+
+	path := filepath.Join(root, "ARCs", "arc-0000.md")
+	content := `---
+arc: 0
+title: Example
+description: Example description
+author: Example Author, Other Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Meta
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "arc", path}, stdout, stderr)
+	assertCommandSucceeded(t, exitCode, stdout, stderr)
+	assertContains(t, stdout.String(), "summary: 0 error(s), 0 warning(s), 0 info")
+
+	stdout.Reset()
+	stderr.Reset()
+	exitCode = ExecuteArgs([]string{"validate", "--enforce-rule", "R:021", "arc", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "R:021")
+	if strings.Contains(stdout.String(), "R:008") {
+		t.Fatalf("expected --enforce-rule to keep unrelated suppressions, got stdout=%s", stdout.String())
+	}
 }
 
 func TestCLIWriterFailureReturnsInvocationError(t *testing.T) {

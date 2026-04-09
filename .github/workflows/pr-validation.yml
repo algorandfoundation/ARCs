@@ -1,18 +1,14 @@
 name: PR validation
-
 on:
   pull_request:
-
 permissions:
   contents: read
-
 env:
   GO_VERSION: "1.26.1"
   PYTHON_VERSION: "3.12"
   PRE_COMMIT_VERSION: "4.4.0"
   GOCACHE: /tmp/arckit-go-cache
   GOMODCACHE: /tmp/arckit-go-mod-cache
-
 jobs:
   hygiene:
     name: hygiene
@@ -33,7 +29,6 @@ jobs:
       - name: Run hygiene checks
         run: |
           pre-commit run --from-ref "${{ github.event.pull_request.base.sha }}" --to-ref "${{ github.event.pull_request.head.sha }}" --show-diff-on-failure
-
   arckit-tool:
     name: arckit-tool
     runs-on: ubuntu-latest
@@ -88,7 +83,6 @@ jobs:
           chmod +x .github/scripts/build-arckit-release.sh
           RELEASE_DIR="$(.github/scripts/build-arckit-release.sh "${RUNNER_TEMP}/arckit-release" "v0.0.0-dev")"
           test -f "${RELEASE_DIR}/SHA256SUMS"
-
   repo-validate-offline:
     name: repo-validate-offline
     runs-on: ubuntu-latest
@@ -122,7 +116,22 @@ jobs:
         if: steps.changes.outputs.run == 'true'
         run: |
           "${RUNNER_TEMP}/arckit" validate repo .
-
+      - name: Detect changed ARC files
+        if: steps.changes.outputs.run == 'true'
+        id: changed_arcs
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- 'ARCs/*.md' | grep -E '^ARCs/arc-[0-9]{4}\.md$' > "${RUNNER_TEMP}/changed-arcs.txt" || true
+          if [[ -s "${RUNNER_TEMP}/changed-arcs.txt" ]]; then
+            echo "run=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "run=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Enforce canonical YAML front matter on changed ARC files
+        if: steps.changed_arcs.outputs.run == 'true'
+        run: |
+          while IFS= read -r path; do
+            "${RUNNER_TEMP}/arckit" validate arc --enforce-rule R:021 "${path}"
+          done < "${RUNNER_TEMP}/changed-arcs.txt"
   online-validation:
     name: online-validation
     runs-on: ubuntu-latest

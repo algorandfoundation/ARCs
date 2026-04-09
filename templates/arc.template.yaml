@@ -2,14 +2,10 @@ arc: "<arc-number>"
 title: "Replace with ARC title"
 status: "Draft"
 last-reviewed: "<YYYY-MM-DD>"
-
 authors:
   github: "@example"
-
 sponsor: "Foundation" # or "Ecosystem"
-
 implementation-required: true
-
 reference-implementation:
   repository: "https://github.com/<org>/arc<unpadded-number>"
   owner: "@owner-or-team"
@@ -18,7 +14,6 @@ reference-implementation:
     - "@maintainer2"
   status: "planned" # planned | in_progress | testable | shipped | archived
   notes: ""
-
 adoption:
   wallets:
     - name: ""
@@ -45,7 +40,6 @@ adoption:
       status: "planned"
       evidence: ""
       notes: ""
-
 summary:
   adoption-readiness: "low" # low | medium | high
   blockers:

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
 ## ARC Transition to Final
 
 Use this template when requesting transition of an ARC from `Last Call` to `Final`.

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
 ## ARC Draft Submission
 
 Use this template when proposing a **new numbered ARC draft** after `Pre-ARC` acceptance.
@@ -24,6 +26,7 @@ Provide a concise summary of the proposed ARC.
 - [ ] The ARC declares `sponsor`.
 - [ ] The ARC declares `implementation-required`.
 - [ ] The ARC declares `adoption-summary`.
+- [ ] The ARC front matter uses canonical YAML-native field shapes.
 - [ ] The ARC complies with the style and formatting guidelines.
 
 ## Requested Maintainer Action

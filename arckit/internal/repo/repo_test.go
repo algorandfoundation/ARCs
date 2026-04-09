@@ -82,6 +82,161 @@ func TestValidateRepoIgnoresRuleOnConfiguredRange(t *testing.T) {
 	}
 }
 
+func TestValidateRepoDoesNotDeriveRelationshipsFromLegacyScalarLists(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	arc1 := `---
+arc: 1
+title: First
+description: First ARC
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: false
+extends: 2
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	arc2 := `---
+arc: 2
+title: Second
+description: Second ARC
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0001.md"), []byte(arc1), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0002.md"), []byte(arc2), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	_, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:011" {
+			t.Fatalf("expected legacy scalar relationship field not to feed R:011, got %+v", diagnostics)
+		}
+	}
+}
+
+func TestValidateRepoIncludesARCZeroInState(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	content := `---
+arc: 0
+title: ARC Zero
+description: Repository process document.
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Living
+type: Meta
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0000.md"), []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	state, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Validate() diagnostics = %+v", diagnostics)
+	}
+	if _, ok := state.ARCs[0]; !ok {
+		t.Fatalf("expected ARC 0 to be included in repo state, got %+v", state.ARCs)
+	}
+}
+
 func copyRepoFixture(t *testing.T, src string) string {
 	t.Helper()
 	dst := t.TempDir()

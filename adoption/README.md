@@ -3,6 +3,7 @@
 This directory contains machine-readable adoption summaries for numbered ARCs.
 
 They are operational artifacts used to record:
+
 - implementation ownership,
 - implementation status,
 - ecosystem adoption signals,

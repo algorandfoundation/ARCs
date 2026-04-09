@@ -33,6 +33,7 @@ var fieldOrder = []string{
 	"discussions-to",
 	"status",
 	"type",
+	"category",
 	"sub-category",
 	"created",
 	"updated",
@@ -71,6 +72,20 @@ var requiredSections = []string{
 	"Security Considerations",
 }
 
+var (
+	canonicalStringSequenceFields = map[string]struct{}{
+		"author":                    {},
+		"updated":                   {},
+		"implementation-maintainer": {},
+	}
+	canonicalIntSequenceFields = map[string]struct{}{
+		"requires":    {},
+		"supersedes":  {},
+		"extends":     {},
+		"extended-by": {},
+	}
+)
+
 type Link struct {
 	Destination string
 	Line        int
@@ -79,18 +94,25 @@ type Link struct {
 type Document struct {
 	Path                     string
 	Raw                      []byte
+	FrontMatter              []byte
 	Body                     []byte
+	BodyStartLine            int
 	Fields                   map[string]any
 	FieldOrder               []string
 	FieldLines               map[string]int
 	Sections                 map[string]int
 	Links                    []Link
 	ExternalLinks            []string
+	FilenameNumber           int
+	HasFilenameNumber        bool
 	Number                   int
+	HasNumber                bool
 	Title                    string
 	Description              string
 	Status                   string
 	Type                     string
+	Category                 string
+	SubCategory              string
 	Sponsor                  string
 	ImplementationRequired   bool
 	ImplementationURL        string
@@ -128,12 +150,15 @@ func Load(path string) (*Document, []diag.Diagnostic, error) {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:002", diag.OriginNative, document.Path, 1, 1, "ARC files must live under ARCs/arc-####.md", "Move or rename the file to ARCs/arc-####.md."))
 	} else {
 		number, _ := strconv.Atoi(matches[2])
-		document.Number = number
+		document.FilenameNumber = number
+		document.HasFilenameNumber = true
 	}
 
-	frontMatter, body, parseDiagnostics := splitFrontMatter(document.Path, content)
+	frontMatter, body, bodyStartLine, parseDiagnostics := splitFrontMatter(document.Path, content)
 	diagnostics = append(diagnostics, parseDiagnostics...)
+	document.FrontMatter = frontMatter
 	document.Body = body
+	document.BodyStartLine = bodyStartLine
 	if len(frontMatter) == 0 {
 		parseMarkdown(document)
 		return document, diagnostics, nil
@@ -195,11 +220,14 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 		}
 	}
 
+	document.Number = 0
+	document.HasNumber = false
 	if number, ok := intField(document, "arc"); ok {
-		if document.Number != 0 && number != document.Number {
-			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["arc"], 1, fmt.Sprintf("front matter arc value %d does not match filename number %d", number, document.Number), "Keep the filename and the arc field aligned."))
+		if document.HasFilenameNumber && number != document.FilenameNumber {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["arc"], 1, fmt.Sprintf("front matter arc value %d does not match filename number %d", number, document.FilenameNumber), "Keep the filename and the arc field aligned."))
 		}
 		document.Number = number
+		document.HasNumber = true
 	} else if hasField(document.Fields, "arc") {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["arc"], 1, "field \"arc\" must be an integer", "Use a numeric ARC identifier."))
 	}
@@ -208,17 +236,23 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	document.Description = stringField(document, "description")
 	document.Status = stringField(document, "status")
 	document.Type = stringField(document, "type")
+	document.Category = stringField(document, "category")
+	document.SubCategory = stringField(document, "sub-category")
 	document.Sponsor = stringField(document, "sponsor")
 	document.ImplementationURL = stringField(document, "implementation-url")
-	document.ImplementationMaintainer = stringField(document, "implementation-maintainer")
+	document.ImplementationMaintainer = strings.Join(stringSequenceField(document, "implementation-maintainer", false), ", ")
 	document.AdoptionSummary = stringField(document, "adoption-summary")
 	document.LastCallDeadline = stringField(document, "last-call-deadline")
 	document.IdleSince = stringField(document, "idle-since")
-	document.Requires = intListField(document, "requires")
-	document.Supersedes = intListField(document, "supersedes")
-	document.SupersededBy = intListField(document, "superseded-by")
-	document.Extends = intListField(document, "extends")
-	document.ExtendedBy = intListField(document, "extended-by")
+	document.Requires = intSequenceField(document, "requires")
+	document.Supersedes = intSequenceField(document, "supersedes")
+	document.Extends = intSequenceField(document, "extends")
+	document.ExtendedBy = intSequenceField(document, "extended-by")
+	if value, ok := intField(document, "superseded-by"); ok {
+		document.SupersededBy = []int{value}
+	} else if hasField(document.Fields, "superseded-by") {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["superseded-by"], 1, "field \"superseded-by\" must be an integer ARC number", "Use a single numeric ARC identifier."))
+	}
 
 	if value, ok := boolField(document, "implementation-required"); ok {
 		document.ImplementationRequired = value
@@ -226,13 +260,22 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["implementation-required"], 1, "field \"implementation-required\" must be true or false", "Use a YAML boolean value."))
 	}
 
-	for _, name := range []string{"created", "updated", "last-call-deadline", "idle-since"} {
+	for _, name := range []string{"created", "last-call-deadline", "idle-since"} {
 		value := stringField(document, name)
 		if value == "" {
 			continue
 		}
 		if !datePattern.MatchString(value) {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines[name], 1, fmt.Sprintf("field %q must use YYYY-MM-DD", name), "Use an ISO date in YYYY-MM-DD format."))
+		}
+	}
+	if hasField(document.Fields, "updated") {
+		values := stringSequenceField(document, "updated", true)
+		for _, value := range values {
+			if !datePattern.MatchString(value) {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["updated"], 1, "field \"updated\" must use YYYY-MM-DD", "Use ISO dates in YYYY-MM-DD format inside the YAML sequence."))
+				break
+			}
 		}
 	}
 
@@ -267,6 +310,8 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["status"], 1, "status \"Idle\" requires idle-since", "Add idle-since in YYYY-MM-DD format."))
 	}
 
+	diagnostics = append(diagnostics, validateCanonicalYAMLFieldShapes(document)...)
+
 	for _, section := range requiredSections {
 		if _, ok := document.Sections[section]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:008", diag.OriginNative, document.Path, 1, 1, fmt.Sprintf("missing required section %q", section), "Add the missing level-2 section to the ARC."))
@@ -275,6 +320,84 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 
 	diagnostics = append(diagnostics, ValidateLinks(document, repoRoot)...)
 	return diagnostics
+}
+
+func validateCanonicalYAMLFieldShapes(document *Document) []diag.Diagnostic {
+	diagnostics := make([]diag.Diagnostic, 0)
+
+	for field := range canonicalStringSequenceFields {
+		value, ok := document.Fields[field]
+		if !ok {
+			continue
+		}
+		if isCanonicalStringSequence(value, field == "updated") {
+			continue
+		}
+		diagnostics = append(diagnostics, diag.NewWithHint("R:021", diag.OriginNative, document.Path, document.FieldLines[field], 1, fmt.Sprintf("field %q must use a YAML sequence", field), canonicalShapeHint(field)))
+	}
+
+	for field := range canonicalIntSequenceFields {
+		value, ok := document.Fields[field]
+		if !ok {
+			continue
+		}
+		if isCanonicalIntSequence(value) {
+			continue
+		}
+		diagnostics = append(diagnostics, diag.NewWithHint("R:021", diag.OriginNative, document.Path, document.FieldLines[field], 1, fmt.Sprintf("field %q must use a YAML sequence of ARC numbers", field), canonicalShapeHint(field)))
+	}
+
+	return diagnostics
+}
+
+func canonicalShapeHint(field string) string {
+	switch field {
+	case "author":
+		return "Use a YAML sequence, for example:\nauthor:\n  - Example Author (@example)"
+	case "updated":
+		return "Use a YAML sequence of dates, for example:\nupdated:\n  - 2026-04-09"
+	case "implementation-maintainer":
+		return "Use a YAML sequence, for example:\nimplementation-maintainer:\n  - algorandfoundation"
+	default:
+		return fmt.Sprintf("Use a YAML sequence, for example:\n%s:\n  - 42", field)
+	}
+}
+
+func isCanonicalStringSequence(value any, allowDates bool) bool {
+	items, ok := value.([]any)
+	if !ok || len(items) == 0 {
+		return false
+	}
+	for _, item := range items {
+		switch typed := item.(type) {
+		case string:
+			if strings.TrimSpace(typed) == "" {
+				return false
+			}
+		case time.Time:
+			if !allowDates {
+				return false
+			}
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+func isCanonicalIntSequence(value any) bool {
+	items, ok := value.([]any)
+	if !ok || len(items) == 0 {
+		return false
+	}
+	for _, item := range items {
+		switch item.(type) {
+		case int, int64, float64:
+		default:
+			return false
+		}
+	}
+	return true
 }
 
 func ValidateLinks(document *Document, repoRoot string) []diag.Diagnostic {
@@ -345,10 +468,10 @@ func ValidateLinks(document *Document, repoRoot string) []diag.Diagnostic {
 func FindRepoRoot(start string) string {
 	current := filepath.Clean(start)
 	for {
-		if current == "." || current == string(filepath.Separator) || current == "" {
+		if current == string(filepath.Separator) || current == "" {
 			break
 		}
-		if exists(filepath.Join(current, "ARCs")) && exists(filepath.Join(current, "adoption")) {
+		if dirExists(filepath.Join(current, "ARCs")) || pathExists(filepath.Join(current, ".arckit.jsonc")) {
 			return current
 		}
 		parent := filepath.Dir(current)
@@ -357,7 +480,7 @@ func FindRepoRoot(start string) string {
 		}
 		current = parent
 	}
-	return "."
+	return filepath.Clean(start)
 }
 
 func RequiresAdoptionSummary(status string) bool {
@@ -384,15 +507,15 @@ func OrderedFields() []string {
 	return out
 }
 
-func splitFrontMatter(path string, content []byte) ([]byte, []byte, []diag.Diagnostic) {
+func splitFrontMatter(path string, content []byte) ([]byte, []byte, int, []diag.Diagnostic) {
 	if !bytes.HasPrefix(content, []byte("---")) {
-		return nil, content, []diag.Diagnostic{
+		return nil, content, 1, []diag.Diagnostic{
 			diag.NewWithHint("R:001", diag.OriginNative, path, 1, 1, "ARC files must start with a YAML front matter block", "Add a front matter block delimited by --- at the top of the file."),
 		}
 	}
 	lines := bytes.Split(content, []byte("\n"))
 	if len(lines) == 0 || strings.TrimSpace(string(lines[0])) != "---" {
-		return nil, content, []diag.Diagnostic{
+		return nil, content, 1, []diag.Diagnostic{
 			diag.NewWithHint("R:001", diag.OriginNative, path, 1, 1, "front matter must start with a line containing only ---", "Start the file with --- on its own line."),
 		}
 	}
@@ -404,11 +527,11 @@ func splitFrontMatter(path string, content []byte) ([]byte, []byte, []diag.Diagn
 			frontMatter := content[len(lines[0])+1 : offset-1]
 			body := content[offset+len(lines[index]):]
 			body = bytes.TrimPrefix(body, []byte("\n"))
-			return frontMatter, body, nil
+			return frontMatter, body, index + 2, nil
 		}
 		offset += len(lines[index]) + 1
 	}
-	return nil, content, []diag.Diagnostic{
+	return nil, content, 1, []diag.Diagnostic{
 		diag.NewWithHint("R:001", diag.OriginNative, path, 1, 1, "front matter is not closed with a second --- delimiter", "Terminate the front matter block with --- on its own line."),
 	}
 }
@@ -418,6 +541,10 @@ func parseMarkdown(document *Document) {
 	reader := text.NewReader(document.Body)
 	tree := parser.Parser().Parse(reader)
 	source := document.Body
+	bodyStartLine := document.BodyStartLine
+	if bodyStartLine == 0 {
+		bodyStartLine = 1
+	}
 	_ = ast.Walk(tree, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
 			return ast.WalkContinue, nil
@@ -428,11 +555,11 @@ func parseMarkdown(document *Document) {
 				return ast.WalkContinue, nil
 			}
 			title := strings.TrimSpace(plainText(source, typed))
-			document.Sections[title] = nodeLine(source, typed)
+			document.Sections[title] = nodeLine(source, typed, bodyStartLine)
 		case *ast.Link:
 			document.Links = append(document.Links, Link{
 				Destination: string(typed.Destination),
-				Line:        nodeLine(source, typed),
+				Line:        nodeLine(source, typed, bodyStartLine),
 			})
 		}
 		return ast.WalkContinue, nil
@@ -456,16 +583,21 @@ func plainText(source []byte, node ast.Node) string {
 	return builder.String()
 }
 
-func nodeLine(source []byte, node ast.Node) int {
+func nodeLine(source []byte, node ast.Node, baseLine int) int {
 	if lines := safeLines(node); lines != nil && lines.Len() > 0 {
-		return bytes.Count(source[:lines.At(0).Start], []byte("\n")) + 1
+		return baseLine + bytes.Count(source[:lines.At(0).Start], []byte("\n"))
 	}
 	for child := node.FirstChild(); child != nil; child = child.NextSibling() {
-		if line := nodeLine(source, child); line > 0 {
+		if line := nodeLine(source, child, baseLine); line > 0 {
 			return line
 		}
 	}
-	return 1
+	for parent := node.Parent(); parent != nil; parent = parent.Parent() {
+		if lines := safeLines(parent); lines != nil && lines.Len() > 0 {
+			return baseLine + bytes.Count(source[:lines.At(0).Start], []byte("\n"))
+		}
+	}
+	return baseLine
 }
 
 func includesARCNumber(value string, number int) bool {
@@ -543,18 +675,12 @@ func boolField(document *Document, key string) (bool, bool) {
 	return typed, ok
 }
 
-func intListField(document *Document, key string) []int {
+func intSequenceField(document *Document, key string) []int {
 	value, ok := document.Fields[key]
 	if !ok {
 		return nil
 	}
 	switch typed := value.(type) {
-	case int:
-		return []int{typed}
-	case int64:
-		return []int{int(typed)}
-	case float64:
-		return []int{int(typed)}
 	case []any:
 		out := make([]int, 0, len(typed))
 		for _, item := range typed {
@@ -573,6 +699,37 @@ func intListField(document *Document, key string) []int {
 	}
 }
 
+func stringSequenceField(document *Document, key string, allowDates bool) []string {
+	value, ok := document.Fields[key]
+	if !ok {
+		return nil
+	}
+	switch typed := value.(type) {
+	case []any:
+		out := make([]string, 0, len(typed))
+		for _, item := range typed {
+			switch value := item.(type) {
+			case string:
+				trimmed := strings.TrimSpace(value)
+				if trimmed == "" {
+					return nil
+				}
+				out = append(out, trimmed)
+			case time.Time:
+				if !allowDates {
+					return nil
+				}
+				out = append(out, value.Format("2006-01-02"))
+			default:
+				return nil
+			}
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
 func withinRoot(root, path string) bool {
 	root = filepath.Clean(root)
 	path = filepath.Clean(path)
@@ -582,9 +739,14 @@ func withinRoot(root, path string) bool {
 	return strings.HasPrefix(path, root+string(os.PathSeparator))
 }
 
-func exists(path string) bool {
+func dirExists(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
+}
+
+func pathExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 func safeLines(node ast.Node) *text.Segments {

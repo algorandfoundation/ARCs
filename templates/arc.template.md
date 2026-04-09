@@ -2,24 +2,32 @@
 arc: <to be assigned by the ARC editor after discussion>
 title: <few words, not a complete sentence, up to 44 characters>
 description: <one short sentence, up to 140 characters>
-author: <Name (@GitHubUsername), Name <email@example.com>>
+author:
+  - <Name (@GitHubUsername)>
+  - <Name <email@example.com> (@GitHubUsername)>
 discussions-to: <URL to Pre-ARC discussion>
 status: Draft
 type: <Standards Track or Meta>
 category: <Interface, Data, Cryptography, or Governance>
 sub-category: <General, ASA, App, LSig, Event, Library, Identity, Explorer, or Wallet>
 created: <yyyy-mm-dd, date of ARC number assignment (after preliminary discussion)>
-updated: <optional, remove if not needed>
-requires: <optional, remove if not needed>
-supersedes: <optional, remove if not needed>
+updated:
+  - <yyyy-mm-dd, optional, remove field if not needed>
+requires:
+  - <ARC number, optional, remove field if not needed>
+supersedes:
+  - <ARC number, optional, remove field if not needed>
 superseded-by: <optional, remove if not needed>
-extends: <optional, remove if not needed>
-extended-by: <optional, remove if not needed>
+extends:
+  - <ARC number, optional, remove field if not needed>
+extended-by:
+  - <ARC number, optional, remove field if not needed>
 sponsor: <Foundation or Ecosystem>
 implementation-required: <true or false>
 implementation-url: <URL, leave blank until Review if not yet created>
-implementation-maintainer: <GitHub username(s) or GitHub organization>
-adoption-summary: ../adoption/arc-####.yaml
+implementation-maintainer:
+  - <GitHub username or GitHub organization>
+adoption-summary: adoption/arc-####.yaml
 ---
 
 ## Abstract
@@ -29,13 +37,14 @@ adoption-summary: ../adoption/arc-####.yaml
 ## Motivation
 
 > Describe the real problem being solved. Include:
+>
 > - who is affected,
 > - what fragmentation or user harm exists today,
 > - why this requires standardization.
 
 ## Specification
 
-The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL 
+The key words "**MUST**", "**MUST NOT**", "**REQUIRED**", "**SHALL**", "**SHALL
 NOT**", "**SHOULD**", "**SHOULD NOT**", "**RECOMMENDED**", "**MAY**", and "**OPTIONAL**"
 are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.txt">RFC-2119</a>.
 
@@ -53,6 +62,7 @@ are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.
 ## Reference Implementation
 
 > If `implementation-required: true`, this section is mandatory. Include:
+>
 > - canonical repository,
 > - implementation scope,
 > - conformance or example artifacts,

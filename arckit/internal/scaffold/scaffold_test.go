@@ -3,6 +3,7 @@ package scaffold
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -12,7 +13,9 @@ func TestInitARCCreatesExpectedFiles(t *testing.T) {
 		Root:                   root,
 		Number:                 99,
 		Title:                  "Scaffolded ARC",
-		Type:                   "Meta",
+		Type:                   "Standards Track",
+		Category:               "Interface",
+		SubCategory:            "Application",
 		Sponsor:                "Foundation",
 		ImplementationRequired: true,
 	})
@@ -33,5 +36,14 @@ func TestInitARCCreatesExpectedFiles(t *testing.T) {
 		if _, err := os.Stat(path); err != nil {
 			t.Fatalf("expected %s to exist: %v", path, err)
 		}
+	}
+
+	arcContent, err := os.ReadFile(filepath.Join(root, "ARCs", "arc-0099.md"))
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	text := string(arcContent)
+	if !strings.Contains(text, "author:\n  - TBD\ndiscussions-to:\nstatus: Draft\ntype: Standards Track\ncategory: Interface\nsub-category: Application\ncreated: ") {
+		t.Fatalf("expected scaffolded ARC to include category fields, got:\n%s", text)
 	}
 }

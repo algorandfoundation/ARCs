@@ -89,8 +89,12 @@ repo-attributed diagnostics.
 
 `ignoreRules` suppresses one rule globally.
 
-`ignoreByArc` suppresses one or more rules for exact ARC selectors like `43` or
-inclusive ARC ranges like `50-60`.
+`ignoreByArc` suppresses one or more rules for exact ARC selectors like `0` or `43`
+or inclusive ARC ranges like `50-60`.
+
+Migration-specific suppressions are allowed when the repository is moving from one
+canonical ARC encoding to another, as long as the steady-state target remains the
+documented spec.
 
 Invalid `.arckit.jsonc` content must stop validation with exit code `2`.
 
@@ -109,7 +113,7 @@ arckit validate adoption <adoption-file>
 arckit validate links <path...>
 arckit validate repo [repo-root]
 arckit validate transition <arc-file> --to <status>
-arckit init arc --number <n> --title <title> --type <type> --sponsor <sponsor>
+arckit init arc --number <n> --title <title> --type <type> [--category <category>] [--sub-category <sub-category>] --sponsor <sponsor>
 arckit rules
 arckit explain <rule-id>
 ```
@@ -123,6 +127,10 @@ The only global flags required in v1 are:
 
 The CLI must not expose `--config`, `--severity`, profile flags, or SARIF output
 in v1. Repo-local `.arckit.jsonc` loading is implicit.
+
+Validation commands may expose `--ignore-config` to bypass repo-local suppressions
+entirely and `--enforce-rule <RULE_ID>` to unsuppress a specific rule while
+preserving all other config behavior.
 
 ### 6.3 Exit Codes
 
@@ -253,6 +261,8 @@ The numeric identifier in the filename must match the `arc` front matter field.
 
 ARC files must begin with a YAML front matter block delimited by `---`.
 
+The front matter must decode to one top-level YAML mapping.
+
 Recognized fields, in required order when present, are:
 
 1. `arc`
@@ -262,6 +272,7 @@ Recognized fields, in required order when present, are:
 1. `discussions-to`
 1. `status`
 1. `type`
+1. `category`
 1. `sub-category`
 1. `created`
 1. `updated`
@@ -279,6 +290,13 @@ Recognized fields, in required order when present, are:
 1. `extended-by`
 
 Unknown top-level front matter fields are not allowed in v1.
+
+Canonical YAML field shapes:
+
+1. `author`, `updated`, `implementation-maintainer`, `requires`, `supersedes`, `extends`, and `extended-by` must use YAML sequences.
+1. `superseded-by` must use a scalar ARC number.
+1. `implementation-required` must use a YAML boolean.
+1. date fields remain scalar values in `YYYY-MM-DD` form.
 
 ### 9.3 Required ARC Fields
 
@@ -305,6 +323,7 @@ Field requirements:
 1. `sponsor` must be one of `Foundation` or `Ecosystem`.
 1. `implementation-required` must be `true` or `false`.
 1. `adoption-summary`, when present, must be a relative path under `adoption/`.
+1. list-valued ARC metadata must use canonical YAML sequences rather than comma-separated scalars.
 
 ### 9.4 Conditional ARC Fields
 
@@ -546,6 +565,7 @@ It must:
 
 1. normalize front matter spacing;
 1. normalize front matter field ordering;
+1. normalize canonical YAML sequence fields without coercing invalid scalar-list legacy encodings;
 1. preserve semantic content.
 1. leave body whitespace, final-newline policy, and generic Markdown hygiene to
    the repository-root `pre-commit` hooks.
@@ -571,7 +591,7 @@ Outputs:
 1. `assets/arc-####/`
 
 The generated ARC must include an `adoption-summary` field pointing to the generated
-adoption stub.
+adoption stub, and must emit canonical YAML-native list fields for author metadata.
 
 `init arc` must never create remote GitHub artifacts.
 
