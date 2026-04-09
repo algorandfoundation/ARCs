@@ -2,9 +2,7 @@
   "ignoreRules": [
     "R:004",
     "R:011",
-    "R:012",
-    // Temporary migration suppression for legacy scalar list front matter.
-    "R:021"
+    "R:012"
   ],
   "ignoreByArc": {
     "0": ["R:008"],
