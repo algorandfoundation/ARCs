@@ -18,13 +18,6 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 	repoRoot := arc.FindRepoRoot(filepath.Dir(path))
 	diagnostics = append(diagnostics, arc.Validate(document, repoRoot)...)
 
-	switch target {
-	case "Review", "Last Call", "Final", "Idle":
-	default:
-		diagnostics = append(diagnostics, diag.NewWithHint("R:026", diag.OriginNative, path, 1, 1, fmt.Sprintf("unsupported transition target %q", target), "Use one of Review, Last Call, Final, or Idle."))
-		return diagnostics, nil
-	}
-
 	require := func(condition bool, message string) {
 		if !condition {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:019", diag.OriginNative, path, 1, 1, message, "Add the missing evidence or metadata required for this transition."))
@@ -76,6 +69,9 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		require(document.IdleSince != "", "idle-since is required for transition to Idle")
 		hasSummary := loadSummary(document, &diagnostics) != nil
 		require(hasSummary, "transition to Idle requires a valid adoption summary")
+	default:
+		diagnostics = append(diagnostics, diag.NewWithHint("R:026", diag.OriginNative, path, 1, 1, fmt.Sprintf("unsupported transition target %q", target), "Use one of Review, Last Call, Final, or Idle."))
+		return diagnostics, nil
 	}
 
 	for _, reminder := range []string{
