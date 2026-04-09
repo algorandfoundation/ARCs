@@ -102,18 +102,54 @@ async function parseArcMetadata(filePath) {
   const content = await fs.readFile(filePath, "utf8");
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   const frontMatter = match ? match[1] : "";
+  const fields = parseTopLevelFrontMatter(frontMatter);
   return {
-    arc: field(frontMatter, "arc"),
-    title: field(frontMatter, "title"),
-    status: field(frontMatter, "status"),
-    author: field(frontMatter, "author"),
-    adoptionSummary: field(frontMatter, "adoption-summary"),
+    arc: scalarField(fields, "arc"),
+    title: scalarField(fields, "title"),
+    status: scalarField(fields, "status"),
+    author: listOrScalarField(fields, "author"),
+    adoptionSummary: scalarField(fields, "adoption-summary"),
   };
 }
 
-function field(frontMatter, key) {
-  const match = frontMatter.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
-  return match ? match[1].trim() : "";
+function parseTopLevelFrontMatter(frontMatter) {
+  const fields = {};
+  let currentKey = "";
+
+  for (const line of frontMatter.split(/\r?\n/)) {
+    if (!line.trim()) {
+      continue;
+    }
+    const keyMatch = line.match(/^([A-Za-z0-9-]+):(?:\s*(.*))?$/);
+    if (keyMatch) {
+      currentKey = keyMatch[1];
+      const value = (keyMatch[2] || "").trim();
+      fields[currentKey] = value ? value : [];
+      continue;
+    }
+    const sequenceMatch = line.match(/^\s*-\s*(.+)$/);
+    if (sequenceMatch && currentKey && Array.isArray(fields[currentKey])) {
+      fields[currentKey].push(sequenceMatch[1].trim());
+    }
+  }
+
+  return fields;
+}
+
+function scalarField(fields, key) {
+  const value = fields[key];
+  if (Array.isArray(value)) {
+    return value[0] || "";
+  }
+  return value || "";
+}
+
+function listOrScalarField(fields, key) {
+  const value = fields[key];
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+  return value || "";
 }
 
 async function findTrackingIssue(github, context, arcNumber) {

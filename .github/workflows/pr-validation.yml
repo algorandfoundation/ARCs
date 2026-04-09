@@ -116,6 +116,22 @@ jobs:
         if: steps.changes.outputs.run == 'true'
         run: |
           "${RUNNER_TEMP}/arckit" validate repo .
+      - name: Detect changed ARC files
+        if: steps.changes.outputs.run == 'true'
+        id: changed_arcs
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- 'ARCs/*.md' | grep -E '^ARCs/arc-[0-9]{4}\.md$' > "${RUNNER_TEMP}/changed-arcs.txt" || true
+          if [[ -s "${RUNNER_TEMP}/changed-arcs.txt" ]]; then
+            echo "run=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "run=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Enforce canonical YAML front matter on changed ARC files
+        if: steps.changed_arcs.outputs.run == 'true'
+        run: |
+          while IFS= read -r path; do
+            "${RUNNER_TEMP}/arckit" validate arc --enforce-rule R:021 "${path}"
+          done < "${RUNNER_TEMP}/changed-arcs.txt"
   online-validation:
     name: online-validation
     runs-on: ubuntu-latest
