@@ -9,7 +9,11 @@ reference-implementation:
   notes: Deployed on MainNet
 adoption:
   wallets: []
-  explorers: []
+  explorers:
+    - name: pera
+      status: shipped
+      evidence: https://explorer.perawallet.app/asset/2849506951/
+      notes: Explorer renders ARC-62 circulating supply in public UI.
   sdk-libraries: []
   infra: []
   dapps-protocols: []
