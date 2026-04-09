@@ -253,6 +253,8 @@ The numeric identifier in the filename must match the `arc` front matter field.
 
 ARC files must begin with a YAML front matter block delimited by `---`.
 
+The front matter must decode to one top-level YAML mapping.
+
 Recognized fields, in required order when present, are:
 
 1. `arc`
@@ -281,6 +283,13 @@ Recognized fields, in required order when present, are:
 
 Unknown top-level front matter fields are not allowed in v1.
 
+Canonical YAML field shapes:
+
+1. `author`, `updated`, `implementation-maintainer`, `requires`, `supersedes`, `extends`, and `extended-by` must use YAML sequences.
+1. `superseded-by` must use a scalar ARC number.
+1. `implementation-required` must use a YAML boolean.
+1. date fields remain scalar values in `YYYY-MM-DD` form.
+
 ### 9.3 Required ARC Fields
 
 Each ARC file must include:
@@ -306,6 +315,7 @@ Field requirements:
 1. `sponsor` must be one of `Foundation` or `Ecosystem`.
 1. `implementation-required` must be `true` or `false`.
 1. `adoption-summary`, when present, must be a relative path under `adoption/`.
+1. list-valued ARC metadata must use canonical YAML sequences rather than comma-separated scalars.
 
 ### 9.4 Conditional ARC Fields
 

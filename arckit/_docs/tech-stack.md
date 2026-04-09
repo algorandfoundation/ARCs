@@ -262,6 +262,7 @@ Required fixture coverage:
 1. invalid `.arckit.jsonc` coverage for exit-code `2` behavior;
 1. transition to `Review`, `Last Call`, `Final`, and `Idle`;
 1. `fmt` reordering front matter without rewriting body whitespace;
+1. canonical YAML sequence normalization for list-valued ARC fields;
 1. `validate links` over ARC files and directories;
 1. online link failures reported separately from semantic failures by the CI-side `lychee` adapter.
 
