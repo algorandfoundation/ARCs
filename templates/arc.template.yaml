@@ -15,31 +15,13 @@ reference-implementation:
   status: "planned" # planned | in_progress | testable | shipped | archived
   notes: ""
 adoption:
-  wallets:
-    - name: ""
-      status: "planned" # planned | in_progress | shipped | declined
-      evidence: ""
-      notes: ""
-  explorers:
-    - name: ""
-      status: "planned"
-      evidence: ""
-      notes: ""
-  sdk-libraries:
-    - name: ""
-      status: "planned"
-      evidence: ""
-      notes: ""
-  infra:
-    - name: ""
-      status: "planned"
-      evidence: ""
-      notes: ""
-  dapps-protocols:
-    - name: ""
-      status: "planned"
-      evidence: ""
-      notes: ""
+  # Add actor entries only after the adopter is listed in adoption/vetted-adopters.yaml.
+  # Actor names must be lower-kebab-case and must match the vetted registry exactly.
+  wallets: []
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
 summary:
   adoption-readiness: "low" # low | medium | high
   blockers:

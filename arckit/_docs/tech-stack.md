@@ -151,8 +151,10 @@ Owns:
 Owns:
 
 1. adoption YAML decoding;
+1. vetted adopters registry decoding;
 1. enum validation;
-1. adoption summary consistency checks.
+1. adoption summary consistency checks;
+1. summary-to-registry adopter checks.
 
 ### 5.5 `repo`
 
@@ -258,6 +260,8 @@ Required fixture coverage:
 
 1. valid ARC without adoption file where one is not yet required;
 1. ARC missing an adoption file when one is required;
+1. missing or invalid vetted adopters registry;
+1. adopter names that are not lower-kebab-case or not present in the matching registry category;
 1. repo-local `.arckit.jsonc` suppression coverage for ignored ARCs and ignored rules;
 1. invalid `.arckit.jsonc` coverage for exit-code `2` behavior;
 1. transition to `Review`, `Last Call`, `Final`, and `Idle`;
@@ -307,7 +311,8 @@ Steps:
 1. run changed-file ARC validation with `--enforce-rule R:021` so canonical YAML front matter is enforced during migration without dropping unrelated suppressions.
 
 This is the canonical required validation gate and implicitly applies the repo-root
-`.arckit.jsonc` when present.
+`.arckit.jsonc` when present. The same gate also validates `adoption/vetted-adopters.yaml`
+and any summary-to-registry adopter references.
 
 ### 9.4 Scheduled or Manual Online Workflow
 

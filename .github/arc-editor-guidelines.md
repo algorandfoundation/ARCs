@@ -113,7 +113,8 @@ An editor must still manually:
 - confirm that the numbered ARC tracking issue exists;
 - ensure the issue uses the tracking issue template;
 - keep the gate checklist and decision log meaningful and current when editorial decisions are made;
-- verify that the canonical links in the issue point to the correct discussion, PR, adoption summary, and implementation repository.
+- verify that the canonical links in the issue point to the correct discussion, PR, adoption summary, and implementation repository;
+- confirm that any newly named adopters are present in `adoption/vetted-adopters.yaml`.
 
 The current CI/CD spec treats tracking issue creation as a manual author action after
 number assignment. From the editor side, the manual responsibility is to confirm that

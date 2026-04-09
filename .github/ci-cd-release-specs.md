@@ -89,6 +89,10 @@ arckit validate repo .
 This check is required for relevant pull requests and is the authoritative machine
 validation gate for ARC repository artifacts.
 
+That gate includes the repository-scoped vetted adopters registry at
+`adoption/vetted-adopters.yaml` and rejects per-ARC adoption actors that are not
+lower-kebab-case or are not present in the matching registry category.
+
 When present, the repository-root `.arckit.jsonc` is applied implicitly by this
 command. Invalid `.arckit.jsonc` content must fail the gate.
 
@@ -210,6 +214,7 @@ The monthly audit must review:
 Deterministic maintenance findings include:
 
 1. offline `arckit` validation failures;
+1. missing or invalid vetted adopters registry;
 1. missing or invalid required adoption summaries;
 1. missing local links or asset targets;
 1. ARC and tracking issue mismatches that are machine-checkable;

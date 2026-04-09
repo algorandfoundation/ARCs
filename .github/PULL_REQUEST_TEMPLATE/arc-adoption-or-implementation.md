@@ -27,6 +27,7 @@ Describe what changed in the adoption summary.
 
 - [ ] The status in the adoption summary matches the current ARC status.
 - [ ] Wallet / explorer / SDK / infra / dApp sections were updated where relevant.
+- [ ] Any new adopter name was added to `adoption/vetted-adopters.yaml` in the matching category.
 - [ ] Implementation information is current.
 - [ ] The tracking issue was updated if this changes gate readiness.
 

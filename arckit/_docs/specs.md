@@ -52,6 +52,7 @@ The CLI must follow these principles:
 
 1. ARC documents live in `ARCs/arc-####.md`.
 1. Adoption summaries live in `adoption/arc-####.yaml`.
+1. The vetted adopters registry lives in `adoption/vetted-adopters.yaml`.
 1. ARC assets, when present, live in `assets/arc-####/`.
 1. Optional repo-local validation suppressions live in `.arckit.jsonc` at the repository root.
 1. Templates live in `templates/`.
@@ -205,6 +206,7 @@ It must perform:
 1. filename validation;
 1. schema and required field validation;
 1. enum validation;
+1. vetted adopters registry validation;
 1. internal consistency validation.
 
 ### 8.3 `validate links`
@@ -226,6 +228,7 @@ It must always validate:
 It must perform:
 
 1. ARC validation for all discovered ARC files;
+1. vetted adopters registry validation;
 1. adoption summary validation for all discovered adoption files;
 1. repository-wide mapping and reciprocity checks;
 1. native local link validation.
@@ -372,6 +375,8 @@ hook in the repository-root `pre-commit` configuration.
 
 Adoption summary files must be named `arc-####.yaml` and must live in `adoption/`.
 
+The repository must also contain `adoption/vetted-adopters.yaml`.
+
 ### 10.2 Requirement Policy
 
 Adoption summaries are not a blanket requirement for every historical ARC in v1.
@@ -453,6 +458,11 @@ Each actor entry must support:
 1. `evidence`
 1. `notes`
 
+Each actor `name` must:
+
+1. be lower-kebab-case;
+1. match an entry in the same category of `adoption/vetted-adopters.yaml`.
+
 Allowed actor `status` values are:
 
 - `planned`
@@ -483,9 +493,11 @@ Allowed `summary.adoption-readiness` values are:
 `validate repo` must enforce at least:
 
 1. no duplicate ARC numbers across ARC files;
+1. one valid `adoption/vetted-adopters.yaml` file exists;
 1. no duplicate ARC numbers across adoption files;
 1. no orphaned adoption summaries for missing ARC files;
 1. no orphaned asset trees for missing ARC files;
+1. adoption actor names are present in the matching vetted-adopter category;
 1. ARC `adoption-summary` fields, when required, point to the matching adoption file;
 1. reciprocal relationship fields are consistent where both files exist:
    - `supersedes` <-> `superseded-by`
@@ -588,6 +600,7 @@ Outputs:
 
 1. `ARCs/arc-####.md`
 1. `adoption/arc-####.yaml`
+1. `adoption/vetted-adopters.yaml`, when it does not already exist
 1. `assets/arc-####/`
 
 The generated ARC must include an `adoption-summary` field pointing to the generated

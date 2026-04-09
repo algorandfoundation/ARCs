@@ -45,7 +45,8 @@ Used for:
 - checklist completion,
 - status transition records,
 - links to the reference implementation,
-- link to the adoption summary artifact.
+- link to the adoption summary artifact,
+- confirmation that any newly named adopters were added to `adoption/vetted-adopters.yaml`.
 
 ### 4. Reference implementation
 

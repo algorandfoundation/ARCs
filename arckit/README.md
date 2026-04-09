@@ -57,5 +57,10 @@ go run ./cmd/arckit validate repo ..
 go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
 go run ./cmd/arckit validate arc --enforce-rule R:021 ../ARCs/arc-0000.md
 go run ./cmd/arckit validate arc --ignore-config ../ARCs/arc-0000.md
+go run ./cmd/arckit validate adoption ../adoption/arc-0042.yaml
 go run ./cmd/arckit validate links ../ARCs/arc-0000.md
 ```
+
+`validate adoption` and `validate repo` both require the canonical vetted adopters
+registry at `../adoption/vetted-adopters.yaml`. Per-ARC adoption actor names must
+be lower-kebab-case identifiers present in the matching registry category.
