@@ -206,6 +206,52 @@ summary:
 	}
 }
 
+func TestLoadRejectsScalarActorEntryWithHelpfulMessage(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "adoption", "arc-0062.yaml")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.WriteFile(path, []byte(`arc: 62
+title: ASA Circulating Supply
+status: Final
+last-reviewed: 2026-04-09
+sponsor: ""
+implementation-required: false
+adoption:
+  wallets: []
+  explorers:
+    - wow
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	_, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+
+	found := false
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:016" && strings.Contains(diagnostic.Message, `adoption.explorers[0] must be an actor object`) {
+			found = true
+			if strings.Contains(diagnostic.Message, "cannot unmarshal") {
+				t.Fatalf("expected targeted schema message, got %+v", diagnostic)
+			}
+		}
+	}
+	if !found {
+		t.Fatalf("expected targeted actor schema diagnostic, got %+v", diagnostics)
+	}
+}
+
 func copyRepoFixture(t *testing.T, src string) string {
 	t.Helper()
 	dst := t.TempDir()

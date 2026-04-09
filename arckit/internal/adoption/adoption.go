@@ -91,7 +91,11 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 		}
 	}
 	if err := yaml.Unmarshal(content, summary); err != nil {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, err.Error(), "Use the required adoption summary schema."))
+		if schemaDiagnostics := adoptionSchemaDiagnostics(summary.Path, &root); len(schemaDiagnostics) > 0 {
+			diagnostics = append(diagnostics, schemaDiagnostics...)
+		} else {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, err.Error(), "Use the required adoption summary schema."))
+		}
 		return summary, diagnostics, nil
 	}
 
@@ -206,5 +210,85 @@ func (summary *Summary) actorGroups() map[string][]Actor {
 		"sdk-libraries":   summary.Adoption.SDKLibraries,
 		"infra":           summary.Adoption.Infra,
 		"dapps-protocols": summary.Adoption.DappsProtocols,
+	}
+}
+
+func adoptionSchemaDiagnostics(path string, root *yaml.Node) []diag.Diagnostic {
+	if root == nil || len(root.Content) == 0 || root.Content[0].Kind != yaml.MappingNode {
+		return nil
+	}
+
+	document := root.Content[0]
+	adoptionNode := mappingValue(document, "adoption")
+	if adoptionNode == nil {
+		return nil
+	}
+	if adoptionNode.Kind != yaml.MappingNode {
+		return []diag.Diagnostic{
+			diag.NewWithHint("R:016", diag.OriginNative, path, adoptionNode.Line, adoptionNode.Column, fmt.Sprintf("adoption must be a mapping of categories, got %s", yamlNodeType(adoptionNode)), "Define adoption as a mapping with wallets, explorers, sdk-libraries, infra, and dapps-protocols keys."),
+		}
+	}
+
+	diagnostics := make([]diag.Diagnostic, 0)
+	for _, category := range []string{"wallets", "explorers", "sdk-libraries", "infra", "dapps-protocols"} {
+		categoryNode := mappingValue(adoptionNode, category)
+		if categoryNode == nil {
+			continue
+		}
+		if categoryNode.Kind != yaml.SequenceNode {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, path, categoryNode.Line, categoryNode.Column, fmt.Sprintf("adoption.%s must be a sequence of actor objects, got %s", category, yamlNodeType(categoryNode)), "Use a YAML list of actor objects for this adoption category."))
+			continue
+		}
+		for index, item := range categoryNode.Content {
+			if item.Kind == yaml.MappingNode {
+				continue
+			}
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, path, item.Line, item.Column, fmt.Sprintf("adoption.%s[%d] must be an actor object with name, status, evidence, and notes fields, got %s", category, index, yamlNodeType(item)), "Replace the list item with an object entry such as \"- name: example-adopter\" plus status, evidence, and notes fields."))
+		}
+	}
+	return diagnostics
+}
+
+func mappingValue(mapping *yaml.Node, key string) *yaml.Node {
+	if mapping == nil || mapping.Kind != yaml.MappingNode {
+		return nil
+	}
+	for index := 0; index < len(mapping.Content); index += 2 {
+		if mapping.Content[index].Value == key {
+			return mapping.Content[index+1]
+		}
+	}
+	return nil
+}
+
+func yamlNodeType(node *yaml.Node) string {
+	if node == nil {
+		return "unknown value"
+	}
+	switch node.Kind {
+	case yaml.MappingNode:
+		return "mapping"
+	case yaml.SequenceNode:
+		return "sequence"
+	case yaml.AliasNode:
+		return "alias"
+	case yaml.ScalarNode:
+		switch node.ShortTag() {
+		case "!!str":
+			return fmt.Sprintf("string %q", node.Value)
+		case "!!int", "!!float":
+			return fmt.Sprintf("number %q", node.Value)
+		case "!!bool":
+			return fmt.Sprintf("boolean %q", node.Value)
+		case "!!null":
+			return "null"
+		default:
+			if node.Value != "" {
+				return fmt.Sprintf("scalar %q", node.Value)
+			}
+			return "scalar"
+		}
+	default:
+		return "unknown value"
 	}
 }
