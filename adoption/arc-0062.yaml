@@ -2,8 +2,11 @@ arc: 62
 title: ASA Circulating Supply
 status: Final
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
+sponsor: Foundation
+implementation-required: true
+reference-implementation:
+  status: shipped
+  notes: Deployed on MainNet
 adoption:
   wallets: []
   explorers: []
