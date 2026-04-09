@@ -20,7 +20,7 @@ func TestApplyNativeFixReordersFrontMatterWithoutNormalizingBodyWhitespace(t *te
 title: Example
 arc: 1
 description: Example description
-author: Example Author
+author: Example Author, Another Author
 discussions-to: https://example.com/discussion
 status: Draft
 type: Meta
@@ -63,6 +63,9 @@ Text`
 	if !strings.Contains(text, "arc: 1\ntitle: Example\n") {
 		t.Fatalf("expected reordered front matter, got:\n%s", text)
 	}
+	if !strings.Contains(text, "author:\n  - Example Author\n  - Another Author\n") {
+		t.Fatalf("expected author to normalize to a YAML sequence, got:\n%s", text)
+	}
 	if !strings.Contains(text, "created: 2026-03-26\n") {
 		t.Fatalf("expected created to remain YYYY-MM-DD, got:\n%s", text)
 	}
@@ -85,7 +88,8 @@ func TestApplyNativeFixKeepsDateFieldsAsDateOnly(t *testing.T) {
 arc: 1
 title: Example
 description: Example description
-author: Example Author
+author:
+  - Example Author
 discussions-to: https://example.com/discussion
 status: Last Call
 type: Meta
@@ -154,12 +158,14 @@ func TestApplyNativeFixWithConfigHonorsIgnoredRulesAndPreservesUnknownFieldText(
 arc: 1
 title: Example
 description: Example description
-author: Example Author
+author:
+  - Example Author
 discussions-to: https://example.com/discussion
 status: Idle
 idle-since: 2026-04-01
 type: Standards Track
 custom-field: keep me
+requires: 4, 22
 created: 2026-03-26
 sponsor: Foundation
 implementation-required: false
@@ -196,10 +202,13 @@ Text`
 		t.Fatalf("ReadFile() error = %v", err)
 	}
 	text := string(updated)
-	if !strings.Contains(text, "status: Idle\ntype: Standards Track\ncustom-field: keep me\ncreated: 2026-03-26\n") {
-		t.Fatalf("expected type/custom-field/created ordering with unknown field preserved, got:\n%s", text)
+	if !strings.Contains(text, "status: Idle\ntype: Standards Track\ncreated: 2026-03-26\nsponsor: Foundation\ncustom-field: keep me\n") {
+		t.Fatalf("expected created/sponsor/custom-field ordering with unknown field preserved, got:\n%s", text)
 	}
-	if !strings.Contains(text, "implementation-required: false\nidle-since: 2026-04-01\n") {
-		t.Fatalf("expected idle-since after required implementation fields, got:\n%s", text)
+	if !strings.Contains(text, "requires:\n  - 4\n  - 22\n") {
+		t.Fatalf("expected requires to normalize to a YAML sequence, got:\n%s", text)
+	}
+	if !strings.Contains(text, "implementation-required: false\nidle-since: 2026-04-01\nrequires:\n") {
+		t.Fatalf("expected idle-since before requires, got:\n%s", text)
 	}
 }
