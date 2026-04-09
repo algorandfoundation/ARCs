@@ -63,8 +63,8 @@ Text`
 	if !strings.Contains(text, "arc: 1\ntitle: Example\n") {
 		t.Fatalf("expected reordered front matter, got:\n%s", text)
 	}
-	if !strings.Contains(text, "author:\n  - Example Author\n  - Another Author\n") {
-		t.Fatalf("expected author to normalize to a YAML sequence, got:\n%s", text)
+	if !strings.Contains(text, "author: Example Author, Another Author\n") {
+		t.Fatalf("expected non-canonical author scalar to be preserved, got:\n%s", text)
 	}
 	if !strings.Contains(text, "created: 2026-03-26\n") {
 		t.Fatalf("expected created to remain YYYY-MM-DD, got:\n%s", text)
@@ -205,10 +205,10 @@ Text`
 	if !strings.Contains(text, "status: Idle\ntype: Standards Track\ncreated: 2026-03-26\nsponsor: Foundation\ncustom-field: keep me\n") {
 		t.Fatalf("expected created/sponsor/custom-field ordering with unknown field preserved, got:\n%s", text)
 	}
-	if !strings.Contains(text, "requires:\n  - 4\n  - 22\n") {
-		t.Fatalf("expected requires to normalize to a YAML sequence, got:\n%s", text)
+	if !strings.Contains(text, "requires: 4, 22\n") {
+		t.Fatalf("expected non-canonical requires scalar to be preserved, got:\n%s", text)
 	}
-	if !strings.Contains(text, "implementation-required: false\nidle-since: 2026-04-01\nrequires:\n") {
+	if !strings.Contains(text, "implementation-required: false\nidle-since: 2026-04-01\nrequires: 4, 22\n") {
 		t.Fatalf("expected idle-since before requires, got:\n%s", text)
 	}
 }

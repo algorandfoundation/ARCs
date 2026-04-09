@@ -565,7 +565,7 @@ It must:
 
 1. normalize front matter spacing;
 1. normalize front matter field ordering;
-1. normalize legacy scalar-list ARC fields into canonical YAML sequences;
+1. normalize canonical YAML sequence fields without coercing invalid scalar-list legacy encodings;
 1. preserve semantic content.
 1. leave body whitespace, final-newline policy, and generic Markdown hygiene to
    the repository-root `pre-commit` hooks.

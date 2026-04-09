@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -333,10 +332,6 @@ func stringListField(document *arc.Document, key string) []string {
 		return nil
 	}
 	switch typed := value.(type) {
-	case string:
-		return splitCommaSeparatedValues(typed)
-	case time.Time:
-		return []string{typed.Format("2006-01-02")}
 	case []any:
 		out := make([]string, 0, len(typed))
 		for _, item := range typed {
@@ -365,14 +360,6 @@ func intListField(document *arc.Document, key string) []int {
 		return nil
 	}
 	switch typed := value.(type) {
-	case int:
-		return []int{typed}
-	case int64:
-		return []int{int(typed)}
-	case float64:
-		return []int{int(typed)}
-	case string:
-		return parseARCNumberList(typed)
 	case []any:
 		out := make([]int, 0, len(typed))
 		for _, item := range typed {
@@ -391,42 +378,4 @@ func intListField(document *arc.Document, key string) []int {
 	default:
 		return nil
 	}
-}
-
-func splitCommaSeparatedValues(value string) []string {
-	trimmed := strings.TrimSpace(value)
-	if trimmed == "" {
-		return nil
-	}
-	parts := strings.Split(trimmed, ",")
-	out := make([]string, 0, len(parts))
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			return nil
-		}
-		out = append(out, part)
-	}
-	return out
-}
-
-func parseARCNumberList(value string) []int {
-	trimmed := strings.TrimSpace(value)
-	if trimmed == "" {
-		return nil
-	}
-	parts := strings.Split(trimmed, ",")
-	out := make([]int, 0, len(parts))
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			return nil
-		}
-		number, err := strconv.Atoi(part)
-		if err != nil {
-			return nil
-		}
-		out = append(out, number)
-	}
-	return out
 }

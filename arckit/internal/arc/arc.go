@@ -233,15 +233,19 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	document.SubCategory = stringField(document, "sub-category")
 	document.Sponsor = stringField(document, "sponsor")
 	document.ImplementationURL = stringField(document, "implementation-url")
-	document.ImplementationMaintainer = strings.Join(stringListField(document, "implementation-maintainer"), ", ")
+	document.ImplementationMaintainer = strings.Join(stringSequenceField(document, "implementation-maintainer", false), ", ")
 	document.AdoptionSummary = stringField(document, "adoption-summary")
 	document.LastCallDeadline = stringField(document, "last-call-deadline")
 	document.IdleSince = stringField(document, "idle-since")
-	document.Requires = intListField(document, "requires")
-	document.Supersedes = intListField(document, "supersedes")
-	document.SupersededBy = intListField(document, "superseded-by")
-	document.Extends = intListField(document, "extends")
-	document.ExtendedBy = intListField(document, "extended-by")
+	document.Requires = intSequenceField(document, "requires")
+	document.Supersedes = intSequenceField(document, "supersedes")
+	document.Extends = intSequenceField(document, "extends")
+	document.ExtendedBy = intSequenceField(document, "extended-by")
+	if value, ok := intField(document, "superseded-by"); ok {
+		document.SupersededBy = []int{value}
+	} else if hasField(document.Fields, "superseded-by") {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["superseded-by"], 1, "field \"superseded-by\" must be an integer ARC number", "Use a single numeric ARC identifier."))
+	}
 
 	if value, ok := boolField(document, "implementation-required"); ok {
 		document.ImplementationRequired = value
@@ -259,7 +263,7 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 		}
 	}
 	if hasField(document.Fields, "updated") {
-		values := stringListField(document, "updated")
+		values := stringSequenceField(document, "updated", true)
 		for _, value := range values {
 			if !datePattern.MatchString(value) {
 				diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["updated"], 1, "field \"updated\" must use YYYY-MM-DD", "Use ISO dates in YYYY-MM-DD format inside the YAML sequence."))
@@ -664,20 +668,12 @@ func boolField(document *Document, key string) (bool, bool) {
 	return typed, ok
 }
 
-func intListField(document *Document, key string) []int {
+func intSequenceField(document *Document, key string) []int {
 	value, ok := document.Fields[key]
 	if !ok {
 		return nil
 	}
 	switch typed := value.(type) {
-	case int:
-		return []int{typed}
-	case int64:
-		return []int{int(typed)}
-	case float64:
-		return []int{int(typed)}
-	case string:
-		return parseARCNumberList(typed)
 	case []any:
 		out := make([]int, 0, len(typed))
 		for _, item := range typed {
@@ -696,16 +692,12 @@ func intListField(document *Document, key string) []int {
 	}
 }
 
-func stringListField(document *Document, key string) []string {
+func stringSequenceField(document *Document, key string, allowDates bool) []string {
 	value, ok := document.Fields[key]
 	if !ok {
 		return nil
 	}
 	switch typed := value.(type) {
-	case string:
-		return splitCommaSeparatedValues(typed)
-	case time.Time:
-		return []string{typed.Format("2006-01-02")}
 	case []any:
 		out := make([]string, 0, len(typed))
 		for _, item := range typed {
@@ -717,6 +709,9 @@ func stringListField(document *Document, key string) []string {
 				}
 				out = append(out, trimmed)
 			case time.Time:
+				if !allowDates {
+					return nil
+				}
 				out = append(out, value.Format("2006-01-02"))
 			default:
 				return nil
@@ -726,44 +721,6 @@ func stringListField(document *Document, key string) []string {
 	default:
 		return nil
 	}
-}
-
-func parseARCNumberList(value string) []int {
-	trimmed := strings.TrimSpace(value)
-	if trimmed == "" {
-		return nil
-	}
-	parts := strings.Split(trimmed, ",")
-	out := make([]int, 0, len(parts))
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			return nil
-		}
-		number, err := strconv.Atoi(part)
-		if err != nil {
-			return nil
-		}
-		out = append(out, number)
-	}
-	return out
-}
-
-func splitCommaSeparatedValues(value string) []string {
-	trimmed := strings.TrimSpace(value)
-	if trimmed == "" {
-		return nil
-	}
-	parts := strings.Split(trimmed, ",")
-	out := make([]string, 0, len(parts))
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			return nil
-		}
-		out = append(out, part)
-	}
-	return out
 }
 
 func withinRoot(root, path string) bool {
