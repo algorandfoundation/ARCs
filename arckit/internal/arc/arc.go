@@ -103,7 +103,10 @@ type Document struct {
 	Sections                 map[string]int
 	Links                    []Link
 	ExternalLinks            []string
+	FilenameNumber           int
+	HasFilenameNumber        bool
 	Number                   int
+	HasNumber                bool
 	Title                    string
 	Description              string
 	Status                   string
@@ -147,7 +150,8 @@ func Load(path string) (*Document, []diag.Diagnostic, error) {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:002", diag.OriginNative, document.Path, 1, 1, "ARC files must live under ARCs/arc-####.md", "Move or rename the file to ARCs/arc-####.md."))
 	} else {
 		number, _ := strconv.Atoi(matches[2])
-		document.Number = number
+		document.FilenameNumber = number
+		document.HasFilenameNumber = true
 	}
 
 	frontMatter, body, bodyStartLine, parseDiagnostics := splitFrontMatter(document.Path, content)
@@ -216,11 +220,14 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 		}
 	}
 
+	document.Number = 0
+	document.HasNumber = false
 	if number, ok := intField(document, "arc"); ok {
-		if document.Number != 0 && number != document.Number {
-			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["arc"], 1, fmt.Sprintf("front matter arc value %d does not match filename number %d", number, document.Number), "Keep the filename and the arc field aligned."))
+		if document.HasFilenameNumber && number != document.FilenameNumber {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["arc"], 1, fmt.Sprintf("front matter arc value %d does not match filename number %d", number, document.FilenameNumber), "Keep the filename and the arc field aligned."))
 		}
 		document.Number = number
+		document.HasNumber = true
 	} else if hasField(document.Fields, "arc") {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["arc"], 1, "field \"arc\" must be an integer", "Use a numeric ARC identifier."))
 	}
@@ -464,7 +471,7 @@ func FindRepoRoot(start string) string {
 		if current == string(filepath.Separator) || current == "" {
 			break
 		}
-		if exists(filepath.Join(current, "ARCs")) || exists(filepath.Join(current, ".arckit.jsonc")) {
+		if dirExists(filepath.Join(current, "ARCs")) || pathExists(filepath.Join(current, ".arckit.jsonc")) {
 			return current
 		}
 		parent := filepath.Dir(current)
@@ -732,9 +739,14 @@ func withinRoot(root, path string) bool {
 	return strings.HasPrefix(path, root+string(os.PathSeparator))
 }
 
-func exists(path string) bool {
+func dirExists(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
+}
+
+func pathExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 func safeLines(node ast.Node) *text.Segments {

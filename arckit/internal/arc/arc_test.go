@@ -367,3 +367,83 @@ Text
 	}
 	t.Fatalf("expected R:007 for non-scalar superseded-by, got %+v", validationDiagnostics)
 }
+
+func TestValidateDetectsARCZeroFilenameMismatch(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0000.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Meta
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %+v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:007" && strings.Contains(diagnostic.Message, "filename number 0") {
+			return
+		}
+	}
+	t.Fatalf("expected R:007 ARC/file mismatch for arc-0000.md, got %+v", validationDiagnostics)
+}
+
+func TestFindRepoRootUsesConfigFileMarker(t *testing.T) {
+	root := t.TempDir()
+	nested := filepath.Join(root, "docs", "nested")
+	if err := os.MkdirAll(nested, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	configPath := filepath.Join(root, ".arckit.jsonc")
+	if err := os.WriteFile(configPath, []byte("{}\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(%s) error = %v", configPath, err)
+	}
+
+	found := FindRepoRoot(nested)
+	if found != root {
+		t.Fatalf("FindRepoRoot(%q) = %q, want %q", nested, found, root)
+	}
+}
