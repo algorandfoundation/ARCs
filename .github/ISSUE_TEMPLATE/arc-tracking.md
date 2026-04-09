@@ -48,6 +48,7 @@ labels: ["arc-tracking"]
 
 - [ ] No unresolved normative issues
 - [ ] Adoption summary file created and current
+- [ ] Adoption summary tracks implementation status
 - [ ] Reference implementation is active and testable
 - [ ] Independent adoption signals documented
 - [ ] Last call deadline set

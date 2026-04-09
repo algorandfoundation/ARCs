@@ -135,6 +135,7 @@ Owns:
 1. front matter parsing;
 1. section discovery;
 1. ARC-only validation;
+1. canonical implementation declaration rules;
 1. local ARC link and asset rules.
 
 ### 5.3 `config`
@@ -155,6 +156,7 @@ Owns:
 1. enum validation;
 1. adoption summary consistency checks;
 1. summary-to-registry adopter checks;
+1. implementation status tracking separate from ARC front matter identity;
 1. minimum tracked-adoption checks for `Final` ARCs.
 
 ### 5.5 `repo`

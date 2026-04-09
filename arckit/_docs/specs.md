@@ -336,8 +336,9 @@ Field requirements:
 
 These conditional rules apply:
 
-1. `implementation-url` and `implementation-maintainer` are required when validating
-   transition to `Review`, `Last Call`, or `Final` for an ARC with `implementation-required: true`.
+1. `implementation-url` and `implementation-maintainer` are required when an ARC
+   with `implementation-required: true` is in `Review`, `Last Call`, `Final`, `Idle`,
+   or `Deprecated`.
 1. `adoption-summary` is required when `status` is `Last Call`, `Final`, `Idle`, or `Deprecated`.
 1. `last-call-deadline` is required when `status` is `Last Call` and when validating
    transition to `Final`.
@@ -407,9 +408,6 @@ last-reviewed: 2026-03-26
 sponsor: Foundation
 implementation-required: true
 reference-implementation:
-  repository: https://github.com/algorandfoundation/arc42
-  maintainers:
-    - "@maintainer1"
   status: in_progress
   notes: ""
 adoption:
@@ -436,6 +434,14 @@ Required top-level fields are:
 1. `summary`
 
 `reference-implementation` is required when `implementation-required` is `true`.
+
+The ARC front matter is authoritative for `implementation-url` and
+`implementation-maintainer`.
+
+The adoption summary `reference-implementation` block must contain only:
+
+1. `status`
+1. `notes`
 
 ### 10.4 Adoption Enums and Entry Shape
 
@@ -489,8 +495,8 @@ Allowed `summary.adoption-readiness` values are:
 1. `status` is a valid ARC status;
 1. `sponsor` matches the ARC file when both are present;
 1. `implementation-required` matches the ARC file when both are present;
-1. `reference-implementation.repository`, when present, matches `implementation-url`
-   in the ARC file.
+1. `reference-implementation` does not repeat canonical implementation identity
+   fields such as repository URL or maintainer list.
 
 ## 11. Repository-Wide Rules
 
@@ -551,7 +557,8 @@ The CLI must require:
 
 If `implementation-required: true`, the CLI must also require:
 
-1. reference implementation metadata in both ARC and adoption summary;
+1. `implementation-url` and `implementation-maintainer` in ARC front matter;
+1. a `reference-implementation` block in the adoption summary;
 1. `reference-implementation.status` is `testable` or `shipped`;
 1. at least one adoption actor entry has non-empty evidence.
 
@@ -610,6 +617,13 @@ Outputs:
 
 The generated ARC must include an `adoption-summary` field pointing to the generated
 adoption stub, and must emit canonical YAML-native list fields for author metadata.
+
+When `--implementation-required` is set, the generated adoption stub should include
+only `reference-implementation.status` and `reference-implementation.notes`, because
+the canonical implementation URL and maintainer list live in ARC front matter.
+
+The generated ARC may omit `implementation-url` and `implementation-maintainer`
+while the ARC remains in `Draft`.
 
 `init arc` must never create remote GitHub artifacts.
 

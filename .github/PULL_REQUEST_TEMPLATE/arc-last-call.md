@@ -32,7 +32,7 @@ Describe why the ARC is stable enough for final ecosystem review.
 
 - [ ] The reference implementation repository is active.
 - [ ] Runnable code, tests, examples, or conformance artifacts exist.
-- [ ] The implementation maintainers are still valid.
+- [ ] The ARC front matter still declares the canonical implementation URL and maintainers.
 - [ ] The adoption summary reflects the current implementation status.
 
 ## Requested Maintainer Action

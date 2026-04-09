@@ -21,7 +21,7 @@ Describe what changed in the adoption summary.
 
 - [ ] New adopter
 - [ ] Implementation status update
-- [ ] Implementation maintainer update
+- [ ] Canonical implementation declaration update
 
 ## Adoption Update Checklist
 
@@ -29,7 +29,8 @@ Describe what changed in the adoption summary.
 - [ ] Wallet / explorer / SDK / infra / dApp sections were updated where relevant.
 - [ ] Any new adopter name was added to `adoption/vetted-adopters.yaml` in the matching category.
 - [ ] If the ARC is `Final`, at least one adoption category remains non-empty.
-- [ ] Implementation information is current.
+- [ ] If the implementation repository URL or maintainer list changed, the ARC front matter was updated.
+- [ ] The adoption summary reflects current implementation status.
 - [ ] The tracking issue was updated if this changes gate readiness.
 
 ## Notes for Reviewers

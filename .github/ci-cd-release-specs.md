@@ -96,6 +96,11 @@ lower-kebab-case or are not present in the matching registry category.
 That same gate must also reject any `Final` ARC whose canonical adoption summary
 has all adoption categories empty.
 
+For ARCs with `implementation-required: true`, that gate must treat ARC front
+matter as the authoritative source of `implementation-url` and
+`implementation-maintainer`, and it must reject adoption summaries that duplicate
+those identity fields under `reference-implementation`.
+
 When present, the repository-root `.arckit.jsonc` is applied implicitly by this
 command. Invalid `.arckit.jsonc` content must fail the gate.
 
@@ -219,6 +224,7 @@ Deterministic maintenance findings include:
 1. offline `arckit` validation failures;
 1. missing or invalid vetted adopters registry;
 1. missing or invalid required adoption summaries;
+1. missing canonical `implementation-url` or `implementation-maintainer` declarations for implementation-required ARCs;
 1. `Final` ARCs whose adoption summaries have no tracked adopters;
 1. missing local links or asset targets;
 1. ARC and tracking issue mismatches that are machine-checkable;

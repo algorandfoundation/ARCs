@@ -24,9 +24,9 @@ extended-by:
   - <ARC number, optional, remove field if not needed>
 sponsor: <Foundation or Ecosystem>
 implementation-required: <true or false>
-implementation-url: <URL, leave blank until Review if not yet created>
+implementation-url: <URL, remove field until Review if not yet created>
 implementation-maintainer:
-  - <GitHub username or GitHub organization>
+  - <GitHub username or GitHub organization, remove field until Review if not yet assigned>
 adoption-summary: adoption/arc-####.yaml
 ---
 
@@ -67,6 +67,10 @@ are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.
 > - implementation scope,
 > - conformance or example artifacts,
 > - current implementation status.
+
+> The ARC front matter is the canonical location for `implementation-url` and
+> `implementation-maintainer`. The adoption summary tracks only implementation
+> status and notes.
 
 ## Test Cases
 

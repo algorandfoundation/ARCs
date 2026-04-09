@@ -38,7 +38,7 @@ Describe the evidence that this ARC is implemented, adopted, and ready for final
 
 - [ ] The reference implementation repository is maintained.
 - [ ] The implementation is usable as a canonical reference.
-- [ ] The implementation maintainers are still valid.
+- [ ] The ARC front matter still declares the canonical implementation URL and maintainers.
 - [ ] The implementation status in the adoption summary is current.
 
 ## Requested Maintainer Action
