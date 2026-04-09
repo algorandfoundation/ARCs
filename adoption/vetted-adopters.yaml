@@ -1,5 +1,19 @@
-wallets: []
-explorers: []
-sdk-libraries: []
-infra: []
-dapps-protocols: []
+wallets:
+  - lute
+  - pera
+explorers:
+  - allo
+  - lora
+  - pera
+sdk-libraries:
+  - algokit-utils
+  - puya
+  - subscriber
+  - use-wallet
+infra:
+  - nodely
+dapps-protocols:
+  - alpha-arcade
+  - folks-finance
+  - nfd
+  - tinyman
