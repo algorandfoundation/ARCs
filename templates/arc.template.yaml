@@ -1,18 +1,14 @@
-arc: "<arc-number>"
-title: "Replace with ARC title"
-status: "Draft"
-last-reviewed: "<YYYY-MM-DD>"
-authors:
-  github: "@example"
-sponsor: "Foundation" # or "Ecosystem"
-implementation-required: true
+arc: <arc-number>
+title: <ARC title>
+status: Draft
+last-reviewed: <YYYY-MM-DD>
+sponsor: <Foundation or Ecosystem>
+implementation-required: <true or false>
+# Remove reference-implementation entirely when implementation-required is false.
+# If implementation-required is true, keep only implementation status here.
+# The canonical implementation-url and implementation-maintainer belong in ARC front matter.
 reference-implementation:
-  repository: "https://github.com/<org>/arc<unpadded-number>"
-  owner: "@owner-or-team"
-  maintainer:
-    - "@maintainer1"
-    - "@maintainer2"
-  status: "planned" # planned | in_progress | testable | shipped | archived
+  status: planned # planned | in_progress | testable | shipped | archived
   notes: ""
 adoption:
   # Add actor entries only after the adopter is listed in adoption/vetted-adopters.yaml.
@@ -23,7 +19,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: "low" # low | medium | high
-  blockers:
-    - ""
+  adoption-readiness: low # low | medium | high
+  blockers: []
   notes: ""

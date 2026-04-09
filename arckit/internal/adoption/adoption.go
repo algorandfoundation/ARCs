@@ -24,10 +24,8 @@ type Actor struct {
 }
 
 type ReferenceImplementation struct {
-	Repository  string   `yaml:"repository" json:"repository"`
-	Maintainers []string `yaml:"maintainers" json:"maintainers"`
-	Status      string   `yaml:"status" json:"status"`
-	Notes       string   `yaml:"notes" json:"notes"`
+	Status string `yaml:"status" json:"status"`
+	Notes  string `yaml:"notes" json:"notes"`
 }
 
 type AdoptionSection struct {
@@ -45,17 +43,18 @@ type SummarySection struct {
 }
 
 type Summary struct {
-	Path                    string                   `json:"path"`
-	Arc                     int                      `yaml:"arc" json:"arc"`
-	Title                   string                   `yaml:"title" json:"title"`
-	Status                  string                   `yaml:"status" json:"status"`
-	LastReviewed            string                   `yaml:"last-reviewed" json:"last-reviewed"`
-	Sponsor                 string                   `yaml:"sponsor" json:"sponsor"`
-	ImplementationRequired  bool                     `yaml:"implementation-required" json:"implementation-required"`
-	ReferenceImplementation *ReferenceImplementation `yaml:"reference-implementation" json:"reference-implementation,omitempty"`
-	Adoption                AdoptionSection          `yaml:"adoption" json:"adoption"`
-	Summary                 SummarySection           `yaml:"summary" json:"summary"`
-	keys                    map[string]struct{}
+	Path                        string                   `json:"path"`
+	Arc                         int                      `yaml:"arc" json:"arc"`
+	Title                       string                   `yaml:"title" json:"title"`
+	Status                      string                   `yaml:"status" json:"status"`
+	LastReviewed                string                   `yaml:"last-reviewed" json:"last-reviewed"`
+	Sponsor                     string                   `yaml:"sponsor" json:"sponsor"`
+	ImplementationRequired      bool                     `yaml:"implementation-required" json:"implementation-required"`
+	ReferenceImplementation     *ReferenceImplementation `yaml:"reference-implementation" json:"reference-implementation,omitempty"`
+	Adoption                    AdoptionSection          `yaml:"adoption" json:"adoption"`
+	Summary                     SummarySection           `yaml:"summary" json:"summary"`
+	keys                        map[string]struct{}
+	referenceImplementationKeys map[string]struct{}
 }
 
 func Load(path string) (*Summary, []diag.Diagnostic, error) {
@@ -66,7 +65,7 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 		}, err
 	}
 
-	summary := &Summary{Path: filepath.Clean(path), keys: map[string]struct{}{}}
+	summary := &Summary{Path: filepath.Clean(path), keys: map[string]struct{}{}, referenceImplementationKeys: map[string]struct{}{}}
 	diagnostics := make([]diag.Diagnostic, 0)
 
 	matches := adoptionPathPattern.FindStringSubmatch(filepath.ToSlash(summary.Path))
@@ -89,6 +88,9 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 		for index := 0; index < len(mapping.Content); index += 2 {
 			summary.keys[mapping.Content[index].Value] = struct{}{}
 		}
+		if referenceImplementationNode := mappingValue(mapping, "reference-implementation"); referenceImplementationNode != nil && referenceImplementationNode.Kind == yaml.MappingNode {
+			summary.referenceImplementationKeys = mappingKeys(referenceImplementationNode)
+		}
 	}
 	if err := yaml.Unmarshal(content, summary); err != nil {
 		if schemaDiagnostics := adoptionSchemaDiagnostics(summary.Path, &root); len(schemaDiagnostics) > 0 {
@@ -107,13 +109,14 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 
 func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters) []diag.Diagnostic {
 	diagnostics := make([]diag.Diagnostic, 0)
+	implementationRequired := summary.ImplementationRequired || (document != nil && document.ImplementationRequired)
 
 	for _, key := range []string{"arc", "title", "status", "last-reviewed", "sponsor", "implementation-required", "adoption", "summary"} {
 		if _, ok := summary.keys[key]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("missing required field %q", key), "Add the missing top-level field to the adoption summary."))
 		}
 	}
-	if summary.ImplementationRequired && summary.ReferenceImplementation == nil {
+	if implementationRequired && summary.ReferenceImplementation == nil {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, "reference-implementation is required when implementation-required is true", "Add the reference-implementation block."))
 	}
 	if summary.Status != "" && !arc.IsValidStatus(summary.Status) {
@@ -126,6 +129,17 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported sponsor %q", summary.Sponsor), "Use either \"Foundation\" or \"Ecosystem\"."))
 	}
 	if summary.ReferenceImplementation != nil {
+		for _, key := range []string{"status", "notes"} {
+			if _, ok := summary.referenceImplementationKeys[key]; !ok {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("reference-implementation.%s is required", key), "Keep only status and notes under reference-implementation, and set both fields."))
+			}
+		}
+		for key := range summary.referenceImplementationKeys {
+			if key == "status" || key == "notes" {
+				continue
+			}
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("reference-implementation.%s is not allowed in adoption summaries", key), "Declare the canonical implementation URL and maintainers in the ARC front matter, and keep only status and notes in the adoption summary."))
+		}
 		if !slices.Contains([]string{"planned", "in_progress", "testable", "shipped", "archived"}, summary.ReferenceImplementation.Status) {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported reference-implementation.status %q", summary.ReferenceImplementation.Status), "Use one of planned, in_progress, testable, shipped, or archived."))
 		}
@@ -165,9 +179,6 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 	}
 	if summary.ImplementationRequired != document.ImplementationRequired {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, "implementation-required does not match the ARC file", "Update the ARC or adoption summary so implementation-required matches."))
-	}
-	if summary.ReferenceImplementation != nil && document.ImplementationURL != "" && summary.ReferenceImplementation.Repository != "" && summary.ReferenceImplementation.Repository != document.ImplementationURL {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, "reference-implementation.repository does not match implementation-url in the ARC file", "Keep the reference implementation repository consistent across both files."))
 	}
 	return diagnostics
 }
@@ -219,6 +230,12 @@ func adoptionSchemaDiagnostics(path string, root *yaml.Node) []diag.Diagnostic {
 	}
 
 	document := root.Content[0]
+	referenceImplementationNode := mappingValue(document, "reference-implementation")
+	if referenceImplementationNode != nil && referenceImplementationNode.Kind != yaml.MappingNode {
+		return []diag.Diagnostic{
+			diag.NewWithHint("R:016", diag.OriginNative, path, referenceImplementationNode.Line, referenceImplementationNode.Column, fmt.Sprintf("reference-implementation must be a mapping, got %s", yamlNodeType(referenceImplementationNode)), "Define reference-implementation as a mapping with status and notes fields."),
+		}
+	}
 	adoptionNode := mappingValue(document, "adoption")
 	if adoptionNode == nil {
 		return nil
@@ -259,6 +276,17 @@ func mappingValue(mapping *yaml.Node, key string) *yaml.Node {
 		}
 	}
 	return nil
+}
+
+func mappingKeys(mapping *yaml.Node) map[string]struct{} {
+	keys := map[string]struct{}{}
+	if mapping == nil || mapping.Kind != yaml.MappingNode {
+		return keys
+	}
+	for index := 0; index < len(mapping.Content); index += 2 {
+		keys[mapping.Content[index].Value] = struct{}{}
+	}
+	return keys
 }
 
 func yamlNodeType(node *yaml.Node) string {

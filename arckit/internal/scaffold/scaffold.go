@@ -142,8 +142,6 @@ implementation-required: %t
 `, options.Number, options.Title, now, options.Sponsor, options.ImplementationRequired)
 	if options.ImplementationRequired {
 		base += `reference-implementation:
-  repository: ""
-  maintainers: []
   status: planned
   notes: ""
 `

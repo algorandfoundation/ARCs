@@ -42,7 +42,7 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		require(summary != nil, "transition to Last Call requires a valid adoption summary")
 		require(document.AdoptionSummary == fmt.Sprintf("adoption/arc-%04d.yaml", document.Number), "adoption-summary must point to the matching adoption file")
 		if document.ImplementationRequired && summary != nil {
-			require(summary.ReferenceImplementation != nil, "reference-implementation block is required in the adoption summary")
+			require(summary.ReferenceImplementation != nil, "reference-implementation status is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
 				require(slices.Contains([]string{"in_progress", "testable", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be in_progress, testable, or shipped")
 			}
@@ -58,7 +58,7 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		require(summary.HasAnyEvidence(), "transition to Final requires at least one non-empty evidence entry")
 		if document.ImplementationRequired {
 			require(document.ImplementationURL != "" && document.ImplementationMaintainer != "", "reference implementation metadata is required in the ARC file")
-			require(summary.ReferenceImplementation != nil, "reference-implementation metadata is required in the adoption summary")
+			require(summary.ReferenceImplementation != nil, "reference-implementation status is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
 				require(slices.Contains([]string{"testable", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be testable or shipped")
 			}

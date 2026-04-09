@@ -5,9 +5,6 @@ last-reviewed: 2026-03-26
 sponsor: Foundation
 implementation-required: true
 reference-implementation:
-  repository: https://github.com/example/arc-0044
-  maintainers:
-    - "@maintainer"
   status: testable
   notes: ""
 adoption:

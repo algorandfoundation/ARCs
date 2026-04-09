@@ -160,9 +160,6 @@ last-reviewed: 2026-03-26
 sponsor: Foundation
 implementation-required: true
 reference-implementation:
-  repository: https://github.com/example/arc-0044
-  maintainers:
-    - "@maintainer"
   status: testable
   notes: ""
 adoption:
@@ -203,6 +200,67 @@ summary:
 		if diagnostic.RuleID == "R:025" {
 			t.Fatalf("unexpected Final ARC empty adoption diagnostic: %+v", diagnostic)
 		}
+	}
+}
+
+func TestValidateRejectsLegacyReferenceImplementationIdentityFields(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
+	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
+title: Transition Ready ARC
+status: Last Call
+last-reviewed: 2026-03-26
+sponsor: Foundation
+implementation-required: true
+reference-implementation:
+  repository: https://github.com/example/arc-0044
+  maintainers:
+    - "@maintainer"
+  status: testable
+  notes: ""
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: medium
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	summary, loadDiagnostics, err := Load(adoptionPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(loadDiagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
+	}
+
+	registry, registryDiagnostics, err := LoadVettedAdopters(RegistryPath(root))
+	if err != nil {
+		t.Fatalf("LoadVettedAdopters() error = %v", err)
+	}
+	if len(registryDiagnostics) != 0 {
+		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
+	}
+
+	diagnostics := Validate(summary, nil, registry)
+	found := false
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:016" && strings.Contains(diagnostic.Message, "reference-implementation.repository is not allowed") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected legacy reference-implementation identity diagnostic, got %+v", diagnostics)
 	}
 }
 

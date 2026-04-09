@@ -310,6 +310,14 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	if document.Status == "Idle" && document.IdleSince == "" {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["status"], 1, "status \"Idle\" requires idle-since", "Add idle-since in YYYY-MM-DD format."))
 	}
+	if document.ImplementationRequired && RequiresImplementationDeclaration(document.Status) {
+		if document.ImplementationURL == "" {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["implementation-required"], 1, fmt.Sprintf("status %q with implementation-required true requires implementation-url", document.Status), "Declare the canonical reference implementation repository in ARC front matter."))
+		}
+		if document.ImplementationMaintainer == "" {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["implementation-required"], 1, fmt.Sprintf("status %q with implementation-required true requires implementation-maintainer", document.Status), "Declare the canonical implementation maintainers in ARC front matter."))
+		}
+	}
 
 	diagnostics = append(diagnostics, validateCanonicalYAMLFieldShapes(document)...)
 
@@ -487,6 +495,15 @@ func FindRepoRoot(start string) string {
 func RequiresAdoptionSummary(status string) bool {
 	switch status {
 	case "Last Call", "Final", "Idle", "Deprecated":
+		return true
+	default:
+		return false
+	}
+}
+
+func RequiresImplementationDeclaration(status string) bool {
+	switch status {
+	case "Review", "Last Call", "Final", "Idle", "Deprecated":
 		return true
 	default:
 		return false

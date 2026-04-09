@@ -47,6 +47,18 @@ func TestInitARCCreatesExpectedFiles(t *testing.T) {
 	if !strings.Contains(text, "author:\n  - TBD\ndiscussions-to:\nstatus: Draft\ntype: Standards Track\ncategory: Interface\nsub-category: Application\ncreated: ") {
 		t.Fatalf("expected scaffolded ARC to include category fields, got:\n%s", text)
 	}
+
+	adoptionContent, err := os.ReadFile(filepath.Join(root, "adoption", "arc-0099.yaml"))
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	adoptionText := string(adoptionContent)
+	if !strings.Contains(adoptionText, "reference-implementation:\n  status: planned\n  notes: \"\"\n") {
+		t.Fatalf("expected scaffolded adoption summary to include reference-implementation status only, got:\n%s", adoptionText)
+	}
+	if strings.Contains(adoptionText, "repository:") || strings.Contains(adoptionText, "maintainers:") || strings.Contains(adoptionText, "owner:") {
+		t.Fatalf("expected scaffolded adoption summary to omit legacy implementation identity fields, got:\n%s", adoptionText)
+	}
 }
 
 func TestInitARCPreservesExistingVettedAdoptersRegistry(t *testing.T) {

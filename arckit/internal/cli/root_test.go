@@ -231,6 +231,48 @@ summary:
 	assertContains(t, stdout.String(), "R:025")
 }
 
+func TestCLIValidateAdoptionRejectsLegacyReferenceImplementationIdentityFields(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	path := filepath.Join(root, "adoption", "arc-0044.yaml")
+	if err := os.WriteFile(path, []byte(`arc: 44
+title: Transition Ready ARC
+status: Last Call
+last-reviewed: 2026-03-26
+sponsor: Foundation
+implementation-required: true
+reference-implementation:
+  repository: https://github.com/example/arc-0044
+  maintainers:
+    - "@maintainer"
+  status: testable
+  notes: ""
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: medium
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "adoption", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "reference-implementation.repository is not allowed")
+}
+
 func TestCLIValidateAdoptionReportsHelpfulActorSchemaError(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	path := filepath.Join(root, "adoption", "arc-0042.yaml")
@@ -265,6 +307,60 @@ summary:
 	if strings.Contains(stdout.String(), "cannot unmarshal") {
 		t.Fatalf("expected targeted schema error, got stdout=%s", stdout.String())
 	}
+}
+
+func TestCLIValidateArcRequiresImplementationDeclarationForReviewAndLater(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(root, "ARCs", "arc-0001.md")
+	if err := os.WriteFile(path, []byte(`---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author (@example)
+discussions-to: https://example.com/discussion
+status: Review
+type: Standards Track
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: true
+adoption-summary: adoption/arc-0001.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "arc", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "requires implementation-url")
+	assertContains(t, stdout.String(), "requires implementation-maintainer")
 }
 
 func TestCLIValidateRepoRejectsFinalARCWithoutTrackedAdoption(t *testing.T) {

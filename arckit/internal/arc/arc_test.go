@@ -28,6 +28,77 @@ func TestValidateValidDraftARC(t *testing.T) {
 	}
 }
 
+func TestValidateRequiresImplementationDeclarationForReviewAndLater(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Review
+type: Standards Track
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: true
+adoption-summary: adoption/arc-0001.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	missingURL := false
+	missingMaintainer := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:007" && strings.Contains(diagnostic.Message, "requires implementation-url") {
+			missingURL = true
+		}
+		if diagnostic.RuleID == "R:007" && strings.Contains(diagnostic.Message, "requires implementation-maintainer") {
+			missingMaintainer = true
+		}
+	}
+	if !missingURL || !missingMaintainer {
+		t.Fatalf("expected implementation declaration diagnostics, got %+v", validationDiagnostics)
+	}
+}
+
 func TestLoadAcceptsCategoryField(t *testing.T) {
 	root := t.TempDir()
 	arcDir := filepath.Join(root, "ARCs")
