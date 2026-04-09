@@ -142,6 +142,49 @@ func TestFilterDiagnostics(t *testing.T) {
 	}
 }
 
+func TestWithRuleEnforced(t *testing.T) {
+	cfg := Config{
+		ignoreArcs: map[int]struct{}{
+			0:  {},
+			42: {},
+		},
+		ignoreRules: map[string]struct{}{
+			"R:020": {},
+			"R:021": {},
+		},
+		ignoreByArc: []arcRuleIgnore{
+			{
+				start: 0,
+				end:   0,
+				rules: map[string]struct{}{
+					"R:008": {},
+					"R:021": {},
+				},
+			},
+		},
+	}
+
+	enforced := cfg.WithRuleEnforced("R:021")
+	if enforced.IgnoreARC(42) != cfg.IgnoreARC(42) {
+		t.Fatalf("WithRuleEnforced() should preserve ignoreArcs")
+	}
+	if enforced.IgnoreRule("R:021") {
+		t.Fatalf("WithRuleEnforced() should remove global suppression for R:021")
+	}
+	if enforced.IgnoreRule("R:020") != cfg.IgnoreRule("R:020") {
+		t.Fatalf("WithRuleEnforced() should preserve unrelated global suppressions")
+	}
+	if enforced.IgnoreRuleForARC("R:021", 0) {
+		t.Fatalf("WithRuleEnforced() should remove ARC-specific suppression for R:021")
+	}
+	if !enforced.IgnoreRuleForARC("R:008", 0) {
+		t.Fatalf("WithRuleEnforced() should preserve unrelated ARC-specific suppressions")
+	}
+	if !cfg.IgnoreRule("R:021") || !cfg.IgnoreRuleForARC("R:021", 0) {
+		t.Fatalf("WithRuleEnforced() should not mutate the original config")
+	}
+}
+
 func writeConfig(t *testing.T, root string, content string) {
 	t.Helper()
 	path := filepath.Join(root, FileName)

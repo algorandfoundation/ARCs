@@ -40,7 +40,8 @@ func TestLoadAcceptsCategoryField(t *testing.T) {
 arc: 1
 title: Example
 description: Example description
-author: Example Author
+author:
+  - Example Author
 discussions-to: https://example.com/discussion
 status: Draft
 type: Standards Track
@@ -111,7 +112,8 @@ func TestValidateStillRejectsUnknownFields(t *testing.T) {
 arc: 1
 title: Example
 description: Example description
-author: Example Author
+author:
+  - Example Author
 discussions-to: https://example.com/discussion
 status: Draft
 type: Standards Track
@@ -173,7 +175,8 @@ func TestValidateLinksReportsFileLineNumbers(t *testing.T) {
 arc: 1
 title: Example
 description: Example description
-author: Example Author
+author:
+  - Example Author
 discussions-to: https://example.com/discussion
 status: Draft
 type: Meta
@@ -217,11 +220,79 @@ Text
 	validationDiagnostics := Validate(document, root)
 	for _, diagnostic := range validationDiagnostics {
 		if diagnostic.RuleID == "R:009" {
-			if diagnostic.Line != 16 {
-				t.Fatalf("expected R:009 at line 16, got %+v", diagnostic)
+			if diagnostic.Line != 17 {
+				t.Fatalf("expected R:009 at line 17, got %+v", diagnostic)
 			}
 			return
 		}
 	}
 	t.Fatalf("expected R:009 diagnostic, got %+v", validationDiagnostics)
+}
+
+func TestValidateRejectsLegacyScalarListFields(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author: Example Author, Other Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+created: 2026-04-08
+updated: 2026-04-09, 2026-04-10
+sponsor: Foundation
+implementation-required: false
+implementation-maintainer: algorandfoundation, algorandecosystem
+requires: 4, 22
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %+v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	count := 0
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:021" {
+			count++
+		}
+	}
+	if count != 4 {
+		t.Fatalf("expected 4 R:021 diagnostics, got %+v", validationDiagnostics)
+	}
 }

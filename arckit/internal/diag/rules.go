@@ -162,6 +162,14 @@ var rules = []Rule{
 		Hint:        "Confirm the remaining editorial checks in the tracking issue and review process.",
 	},
 	{
+		ID:          "R:021",
+		Severity:    SeverityError,
+		Title:       "Non-canonical ARC YAML field shape",
+		Description: "List-valued ARC front matter fields must use canonical YAML sequences.",
+		Rationale:   "Canonical YAML-native field shapes avoid ambiguous comma-separated encodings and keep tooling deterministic.",
+		Hint:        "Use YAML sequences for list-valued ARC fields such as author, updated, implementation-maintainer, requires, supersedes, extends, and extended-by.",
+	},
+	{
 		ID:          "R:026",
 		Severity:    SeverityError,
 		Title:       "Invalid invocation",

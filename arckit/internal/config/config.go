@@ -162,6 +162,40 @@ func (config Config) FilterDiagnostics(diagnostics []diag.Diagnostic) []diag.Dia
 	return filtered
 }
 
+func (config Config) WithRuleEnforced(ruleID string) Config {
+	cloned := Config{
+		ignoreArcs:  make(map[int]struct{}, len(config.ignoreArcs)),
+		ignoreRules: make(map[string]struct{}, len(config.ignoreRules)),
+		ignoreByArc: make([]arcRuleIgnore, 0, len(config.ignoreByArc)),
+	}
+
+	for number := range config.ignoreArcs {
+		cloned.ignoreArcs[number] = struct{}{}
+	}
+	for ignoredRuleID := range config.ignoreRules {
+		if ignoredRuleID == ruleID {
+			continue
+		}
+		cloned.ignoreRules[ignoredRuleID] = struct{}{}
+	}
+	for _, entry := range config.ignoreByArc {
+		rules := make(map[string]struct{}, len(entry.rules))
+		for ignoredRuleID := range entry.rules {
+			if ignoredRuleID == ruleID {
+				continue
+			}
+			rules[ignoredRuleID] = struct{}{}
+		}
+		cloned.ignoreByArc = append(cloned.ignoreByArc, arcRuleIgnore{
+			start: entry.start,
+			end:   entry.end,
+			rules: rules,
+		})
+	}
+
+	return cloned
+}
+
 func ARCNumberForPath(path string) (int, bool) {
 	matches := arcPathPattern.FindStringSubmatch(filepath.ToSlash(filepath.Clean(path)))
 	if len(matches) != 4 {

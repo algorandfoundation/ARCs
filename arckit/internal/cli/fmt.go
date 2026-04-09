@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -69,7 +70,7 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 	}
 
 	for _, entry := range reorderedEntries(entries) {
-		for _, line := range normalizeDateChunk(document, entry) {
+		for _, line := range normalizedEntryLines(document, entry) {
 			builder.WriteString(line)
 			builder.WriteString("\n")
 		}
@@ -90,7 +91,7 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 }
 
 func normalizeFrontMatterValue(key string, value any) any {
-	if !isDateField(key) {
+	if !isScalarDateField(key) {
 		return value
 	}
 	switch typed := value.(type) {
@@ -104,9 +105,27 @@ func normalizeFrontMatterValue(key string, value any) any {
 	return value
 }
 
-func isDateField(key string) bool {
+func isScalarDateField(key string) bool {
 	switch key {
-	case "created", "updated", "last-call-deadline", "idle-since":
+	case "created", "last-call-deadline", "idle-since":
+		return true
+	default:
+		return false
+	}
+}
+
+func isStringSequenceField(key string) bool {
+	switch key {
+	case "author", "updated", "implementation-maintainer":
+		return true
+	default:
+		return false
+	}
+}
+
+func isIntSequenceField(key string) bool {
+	switch key {
+	case "requires", "supersedes", "extends", "extended-by":
 		return true
 	default:
 		return false
@@ -249,8 +268,48 @@ func nearestKnownOrder(entries []frontMatterEntry, start int, step int) (int, bo
 	return 0, false
 }
 
+func normalizedEntryLines(document *arc.Document, entry frontMatterEntry) []string {
+	if lines := normalizeStringSequenceChunk(document, entry); len(lines) > 0 {
+		return lines
+	}
+	if lines := normalizeIntSequenceChunk(document, entry); len(lines) > 0 {
+		return lines
+	}
+	return normalizeDateChunk(document, entry)
+}
+
+func normalizeStringSequenceChunk(document *arc.Document, entry frontMatterEntry) []string {
+	if !isStringSequenceField(entry.key) {
+		return nil
+	}
+	values := stringListField(document, entry.key)
+	if len(values) == 0 {
+		return nil
+	}
+	lines := []string{entry.key + ":"}
+	for _, value := range values {
+		lines = append(lines, "  - "+value)
+	}
+	return lines
+}
+
+func normalizeIntSequenceChunk(document *arc.Document, entry frontMatterEntry) []string {
+	if !isIntSequenceField(entry.key) {
+		return nil
+	}
+	values := intListField(document, entry.key)
+	if len(values) == 0 {
+		return nil
+	}
+	lines := []string{entry.key + ":"}
+	for _, value := range values {
+		lines = append(lines, fmt.Sprintf("  - %d", value))
+	}
+	return lines
+}
+
 func normalizeDateChunk(document *arc.Document, entry frontMatterEntry) []string {
-	if !isDateField(entry.key) {
+	if !isScalarDateField(entry.key) {
 		return entry.lines
 	}
 	value, ok := document.Fields[entry.key]
@@ -266,4 +325,108 @@ func normalizeDateChunk(document *arc.Document, entry frontMatterEntry) []string
 		return entry.lines
 	}
 	return []string{entry.key + ": " + normalized}
+}
+
+func stringListField(document *arc.Document, key string) []string {
+	value, ok := document.Fields[key]
+	if !ok {
+		return nil
+	}
+	switch typed := value.(type) {
+	case string:
+		return splitCommaSeparatedValues(typed)
+	case time.Time:
+		return []string{typed.Format("2006-01-02")}
+	case []any:
+		out := make([]string, 0, len(typed))
+		for _, item := range typed {
+			switch value := item.(type) {
+			case string:
+				trimmed := strings.TrimSpace(value)
+				if trimmed == "" {
+					return nil
+				}
+				out = append(out, trimmed)
+			case time.Time:
+				out = append(out, value.Format("2006-01-02"))
+			default:
+				return nil
+			}
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
+func intListField(document *arc.Document, key string) []int {
+	value, ok := document.Fields[key]
+	if !ok {
+		return nil
+	}
+	switch typed := value.(type) {
+	case int:
+		return []int{typed}
+	case int64:
+		return []int{int(typed)}
+	case float64:
+		return []int{int(typed)}
+	case string:
+		return parseARCNumberList(typed)
+	case []any:
+		out := make([]int, 0, len(typed))
+		for _, item := range typed {
+			switch value := item.(type) {
+			case int:
+				out = append(out, value)
+			case int64:
+				out = append(out, int(value))
+			case float64:
+				out = append(out, int(value))
+			default:
+				return nil
+			}
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
+func splitCommaSeparatedValues(value string) []string {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+	parts := strings.Split(trimmed, ",")
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			return nil
+		}
+		out = append(out, part)
+	}
+	return out
+}
+
+func parseARCNumberList(value string) []int {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+	parts := strings.Split(trimmed, ",")
+	out := make([]int, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			return nil
+		}
+		number, err := strconv.Atoi(part)
+		if err != nil {
+			return nil
+		}
+		out = append(out, number)
+	}
+	return out
 }

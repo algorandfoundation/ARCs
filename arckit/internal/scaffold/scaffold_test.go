@@ -43,7 +43,7 @@ func TestInitARCCreatesExpectedFiles(t *testing.T) {
 		t.Fatalf("ReadFile() error = %v", err)
 	}
 	text := string(arcContent)
-	if !strings.Contains(text, "type: Standards Track\ncategory: Interface\nsub-category: Application\ncreated: ") {
+	if !strings.Contains(text, "author:\n  - TBD\ndiscussions-to:\nstatus: Draft\ntype: Standards Track\ncategory: Interface\nsub-category: Application\ncreated: ") {
 		t.Fatalf("expected scaffolded ARC to include category fields, got:\n%s", text)
 	}
 }

@@ -72,6 +72,20 @@ var requiredSections = []string{
 	"Security Considerations",
 }
 
+var (
+	canonicalStringSequenceFields = map[string]struct{}{
+		"author":                    {},
+		"updated":                   {},
+		"implementation-maintainer": {},
+	}
+	canonicalIntSequenceFields = map[string]struct{}{
+		"requires":    {},
+		"supersedes":  {},
+		"extends":     {},
+		"extended-by": {},
+	}
+)
+
 type Link struct {
 	Destination string
 	Line        int
@@ -219,7 +233,7 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	document.SubCategory = stringField(document, "sub-category")
 	document.Sponsor = stringField(document, "sponsor")
 	document.ImplementationURL = stringField(document, "implementation-url")
-	document.ImplementationMaintainer = stringField(document, "implementation-maintainer")
+	document.ImplementationMaintainer = strings.Join(stringListField(document, "implementation-maintainer"), ", ")
 	document.AdoptionSummary = stringField(document, "adoption-summary")
 	document.LastCallDeadline = stringField(document, "last-call-deadline")
 	document.IdleSince = stringField(document, "idle-since")
@@ -235,13 +249,22 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["implementation-required"], 1, "field \"implementation-required\" must be true or false", "Use a YAML boolean value."))
 	}
 
-	for _, name := range []string{"created", "updated", "last-call-deadline", "idle-since"} {
+	for _, name := range []string{"created", "last-call-deadline", "idle-since"} {
 		value := stringField(document, name)
 		if value == "" {
 			continue
 		}
 		if !datePattern.MatchString(value) {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines[name], 1, fmt.Sprintf("field %q must use YYYY-MM-DD", name), "Use an ISO date in YYYY-MM-DD format."))
+		}
+	}
+	if hasField(document.Fields, "updated") {
+		values := stringListField(document, "updated")
+		for _, value := range values {
+			if !datePattern.MatchString(value) {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["updated"], 1, "field \"updated\" must use YYYY-MM-DD", "Use ISO dates in YYYY-MM-DD format inside the YAML sequence."))
+				break
+			}
 		}
 	}
 
@@ -276,6 +299,8 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["status"], 1, "status \"Idle\" requires idle-since", "Add idle-since in YYYY-MM-DD format."))
 	}
 
+	diagnostics = append(diagnostics, validateCanonicalYAMLFieldShapes(document)...)
+
 	for _, section := range requiredSections {
 		if _, ok := document.Sections[section]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:008", diag.OriginNative, document.Path, 1, 1, fmt.Sprintf("missing required section %q", section), "Add the missing level-2 section to the ARC."))
@@ -284,6 +309,84 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 
 	diagnostics = append(diagnostics, ValidateLinks(document, repoRoot)...)
 	return diagnostics
+}
+
+func validateCanonicalYAMLFieldShapes(document *Document) []diag.Diagnostic {
+	diagnostics := make([]diag.Diagnostic, 0)
+
+	for field := range canonicalStringSequenceFields {
+		value, ok := document.Fields[field]
+		if !ok {
+			continue
+		}
+		if isCanonicalStringSequence(value, field == "updated") {
+			continue
+		}
+		diagnostics = append(diagnostics, diag.NewWithHint("R:021", diag.OriginNative, document.Path, document.FieldLines[field], 1, fmt.Sprintf("field %q must use a YAML sequence", field), canonicalShapeHint(field)))
+	}
+
+	for field := range canonicalIntSequenceFields {
+		value, ok := document.Fields[field]
+		if !ok {
+			continue
+		}
+		if isCanonicalIntSequence(value) {
+			continue
+		}
+		diagnostics = append(diagnostics, diag.NewWithHint("R:021", diag.OriginNative, document.Path, document.FieldLines[field], 1, fmt.Sprintf("field %q must use a YAML sequence of ARC numbers", field), canonicalShapeHint(field)))
+	}
+
+	return diagnostics
+}
+
+func canonicalShapeHint(field string) string {
+	switch field {
+	case "author":
+		return "Use a YAML sequence, for example:\nauthor:\n  - Example Author (@example)"
+	case "updated":
+		return "Use a YAML sequence of dates, for example:\nupdated:\n  - 2026-04-09"
+	case "implementation-maintainer":
+		return "Use a YAML sequence, for example:\nimplementation-maintainer:\n  - algorandfoundation"
+	default:
+		return fmt.Sprintf("Use a YAML sequence, for example:\n%s:\n  - 42", field)
+	}
+}
+
+func isCanonicalStringSequence(value any, allowDates bool) bool {
+	items, ok := value.([]any)
+	if !ok || len(items) == 0 {
+		return false
+	}
+	for _, item := range items {
+		switch typed := item.(type) {
+		case string:
+			if strings.TrimSpace(typed) == "" {
+				return false
+			}
+		case time.Time:
+			if !allowDates {
+				return false
+			}
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+func isCanonicalIntSequence(value any) bool {
+	items, ok := value.([]any)
+	if !ok || len(items) == 0 {
+		return false
+	}
+	for _, item := range items {
+		switch item.(type) {
+		case int, int64, float64:
+		default:
+			return false
+		}
+	}
+	return true
 }
 
 func ValidateLinks(document *Document, repoRoot string) []diag.Diagnostic {
@@ -354,10 +457,10 @@ func ValidateLinks(document *Document, repoRoot string) []diag.Diagnostic {
 func FindRepoRoot(start string) string {
 	current := filepath.Clean(start)
 	for {
-		if current == "." || current == string(filepath.Separator) || current == "" {
+		if current == string(filepath.Separator) || current == "" {
 			break
 		}
-		if exists(filepath.Join(current, "ARCs")) && exists(filepath.Join(current, "adoption")) {
+		if exists(filepath.Join(current, "ARCs")) || exists(filepath.Join(current, ".arckit.jsonc")) {
 			return current
 		}
 		parent := filepath.Dir(current)
@@ -366,7 +469,7 @@ func FindRepoRoot(start string) string {
 		}
 		current = parent
 	}
-	return "."
+	return filepath.Clean(start)
 }
 
 func RequiresAdoptionSummary(status string) bool {
@@ -573,6 +676,8 @@ func intListField(document *Document, key string) []int {
 		return []int{int(typed)}
 	case float64:
 		return []int{int(typed)}
+	case string:
+		return parseARCNumberList(typed)
 	case []any:
 		out := make([]int, 0, len(typed))
 		for _, item := range typed {
@@ -589,6 +694,76 @@ func intListField(document *Document, key string) []int {
 	default:
 		return nil
 	}
+}
+
+func stringListField(document *Document, key string) []string {
+	value, ok := document.Fields[key]
+	if !ok {
+		return nil
+	}
+	switch typed := value.(type) {
+	case string:
+		return splitCommaSeparatedValues(typed)
+	case time.Time:
+		return []string{typed.Format("2006-01-02")}
+	case []any:
+		out := make([]string, 0, len(typed))
+		for _, item := range typed {
+			switch value := item.(type) {
+			case string:
+				trimmed := strings.TrimSpace(value)
+				if trimmed == "" {
+					return nil
+				}
+				out = append(out, trimmed)
+			case time.Time:
+				out = append(out, value.Format("2006-01-02"))
+			default:
+				return nil
+			}
+		}
+		return out
+	default:
+		return nil
+	}
+}
+
+func parseARCNumberList(value string) []int {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+	parts := strings.Split(trimmed, ",")
+	out := make([]int, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			return nil
+		}
+		number, err := strconv.Atoi(part)
+		if err != nil {
+			return nil
+		}
+		out = append(out, number)
+	}
+	return out
+}
+
+func splitCommaSeparatedValues(value string) []string {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+	parts := strings.Split(trimmed, ",")
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			return nil
+		}
+		out = append(out, part)
+	}
+	return out
 }
 
 func withinRoot(root, path string) bool {
