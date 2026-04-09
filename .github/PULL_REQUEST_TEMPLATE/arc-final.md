@@ -30,6 +30,7 @@ Describe the evidence that this ARC is implemented, adopted, and ready for final
 ## Adoption Evidence
 
 - [ ] Public adoption evidence is documented in the adoption summary.
+- [ ] At least one adoption category contains at least one adopter entry.
 - [ ] At least one real ecosystem implementation is documented.
 - [ ] Any known interoperability concerns have been recorded.
 

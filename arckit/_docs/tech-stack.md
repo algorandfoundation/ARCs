@@ -154,7 +154,8 @@ Owns:
 1. vetted adopters registry decoding;
 1. enum validation;
 1. adoption summary consistency checks;
-1. summary-to-registry adopter checks.
+1. summary-to-registry adopter checks;
+1. minimum tracked-adoption checks for `Final` ARCs.
 
 ### 5.5 `repo`
 

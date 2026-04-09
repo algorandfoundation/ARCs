@@ -93,6 +93,9 @@ That gate includes the repository-scoped vetted adopters registry at
 `adoption/vetted-adopters.yaml` and rejects per-ARC adoption actors that are not
 lower-kebab-case or are not present in the matching registry category.
 
+That same gate must also reject any `Final` ARC whose canonical adoption summary
+has all adoption categories empty.
+
 When present, the repository-root `.arckit.jsonc` is applied implicitly by this
 command. Invalid `.arckit.jsonc` content must fail the gate.
 
@@ -216,6 +219,7 @@ Deterministic maintenance findings include:
 1. offline `arckit` validation failures;
 1. missing or invalid vetted adopters registry;
 1. missing or invalid required adoption summaries;
+1. `Final` ARCs whose adoption summaries have no tracked adopters;
 1. missing local links or asset targets;
 1. ARC and tracking issue mismatches that are machine-checkable;
 1. missing required tracking issues;

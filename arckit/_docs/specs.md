@@ -207,7 +207,8 @@ It must perform:
 1. schema and required field validation;
 1. enum validation;
 1. vetted adopters registry validation;
-1. internal consistency validation.
+1. internal consistency validation, including rejecting `Final` adoption summaries
+   whose adoption categories are all empty.
 
 ### 8.3 `validate links`
 
@@ -236,6 +237,9 @@ It must perform:
 This is the single canonical CI gate. Required PR validation jobs should build `arckit`
 and run `arckit validate repo .`. When present, the repo-root `.arckit.jsonc` is
 applied implicitly.
+
+The repository-wide gate must reject any ARC in `Final` status whose canonical
+adoption summary has no tracked adopters in any adoption category.
 
 ### 8.5 `validate transition`
 

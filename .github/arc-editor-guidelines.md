@@ -115,6 +115,7 @@ An editor must still manually:
 - keep the gate checklist and decision log meaningful and current when editorial decisions are made;
 - verify that the canonical links in the issue point to the correct discussion, PR, adoption summary, and implementation repository;
 - confirm that any newly named adopters are present in `adoption/vetted-adopters.yaml`.
+- confirm that any ARC moving to or remaining in `Final` still has at least one tracked adopter in its adoption summary.
 
 The current CI/CD spec treats tracking issue creation as a manual author action after
 number assignment. From the editor side, the manual responsibility is to confirm that
@@ -129,6 +130,7 @@ An editor must still manually:
 - review the ARC content for scope, clarity, and process readiness;
 - determine whether unresolved normative questions remain;
 - judge whether adoption evidence is credible and adequate;
+- confirm that a `Final` ARC does not have an empty adoption summary;
 - judge whether the reference implementation is sufficiently maintained;
 - confirm editor approval for status transitions;
 - request changes, approve, merge, or close the PR.

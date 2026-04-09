@@ -46,7 +46,8 @@ Used for:
 - status transition records,
 - links to the reference implementation,
 - link to the adoption summary artifact,
-- confirmation that any newly named adopters were added to `adoption/vetted-adopters.yaml`.
+- confirmation that any newly named adopters were added to `adoption/vetted-adopters.yaml`,
+- confirmation that a `Final` ARC still has at least one tracked adopter in its adoption summary.
 
 ### 4. Reference implementation
 
