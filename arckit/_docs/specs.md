@@ -565,6 +565,7 @@ It must:
 
 1. normalize front matter spacing;
 1. normalize front matter field ordering;
+1. normalize legacy scalar-list ARC fields into canonical YAML sequences;
 1. preserve semantic content.
 1. leave body whitespace, final-newline policy, and generic Markdown hygiene to
    the repository-root `pre-commit` hooks.
@@ -590,7 +591,7 @@ Outputs:
 1. `assets/arc-####/`
 
 The generated ARC must include an `adoption-summary` field pointing to the generated
-adoption stub.
+adoption stub, and must emit canonical YAML-native list fields for author metadata.
 
 `init arc` must never create remote GitHub artifacts.
 
