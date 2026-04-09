@@ -81,10 +81,8 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 	}
 
 	builder.WriteString("---\n")
-	body := bytes.TrimLeft(document.Body, "\n")
-	if len(body) > 0 {
-		builder.WriteString("\n")
-		builder.Write(body)
+	if len(document.Body) > 0 {
+		builder.Write(document.Body)
 	}
 	return builder.String(), nil
 }
