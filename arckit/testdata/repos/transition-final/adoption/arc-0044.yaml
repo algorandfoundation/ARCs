@@ -12,7 +12,7 @@ reference-implementation:
   notes: ""
 adoption:
   wallets:
-    - name: Example Wallet
+    - name: example-wallet
       status: shipped
       evidence: https://example.com/wallet-proof
       notes: ""

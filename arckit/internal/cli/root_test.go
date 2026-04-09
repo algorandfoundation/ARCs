@@ -67,7 +67,7 @@ Text
 		{name: "explain", args: []string{"explain", "R:001"}, wantCode: 0, wantInOut: "Missing front matter"},
 		{name: "validate-arc", args: []string{"validate", "arc", validDraftARC}, wantCode: 0, wantInOut: "summary:"},
 		{name: "validate-adoption", args: []string{"validate", "adoption", validDraftAdoption}, wantCode: 0, wantInOut: "summary:"},
-		{name: "validate-links", args: []string{"validate", "links", validDraftARC}, wantCode: 0, wantInOut: "summary:"},
+		{name: "validate-links", args: []string{"validate", "links", transitionARC}, wantCode: 0, wantInOut: "summary:"},
 		{name: "validate-repo", args: []string{"validate", "repo", validDraftRoot}, wantCode: 0, wantInOut: "summary:"},
 		{name: "validate-transition", args: []string{"validate", "transition", transitionARC, "--to", "Final"}, wantCode: 0, wantInOut: "R:020"},
 		{name: "fmt", args: []string{"fmt", fmtPath}, wantCode: 0, wantInOut: "summary:"},
@@ -162,6 +162,41 @@ func TestCLIValidateCommandsHonorConfig(t *testing.T) {
 		assertCommandSucceeded(t, exitCode, stdout, stderr)
 		assertContains(t, stdout.String(), "summary: 0 error(s), 0 warning(s), 0 info")
 	})
+}
+
+func TestCLIValidateAdoptionRequiresVettedAdoptersRegistry(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	if err := os.Remove(filepath.Join(root, "adoption", "vetted-adopters.yaml")); err != nil {
+		t.Fatalf("Remove() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	path := filepath.Join(root, "adoption", "arc-0042.yaml")
+	exitCode := ExecuteArgs([]string{"validate", "adoption", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "R:022")
+}
+
+func TestCLIValidateAdoptionRejectsUnvettedAdopter(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	writeVettedAdopters(t, root, `wallets: []
+explorers: []
+sdk-libraries: []
+infra: []
+dapps-protocols: []
+`)
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	path := filepath.Join(root, "adoption", "arc-0044.yaml")
+	exitCode := ExecuteArgs([]string{"validate", "adoption", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "R:023")
 }
 
 func TestCLIValidateCommandsRejectInvalidConfig(t *testing.T) {
@@ -357,6 +392,17 @@ func copyRepoFixture(t *testing.T, src string) string {
 func writeConfig(t *testing.T, root string, content string) {
 	t.Helper()
 	path := filepath.Join(root, ".arckit.jsonc")
+	if err := os.WriteFile(path, []byte(strings.TrimSpace(content)+"\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(%s) error = %v", path, err)
+	}
+}
+
+func writeVettedAdopters(t *testing.T, root string, content string) {
+	t.Helper()
+	path := filepath.Join(root, "adoption", "vetted-adopters.yaml")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
 	if err := os.WriteFile(path, []byte(strings.TrimSpace(content)+"\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(%s) error = %v", path, err)
 	}

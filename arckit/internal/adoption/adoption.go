@@ -101,7 +101,7 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 	return summary, diagnostics, nil
 }
 
-func Validate(summary *Summary, document *arc.Document) []diag.Diagnostic {
+func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters) []diag.Diagnostic {
 	diagnostics := make([]diag.Diagnostic, 0)
 
 	for _, key := range []string{"arc", "title", "status", "last-reviewed", "sponsor", "implementation-required", "adoption", "summary"} {
@@ -134,6 +134,10 @@ func Validate(summary *Summary, document *arc.Document) []diag.Diagnostic {
 		for index, actor := range actors {
 			if strings.TrimSpace(actor.Name) == "" {
 				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d] is missing name", group, index), "Set a non-empty actor name."))
+			} else if !isVettedAdopterName(actor.Name) {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:023", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d].name must be lower-kebab-case, got %q", group, index, actor.Name), "Use a lower-kebab adopter name from adoption/vetted-adopters.yaml."))
+			} else if registry != nil && !registry.Contains(group, actor.Name) {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:023", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d].name %q is not present in vetted adopters category %q", group, index, actor.Name, group), "Add the adopter to adoption/vetted-adopters.yaml or use an existing vetted adopter name."))
 			}
 			if !slices.Contains([]string{"planned", "in_progress", "shipped", "declined", "unknown"}, actor.Status) {
 				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d] has unsupported status %q", group, index, actor.Status), "Use one of planned, in_progress, shipped, declined, or unknown."))

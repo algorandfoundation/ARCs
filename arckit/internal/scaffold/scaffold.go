@@ -1,12 +1,14 @@
 package scaffold
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/algorandfoundation/ARCs/arckit/internal/adoption"
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
 )
 
@@ -29,6 +31,7 @@ func InitARC(options InitOptions) ([]string, []diag.Diagnostic, error) {
 	arcPath := filepath.Join(root, "ARCs", "arc-"+number+".md")
 	adoptionPath := filepath.Join(root, "adoption", "arc-"+number+".yaml")
 	assetPath := filepath.Join(root, "assets", "arc-"+number)
+	registryPath := filepath.Join(root, "adoption", adoption.VettedAdoptersFileName)
 	created := []string{arcPath, adoptionPath, assetPath}
 
 	for _, path := range []string{arcPath, adoptionPath, assetPath} {
@@ -67,6 +70,14 @@ func InitARC(options InitOptions) ([]string, []diag.Diagnostic, error) {
 	}
 	if err := os.WriteFile(adoptionPath, []byte(adoptionContent), 0o644); err != nil {
 		return nil, []diag.Diagnostic{diag.NewWithHint("R:027", diag.OriginNative, adoptionPath, 0, 0, err.Error(), "Check filesystem permissions and retry.")}, err
+	}
+	if _, err := os.Stat(registryPath); errors.Is(err, os.ErrNotExist) {
+		if err := os.WriteFile(registryPath, []byte(renderVettedAdopters()), 0o644); err != nil {
+			return nil, []diag.Diagnostic{diag.NewWithHint("R:027", diag.OriginNative, registryPath, 0, 0, err.Error(), "Check filesystem permissions and retry.")}, err
+		}
+		created = append(created, registryPath)
+	} else if err != nil {
+		return nil, []diag.Diagnostic{diag.NewWithHint("R:027", diag.OriginNative, registryPath, 0, 0, err.Error(), "Check filesystem permissions and retry.")}, err
 	}
 	return created, nil, nil
 }
@@ -149,4 +160,13 @@ summary:
   notes: ""
 `
 	return base
+}
+
+func renderVettedAdopters() string {
+	return `wallets: []
+explorers: []
+sdk-libraries: []
+infra: []
+dapps-protocols: []
+`
 }

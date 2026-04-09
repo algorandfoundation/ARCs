@@ -90,6 +90,12 @@ func TestValidateRepoDoesNotDeriveRelationshipsFromLegacyScalarLists(t *testing.
 	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
 		t.Fatalf("MkdirAll() error = %v", err)
 	}
+	writeVettedAdopters(t, root, `wallets: []
+explorers: []
+sdk-libraries: []
+infra: []
+dapps-protocols: []
+`)
 
 	arc1 := `---
 arc: 1
@@ -186,6 +192,12 @@ func TestValidateRepoIncludesARCZeroInState(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
 		t.Fatalf("MkdirAll() error = %v", err)
 	}
+	writeVettedAdopters(t, root, `wallets: []
+explorers: []
+sdk-libraries: []
+infra: []
+dapps-protocols: []
+`)
 
 	content := `---
 arc: 0
@@ -237,6 +249,53 @@ Text
 	}
 }
 
+func TestValidateRepoRequiresVettedAdoptersRegistry(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	if err := os.Remove(filepath.Join(root, "adoption", "vetted-adopters.yaml")); err != nil {
+		t.Fatalf("Remove() error = %v", err)
+	}
+
+	_, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+	found := false
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:022" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected missing vetted adopters diagnostic, got %+v", diagnostics)
+	}
+}
+
+func TestValidateRepoRejectsUnvettedAdopter(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	writeVettedAdopters(t, root, `wallets: []
+explorers: []
+sdk-libraries: []
+infra: []
+dapps-protocols: []
+`)
+
+	_, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+	found := false
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:023" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected invalid adopter reference diagnostic, got %+v", diagnostics)
+	}
+}
+
 func copyRepoFixture(t *testing.T, src string) string {
 	t.Helper()
 	dst := t.TempDir()
@@ -261,6 +320,17 @@ func copyRepoFixture(t *testing.T, src string) string {
 		t.Fatalf("copyRepoFixture() error = %v", err)
 	}
 	return dst
+}
+
+func writeVettedAdopters(t *testing.T, root string, content string) {
+	t.Helper()
+	path := filepath.Join(root, "adoption", "vetted-adopters.yaml")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.WriteFile(path, []byte(strings.TrimSpace(content)+"\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(%s) error = %v", path, err)
+	}
 }
 
 func writeConfig(t *testing.T, root string, content string) {

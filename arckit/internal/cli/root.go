@@ -118,13 +118,22 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 				if loadErr != nil {
 					return reportForValidation("validate adoption", cfg.FilterDiagnostics(diagnostics)), nil
 				}
+				registry, registryDiagnostics, registryErr := adoption.LoadVettedAdopters(adoption.RegistryPath(root))
+				diagnostics = append(diagnostics, registryDiagnostics...)
+				if registryErr == nil && len(registryDiagnostics) == 0 {
+					registryDiagnostics = adoption.ValidateVettedAdopters(registry)
+					diagnostics = append(diagnostics, registryDiagnostics...)
+				}
+				if registryErr != nil || len(registryDiagnostics) != 0 {
+					registry = nil
+				}
 				var document *arc.Document
 				arcPath := filepath.Join(root, "ARCs", fmt.Sprintf("arc-%04d.md", summary.Arc))
 				if loaded, loadDiagnostics, err := arc.Load(arcPath); err == nil {
 					document = loaded
 					diagnostics = append(diagnostics, loadDiagnostics...)
 				}
-				diagnostics = append(diagnostics, adoption.Validate(summary, document)...)
+				diagnostics = append(diagnostics, adoption.Validate(summary, document, registry)...)
 				return reportForValidation("validate adoption", cfg.FilterDiagnostics(diagnostics)), nil
 			})
 		},

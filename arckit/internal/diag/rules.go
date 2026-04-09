@@ -170,6 +170,22 @@ var rules = []Rule{
 		Hint:        "Use YAML sequences for list-valued ARC fields such as author, updated, implementation-maintainer, requires, supersedes, extends, and extended-by.",
 	},
 	{
+		ID:          "R:022",
+		Severity:    SeverityError,
+		Title:       "Invalid vetted adopters registry",
+		Description: "The canonical vetted adopters registry is missing or does not match the required schema.",
+		Rationale:   "Adoption evidence must refer to a repository-scoped vetted adopter list to keep actor names deterministic.",
+		Hint:        "Create or fix adoption/vetted-adopters.yaml using the required category keys and lower-kebab adopter names.",
+	},
+	{
+		ID:          "R:023",
+		Severity:    SeverityError,
+		Title:       "Invalid adopter reference",
+		Description: "An adoption actor name is not lower-kebab-case or is not present in the vetted adopters registry.",
+		Rationale:   "Per-ARC adoption entries must use canonical actor identifiers drawn from the vetted registry.",
+		Hint:        "Use a lower-kebab adopter name from adoption/vetted-adopters.yaml in the matching category.",
+	},
+	{
 		ID:          "R:026",
 		Severity:    SeverityError,
 		Title:       "Invalid invocation",

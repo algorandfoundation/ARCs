@@ -97,12 +97,21 @@ func loadSummary(document *arc.Document, diagnostics *[]diag.Diagnostic) *adopti
 	}
 	root := arc.FindRepoRoot(filepath.Dir(document.Path))
 	path := filepath.Join(root, filepath.FromSlash(document.AdoptionSummary))
+	registry, registryDiagnostics, registryErr := adoption.LoadVettedAdopters(adoption.RegistryPath(root))
+	*diagnostics = append(*diagnostics, registryDiagnostics...)
+	if registryErr == nil && len(registryDiagnostics) == 0 {
+		registryDiagnostics = adoption.ValidateVettedAdopters(registry)
+		*diagnostics = append(*diagnostics, registryDiagnostics...)
+	}
+	if registryErr != nil || len(registryDiagnostics) != 0 {
+		registry = nil
+	}
 	summary, loadDiagnostics, err := adoption.Load(path)
 	*diagnostics = append(*diagnostics, loadDiagnostics...)
 	if err != nil {
 		return nil
 	}
-	*diagnostics = append(*diagnostics, adoption.Validate(summary, document)...)
+	*diagnostics = append(*diagnostics, adoption.Validate(summary, document, registry)...)
 	return summary
 }
 

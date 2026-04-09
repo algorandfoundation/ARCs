@@ -61,6 +61,16 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 		}
 	}
 
+	registry, registryDiagnostics, registryErr := adoption.LoadVettedAdopters(adoption.RegistryPath(state.Root))
+	diagnostics = append(diagnostics, registryDiagnostics...)
+	if registryErr == nil && len(registryDiagnostics) == 0 {
+		registryDiagnostics = adoption.ValidateVettedAdopters(registry)
+		diagnostics = append(diagnostics, registryDiagnostics...)
+	}
+	if registryErr != nil || len(registryDiagnostics) != 0 {
+		registry = nil
+	}
+
 	adoptionFiles, err := filepath.Glob(filepath.Join(state.Root, "adoption", "arc-*.yaml"))
 	if err != nil {
 		return state, []diag.Diagnostic{
@@ -77,7 +87,7 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 		if loadErr != nil {
 			continue
 		}
-		diagnostics = append(diagnostics, adoption.Validate(summary, state.ARCs[summary.Arc])...)
+		diagnostics = append(diagnostics, adoption.Validate(summary, state.ARCs[summary.Arc], registry)...)
 		if summary.Arc != 0 {
 			adoptionToPaths[summary.Arc] = append(adoptionToPaths[summary.Arc], summary.Path)
 			if _, exists := state.Adoptions[summary.Arc]; !exists {
