@@ -225,6 +225,14 @@ var rules = []Rule{
 		Rationale:   "Repository-local suppressions must be valid so CI and local validation stay deterministic.",
 		Hint:        "Fix the .arckit.jsonc syntax, selectors, or rule IDs, then retry.",
 	},
+	{
+		ID:          "R:029",
+		Severity:    SeverityError,
+		Title:       "Non-canonical implementation URL",
+		Description: "An implementation-required ARC must declare the canonical sponsor-specific GitHub repository URL in front matter.",
+		Rationale:   "Canonical implementation repository URLs keep implementation ownership deterministic and machine-verifiable across the ARC process.",
+		Hint:        "Set implementation-url to the exact sponsor-specific GitHub repository path for the ARC number.",
+	},
 }
 
 var ruleIndex = func() map[string]Rule {

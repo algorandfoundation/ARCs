@@ -189,7 +189,7 @@ type: Standards Track
 created: 2026-03-26
 sponsor: Foundation
 implementation-required: true
-implementation-url: https://github.com/example/arc44
+implementation-url: https://github.com/algorandfoundation/arc44
 implementation-maintainer:
   - "@maintainer"
 adoption-summary: adoption/arc-0044.yaml

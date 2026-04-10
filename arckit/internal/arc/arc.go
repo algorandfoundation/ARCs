@@ -310,6 +310,11 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	if document.Status == "Idle" && document.IdleSince == "" {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["status"], 1, "status \"Idle\" requires idle-since", "Add idle-since in YYYY-MM-DD format."))
 	}
+	if document.ImplementationRequired && document.ImplementationURL != "" {
+		if expectedURL, ok := ExpectedImplementationURL(document); ok && strings.TrimSpace(document.ImplementationURL) != expectedURL {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:029", diag.OriginNative, document.Path, document.FieldLines["implementation-url"], 1, fmt.Sprintf("implementation-url must be %s when sponsor is %q and arc is %d", expectedURL, document.Sponsor, document.Number), fmt.Sprintf("Update implementation-url to %s.", expectedURL)))
+		}
+	}
 	if document.ImplementationRequired && RequiresImplementationDeclaration(document.Status) {
 		if document.ImplementationURL == "" {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["implementation-required"], 1, fmt.Sprintf("status %q with implementation-required true requires implementation-url", document.Status), "Declare the canonical reference implementation repository in ARC front matter."))
@@ -507,6 +512,20 @@ func RequiresImplementationDeclaration(status string) bool {
 		return true
 	default:
 		return false
+	}
+}
+
+func ExpectedImplementationURL(document *Document) (string, bool) {
+	if document == nil || !document.HasNumber {
+		return "", false
+	}
+	switch document.Sponsor {
+	case "Foundation":
+		return fmt.Sprintf("https://github.com/algorandfoundation/arc%d", document.Number), true
+	case "Ecosystem":
+		return fmt.Sprintf("https://github.com/algorandecosystem/arc%d", document.Number), true
+	default:
+		return "", false
 	}
 }
 

@@ -425,6 +425,63 @@ Text
 	assertContains(t, stdout.String(), "requires implementation-maintainer")
 }
 
+func TestCLIValidateArcRejectsNonCanonicalImplementationURL(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(root, "ARCs", "arc-0044.md")
+	if err := os.WriteFile(path, []byte(`---
+arc: 44
+title: Example
+description: Example description
+author:
+  - Example Author (@example)
+discussions-to: https://example.com/discussion
+status: Review
+type: Standards Track
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: true
+implementation-url: https://github.com/example/arc-0044
+implementation-maintainer:
+  - algorandfoundation
+adoption-summary: adoption/arc-0044.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "arc", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "R:029")
+	assertContains(t, stdout.String(), "https://github.com/algorandfoundation/arc44")
+}
+
 func TestCLIValidateRepoRejectsFinalARCWithoutTrackedAdoption(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0042.md"), []byte(`---
