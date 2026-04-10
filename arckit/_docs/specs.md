@@ -416,7 +416,7 @@ reference-implementation:
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -464,7 +464,7 @@ The `adoption` section must support these actor classes:
 
 1. `wallets`
 1. `explorers`
-1. `sdk-libraries`
+1. `tooling`
 1. `infra`
 1. `dapps-protocols`
 

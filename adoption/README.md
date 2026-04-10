@@ -65,7 +65,7 @@ adoption:
       status: shipped
       evidence: https://example.com/explorer-proof
       notes: Explorer renders ARC-specific data in public UI.
-  sdk-libraries:
+  tooling:
     - name: example-sdk
       status: in_progress
       evidence: https://example.com/sdk-proof
