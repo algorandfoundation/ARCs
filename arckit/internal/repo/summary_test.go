@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -175,6 +176,78 @@ func TestBuildSummaryUsesValidatedStateWithIgnoredARCs(t *testing.T) {
 	}
 	if summary.TotalAdoptionFiles != 4 {
 		t.Fatalf("TotalAdoptionFiles = %d, want 4 after ignoring ARC 47", summary.TotalAdoptionFiles)
+	}
+}
+
+func TestBuildSummaryNormalizesInvalidActorStatuses(t *testing.T) {
+	root := t.TempDir()
+	for _, dir := range []string{"ARCs", "adoption"} {
+		if err := os.MkdirAll(filepath.Join(root, dir), 0o755); err != nil {
+			t.Fatalf("MkdirAll() error = %v", err)
+		}
+	}
+
+	writeVettedAdopters(t, root, `wallets:
+  - wallet-one
+explorers:
+  - explorer-one
+tooling: []
+infra: []
+dapps-protocols: []
+`)
+	writeSummaryARC(t, root, 42, summaryARCOptions{
+		Title:           "Invalid Status ARC",
+		Status:          "Final",
+		Type:            "Standards Track",
+		AdoptionSummary: true,
+	})
+	writeSummaryAdoption(t, root, 42, `arc: 42
+title: Invalid Status ARC
+last-reviewed: 2026-04-05
+adoption:
+  wallets:
+    - name: wallet-one
+      evidence: https://example.com/wallet-one
+      notes: ""
+  explorers:
+    - name: explorer-one
+      status: maybe
+      evidence: https://example.com/explorer-one
+      notes: ""
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`)
+
+	state, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+	summary := BuildSummary(state, diagnostics, fixedSummaryNow)
+
+	assertSummaryCount(t, summary.AdopterEntriesByStatus, "missing", 1)
+	assertSummaryCount(t, summary.AdopterEntriesByStatus, "unknown", 1)
+	for _, row := range summary.AdopterEntriesByStatus {
+		if row.Label == "" {
+			t.Fatalf("AdopterEntriesByStatus contains blank label row: %+v", summary.AdopterEntriesByStatus)
+		}
+	}
+}
+
+func TestWriteTableEscapesMarkdownCells(t *testing.T) {
+	var out bytes.Buffer
+
+	writeTable(&out, []string{"Title", "Count"}, func(writeRow func(...string)) {
+		writeRow("Name | Alias\nSecond Line", "1")
+	})
+
+	got := out.String()
+	if !strings.Contains(got, `Name \| Alias<br>Second Line`) {
+		t.Fatalf("writeTable() output = %q, want escaped markdown cell", got)
 	}
 }
 

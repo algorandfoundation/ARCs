@@ -258,7 +258,7 @@ func BuildSummary(state State, diagnostics []diag.Diagnostic, now time.Time) Rep
 				adopterCategoryCounts[group.key] += len(group.actors)
 				adopterCount += len(group.actors)
 				for _, actor := range group.actors {
-					adopterStatusCounts[actor.Status]++
+					adopterStatusCounts[normalizeActorStatus(actor.Status)]++
 					if strings.TrimSpace(actor.Name) == "" {
 						continue
 					}
@@ -333,7 +333,7 @@ func BuildSummary(state State, diagnostics []diag.Diagnostic, now time.Time) Rep
 	summary.AdoptionReadinessCounts = orderedCounts(readinessCounts, []string{"low", "medium", "high"})
 	summary.ReferenceImplementationStatusCounts = orderedCounts(refImplCounts, []string{"planned", "wip", "shipped", "archived"})
 	summary.AdopterEntriesByCategory = orderedCounts(adopterCategoryCounts, []string{"wallets", "explorers", "tooling", "infra", "dapps-protocols"})
-	summary.AdopterEntriesByStatus = orderedCounts(adopterStatusCounts, []string{"planned", "in_progress", "shipped", "declined", "unknown"})
+	summary.AdopterEntriesByStatus = orderedCounts(adopterStatusCounts, []string{"planned", "in_progress", "shipped", "declined", "unknown", "missing"})
 	summary.TopAdoptersByCoverage = topAdopterCoverage(adopterCoverage)
 	summary.TopARCsByAdopters = topARCs(topARCsByAdopters)
 	summary.TopRequiresTargets = topReferencedARCs(requiresTargets, state.ARCs)
@@ -606,6 +606,17 @@ func joinARCNumbers(numbers []int) string {
 	return strings.Join(parts, ", ")
 }
 
+func normalizeActorStatus(value string) string {
+	switch strings.TrimSpace(value) {
+	case "":
+		return "missing"
+	case "planned", "in_progress", "shipped", "declined", "unknown":
+		return strings.TrimSpace(value)
+	default:
+		return "unknown"
+	}
+}
+
 func writeCountTable(out *bytes.Buffer, label string, rows []SummaryCount) {
 	if len(rows) == 0 {
 		_, _ = out.WriteString("None\n")
@@ -727,13 +738,29 @@ func writeSupersessionTable(out *bytes.Buffer, rows []SupersessionSummaryRow) {
 }
 
 func writeTable(out *bytes.Buffer, headers []string, writeRows func(func(...string))) {
-	_, _ = out.WriteString("| " + strings.Join(headers, " | ") + " |\n")
+	_, _ = out.WriteString("| " + strings.Join(sanitizeMarkdownTableCells(headers), " | ") + " |\n")
 	separators := make([]string, 0, len(headers))
 	for range headers {
 		separators = append(separators, "---")
 	}
 	_, _ = out.WriteString("| " + strings.Join(separators, " | ") + " |\n")
 	writeRows(func(values ...string) {
-		_, _ = out.WriteString("| " + strings.Join(values, " | ") + " |\n")
+		_, _ = out.WriteString("| " + strings.Join(sanitizeMarkdownTableCells(values), " | ") + " |\n")
 	})
+}
+
+func sanitizeMarkdownTableCells(values []string) []string {
+	sanitized := make([]string, 0, len(values))
+	for _, value := range values {
+		sanitized = append(sanitized, sanitizeMarkdownTableCell(value))
+	}
+	return sanitized
+}
+
+func sanitizeMarkdownTableCell(value string) string {
+	value = strings.ReplaceAll(value, "\r\n", "\n")
+	value = strings.ReplaceAll(value, "\r", "\n")
+	value = strings.ReplaceAll(value, "\n", "<br>")
+	value = strings.ReplaceAll(value, "|", "\\|")
+	return value
 }
