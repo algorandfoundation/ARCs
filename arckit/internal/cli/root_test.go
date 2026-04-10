@@ -184,7 +184,7 @@ func TestCLIValidateAdoptionRejectsUnvettedAdopter(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
 	writeVettedAdopters(t, root, `wallets: []
 explorers: []
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `)
@@ -245,7 +245,7 @@ last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -284,7 +284,7 @@ adoption:
       evidence: https://example.com/wallet-proof
       notes: ""
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -319,7 +319,7 @@ adoption:
       evidence: https://example.com/wallet-proof
       notes: ""
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -343,7 +343,7 @@ func TestCLIValidateAdoptionRejectsAdoptionReadinessWithoutEnoughAdopters(t *tes
   - example-wallet
 explorers:
   - example-explorer
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `)
@@ -362,7 +362,7 @@ adoption:
       status: shipped
       evidence: https://example.com/explorer-proof
       notes: ""
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -406,7 +406,7 @@ adoption:
       status: shipped
       evidence: https://example.com/explorer-one
       notes: ""
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -439,7 +439,7 @@ adoption:
   wallets: []
   explorers:
     - wow
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -474,7 +474,7 @@ implementation-required: false
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -652,7 +652,7 @@ last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:

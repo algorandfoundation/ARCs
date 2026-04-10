@@ -51,7 +51,7 @@ extra: []
 	}
 
 	want := []string{
-		`missing required vetted adopter category "sdk-libraries"`,
+		`missing required vetted adopter category "tooling"`,
 		`unsupported vetted adopter category "extra"`,
 		`wallets[1] must be lower-kebab-case`,
 		`duplicate vetted adopter "example-wallet" in wallets`,
@@ -75,7 +75,7 @@ func TestLoadVettedAdoptersRejectsInvalidSchema(t *testing.T) {
 	path := filepath.Join(root, VettedAdoptersFileName)
 	content := `wallets: []
 explorers: {}
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `

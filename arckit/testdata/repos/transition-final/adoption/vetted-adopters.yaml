@@ -1,6 +1,6 @@
 wallets:
   - example-wallet
 explorers: []
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []

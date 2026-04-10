@@ -47,7 +47,7 @@ func TestValidateAdoptionRejectsActorOutsideMatchingRegistryCategory(t *testing.
 	if err := os.WriteFile(registryPath, []byte(`wallets: []
 explorers:
   - example-wallet
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `), 0o644); err != nil {
@@ -134,7 +134,7 @@ last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -192,7 +192,7 @@ adoption:
       status: shipped
       evidence: https://example.com/explorer-proof
       notes: ""
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -206,7 +206,7 @@ summary:
   - example-wallet
 explorers:
   - example-explorer
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `), 0o644); err != nil {
@@ -256,7 +256,7 @@ adoption:
       status: shipped
       evidence: https://example.com/explorer-one
       notes: ""
-  sdk-libraries:
+  tooling:
     - name: sdk-one
       status: shipped
       evidence: https://example.com/sdk-one
@@ -279,7 +279,7 @@ summary:
   - wallet-two
 explorers:
   - explorer-one
-sdk-libraries:
+tooling:
   - sdk-one
 infra:
   - infra-one
@@ -376,7 +376,7 @@ adoption:
       evidence: https://example.com/wallet-proof
       notes: ""
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -431,7 +431,7 @@ adoption:
       evidence: https://example.com/wallet-proof
       notes: ""
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -486,7 +486,7 @@ adoption:
       evidence: https://example.com/wallet-proof
       notes: ""
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -536,7 +536,7 @@ adoption:
   wallets: []
   explorers:
     - wow
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -579,7 +579,7 @@ implementation-required: false
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -628,7 +628,7 @@ adoption:
       evidence: https://example.com/wallet-proof
       notes: ""
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:

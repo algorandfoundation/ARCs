@@ -92,7 +92,7 @@ func TestValidateRepoDoesNotDeriveRelationshipsFromLegacyScalarLists(t *testing.
 	}
 	writeVettedAdopters(t, root, `wallets: []
 explorers: []
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `)
@@ -194,7 +194,7 @@ func TestValidateRepoIncludesARCZeroInState(t *testing.T) {
 	}
 	writeVettedAdopters(t, root, `wallets: []
 explorers: []
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `)
@@ -275,7 +275,7 @@ func TestValidateRepoRejectsUnvettedAdopter(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
 	writeVettedAdopters(t, root, `wallets: []
 explorers: []
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `)
@@ -341,7 +341,7 @@ last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -413,7 +413,7 @@ last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:

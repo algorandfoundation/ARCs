@@ -5,7 +5,7 @@ explorers:
   - allo
   - lora
   - pera
-sdk-libraries:
+tooling:
   - algokit-utils
   - puya
   - subscriber

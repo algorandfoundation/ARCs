@@ -33,7 +33,7 @@ type ReferenceImplementation struct {
 type AdoptionSection struct {
 	Wallets        []Actor `yaml:"wallets" json:"wallets"`
 	Explorers      []Actor `yaml:"explorers" json:"explorers"`
-	SDKLibraries   []Actor `yaml:"sdk-libraries" json:"sdk-libraries"`
+	Tooling        []Actor `yaml:"tooling" json:"tooling"`
 	Infra          []Actor `yaml:"infra" json:"infra"`
 	DappsProtocols []Actor `yaml:"dapps-protocols" json:"dapps-protocols"`
 }
@@ -53,6 +53,7 @@ type Summary struct {
 	Adoption                    AdoptionSection          `yaml:"adoption" json:"adoption"`
 	Summary                     SummarySection           `yaml:"summary" json:"summary"`
 	keys                        map[string]struct{}
+	adoptionKeys                map[string]struct{}
 	referenceImplementationKeys map[string]struct{}
 }
 
@@ -64,7 +65,7 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 		}, err
 	}
 
-	summary := &Summary{Path: filepath.Clean(path), keys: map[string]struct{}{}, referenceImplementationKeys: map[string]struct{}{}}
+	summary := &Summary{Path: filepath.Clean(path), keys: map[string]struct{}{}, adoptionKeys: map[string]struct{}{}, referenceImplementationKeys: map[string]struct{}{}}
 	diagnostics := make([]diag.Diagnostic, 0)
 
 	matches := adoptionPathPattern.FindStringSubmatch(filepath.ToSlash(summary.Path))
@@ -86,6 +87,9 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 		mapping := root.Content[0]
 		for index := 0; index < len(mapping.Content); index += 2 {
 			summary.keys[mapping.Content[index].Value] = struct{}{}
+		}
+		if adoptionNode := mappingValue(mapping, "adoption"); adoptionNode != nil && adoptionNode.Kind == yaml.MappingNode {
+			summary.adoptionKeys = mappingKeys(adoptionNode)
 		}
 		if referenceImplementationNode := mappingValue(mapping, "reference-implementation"); referenceImplementationNode != nil && referenceImplementationNode.Kind == yaml.MappingNode {
 			summary.referenceImplementationKeys = mappingKeys(referenceImplementationNode)
@@ -176,6 +180,18 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 			}
 		}
 	}
+	for _, key := range []string{"wallets", "explorers", "tooling", "infra", "dapps-protocols"} {
+		if _, ok := summary.adoptionKeys[key]; !ok {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("adoption.%s is required", key), "Define all canonical adoption categories, even when they are empty lists."))
+		}
+	}
+	for key := range summary.adoptionKeys {
+		switch key {
+		case "wallets", "explorers", "tooling", "infra", "dapps-protocols":
+		default:
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported adoption category %q", key), "Use only wallets, explorers, tooling, infra, and dapps-protocols under adoption."))
+		}
+	}
 
 	for group, actors := range summary.actorGroups() {
 		for index, actor := range actors {
@@ -248,7 +264,7 @@ func (summary *Summary) actorGroups() map[string][]Actor {
 	return map[string][]Actor{
 		"wallets":         summary.Adoption.Wallets,
 		"explorers":       summary.Adoption.Explorers,
-		"sdk-libraries":   summary.Adoption.SDKLibraries,
+		"tooling":         summary.Adoption.Tooling,
 		"infra":           summary.Adoption.Infra,
 		"dapps-protocols": summary.Adoption.DappsProtocols,
 	}
@@ -266,6 +282,13 @@ func (summary *Summary) ReferenceImplementationKeySet() map[string]struct{} {
 		return map[string]struct{}{}
 	}
 	return summary.referenceImplementationKeys
+}
+
+func (summary *Summary) AdoptionKeySet() map[string]struct{} {
+	if summary == nil {
+		return map[string]struct{}{}
+	}
+	return summary.adoptionKeys
 }
 
 func adoptionSchemaDiagnostics(path string, root *yaml.Node) []diag.Diagnostic {
@@ -286,12 +309,12 @@ func adoptionSchemaDiagnostics(path string, root *yaml.Node) []diag.Diagnostic {
 	}
 	if adoptionNode.Kind != yaml.MappingNode {
 		return []diag.Diagnostic{
-			diag.NewWithHint("R:016", diag.OriginNative, path, adoptionNode.Line, adoptionNode.Column, fmt.Sprintf("adoption must be a mapping of categories, got %s", yamlNodeType(adoptionNode)), "Define adoption as a mapping with wallets, explorers, sdk-libraries, infra, and dapps-protocols keys."),
+			diag.NewWithHint("R:016", diag.OriginNative, path, adoptionNode.Line, adoptionNode.Column, fmt.Sprintf("adoption must be a mapping of categories, got %s", yamlNodeType(adoptionNode)), "Define adoption as a mapping with wallets, explorers, tooling, infra, and dapps-protocols keys."),
 		}
 	}
 
 	diagnostics := make([]diag.Diagnostic, 0)
-	for _, category := range []string{"wallets", "explorers", "sdk-libraries", "infra", "dapps-protocols"} {
+	for _, category := range []string{"wallets", "explorers", "tooling", "infra", "dapps-protocols"} {
 		categoryNode := mappingValue(adoptionNode, category)
 		if categoryNode == nil {
 			continue

@@ -146,7 +146,7 @@ last-reviewed: %s
 	base += `adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -160,7 +160,7 @@ summary:
 func renderVettedAdopters() string {
 	return `wallets: []
 explorers: []
-sdk-libraries: []
+tooling: []
 infra: []
 dapps-protocols: []
 `

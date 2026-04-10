@@ -70,7 +70,7 @@ func TestInitARCPreservesExistingVettedAdoptersRegistry(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(registryPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll() error = %v", err)
 	}
-	original := "wallets:\n  - existing-wallet\nexplorers: []\nsdk-libraries: []\ninfra: []\ndapps-protocols: []\n"
+	original := "wallets:\n  - existing-wallet\nexplorers: []\ntooling: []\ninfra: []\ndapps-protocols: []\n"
 	if err := os.WriteFile(registryPath, []byte(original), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}

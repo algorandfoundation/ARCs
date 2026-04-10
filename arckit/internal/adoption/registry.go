@@ -19,7 +19,7 @@ type VettedAdopters struct {
 	Path           string   `json:"path"`
 	Wallets        []string `yaml:"wallets" json:"wallets"`
 	Explorers      []string `yaml:"explorers" json:"explorers"`
-	SDKLibraries   []string `yaml:"sdk-libraries" json:"sdk-libraries"`
+	Tooling        []string `yaml:"tooling" json:"tooling"`
 	Infra          []string `yaml:"infra" json:"infra"`
 	DappsProtocols []string `yaml:"dapps-protocols" json:"dapps-protocols"`
 	keys           map[string]struct{}
@@ -81,12 +81,12 @@ func ValidateVettedAdopters(registry *VettedAdopters) []diag.Diagnostic {
 	allowedKeys := map[string]struct{}{
 		"wallets":         {},
 		"explorers":       {},
-		"sdk-libraries":   {},
+		"tooling":         {},
 		"infra":           {},
 		"dapps-protocols": {},
 	}
 
-	for _, key := range []string{"wallets", "explorers", "sdk-libraries", "infra", "dapps-protocols"} {
+	for _, key := range []string{"wallets", "explorers", "tooling", "infra", "dapps-protocols"} {
 		if _, ok := registry.keys[key]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:022", diag.OriginNative, registry.Path, 1, 1, fmt.Sprintf("missing required vetted adopter category %q", key), "Add the missing adopter category as a YAML sequence."))
 		}
@@ -95,7 +95,7 @@ func ValidateVettedAdopters(registry *VettedAdopters) []diag.Diagnostic {
 		if _, ok := allowedKeys[key]; ok {
 			continue
 		}
-		diagnostics = append(diagnostics, diag.NewWithHint("R:022", diag.OriginNative, registry.Path, 1, 1, fmt.Sprintf("unsupported vetted adopter category %q", key), "Use only wallets, explorers, sdk-libraries, infra, and dapps-protocols."))
+		diagnostics = append(diagnostics, diag.NewWithHint("R:022", diag.OriginNative, registry.Path, 1, 1, fmt.Sprintf("unsupported vetted adopter category %q", key), "Use only wallets, explorers, tooling, infra, and dapps-protocols."))
 	}
 
 	for _, group := range registry.groups() {
@@ -136,7 +136,7 @@ func (registry *VettedAdopters) groups() []adopterGroup {
 	return []adopterGroup{
 		{name: "wallets", entries: registry.Wallets},
 		{name: "explorers", entries: registry.Explorers},
-		{name: "sdk-libraries", entries: registry.SDKLibraries},
+		{name: "tooling", entries: registry.Tooling},
 		{name: "infra", entries: registry.Infra},
 		{name: "dapps-protocols", entries: registry.DappsProtocols},
 	}
