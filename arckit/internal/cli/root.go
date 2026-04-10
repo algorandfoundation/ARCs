@@ -306,13 +306,13 @@ func newInitCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comma
 				}
 				created, diagnostics, err := scaffold.InitARC(initOptions)
 				report := diag.Report{
-					Command:  "init arc",
-					Created:  created,
-					Summary:  diag.Summarize(diagnostics),
-					ExitCode: diag.ExitCode(diagnostics),
+					Command:     "init arc",
+					Created:     created,
+					Diagnostics: diagnostics,
+					Summary:     diag.Summarize(diagnostics),
+					ExitCode:    diag.ExitCode(diagnostics),
 				}
 				if err != nil {
-					report.Diagnostics = diagnostics
 					report.Summary = diag.Summarize(report.Diagnostics)
 					report.ExitCode = 2
 				}

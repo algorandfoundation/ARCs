@@ -307,6 +307,211 @@ Text
 	}
 }
 
+func TestValidateRejectsUnsupportedCategory(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+category: ARC
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	found := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:030" && strings.Contains(diagnostic.Message, `unsupported category "ARC"`) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected R:030 unsupported category diagnostic, got %+v", validationDiagnostics)
+	}
+}
+
+func TestValidateRejectsUnsupportedSubCategory(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+category: Interface
+sub-category: Asa
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	found := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:030" && strings.Contains(diagnostic.Message, `unsupported sub-category "Asa"`) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected R:030 unsupported sub-category diagnostic, got %+v", validationDiagnostics)
+	}
+}
+
+func TestValidateRejectsSubCategoryWithoutCategory(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Meta
+sub-category: General
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	found := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:030" && strings.Contains(diagnostic.Message, "sub-category requires category") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected R:030 sub-category requires category diagnostic, got %+v", validationDiagnostics)
+	}
+}
+
 func TestValidateStillRejectsUnknownFields(t *testing.T) {
 	root := t.TempDir()
 	arcDir := filepath.Join(root, "ARCs")

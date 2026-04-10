@@ -233,6 +233,14 @@ var rules = []Rule{
 		Rationale:   "Canonical implementation repository URLs keep implementation ownership deterministic and machine-verifiable across the ARC process.",
 		Hint:        "Set implementation-url to the exact sponsor-specific GitHub repository path for the ARC number.",
 	},
+	{
+		ID:          "R:030",
+		Severity:    SeverityError,
+		Title:       "Invalid ARC taxonomy metadata",
+		Description: "ARC category and sub-category fields must use the canonical enum values, and sub-category may only appear when category is also set.",
+		Rationale:   "Canonical ARC taxonomy values keep repository metadata machine-verifiable and prevent silent drift across ARC headers.",
+		Hint:        "Use the canonical category and sub-category values from the specification, and do not set sub-category without category.",
+	},
 }
 
 var ruleIndex = func() map[string]Rule {

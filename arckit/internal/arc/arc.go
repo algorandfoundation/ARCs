@@ -25,6 +25,10 @@ var (
 	assetDirPattern = regexp.MustCompile(`(^|.*/)assets/arc-(\d{4})(/.*)?$`)
 )
 
+var validCategories = []string{"Interface", "Data", "Cryptography", "Protocol", "Governance"}
+
+var validSubCategories = []string{"General", "ASA", "Application", "LSig", "Event", "Library", "Identity", "Explorer", "Wallet"}
+
 var fieldOrder = []string{
 	"arc",
 	"title",
@@ -296,6 +300,7 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	if document.Sponsor != "" && !slices.Contains([]string{"Foundation", "Ecosystem"}, document.Sponsor) {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["sponsor"], 1, fmt.Sprintf("unsupported sponsor %q", document.Sponsor), "Use either \"Foundation\" or \"Ecosystem\"."))
 	}
+	diagnostics = append(diagnostics, ValidateCategoryMetadata(document.Path, document.FieldLines["category"], document.FieldLines["sub-category"], document.Category, document.SubCategory)...)
 	if document.AdoptionSummary != "" {
 		if strings.HasPrefix(document.AdoptionSummary, "/") || !strings.HasPrefix(filepath.ToSlash(document.AdoptionSummary), "adoption/") {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:013", diag.OriginNative, document.Path, document.FieldLines["adoption-summary"], 1, "adoption-summary must be a relative path under adoption/", "Use a path like adoption/arc-0042.yaml."))
@@ -527,6 +532,68 @@ func ExpectedImplementationURL(document *Document) (string, bool) {
 	default:
 		return "", false
 	}
+}
+
+func IsValidCategory(category string) bool {
+	return slices.Contains(validCategories, strings.TrimSpace(category))
+}
+
+func IsValidSubCategory(subCategory string) bool {
+	return slices.Contains(validSubCategories, strings.TrimSpace(subCategory))
+}
+
+func ValidCategories() []string {
+	out := make([]string, len(validCategories))
+	copy(out, validCategories)
+	return out
+}
+
+func ValidSubCategories() []string {
+	out := make([]string, len(validSubCategories))
+	copy(out, validSubCategories)
+	return out
+}
+
+func ValidateCategoryMetadata(path string, categoryLine int, subCategoryLine int, category string, subCategory string) []diag.Diagnostic {
+	category = strings.TrimSpace(category)
+	subCategory = strings.TrimSpace(subCategory)
+	diagnostics := make([]diag.Diagnostic, 0)
+
+	if categoryLine <= 0 {
+		categoryLine = 1
+	}
+	if subCategoryLine <= 0 {
+		subCategoryLine = 1
+	}
+
+	if category != "" && !IsValidCategory(category) {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:030", diag.OriginNative, path, categoryLine, 1, fmt.Sprintf("unsupported category %q", category), fmt.Sprintf("Use one of %s.", quotedList(validCategories))))
+	}
+	if subCategory != "" && !IsValidSubCategory(subCategory) {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:030", diag.OriginNative, path, subCategoryLine, 1, fmt.Sprintf("unsupported sub-category %q", subCategory), fmt.Sprintf("Use one of %s.", quotedList(validSubCategories))))
+	}
+	if subCategory != "" && category == "" {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:030", diag.OriginNative, path, subCategoryLine, 1, "sub-category requires category", fmt.Sprintf("Add category with one of %s, or remove sub-category.", quotedList(validCategories))))
+	}
+
+	return diagnostics
+}
+
+func quotedList(values []string) string {
+	if len(values) == 0 {
+		return ""
+	}
+	quoted := make([]string, 0, len(values))
+	for _, value := range values {
+		quoted = append(quoted, fmt.Sprintf("%q", value))
+	}
+	if len(quoted) == 1 {
+		return quoted[0]
+	}
+	if len(quoted) == 2 {
+		return quoted[0] + " or " + quoted[1]
+	}
+	return strings.Join(quoted[:len(quoted)-1], ", ") + ", or " + quoted[len(quoted)-1]
 }
 
 func IsValidStatus(status string) bool {

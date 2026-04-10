@@ -101,3 +101,36 @@ func TestInitARCPreservesExistingVettedAdoptersRegistry(t *testing.T) {
 		t.Fatalf("expected existing vetted adopters registry to be preserved, got:\n%s", string(content))
 	}
 }
+
+func TestInitARCRejectsInvalidCategoryMetadata(t *testing.T) {
+	root := t.TempDir()
+
+	created, diagnostics, err := InitARC(InitOptions{
+		Root:        root,
+		Number:      101,
+		Title:       "Scaffolded ARC",
+		Type:        "Standards Track",
+		Category:    "ARC",
+		SubCategory: "General",
+		Sponsor:     "Foundation",
+	})
+	if err != nil {
+		t.Fatalf("InitARC() error = %v", err)
+	}
+	if len(created) != 0 {
+		t.Fatalf("expected no created paths, got %v", created)
+	}
+	if len(diagnostics) == 0 {
+		t.Fatalf("expected validation diagnostics, got none")
+	}
+	found := false
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:030" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected R:030 diagnostic, got %+v", diagnostics)
+	}
+}

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/adoption"
+	"github.com/algorandfoundation/ARCs/arckit/internal/arc"
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
 )
 
@@ -33,6 +34,10 @@ func InitARC(options InitOptions) ([]string, []diag.Diagnostic, error) {
 	assetPath := filepath.Join(root, "assets", "arc-"+number)
 	registryPath := filepath.Join(root, "adoption", adoption.VettedAdoptersFileName)
 	created := []string{arcPath, adoptionPath, assetPath}
+
+	if diagnostics := arc.ValidateCategoryMetadata(arcPath, 1, 1, strings.TrimSpace(options.Category), strings.TrimSpace(options.SubCategory)); len(diagnostics) != 0 {
+		return nil, diagnostics, nil
+	}
 
 	for _, path := range []string{arcPath, adoptionPath, assetPath} {
 		if _, err := os.Stat(path); err == nil {

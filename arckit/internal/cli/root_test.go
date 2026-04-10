@@ -90,6 +90,34 @@ Text
 	}
 }
 
+func TestCLIInitARCRejectsInvalidCategoryMetadata(t *testing.T) {
+	tempRoot := t.TempDir()
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	arcPath := filepath.Join(tempRoot, "ARCs", "arc-0077.md")
+
+	exitCode := ExecuteArgs([]string{
+		"--format", "json",
+		"init", "arc",
+		"--root", tempRoot,
+		"--number", "77",
+		"--title", "CLI Init ARC",
+		"--type", "Standards Track",
+		"--sub-category", "General",
+		"--sponsor", "Foundation",
+	}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	if _, err := os.Stat(arcPath); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("expected %s not to be created, stat err=%v", arcPath, err)
+	}
+	output := stdout.String() + stderr.String()
+	if !strings.Contains(output, "\"rule_id\": \"R:030\"") || !strings.Contains(output, "sub-category requires category") {
+		t.Fatalf("expected R:030 output, got %q", output)
+	}
+}
+
 func TestCLIValidateCommandsHonorConfig(t *testing.T) {
 	t.Run("validate-arc", func(t *testing.T) {
 		root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "missing-adoption"))
