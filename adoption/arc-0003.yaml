@@ -2,12 +2,32 @@ arc: 3
 title: Conventions Fungible/Non-Fungible Tokens
 last-reviewed: 2026-04-09
 adoption:
-  wallets: []
-  explorers: []
-  tooling: []
+  wallets:
+    - name: pera
+      status: shipped
+      evidence: Check NFTs tab for any account that owns an ARC-3 compliant asset.
+      notes: Wallet renders ARC-3 metadata.
+  explorers:
+    - name: allo
+      status: shipped
+      evidence: https://allo.info/asset/420645394/nft/
+      notes: Explorer renders ARC-3 metadata in public UI.
+    - name: lora
+      status: shipped
+      evidence: https://lora.algokit.io/mainnet/asset/420645394/
+      notes: Explorer renders ARC-3 metadata in public UI.
+    - name: pera
+      status: shipped
+      evidence: https://explorer.perawallet.app/asset/420645394/
+      notes: Explorer renders ARC-3 metadata in public UI.
+  tooling:
+    - name: algokit
+      status: shipped
+      evidence: https://dev.algorand.co/algokit/cli/tasks/mint/
+      notes: Algokit CLI supports minting ARC-3 compliant assets.
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
+  adoption-readiness: high
   blockers: []
   notes: ""
