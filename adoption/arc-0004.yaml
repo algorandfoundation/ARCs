@@ -3,11 +3,35 @@ title: Application Binary Interface (ABI)
 last-reviewed: 2026-04-09
 adoption:
   wallets: []
-  explorers: []
-  tooling: []
+  explorers:
+    - name: lora
+      status: shipped
+      evidence: https://lora.algokit.io/mainnet/app-lab/
+      notes: Explorer renders ARC-4 interface in public UI.
+  tooling:
+    - name: algokit-utils
+      status: shipped
+      evidence: https://github.com/algorandfoundation/algokit-utils-py
+      notes: AlgoKit Utils (Python and TypeScript) support ARC-4 types.
+    - name: folks-finance-library
+      status: shipped
+      evidence: https://github.com/Folks-Finance/algorand-smart-contract-library
+      notes: Folks Finance Library implements ARC-4 types.
+    - name: puya
+      status: shipped
+      evidence: https://github.com/algorandfoundation/puya/
+      notes: Puya complier supports ARC-4 types.
+    - name: subscriber
+      status: shipped
+      evidence: https://github.com/algorandfoundation/algokit-subscriber-py
+      notes: Subscribers (Python and TypeScript) support ARC-4 interfaces.
   infra: []
-  dapps-protocols: []
+  dapps-protocols:
+    - name: ntt
+      status: shipped
+      evidence: https://github.com/Folks-Finance/algorand-ntt-contracts
+      notes: Folks Finance NTT implementation uses ARC-4 interfaces.
 summary:
-  adoption-readiness: low
+  adoption-readiness: high
   blockers: []
   notes: ""
