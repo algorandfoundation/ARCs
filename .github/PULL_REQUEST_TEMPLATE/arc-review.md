@@ -26,7 +26,7 @@ Describe what changed since `Draft` and why the ARC is ready for review.
 
 ### If `implementation-required: true`
 
-- [ ] `implementation-url` is set.
+- [ ] `implementation-url` is set to the exact canonical sponsor-specific URL (`https://github.com/algorandfoundation/arcN` or `https://github.com/algorandecosystem/arcN`).
 - [ ] `implementation-maintainer` is set.
 - [ ] The reference implementation repository exists.
 - [ ] The repository location is consistent with `sponsor`.

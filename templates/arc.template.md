@@ -24,7 +24,7 @@ extended-by:
   - <ARC number, optional, remove field if not needed>
 sponsor: <Foundation or Ecosystem>
 implementation-required: <true or false>
-implementation-url: <URL, remove field until Review if not yet created>
+implementation-url: <https://github.com/algorandfoundation/arcN or https://github.com/algorandecosystem/arcN, remove field until Review if not yet created>
 implementation-maintainer:
   - <GitHub username or GitHub organization, remove field until Review if not yet assigned>
 adoption-summary: adoption/arc-####.yaml

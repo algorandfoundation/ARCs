@@ -194,6 +194,7 @@ It must perform:
 1. front matter parsing, blank-line detection, and header order validation;
 1. required field checks;
 1. conditional field checks;
+1. canonical implementation repository URL validation when `implementation-required: true`;
 1. body section presence checks;
 1. local link and asset link validation.
 
@@ -331,6 +332,7 @@ Field requirements:
 1. `type` must be one of `Standards Track` or `Meta`.
 1. `sponsor` must be one of `Foundation` or `Ecosystem`.
 1. `implementation-required` must be `true` or `false`.
+1. when `implementation-required` is `true` and `implementation-url` is present, it must be exactly `https://github.com/algorandfoundation/arcN` for `Foundation`-sponsored ARCs or `https://github.com/algorandecosystem/arcN` for `Ecosystem`-sponsored ARCs, where `N` is the unpadded ARC number.
 1. `adoption-summary`, when present, must be a relative path under `adoption/`.
 1. list-valued ARC metadata must use canonical YAML sequences rather than comma-separated scalars.
 
@@ -341,6 +343,8 @@ These conditional rules apply:
 1. `implementation-url` and `implementation-maintainer` are required when an ARC
    with `implementation-required: true` is in `Review`, `Last Call`, `Final`, `Idle`,
    or `Deprecated`.
+1. when `implementation-required: true` and `implementation-url` is declared, the URL
+   must match the exact sponsor-specific canonical GitHub repository path for the ARC number.
 1. `adoption-summary` is required when `status` is `Last Call`, `Final`, `Idle`, or `Deprecated`.
 1. `last-call-deadline` is required when `status` is `Last Call` and when validating
    transition to `Final`.

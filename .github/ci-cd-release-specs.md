@@ -101,6 +101,11 @@ matter as the authoritative source of `implementation-url` and
 `implementation-maintainer`, and it must reject adoption summaries that duplicate
 those identity fields under `reference-implementation`.
 
+That same gate must also reject implementation-required ARCs whose
+`implementation-url` does not exactly match the sponsor-specific canonical GitHub
+repository path `https://github.com/algorandfoundation/arcN` or
+`https://github.com/algorandecosystem/arcN`, where `N` is the unpadded ARC number.
+
 That same gate must also treat ARC front matter as authoritative for `status`,
 `sponsor`, and `implementation-required`, and it must reject adoption summaries
 that redundantly declare those ARC-owned fields.
@@ -229,6 +234,7 @@ Deterministic maintenance findings include:
 1. missing or invalid vetted adopters registry;
 1. missing or invalid required adoption summaries;
 1. missing canonical `implementation-url` or `implementation-maintainer` declarations for implementation-required ARCs;
+1. non-canonical sponsor-specific implementation repository URLs for implementation-required ARCs;
 1. `Final` ARCs whose adoption summaries have no tracked adopters;
 1. missing local links or asset targets;
 1. ARC and tracking issue mismatches that are machine-checkable;
