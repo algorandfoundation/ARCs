@@ -28,6 +28,213 @@ func TestValidateValidDraftARC(t *testing.T) {
 	}
 }
 
+func TestValidateRequiresImplementationDeclarationForReviewAndLater(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Review
+type: Standards Track
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: true
+adoption-summary: adoption/arc-0001.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	missingURL := false
+	missingMaintainer := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:007" && strings.Contains(diagnostic.Message, "requires implementation-url") {
+			missingURL = true
+		}
+		if diagnostic.RuleID == "R:007" && strings.Contains(diagnostic.Message, "requires implementation-maintainer") {
+			missingMaintainer = true
+		}
+	}
+	if !missingURL || !missingMaintainer {
+		t.Fatalf("expected implementation declaration diagnostics, got %+v", validationDiagnostics)
+	}
+}
+
+func TestValidateRequiresCanonicalImplementationURL(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0044.md")
+	content := `---
+arc: 44
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: true
+implementation-url: https://github.com/example/arc-0044
+implementation-maintainer:
+  - algorandfoundation
+adoption-summary: adoption/arc-0044.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	found := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:029" && strings.Contains(diagnostic.Message, "https://github.com/algorandfoundation/arc44") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected canonical implementation-url diagnostic, got %+v", validationDiagnostics)
+	}
+}
+
+func TestValidateAcceptsCanonicalImplementationURLForEcosystemSponsor(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0044.md")
+	content := `---
+arc: 44
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Review
+type: Standards Track
+created: 2026-04-08
+sponsor: Ecosystem
+implementation-required: true
+implementation-url: https://github.com/algorandecosystem/arc44
+implementation-maintainer:
+  - algorandecosystem
+adoption-summary: adoption/arc-0044.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:029" {
+			t.Fatalf("unexpected canonical implementation-url diagnostic: %+v", diagnostic)
+		}
+	}
+}
+
 func TestLoadAcceptsCategoryField(t *testing.T) {
 	root := t.TempDir()
 	arcDir := filepath.Join(root, "ARCs")
@@ -100,6 +307,211 @@ Text
 	}
 }
 
+func TestValidateRejectsUnsupportedCategory(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+category: ARC
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	found := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:030" && strings.Contains(diagnostic.Message, `unsupported category "ARC"`) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected R:030 unsupported category diagnostic, got %+v", validationDiagnostics)
+	}
+}
+
+func TestValidateRejectsUnsupportedSubCategory(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Standards Track
+category: Interface
+sub-category: Asa
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	found := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:030" && strings.Contains(diagnostic.Message, `unsupported sub-category "Asa"`) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected R:030 unsupported sub-category diagnostic, got %+v", validationDiagnostics)
+	}
+}
+
+func TestValidateRejectsSubCategoryWithoutCategory(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Meta
+sub-category: General
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	found := false
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:030" && strings.Contains(diagnostic.Message, "sub-category requires category") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected R:030 sub-category requires category diagnostic, got %+v", validationDiagnostics)
+	}
+}
+
 func TestValidateStillRejectsUnknownFields(t *testing.T) {
 	root := t.TempDir()
 	arcDir := filepath.Join(root, "ARCs")
@@ -161,6 +573,68 @@ Text
 	if !foundUnknown {
 		t.Fatalf("expected R:006 for custom-field, got diagnostics = %+v", diagnostics)
 	}
+}
+
+func TestLoadRejectsBlankLinesInFrontMatter(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+status: Draft
+type: Meta
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	_, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:024" {
+			if diagnostic.Line != 4 {
+				t.Fatalf("expected R:024 at line 4, got %+v", diagnostic)
+			}
+			return
+		}
+	}
+	t.Fatalf("expected R:024 diagnostic, got %+v", diagnostics)
 }
 
 func TestValidateLinksReportsFileLineNumbers(t *testing.T) {

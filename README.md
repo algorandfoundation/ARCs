@@ -45,7 +45,14 @@ Used for:
 - checklist completion,
 - status transition records,
 - links to the reference implementation,
-- link to the adoption summary artifact.
+- link to the adoption summary artifact,
+- confirmation that any newly named adopters were added to `adoption/vetted-adopters.yaml`,
+- confirmation that a `Final` ARC still has at least one tracked adopter in its adoption summary.
+
+The ARC front matter is the canonical place for `status`, `sponsor`,
+`implementation-required`, `implementation-url`, and
+`implementation-maintainer`. Adoption summaries track implementation status and
+adoption evidence, not ARC-owned identity metadata.
 
 ### 4. Reference implementation
 

@@ -48,13 +48,15 @@ labels: ["arc-tracking"]
 
 - [ ] No unresolved normative issues
 - [ ] Adoption summary file created and current
-- [ ] Reference implementation is active and testable
+- [ ] Adoption summary tracks implementation status
+- [ ] Reference implementation is at least `wip`
 - [ ] Independent adoption signals documented
 - [ ] Last call deadline set
 
 ### Gate 4 - Final
 
 - [ ] Public adoption evidence documented
+- [ ] At least one adopter is recorded in the adoption summary
 - [ ] Reference implementation maintained
 - [ ] Review comments resolved
 - [ ] Editor approval recorded

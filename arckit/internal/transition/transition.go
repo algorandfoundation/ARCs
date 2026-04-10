@@ -18,13 +18,6 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 	repoRoot := arc.FindRepoRoot(filepath.Dir(path))
 	diagnostics = append(diagnostics, arc.Validate(document, repoRoot)...)
 
-	switch target {
-	case "Review", "Last Call", "Final", "Idle":
-	default:
-		diagnostics = append(diagnostics, diag.NewWithHint("R:026", diag.OriginNative, path, 1, 1, fmt.Sprintf("unsupported transition target %q", target), "Use one of Review, Last Call, Final, or Idle."))
-		return diagnostics, nil
-	}
-
 	require := func(condition bool, message string) {
 		if !condition {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:019", diag.OriginNative, path, 1, 1, message, "Add the missing evidence or metadata required for this transition."))
@@ -49,9 +42,9 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		require(summary != nil, "transition to Last Call requires a valid adoption summary")
 		require(document.AdoptionSummary == fmt.Sprintf("adoption/arc-%04d.yaml", document.Number), "adoption-summary must point to the matching adoption file")
 		if document.ImplementationRequired && summary != nil {
-			require(summary.ReferenceImplementation != nil, "reference-implementation block is required in the adoption summary")
+			require(summary.ReferenceImplementation != nil, "reference-implementation status is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
-				require(slices.Contains([]string{"in_progress", "testable", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be in_progress, testable, or shipped")
+				require(slices.Contains([]string{"wip", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be wip or shipped")
 			}
 		}
 	case "Final":
@@ -65,9 +58,9 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		require(summary.HasAnyEvidence(), "transition to Final requires at least one non-empty evidence entry")
 		if document.ImplementationRequired {
 			require(document.ImplementationURL != "" && document.ImplementationMaintainer != "", "reference implementation metadata is required in the ARC file")
-			require(summary.ReferenceImplementation != nil, "reference-implementation metadata is required in the adoption summary")
+			require(summary.ReferenceImplementation != nil, "reference-implementation status is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
-				require(slices.Contains([]string{"testable", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be testable or shipped")
+				require(summary.ReferenceImplementation.Status == "shipped", "reference-implementation.status must be shipped")
 			}
 			require(summary.HasActorEvidence(), "transition to Final requires at least one adoption actor entry with evidence")
 		}
@@ -76,6 +69,9 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		require(document.IdleSince != "", "idle-since is required for transition to Idle")
 		hasSummary := loadSummary(document, &diagnostics) != nil
 		require(hasSummary, "transition to Idle requires a valid adoption summary")
+	default:
+		diagnostics = append(diagnostics, diag.NewWithHint("R:026", diag.OriginNative, path, 1, 1, fmt.Sprintf("unsupported transition target %q", target), "Use one of Review, Last Call, Final, or Idle."))
+		return diagnostics, nil
 	}
 
 	for _, reminder := range []string{
@@ -97,12 +93,21 @@ func loadSummary(document *arc.Document, diagnostics *[]diag.Diagnostic) *adopti
 	}
 	root := arc.FindRepoRoot(filepath.Dir(document.Path))
 	path := filepath.Join(root, filepath.FromSlash(document.AdoptionSummary))
+	registry, registryDiagnostics, registryErr := adoption.LoadVettedAdopters(adoption.RegistryPath(root))
+	*diagnostics = append(*diagnostics, registryDiagnostics...)
+	if registryErr == nil && len(registryDiagnostics) == 0 {
+		registryDiagnostics = adoption.ValidateVettedAdopters(registry)
+		*diagnostics = append(*diagnostics, registryDiagnostics...)
+	}
+	if registryErr != nil || len(registryDiagnostics) != 0 {
+		registry = nil
+	}
 	summary, loadDiagnostics, err := adoption.Load(path)
 	*diagnostics = append(*diagnostics, loadDiagnostics...)
 	if err != nil {
 		return nil
 	}
-	*diagnostics = append(*diagnostics, adoption.Validate(summary, document)...)
+	*diagnostics = append(*diagnostics, adoption.Validate(summary, document, registry)...)
 	return summary
 }
 

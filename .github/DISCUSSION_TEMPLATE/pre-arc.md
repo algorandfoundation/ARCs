@@ -53,7 +53,9 @@
 ## Adoption Hypothesis
 
 > Who is likely to adopt this proposal? Name likely implementer classes or projects
-> where possible.
+> where possible. If known projects are named here and later used in the canonical
+> adoption summary, they must be normalized to lower-kebab-case entries in
+> `adoption/vetted-adopters.yaml`.
 
 ## Alternatives Considered
 

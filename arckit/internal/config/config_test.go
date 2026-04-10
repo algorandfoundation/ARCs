@@ -131,14 +131,18 @@ func TestFilterDiagnostics(t *testing.T) {
 		{RuleID: "R:012", File: filepath.Join("ARCs", "arc-0042.md")},
 		{RuleID: "R:011", File: filepath.Join("assets", "arc-0055", "example.txt")},
 		{RuleID: "R:009", File: filepath.Join("ARCs", "arc-0061.md")},
+		{RuleID: "R:022", File: filepath.Join("adoption", "vetted-adopters.yaml")},
 	}
 
 	filtered := cfg.FilterDiagnostics(diagnostics)
-	if len(filtered) != 1 {
-		t.Fatalf("len(FilterDiagnostics()) = %d, want 1", len(filtered))
+	if len(filtered) != 2 {
+		t.Fatalf("len(FilterDiagnostics()) = %d, want 2", len(filtered))
 	}
 	if filtered[0].RuleID != "R:009" {
 		t.Fatalf("FilterDiagnostics()[0].RuleID = %q, want R:009", filtered[0].RuleID)
+	}
+	if filtered[1].RuleID != "R:022" {
+		t.Fatalf("FilterDiagnostics()[1].RuleID = %q, want R:022", filtered[1].RuleID)
 	}
 }
 

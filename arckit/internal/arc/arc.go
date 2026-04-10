@@ -25,6 +25,10 @@ var (
 	assetDirPattern = regexp.MustCompile(`(^|.*/)assets/arc-(\d{4})(/.*)?$`)
 )
 
+var validCategories = []string{"Interface", "Data", "Cryptography", "Protocol", "Governance"}
+
+var validSubCategories = []string{"General", "ASA", "Application", "LSig", "Event", "Library", "Identity", "Explorer", "Wallet"}
+
 var fieldOrder = []string{
 	"arc",
 	"title",
@@ -163,6 +167,7 @@ func Load(path string) (*Document, []diag.Diagnostic, error) {
 		parseMarkdown(document)
 		return document, diagnostics, nil
 	}
+	diagnostics = append(diagnostics, frontMatterBlankLineDiagnostics(document.Path, frontMatter)...)
 
 	root := yaml.Node{}
 	if err := yaml.Unmarshal(frontMatter, &root); err != nil {
@@ -295,6 +300,7 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	if document.Sponsor != "" && !slices.Contains([]string{"Foundation", "Ecosystem"}, document.Sponsor) {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["sponsor"], 1, fmt.Sprintf("unsupported sponsor %q", document.Sponsor), "Use either \"Foundation\" or \"Ecosystem\"."))
 	}
+	diagnostics = append(diagnostics, ValidateCategoryMetadata(document.Path, document.FieldLines["category"], document.FieldLines["sub-category"], document.Category, document.SubCategory)...)
 	if document.AdoptionSummary != "" {
 		if strings.HasPrefix(document.AdoptionSummary, "/") || !strings.HasPrefix(filepath.ToSlash(document.AdoptionSummary), "adoption/") {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:013", diag.OriginNative, document.Path, document.FieldLines["adoption-summary"], 1, "adoption-summary must be a relative path under adoption/", "Use a path like adoption/arc-0042.yaml."))
@@ -308,6 +314,19 @@ func Validate(document *Document, repoRoot string) []diag.Diagnostic {
 	}
 	if document.Status == "Idle" && document.IdleSince == "" {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["status"], 1, "status \"Idle\" requires idle-since", "Add idle-since in YYYY-MM-DD format."))
+	}
+	if document.ImplementationRequired && document.ImplementationURL != "" {
+		if expectedURL, ok := ExpectedImplementationURL(document); ok && strings.TrimSpace(document.ImplementationURL) != expectedURL {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:029", diag.OriginNative, document.Path, document.FieldLines["implementation-url"], 1, fmt.Sprintf("implementation-url must be %s when sponsor is %q and arc is %d", expectedURL, document.Sponsor, document.Number), fmt.Sprintf("Update implementation-url to %s.", expectedURL)))
+		}
+	}
+	if document.ImplementationRequired && RequiresImplementationDeclaration(document.Status) {
+		if document.ImplementationURL == "" {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["implementation-required"], 1, fmt.Sprintf("status %q with implementation-required true requires implementation-url", document.Status), "Declare the canonical reference implementation repository in ARC front matter."))
+		}
+		if document.ImplementationMaintainer == "" {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:007", diag.OriginNative, document.Path, document.FieldLines["implementation-required"], 1, fmt.Sprintf("status %q with implementation-required true requires implementation-maintainer", document.Status), "Declare the canonical implementation maintainers in ARC front matter."))
+		}
 	}
 
 	diagnostics = append(diagnostics, validateCanonicalYAMLFieldShapes(document)...)
@@ -492,6 +511,79 @@ func RequiresAdoptionSummary(status string) bool {
 	}
 }
 
+func RequiresImplementationDeclaration(status string) bool {
+	switch status {
+	case "Review", "Last Call", "Final", "Idle", "Deprecated":
+		return true
+	default:
+		return false
+	}
+}
+
+func ExpectedImplementationURL(document *Document) (string, bool) {
+	if document == nil || !document.HasNumber {
+		return "", false
+	}
+	switch document.Sponsor {
+	case "Foundation":
+		return fmt.Sprintf("https://github.com/algorandfoundation/arc%d", document.Number), true
+	case "Ecosystem":
+		return fmt.Sprintf("https://github.com/algorandecosystem/arc%d", document.Number), true
+	default:
+		return "", false
+	}
+}
+
+func IsValidCategory(category string) bool {
+	return slices.Contains(validCategories, strings.TrimSpace(category))
+}
+
+func IsValidSubCategory(subCategory string) bool {
+	return slices.Contains(validSubCategories, strings.TrimSpace(subCategory))
+}
+
+func ValidateCategoryMetadata(path string, categoryLine int, subCategoryLine int, category string, subCategory string) []diag.Diagnostic {
+	category = strings.TrimSpace(category)
+	subCategory = strings.TrimSpace(subCategory)
+	diagnostics := make([]diag.Diagnostic, 0)
+
+	if categoryLine <= 0 {
+		categoryLine = 1
+	}
+	if subCategoryLine <= 0 {
+		subCategoryLine = 1
+	}
+
+	if category != "" && !IsValidCategory(category) {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:030", diag.OriginNative, path, categoryLine, 1, fmt.Sprintf("unsupported category %q", category), fmt.Sprintf("Use one of %s.", quotedList(validCategories))))
+	}
+	if subCategory != "" && !IsValidSubCategory(subCategory) {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:030", diag.OriginNative, path, subCategoryLine, 1, fmt.Sprintf("unsupported sub-category %q", subCategory), fmt.Sprintf("Use one of %s.", quotedList(validSubCategories))))
+	}
+	if subCategory != "" && category == "" {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:030", diag.OriginNative, path, subCategoryLine, 1, "sub-category requires category", fmt.Sprintf("Add category with one of %s, or remove sub-category.", quotedList(validCategories))))
+	}
+
+	return diagnostics
+}
+
+func quotedList(values []string) string {
+	if len(values) == 0 {
+		return ""
+	}
+	quoted := make([]string, 0, len(values))
+	for _, value := range values {
+		quoted = append(quoted, fmt.Sprintf("%q", value))
+	}
+	if len(quoted) == 1 {
+		return quoted[0]
+	}
+	if len(quoted) == 2 {
+		return quoted[0] + " or " + quoted[1]
+	}
+	return strings.Join(quoted[:len(quoted)-1], ", ") + ", or " + quoted[len(quoted)-1]
+}
+
 func IsValidStatus(status string) bool {
 	switch status {
 	case "Draft", "Review", "Last Call", "Final", "Stagnant", "Withdrawn", "Idle", "Deprecated", "Living":
@@ -534,6 +626,18 @@ func splitFrontMatter(path string, content []byte) ([]byte, []byte, int, []diag.
 	return nil, content, 1, []diag.Diagnostic{
 		diag.NewWithHint("R:001", diag.OriginNative, path, 1, 1, "front matter is not closed with a second --- delimiter", "Terminate the front matter block with --- on its own line."),
 	}
+}
+
+func frontMatterBlankLineDiagnostics(path string, frontMatter []byte) []diag.Diagnostic {
+	lines := strings.Split(string(frontMatter), "\n")
+	diagnostics := make([]diag.Diagnostic, 0)
+	for index, line := range lines {
+		if strings.TrimSpace(line) != "" {
+			continue
+		}
+		diagnostics = append(diagnostics, diag.NewWithHint("R:024", diag.OriginNative, path, index+2, 1, "front matter must not contain empty lines", "Remove empty lines from the front matter block or run arckit fmt."))
+	}
+	return diagnostics
 }
 
 func parseMarkdown(document *Document) {

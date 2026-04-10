@@ -1,47 +1,22 @@
-arc: "<arc-number>"
-title: "Replace with ARC title"
-status: "Draft"
-last-reviewed: "<YYYY-MM-DD>"
-authors:
-  github: "@example"
-sponsor: "Foundation" # or "Ecosystem"
-implementation-required: true
+arc: <arc-number>
+title: <ARC title>
+last-reviewed: <YYYY-MM-DD>
+# ARC front matter is authoritative for status, sponsor, and implementation-required.
+# Remove reference-implementation entirely when the ARC front matter sets implementation-required to false.
+# If implementation-required is true in ARC front matter, keep implementation status here and add notes only if useful.
+# The canonical implementation-url and implementation-maintainer belong in ARC front matter.
 reference-implementation:
-  repository: "https://github.com/<org>/arc<unpadded-number>"
-  owner: "@owner-or-team"
-  maintainer:
-    - "@maintainer1"
-    - "@maintainer2"
-  status: "planned" # planned | in_progress | testable | shipped | archived
-  notes: ""
+  status: planned # planned | wip | shipped | archived
+  notes: "" # optional
 adoption:
-  wallets:
-    - name: ""
-      status: "planned" # planned | in_progress | shipped | declined
-      evidence: ""
-      notes: ""
-  explorers:
-    - name: ""
-      status: "planned"
-      evidence: ""
-      notes: ""
-  sdk-libraries:
-    - name: ""
-      status: "planned"
-      evidence: ""
-      notes: ""
-  infra:
-    - name: ""
-      status: "planned"
-      evidence: ""
-      notes: ""
-  dapps-protocols:
-    - name: ""
-      status: "planned"
-      evidence: ""
-      notes: ""
+  # Add actor entries only after the adopter is listed in adoption/vetted-adopters.yaml.
+  # Actor names must be lower-kebab-case and must match the vetted registry exactly.
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
 summary:
-  adoption-readiness: "low" # low | medium | high
-  blockers:
-    - ""
+  adoption-readiness: low # low | medium | high; fmt may raise this based on adopter count
+  blockers: []
   notes: ""

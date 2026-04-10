@@ -4,17 +4,27 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/algorandfoundation/ARCs/arckit/internal/adoption"
 	"github.com/algorandfoundation/ARCs/arckit/internal/arc"
 	"github.com/algorandfoundation/ARCs/arckit/internal/config"
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
+	"gopkg.in/yaml.v3"
 )
 
 func applyNativeFix(path string) error {
 	return applyNativeFixWithConfig(path, config.Config{})
+}
+
+func applyFixWithConfig(path string, cfg config.Config) error {
+	if isAdoptionSummaryPath(path) {
+		return applyAdoptionFixWithConfig(path)
+	}
+	return applyNativeFixWithConfig(path, cfg)
 }
 
 func applyNativeFixWithConfig(path string, cfg config.Config) error {
@@ -44,6 +54,134 @@ func applyNativeFixWithConfig(path string, cfg config.Config) error {
 	return os.WriteFile(path, fixed, 0o644)
 }
 
+func applyAdoptionFixWithConfig(path string) error {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	summary, diagnostics, err := adoption.Load(path)
+	if err != nil {
+		return err
+	}
+	if len(diagnostics) != 0 || hasUnsafeAdoptionSummaryShape(summary) {
+		return fmt.Errorf("adoption summary could not be safely reformatted")
+	}
+
+	summary.Summary.AdoptionReadiness = summary.NormalizedAdoptionReadiness()
+
+	rendered, err := renderAdoptionSummary(summary)
+	if err != nil {
+		return err
+	}
+	if bytes.Equal(content, rendered) {
+		return nil
+	}
+	return os.WriteFile(path, rendered, 0o644)
+}
+
+func hasUnsafeAdoptionSummaryShape(summary *adoption.Summary) bool {
+	if summary == nil {
+		return true
+	}
+	requiredTopLevelKeys := []string{"arc", "title", "last-reviewed", "adoption", "summary"}
+	for _, key := range requiredTopLevelKeys {
+		if _, ok := summaryKeys(summary)[key]; !ok {
+			return true
+		}
+	}
+	for key := range summaryKeys(summary) {
+		switch key {
+		case "arc", "title", "last-reviewed", "reference-implementation", "adoption", "summary":
+		default:
+			return true
+		}
+	}
+	for key := range summaryReferenceImplementationKeys(summary) {
+		if key != "status" && key != "notes" {
+			return true
+		}
+	}
+	requiredAdoptionKeys := []string{"wallets", "explorers", "tooling", "infra", "dapps-protocols"}
+	for _, key := range requiredAdoptionKeys {
+		if _, ok := summaryAdoptionKeys(summary)[key]; !ok {
+			return true
+		}
+	}
+	for key := range summaryAdoptionKeys(summary) {
+		switch key {
+		case "wallets", "explorers", "tooling", "infra", "dapps-protocols":
+		default:
+			return true
+		}
+	}
+	return false
+}
+
+func renderAdoptionSummary(summary *adoption.Summary) ([]byte, error) {
+	type referenceImplementation struct {
+		Status string  `yaml:"status"`
+		Notes  *string `yaml:"notes,omitempty"`
+	}
+	type renderedSummary struct {
+		Arc                     int                      `yaml:"arc"`
+		Title                   string                   `yaml:"title"`
+		LastReviewed            string                   `yaml:"last-reviewed"`
+		ReferenceImplementation *referenceImplementation `yaml:"reference-implementation,omitempty"`
+		Adoption                adoption.AdoptionSection `yaml:"adoption"`
+		Summary                 adoption.SummarySection  `yaml:"summary"`
+	}
+
+	var referenceImplementationValue *referenceImplementation
+	if summary.ReferenceImplementation != nil {
+		referenceImplementationValue = &referenceImplementation{
+			Status: summary.ReferenceImplementation.Status,
+		}
+		if _, ok := summaryReferenceImplementationKeys(summary)["notes"]; ok {
+			notes := summary.ReferenceImplementation.Notes
+			referenceImplementationValue.Notes = &notes
+		}
+	}
+
+	rendered, err := yaml.Marshal(renderedSummary{
+		Arc:                     summary.Arc,
+		Title:                   summary.Title,
+		LastReviewed:            summary.LastReviewed,
+		ReferenceImplementation: referenceImplementationValue,
+		Adoption:                summary.Adoption,
+		Summary:                 summary.Summary,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return rendered, nil
+}
+
+func isAdoptionSummaryPath(path string) bool {
+	return strings.HasPrefix(filepath.ToSlash(filepath.Clean(path)), "adoption/arc-") || strings.Contains(filepath.ToSlash(filepath.Clean(path)), "/adoption/arc-")
+}
+
+func summaryKeys(summary *adoption.Summary) map[string]struct{} {
+	if summary == nil {
+		return map[string]struct{}{}
+	}
+	return summary.KeySet()
+}
+
+func summaryReferenceImplementationKeys(summary *adoption.Summary) map[string]struct{} {
+	if summary == nil {
+		return map[string]struct{}{}
+	}
+	return summary.ReferenceImplementationKeySet()
+}
+
+func summaryAdoptionKeys(summary *adoption.Summary) map[string]struct{} {
+	if summary == nil {
+		return map[string]struct{}{}
+	}
+	return summary.AdoptionKeySet()
+}
+
 func hasUnsafeFrontMatterDiagnostics(diagnostics []diag.Diagnostic) bool {
 	for _, diagnostic := range diagnostics {
 		switch diagnostic.RuleID {
@@ -64,18 +202,24 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 	builder.WriteString("---\n")
 
 	for _, line := range preamble {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
 		builder.WriteString(line)
 		builder.WriteString("\n")
 	}
 
 	for _, entry := range reorderedEntries(entries) {
-		for _, line := range normalizedEntryLines(document, entry) {
+		for _, line := range filteredFrontMatterLines(normalizedEntryLines(document, entry)) {
 			builder.WriteString(line)
 			builder.WriteString("\n")
 		}
 	}
 
 	for _, line := range suffix {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
 		builder.WriteString(line)
 		builder.WriteString("\n")
 	}
@@ -267,12 +411,12 @@ func nearestKnownOrder(entries []frontMatterEntry, start int, step int) (int, bo
 
 func normalizedEntryLines(document *arc.Document, entry frontMatterEntry) []string {
 	if lines := normalizeStringSequenceChunk(document, entry); len(lines) > 0 {
-		return lines
+		return filteredFrontMatterLines(lines)
 	}
 	if lines := normalizeIntSequenceChunk(document, entry); len(lines) > 0 {
-		return lines
+		return filteredFrontMatterLines(lines)
 	}
-	return normalizeDateChunk(document, entry)
+	return filteredFrontMatterLines(normalizeDateChunk(document, entry))
 }
 
 func normalizeStringSequenceChunk(document *arc.Document, entry frontMatterEntry) []string {
@@ -376,4 +520,15 @@ func intListField(document *arc.Document, key string) []int {
 	default:
 		return nil
 	}
+}
+
+func filteredFrontMatterLines(lines []string) []string {
+	filtered := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		filtered = append(filtered, line)
+	}
+	return filtered
 }

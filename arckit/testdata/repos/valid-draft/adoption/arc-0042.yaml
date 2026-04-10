@@ -1,13 +1,10 @@
 arc: 42
 title: Example ARC
-status: Draft
 last-reviewed: 2026-03-26
-sponsor: Foundation
-implementation-required: false
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:

@@ -118,13 +118,30 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 				if loadErr != nil {
 					return reportForValidation("validate adoption", cfg.FilterDiagnostics(diagnostics)), nil
 				}
-				var document *arc.Document
-				arcPath := filepath.Join(root, "ARCs", fmt.Sprintf("arc-%04d.md", summary.Arc))
-				if loaded, loadDiagnostics, err := arc.Load(arcPath); err == nil {
-					document = loaded
-					diagnostics = append(diagnostics, loadDiagnostics...)
+				registry, registryDiagnostics, registryErr := adoption.LoadVettedAdopters(adoption.RegistryPath(root))
+				diagnostics = append(diagnostics, registryDiagnostics...)
+				if registryErr == nil && len(registryDiagnostics) == 0 {
+					registryDiagnostics = adoption.ValidateVettedAdopters(registry)
+					diagnostics = append(diagnostics, registryDiagnostics...)
 				}
-				diagnostics = append(diagnostics, adoption.Validate(summary, document)...)
+				if registryErr != nil || len(registryDiagnostics) != 0 {
+					registry = nil
+				}
+				var document *arc.Document
+				if summary.Arc != 0 {
+					arcPath := filepath.Join(root, "ARCs", fmt.Sprintf("arc-%04d.md", summary.Arc))
+					if loaded, loadDiagnostics, err := arc.Load(arcPath); err == nil {
+						document = loaded
+						diagnostics = append(diagnostics, loadDiagnostics...)
+						diagnostics = append(diagnostics, arc.Validate(document, root)...)
+					} else {
+						diagnostics = append(diagnostics, loadDiagnostics...)
+						if errors.Is(err, os.ErrNotExist) {
+							diagnostics = append(diagnostics, diag.NewWithHint("R:018", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("orphaned adoption summary for ARC %d", summary.Arc), "Remove the orphaned adoption summary or add the matching ARC file."))
+						}
+					}
+				}
+				diagnostics = append(diagnostics, adoption.Validate(summary, document, registry)...)
 				return reportForValidation("validate adoption", cfg.FilterDiagnostics(diagnostics)), nil
 			})
 		},
@@ -235,10 +252,10 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 	return &cobra.Command{
 		Use:   "fmt <path...>",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "Apply ARC front matter formatting fixes",
+		Short: "Apply ARC and adoption formatting fixes",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
-				files, fileErr := collectARCFiles(args)
+				files, fileErr := collectFmtTargets(args)
 				if fileErr != nil {
 					return newInvocationFailureReport("fmt", fileErr), nil
 				}
@@ -259,7 +276,7 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 					if shouldIgnorePath(cfg, path) {
 						continue
 					}
-					if err := applyNativeFixWithConfig(path, cfg); err != nil {
+					if err := applyFixWithConfig(path, cfg); err != nil {
 						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "Check the file permissions and content, then retry."))
 					}
 				}
@@ -289,13 +306,13 @@ func newInitCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comma
 				}
 				created, diagnostics, err := scaffold.InitARC(initOptions)
 				report := diag.Report{
-					Command:  "init arc",
-					Created:  created,
-					Summary:  diag.Summarize(diagnostics),
-					ExitCode: diag.ExitCode(diagnostics),
+					Command:     "init arc",
+					Created:     created,
+					Diagnostics: diagnostics,
+					Summary:     diag.Summarize(diagnostics),
+					ExitCode:    diag.ExitCode(diagnostics),
 				}
 				if err != nil {
-					report.Diagnostics = diagnostics
 					report.Summary = diag.Summarize(report.Diagnostics)
 					report.ExitCode = 2
 				}
@@ -485,6 +502,59 @@ func render(stdout io.Writer, report diag.Report, opts options) error {
 		}
 	}
 	return nil
+}
+
+func collectFmtTargets(paths []string) ([]string, error) {
+	arcPattern := regexp.MustCompile(`(^|.*/)ARCs/arc-\d{4}\.md$`)
+	adoptionPattern := regexp.MustCompile(`(^|.*/)adoption/arc-\d{4}\.yaml$`)
+	seen := map[string]struct{}{}
+	targets := make([]string, 0)
+	for _, path := range paths {
+		info, err := os.Stat(path)
+		if err != nil {
+			return nil, err
+		}
+		if info.IsDir() {
+			err := filepath.WalkDir(path, func(walkPath string, entry os.DirEntry, walkErr error) error {
+				if walkErr != nil {
+					return walkErr
+				}
+				if entry.IsDir() {
+					return nil
+				}
+				slashPath := filepath.ToSlash(walkPath)
+				if !arcPattern.MatchString(slashPath) && !adoptionPattern.MatchString(slashPath) {
+					return nil
+				}
+				cleaned := filepath.Clean(walkPath)
+				if _, ok := seen[cleaned]; ok {
+					return nil
+				}
+				seen[cleaned] = struct{}{}
+				targets = append(targets, cleaned)
+				return nil
+			})
+			if err != nil {
+				return nil, err
+			}
+			continue
+		}
+		slashPath := filepath.ToSlash(path)
+		if !arcPattern.MatchString(slashPath) && !adoptionPattern.MatchString(slashPath) {
+			return nil, fmt.Errorf("%s is not an ARC Markdown file or adoption summary under ARCs/arc-####.md or adoption/arc-####.yaml", path)
+		}
+		cleaned := filepath.Clean(path)
+		if _, ok := seen[cleaned]; ok {
+			continue
+		}
+		seen[cleaned] = struct{}{}
+		targets = append(targets, cleaned)
+	}
+	if len(targets) == 0 {
+		return nil, errors.New("no ARC Markdown files or adoption summaries found under ARCs/arc-####.md or adoption/arc-####.yaml")
+	}
+	sort.Strings(targets)
+	return targets, nil
 }
 
 func collectARCFiles(paths []string) ([]string, error) {

@@ -196,6 +196,152 @@ Text`
 	}
 }
 
+func TestApplyNativeFixRemovesBlankLinesInsideFrontMatter(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+title: Example
+
+arc: 1
+description: Example description
+author:
+  - Example Author
+discussions-to: https://example.com/discussion
+
+status: Draft
+type: Meta
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyNativeFix(path); err != nil {
+		t.Fatalf("applyNativeFix() error = %v", err)
+	}
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	text := string(updated)
+	if strings.Contains(text, "title: Example\n\narc: 1") || strings.Contains(text, "discussions-to: https://example.com/discussion\n\nstatus: Draft") {
+		t.Fatalf("expected front matter blank lines to be removed, got:\n%s", text)
+	}
+	if !strings.Contains(text, "implementation-required: false\n---\n\n## Abstract\n") {
+		t.Fatalf("expected body spacing to remain intact after front matter cleanup, got:\n%s", text)
+	}
+}
+
+func TestApplyAdoptionFixRejectsUnknownAdoptionCategory(t *testing.T) {
+	root := t.TempDir()
+	adoptionDir := filepath.Join(root, "adoption")
+	if err := os.MkdirAll(adoptionDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(adoptionDir, "arc-0001.yaml")
+	content := `arc: 1
+title: Example
+last-reviewed: 2026-04-10
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+  typo-category: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	err := applyAdoptionFixWithConfig(path)
+	if err == nil {
+		t.Fatalf("expected applyAdoptionFixWithConfig() to reject unknown adoption category")
+	}
+	if !strings.Contains(err.Error(), "could not be safely reformatted") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	updated, readErr := os.ReadFile(path)
+	if readErr != nil {
+		t.Fatalf("ReadFile() error = %v", readErr)
+	}
+	if string(updated) != content {
+		t.Fatalf("expected content to remain unchanged, got:\n%s", string(updated))
+	}
+}
+
+func TestApplyAdoptionFixRejectsMissingCanonicalAdoptionCategory(t *testing.T) {
+	root := t.TempDir()
+	adoptionDir := filepath.Join(root, "adoption")
+	if err := os.MkdirAll(adoptionDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(adoptionDir, "arc-0001.yaml")
+	content := `arc: 1
+title: Example
+last-reviewed: 2026-04-10
+adoption:
+  wallets: []
+  explorers: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	err := applyAdoptionFixWithConfig(path)
+	if err == nil {
+		t.Fatalf("expected applyAdoptionFixWithConfig() to reject missing canonical adoption category")
+	}
+	if !strings.Contains(err.Error(), "could not be safely reformatted") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	updated, readErr := os.ReadFile(path)
+	if readErr != nil {
+		t.Fatalf("ReadFile() error = %v", readErr)
+	}
+	if string(updated) != content {
+		t.Fatalf("expected content to remain unchanged, got:\n%s", string(updated))
+	}
+}
+
 func TestApplyNativeFixWithConfigHonorsIgnoredRulesAndPreservesUnknownFieldText(t *testing.T) {
 	root := t.TempDir()
 	arcDir := filepath.Join(root, "ARCs")

@@ -1,0 +1,23 @@
+wallets:
+  - lute
+  - pera
+explorers:
+  - allo
+  - lora
+  - pera
+tooling:
+  - algokit
+  - algokit-utils
+  - folks-finance-library
+  - puya
+  - subscriber
+  - use-wallet
+infra:
+  - nodely
+dapps-protocols:
+  - alpha-arcade
+  - enel-ebitts
+  - folks-finance
+  - nfd
+  - ntt
+  - tinyman

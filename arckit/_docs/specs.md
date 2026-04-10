@@ -52,6 +52,7 @@ The CLI must follow these principles:
 
 1. ARC documents live in `ARCs/arc-####.md`.
 1. Adoption summaries live in `adoption/arc-####.yaml`.
+1. The vetted adopters registry lives in `adoption/vetted-adopters.yaml`.
 1. ARC assets, when present, live in `assets/arc-####/`.
 1. Optional repo-local validation suppressions live in `.arckit.jsonc` at the repository root.
 1. Templates live in `templates/`.
@@ -190,9 +191,11 @@ JSON output must include at least:
 It must perform:
 
 1. filename validation;
-1. front matter parsing and header order validation;
+1. front matter parsing, blank-line detection, and header order validation;
 1. required field checks;
+1. canonical ARC category and sub-category enum validation;
 1. conditional field checks;
+1. canonical implementation repository URL validation when `implementation-required: true`;
 1. body section presence checks;
 1. local link and asset link validation.
 
@@ -205,7 +208,11 @@ It must perform:
 1. filename validation;
 1. schema and required field validation;
 1. enum validation;
-1. internal consistency validation.
+1. vetted adopters registry validation;
+1. matching ARC loading and ARC-front-matter-derived validation for `status`,
+   `sponsor`, and `implementation-required` when the companion ARC exists;
+1. internal consistency validation, including rejecting adoption summaries with
+   all-empty categories when the matching ARC is `Final`.
 
 ### 8.3 `validate links`
 
@@ -226,6 +233,7 @@ It must always validate:
 It must perform:
 
 1. ARC validation for all discovered ARC files;
+1. vetted adopters registry validation;
 1. adoption summary validation for all discovered adoption files;
 1. repository-wide mapping and reciprocity checks;
 1. native local link validation.
@@ -233,6 +241,9 @@ It must perform:
 This is the single canonical CI gate. Required PR validation jobs should build `arckit`
 and run `arckit validate repo .`. When present, the repo-root `.arckit.jsonc` is
 applied implicitly.
+
+The repository-wide gate must reject any ARC in `Final` status whose canonical
+adoption summary has no tracked adopters in any adoption category.
 
 ### 8.5 `validate transition`
 
@@ -320,8 +331,12 @@ Field requirements:
 1. `created`, `updated`, `last-call-deadline`, and `idle-since` must use `YYYY-MM-DD`.
 1. `status` must be one of `Draft`, `Review`, `Last Call`, `Final`, `Stagnant`, `Withdrawn`, `Idle`, `Deprecated`, or `Living`.
 1. `type` must be one of `Standards Track` or `Meta`.
+1. `category`, when present, must be one of `Interface`, `Data`, `Cryptography`, `Protocol`, or `Governance`.
+1. `sub-category`, when present, must be one of `General`, `ASA`, `Application`, `LSig`, `Event`, `Library`, `Identity`, `Explorer`, or `Wallet`.
+1. `sub-category` must not be present unless `category` is also present.
 1. `sponsor` must be one of `Foundation` or `Ecosystem`.
 1. `implementation-required` must be `true` or `false`.
+1. when `implementation-required` is `true` and `implementation-url` is present, it must be exactly `https://github.com/algorandfoundation/arcN` for `Foundation`-sponsored ARCs or `https://github.com/algorandecosystem/arcN` for `Ecosystem`-sponsored ARCs, where `N` is the unpadded ARC number.
 1. `adoption-summary`, when present, must be a relative path under `adoption/`.
 1. list-valued ARC metadata must use canonical YAML sequences rather than comma-separated scalars.
 
@@ -329,8 +344,11 @@ Field requirements:
 
 These conditional rules apply:
 
-1. `implementation-url` and `implementation-maintainer` are required when validating
-   transition to `Review`, `Last Call`, or `Final` for an ARC with `implementation-required: true`.
+1. `implementation-url` and `implementation-maintainer` are required when an ARC
+   with `implementation-required: true` is in `Review`, `Last Call`, `Final`, `Idle`,
+   or `Deprecated`.
+1. when `implementation-required: true` and `implementation-url` is declared, the URL
+   must match the exact sponsor-specific canonical GitHub repository path for the ARC number.
 1. `adoption-summary` is required when `status` is `Last Call`, `Final`, `Idle`, or `Deprecated`.
 1. `last-call-deadline` is required when `status` is `Last Call` and when validating
    transition to `Final`.
@@ -372,6 +390,8 @@ hook in the repository-root `pre-commit` configuration.
 
 Adoption summary files must be named `arc-####.yaml` and must live in `adoption/`.
 
+The repository must also contain `adoption/vetted-adopters.yaml`.
+
 ### 10.2 Requirement Policy
 
 Adoption summaries are not a blanket requirement for every historical ARC in v1.
@@ -393,20 +413,14 @@ An adoption summary must support at least this shape:
 ```yaml
 arc: 42
 title: Example ARC
-status: Review
 last-reviewed: 2026-03-26
-sponsor: Foundation
-implementation-required: true
 reference-implementation:
-  repository: https://github.com/algorandfoundation/arc42
-  maintainers:
-    - "@maintainer1"
-  status: in_progress
+  status: wip
   notes: ""
 adoption:
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
@@ -419,22 +433,34 @@ Required top-level fields are:
 
 1. `arc`
 1. `title`
-1. `status`
 1. `last-reviewed`
-1. `sponsor`
-1. `implementation-required`
 1. `adoption`
 1. `summary`
 
-`reference-implementation` is required when `implementation-required` is `true`.
+`reference-implementation` is required when the matching ARC front matter sets
+`implementation-required` to `true`.
+
+The ARC front matter is authoritative for:
+
+1. `status`
+1. `sponsor`
+1. `implementation-required`
+1. `implementation-url`
+1. `implementation-maintainer`
+
+Adoption summaries must not repeat those ARC-owned fields.
+
+The adoption summary `reference-implementation` block must contain only:
+
+1. `status`
+1. optional `notes`
 
 ### 10.4 Adoption Enums and Entry Shape
 
 Allowed `reference-implementation.status` values are:
 
 - `planned`
-- `in_progress`
-- `testable`
+- `wip`
 - `shipped`
 - `archived`
 
@@ -442,7 +468,7 @@ The `adoption` section must support these actor classes:
 
 1. `wallets`
 1. `explorers`
-1. `sdk-libraries`
+1. `tooling`
 1. `infra`
 1. `dapps-protocols`
 
@@ -452,6 +478,11 @@ Each actor entry must support:
 1. `status`
 1. `evidence`
 1. `notes`
+
+Each actor `name` must:
+
+1. be lower-kebab-case;
+1. match an entry in the same category of `adoption/vetted-adopters.yaml`.
 
 Allowed actor `status` values are:
 
@@ -467,25 +498,35 @@ Allowed `summary.adoption-readiness` values are:
 - `medium`
 - `high`
 
+Readiness thresholds are:
+
+1. `medium` requires at least 3 adopter entries across all adoption categories;
+1. `high` requires at least 5 adopter entries across all adoption categories.
+
 ### 10.5 Internal Consistency
 
 `arckit` must enforce:
 
 1. the filename ARC number matches `arc`;
-1. `status` is a valid ARC status;
-1. `sponsor` matches the ARC file when both are present;
-1. `implementation-required` matches the ARC file when both are present;
-1. `reference-implementation.repository`, when present, matches `implementation-url`
-   in the ARC file.
+1. adoption-summary logic that depends on `status`, `sponsor`, or `implementation-required`
+   derives those values from the matching ARC front matter;
+1. `status`, `sponsor`, and `implementation-required` are rejected if they appear
+   as top-level adoption-summary fields;
+1. `reference-implementation` is present only when the matching ARC front matter
+   sets `implementation-required: true`;
+1. `reference-implementation` does not repeat canonical implementation identity
+   fields such as repository URL or maintainer list.
 
 ## 11. Repository-Wide Rules
 
 `validate repo` must enforce at least:
 
 1. no duplicate ARC numbers across ARC files;
+1. one valid `adoption/vetted-adopters.yaml` file exists;
 1. no duplicate ARC numbers across adoption files;
 1. no orphaned adoption summaries for missing ARC files;
 1. no orphaned asset trees for missing ARC files;
+1. adoption actor names are present in the matching vetted-adopter category;
 1. ARC `adoption-summary` fields, when required, point to the matching adoption file;
 1. reciprocal relationship fields are consistent where both files exist:
    - `supersedes` <-> `superseded-by`
@@ -522,7 +563,7 @@ The CLI must require:
 If `implementation-required: true`, the CLI must also require:
 
 1. a `reference-implementation` block in the adoption summary;
-1. `reference-implementation.status` is one of `in_progress`, `testable`, or `shipped`.
+1. `reference-implementation.status` is `wip` or `shipped`.
 
 ### 12.3 Transition to `Final`
 
@@ -535,8 +576,9 @@ The CLI must require:
 
 If `implementation-required: true`, the CLI must also require:
 
-1. reference implementation metadata in both ARC and adoption summary;
-1. `reference-implementation.status` is `testable` or `shipped`;
+1. `implementation-url` and `implementation-maintainer` in ARC front matter;
+1. a `reference-implementation` block in the adoption summary;
+1. `reference-implementation.status` is `shipped`;
 1. at least one adoption actor entry has non-empty evidence.
 
 ### 12.4 Transition to `Idle`
@@ -559,13 +601,15 @@ remain editorial, including:
 
 ## 13. Formatting
 
-`arckit fmt <path...>` is intentionally narrow in v1.
+`arckit fmt <path...>` remains narrow in v1.
 
 It must:
 
 1. normalize front matter spacing;
+1. remove empty lines from the front matter block;
 1. normalize front matter field ordering;
 1. normalize canonical YAML sequence fields without coercing invalid scalar-list legacy encodings;
+1. for valid adoption summaries, normalize `summary.adoption-readiness` upward when the tracked adopter count already justifies `medium` or `high`;
 1. preserve semantic content.
 1. leave body whitespace, final-newline policy, and generic Markdown hygiene to
    the repository-root `pre-commit` hooks.
@@ -588,10 +632,23 @@ Outputs:
 
 1. `ARCs/arc-####.md`
 1. `adoption/arc-####.yaml`
+1. `adoption/vetted-adopters.yaml`, when it does not already exist
 1. `assets/arc-####/`
 
 The generated ARC must include an `adoption-summary` field pointing to the generated
 adoption stub, and must emit canonical YAML-native list fields for author metadata.
+
+When `--implementation-required` is set, the generated adoption stub should include
+`reference-implementation.status` and may also include optional `reference-implementation.notes`, because
+the canonical implementation URL, maintainer list, status, sponsor, and
+implementation-required declaration live in ARC front matter.
+
+When provided, `--category` and `--sub-category` must use the same canonical enum
+values enforced by `validate arc`, and `--sub-category` must not be used without
+`--category`.
+
+The generated ARC may omit `implementation-url` and `implementation-maintainer`
+while the ARC remains in `Draft`.
 
 `init arc` must never create remote GitHub artifacts.
 
