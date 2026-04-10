@@ -8,7 +8,7 @@ adoption:
     - name: puya
       status: shipped
       evidence: https://github.com/algorandfoundation/puya/pull/657
-      notes: Puya complier supports AVM run time errors in program.
+      notes: Puya compiler supports AVM run time errors in program.
   infra: []
   dapps-protocols: []
 summary:

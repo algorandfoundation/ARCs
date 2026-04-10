@@ -102,6 +102,19 @@ func hasUnsafeAdoptionSummaryShape(summary *adoption.Summary) bool {
 			return true
 		}
 	}
+	requiredAdoptionKeys := []string{"wallets", "explorers", "tooling", "infra", "dapps-protocols"}
+	for _, key := range requiredAdoptionKeys {
+		if _, ok := summaryAdoptionKeys(summary)[key]; !ok {
+			return true
+		}
+	}
+	for key := range summaryAdoptionKeys(summary) {
+		switch key {
+		case "wallets", "explorers", "tooling", "infra", "dapps-protocols":
+		default:
+			return true
+		}
+	}
 	return false
 }
 
@@ -160,6 +173,13 @@ func summaryReferenceImplementationKeys(summary *adoption.Summary) map[string]st
 		return map[string]struct{}{}
 	}
 	return summary.ReferenceImplementationKeySet()
+}
+
+func summaryAdoptionKeys(summary *adoption.Summary) map[string]struct{} {
+	if summary == nil {
+		return map[string]struct{}{}
+	}
+	return summary.AdoptionKeySet()
 }
 
 func hasUnsafeFrontMatterDiagnostics(diagnostics []diag.Diagnostic) bool {

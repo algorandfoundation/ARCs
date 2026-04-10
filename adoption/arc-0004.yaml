@@ -20,7 +20,7 @@ adoption:
     - name: puya
       status: shipped
       evidence: https://github.com/algorandfoundation/puya/
-      notes: Puya complier supports ARC-4 types.
+      notes: Puya compiler supports ARC-4 types.
     - name: subscriber
       status: shipped
       evidence: https://github.com/algorandfoundation/algokit-subscriber-py
