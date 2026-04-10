@@ -109,6 +109,7 @@ v1 must provide this command surface:
 
 ```text
 arckit fmt <path...>
+arckit summary repo [repo-root]
 arckit validate arc <arc-file>
 arckit validate adoption <adoption-file>
 arckit validate links <path...>
@@ -132,6 +133,9 @@ in v1. Repo-local `.arckit.jsonc` loading is implicit.
 Validation commands may expose `--ignore-config` to bypass repo-local suppressions
 entirely and `--enforce-rule <RULE_ID>` to unsuppress a specific rule while
 preserving all other config behavior.
+
+`summary repo` is markdown-only in v1. It must reject `--format json` with exit
+code `2`.
 
 ### 6.3 Exit Codes
 
@@ -245,7 +249,56 @@ applied implicitly.
 The repository-wide gate must reject any ARC in `Final` status whose canonical
 adoption summary has no tracked adopters in any adoption category.
 
-### 8.5 `validate transition`
+### 8.5 `summary repo`
+
+`arckit summary repo [repo-root]` generates a local ARC Editor report at
+`arc-summary.md` in the repository root by default.
+
+This command is an editor-support report, not a validation gate.
+
+It must:
+
+1. load the repository state through the same repo-local `.arckit.jsonc` handling
+   used by `validate repo`;
+1. build its content from local ARC front matter, adoption YAML, vetted adopters,
+   asset directories, and ARC relationship fields only;
+1. keep working and return exit code `0` even when the validation snapshot contains
+   repository errors;
+1. write markdown only and reject `--format json`;
+1. support `--out <path>` for an alternate markdown destination;
+1. write these top-level sections in order:
+   - `# ARC State Summary`
+   - `## Validation Snapshot`
+   - `## State Overview`
+   - `## Transition Watch`
+   - `## Adoption Watch`
+   - `## Relationship Watch`
+   - `## Data Notes`
+
+The markdown report must include:
+
+1. generated timestamp, repo root, and current `validate repo` summary counts;
+1. repo-wide totals by ARC status and ARC type;
+1. asset coverage, adoption-summary coverage, adoption file totals, adopter totals,
+   and adoption-readiness totals;
+1. explicit transition watch tables for overdue `Last Call`, upcoming `Last Call`
+   within 14 days, `Idle` ARCs, and implementation-required ARCs whose canonical
+   reference implementation is not `shipped`;
+1. explicit adoption watch tables for `Final` ARCs with zero adopters, `Final`
+   ARCs with 1-2 adopters, and adoption summaries whose `last-reviewed` date is
+   older than 30 days;
+1. adoption totals by category, adopter status, top adopters by distinct ARC
+   coverage, and top ARCs by adopter count;
+1. relationship context for most-referenced `requires` targets, most-referenced
+   `extends` targets, and non-empty `supersedes` / `superseded-by` rows;
+1. a data-notes section stating that the report is local/offline only, that age is
+   only known from explicit dates, and that missing `sponsor`,
+   `implementation-required`, or sparse `updated` usage are migration-state rather
+   than backlog.
+
+Empty watch subsections must render as `None`.
+
+### 8.6 `validate transition`
 
 `arckit validate transition <arc-file> --to <status>` validates the machine-verifiable
 subset of a requested status transition.

@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/adoption"
 	"github.com/algorandfoundation/ARCs/arckit/internal/arc"
@@ -51,6 +52,7 @@ func ExecuteArgs(args []string, stdout io.Writer, stderr io.Writer) int {
 	rootCmd.AddCommand(newValidateCommand(opts, &exitCode, stdout))
 	rootCmd.AddCommand(newFmtCommand(opts, &exitCode, stdout))
 	rootCmd.AddCommand(newInitCommand(opts, &exitCode, stdout))
+	rootCmd.AddCommand(newSummaryCommand(opts, &exitCode, stdout))
 	rootCmd.AddCommand(newRulesCommand(opts, &exitCode, stdout))
 	rootCmd.AddCommand(newExplainCommand(opts, &exitCode, stdout))
 
@@ -331,6 +333,62 @@ func newInitCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comma
 	initArcCmd.Flags().StringVar(&initOptions.Description, "description", "", "ARC description")
 	initArcCmd.Flags().BoolVar(&initOptions.ImplementationRequired, "implementation-required", false, "whether the ARC requires a reference implementation")
 	command.AddCommand(initArcCmd)
+	return command
+}
+
+func newSummaryCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Command {
+	command := &cobra.Command{
+		Use:   "summary",
+		Short: "Generate ARC editor repository summaries",
+	}
+
+	var outPath string
+	repoCmd := &cobra.Command{
+		Use:   "repo [repo-root]",
+		Args:  cobra.MaximumNArgs(1),
+		Short: "Generate a repo-level ARC editor summary",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
+				if opts.Format == "json" {
+					return newInvocationFailureReport("summary repo", errors.New("summary repo only supports text output in v1")), nil
+				}
+
+				root := "."
+				if len(args) == 1 {
+					root = args[0]
+				}
+				root = resolveRepoRoot(root)
+
+				cfg, err := config.Load(root)
+				if err != nil {
+					return newConfigFailureReport("summary repo", root, err), nil
+				}
+
+				state, diagnostics, validateErr := repo.Validate(root, cfg)
+				if validateErr != nil {
+					return newInvocationFailureReport("summary repo", validateErr), nil
+				}
+
+				summary := repo.BuildSummary(state, diagnostics, time.Now())
+				target := resolveSummaryOutputPath(root, outPath)
+				if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+					return newInvocationFailureReport("summary repo", err), nil
+				}
+				if err := os.WriteFile(target, []byte(summary.Markdown()), 0o644); err != nil {
+					return newInvocationFailureReport("summary repo", err), nil
+				}
+
+				return diag.Report{
+					Command:  "summary repo",
+					Created:  []string{target},
+					ExitCode: 0,
+				}, nil
+			})
+		},
+	}
+	repoCmd.Flags().StringVar(&outPath, "out", "", "output path for the generated summary markdown")
+	command.AddCommand(repoCmd)
+
 	return command
 }
 
@@ -623,4 +681,14 @@ func resolveRepoRoot(path string) string {
 func dirExists(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
+}
+
+func resolveSummaryOutputPath(root string, outPath string) string {
+	if strings.TrimSpace(outPath) == "" {
+		return filepath.Join(filepath.Clean(root), "arc-summary.md")
+	}
+	if filepath.IsAbs(outPath) {
+		return filepath.Clean(outPath)
+	}
+	return filepath.Join(filepath.Clean(root), filepath.Clean(outPath))
 }
