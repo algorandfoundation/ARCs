@@ -542,18 +542,6 @@ func IsValidSubCategory(subCategory string) bool {
 	return slices.Contains(validSubCategories, strings.TrimSpace(subCategory))
 }
 
-func ValidCategories() []string {
-	out := make([]string, len(validCategories))
-	copy(out, validCategories)
-	return out
-}
-
-func ValidSubCategories() []string {
-	out := make([]string, len(validSubCategories))
-	copy(out, validSubCategories)
-	return out
-}
-
 func ValidateCategoryMetadata(path string, categoryLine int, subCategoryLine int, category string, subCategory string) []diag.Diagnostic {
 	category = strings.TrimSpace(category)
 	subCategory = strings.TrimSpace(subCategory)
