@@ -12,7 +12,7 @@ adoption:
   dapps-protocols:
     - name: enel-ebitts
       status: shipped
-      evidence: https://lora.algokit.io/mainnet/asset/...
+      evidence: https://lora.algokit.io/mainnet/asset/2543151056/
       notes: The Smart ASA comforms to the ARC-20 interface.
 summary:
   adoption-readiness: low
