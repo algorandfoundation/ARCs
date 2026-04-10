@@ -30,6 +30,21 @@ When the matching ARC front matter sets `implementation-required: true`:
 - the ARC front matter is authoritative for `implementation-url` and `implementation-maintainer`;
 - the adoption summary tracks `reference-implementation.status` plus optional `reference-implementation.notes`.
 
+Canonical implementation status values are:
+
+- `planned`
+- `wip`
+- `shipped`
+- `archived`
+
+`summary.adoption-readiness` must be one of `low`, `medium`, or `high`.
+
+- `medium` requires at least 3 adopter entries across all adoption categories;
+- `high` requires at least 5 adopter entries across all adoption categories.
+
+`arckit fmt` may automatically raise `summary.adoption-readiness` when the tracked
+adopter count already justifies `medium` or `high`.
+
 ## Example
 
 ```yaml

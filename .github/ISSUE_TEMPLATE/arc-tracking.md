@@ -49,7 +49,7 @@ labels: ["arc-tracking"]
 - [ ] No unresolved normative issues
 - [ ] Adoption summary file created and current
 - [ ] Adoption summary tracks implementation status
-- [ ] Reference implementation is active and testable
+- [ ] Reference implementation is at least `wip`
 - [ ] Independent adoption signals documented
 - [ ] Last call deadline set
 

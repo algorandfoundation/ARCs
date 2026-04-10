@@ -101,6 +101,9 @@ matter as the authoritative source of `implementation-url` and
 `implementation-maintainer`, and it must reject adoption summaries that duplicate
 those identity fields under `reference-implementation`.
 
+That same gate must also reject non-canonical `reference-implementation.status`
+values; the only supported values are `planned`, `wip`, `shipped`, and `archived`.
+
 That same gate must also reject implementation-required ARCs whose
 `implementation-url` does not exactly match the sponsor-specific canonical GitHub
 repository path `https://github.com/algorandfoundation/arcN` or
@@ -109,6 +112,10 @@ repository path `https://github.com/algorandfoundation/arcN` or
 That same gate must also treat ARC front matter as authoritative for `status`,
 `sponsor`, and `implementation-required`, and it must reject adoption summaries
 that redundantly declare those ARC-owned fields.
+
+That same gate must also reject adoption summaries whose `summary.adoption-readiness`
+is `medium` with fewer than 3 adopter entries or `high` with fewer than 5 adopter
+entries across all adoption categories.
 
 When present, the repository-root `.arckit.jsonc` is applied implicitly by this
 command. Invalid `.arckit.jsonc` content must fail the gate.
@@ -235,6 +242,8 @@ Deterministic maintenance findings include:
 1. missing or invalid required adoption summaries;
 1. missing canonical `implementation-url` or `implementation-maintainer` declarations for implementation-required ARCs;
 1. non-canonical sponsor-specific implementation repository URLs for implementation-required ARCs;
+1. non-canonical reference implementation statuses in adoption summaries;
+1. `medium` or `high` adoption readiness declared without enough tracked adopters;
 1. `Final` ARCs whose adoption summaries have no tracked adopters;
 1. missing local links or asset targets;
 1. ARC and tracking issue mismatches that are machine-checkable;

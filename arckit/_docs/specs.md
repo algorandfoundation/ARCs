@@ -411,7 +411,7 @@ arc: 42
 title: Example ARC
 last-reviewed: 2026-03-26
 reference-implementation:
-  status: in_progress
+  status: wip
   notes: ""
 adoption:
   wallets: []
@@ -456,8 +456,7 @@ The adoption summary `reference-implementation` block must contain only:
 Allowed `reference-implementation.status` values are:
 
 - `planned`
-- `in_progress`
-- `testable`
+- `wip`
 - `shipped`
 - `archived`
 
@@ -494,6 +493,11 @@ Allowed `summary.adoption-readiness` values are:
 - `low`
 - `medium`
 - `high`
+
+Readiness thresholds are:
+
+1. `medium` requires at least 3 adopter entries across all adoption categories;
+1. `high` requires at least 5 adopter entries across all adoption categories.
 
 ### 10.5 Internal Consistency
 
@@ -555,7 +559,7 @@ The CLI must require:
 If `implementation-required: true`, the CLI must also require:
 
 1. a `reference-implementation` block in the adoption summary;
-1. `reference-implementation.status` is one of `in_progress`, `testable`, or `shipped`.
+1. `reference-implementation.status` is `wip` or `shipped`.
 
 ### 12.3 Transition to `Final`
 
@@ -570,7 +574,7 @@ If `implementation-required: true`, the CLI must also require:
 
 1. `implementation-url` and `implementation-maintainer` in ARC front matter;
 1. a `reference-implementation` block in the adoption summary;
-1. `reference-implementation.status` is `testable` or `shipped`;
+1. `reference-implementation.status` is `shipped`;
 1. at least one adoption actor entry has non-empty evidence.
 
 ### 12.4 Transition to `Idle`
@@ -593,7 +597,7 @@ remain editorial, including:
 
 ## 13. Formatting
 
-`arckit fmt <path...>` is intentionally narrow in v1.
+`arckit fmt <path...>` remains narrow in v1.
 
 It must:
 
@@ -601,6 +605,7 @@ It must:
 1. remove empty lines from the front matter block;
 1. normalize front matter field ordering;
 1. normalize canonical YAML sequence fields without coercing invalid scalar-list legacy encodings;
+1. for valid adoption summaries, normalize `summary.adoption-readiness` upward when the tracked adopter count already justifies `medium` or `high`;
 1. preserve semantic content.
 1. leave body whitespace, final-newline policy, and generic Markdown hygiene to
    the repository-root `pre-commit` hooks.
