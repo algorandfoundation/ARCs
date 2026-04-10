@@ -334,6 +334,59 @@ summary:
 	}
 }
 
+func TestValidateAllowsReferenceImplementationWithoutNotes(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0044.md"))
+	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
+	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
+title: Transition Ready ARC
+last-reviewed: 2026-03-26
+reference-implementation:
+  status: testable
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: medium
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	summary, loadDiagnostics, err := Load(adoptionPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(loadDiagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
+	}
+
+	registry, registryDiagnostics, err := LoadVettedAdopters(RegistryPath(root))
+	if err != nil {
+		t.Fatalf("LoadVettedAdopters() error = %v", err)
+	}
+	if len(registryDiagnostics) != 0 {
+		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
+	}
+
+	for _, diagnostic := range Validate(summary, document, registry) {
+		if diagnostic.RuleID == "R:015" && strings.Contains(diagnostic.Message, "reference-implementation.notes") {
+			t.Fatalf("unexpected notes-required diagnostic: %+v", diagnostic)
+		}
+		if diagnostic.Severity == diag.SeverityError {
+			t.Fatalf("unexpected validation error: %+v", diagnostic)
+		}
+	}
+}
+
 func TestLoadRejectsScalarActorEntryWithHelpfulMessage(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "adoption", "arc-0062.yaml")

@@ -304,6 +304,39 @@ summary:
 	assertContains(t, stdout.String(), "reference-implementation.repository is not allowed")
 }
 
+func TestCLIValidateAdoptionAllowsReferenceImplementationWithoutNotes(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	path := filepath.Join(root, "adoption", "arc-0044.yaml")
+	if err := os.WriteFile(path, []byte(`arc: 44
+title: Transition Ready ARC
+last-reviewed: 2026-03-26
+reference-implementation:
+  status: testable
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: medium
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "adoption", path}, stdout, stderr)
+	assertCommandSucceeded(t, exitCode, stdout, stderr)
+	assertContains(t, stdout.String(), "summary: 0 error(s), 0 warning(s), 0 info")
+}
+
 func TestCLIValidateAdoptionReportsHelpfulActorSchemaError(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	path := filepath.Join(root, "adoption", "arc-0042.yaml")

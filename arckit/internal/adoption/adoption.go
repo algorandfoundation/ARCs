@@ -146,16 +146,14 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "reference-implementation is only allowed when the ARC front matter sets implementation-required to true", "Remove the reference-implementation block or update the ARC front matter if the ARC requires a canonical implementation."))
 	}
 	if summary.ReferenceImplementation != nil {
-		for _, key := range []string{"status", "notes"} {
-			if _, ok := summary.referenceImplementationKeys[key]; !ok {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("reference-implementation.%s is required", key), "Keep only status and notes under reference-implementation, and set both fields."))
-			}
+		if _, ok := summary.referenceImplementationKeys["status"]; !ok {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, "reference-implementation.status is required", "Keep only status and optional notes under reference-implementation, and set status."))
 		}
 		for key := range summary.referenceImplementationKeys {
 			if key == "status" || key == "notes" {
 				continue
 			}
-			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("reference-implementation.%s is not allowed in adoption summaries", key), "Declare the canonical implementation URL and maintainers in the ARC front matter, and keep only status and notes in the adoption summary."))
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("reference-implementation.%s is not allowed in adoption summaries", key), "Declare the canonical implementation URL and maintainers in the ARC front matter, and keep only status with optional notes in the adoption summary."))
 		}
 		if !slices.Contains([]string{"planned", "in_progress", "testable", "shipped", "archived"}, summary.ReferenceImplementation.Status) {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported reference-implementation.status %q", summary.ReferenceImplementation.Status), "Use one of planned, in_progress, testable, shipped, or archived."))
@@ -237,7 +235,7 @@ func adoptionSchemaDiagnostics(path string, root *yaml.Node) []diag.Diagnostic {
 	referenceImplementationNode := mappingValue(document, "reference-implementation")
 	if referenceImplementationNode != nil && referenceImplementationNode.Kind != yaml.MappingNode {
 		return []diag.Diagnostic{
-			diag.NewWithHint("R:016", diag.OriginNative, path, referenceImplementationNode.Line, referenceImplementationNode.Column, fmt.Sprintf("reference-implementation must be a mapping, got %s", yamlNodeType(referenceImplementationNode)), "Define reference-implementation as a mapping with status and notes fields."),
+			diag.NewWithHint("R:016", diag.OriginNative, path, referenceImplementationNode.Line, referenceImplementationNode.Column, fmt.Sprintf("reference-implementation must be a mapping, got %s", yamlNodeType(referenceImplementationNode)), "Define reference-implementation as a mapping with a status field and optional notes field."),
 		}
 	}
 	adoptionNode := mappingValue(document, "adoption")

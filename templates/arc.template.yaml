@@ -3,11 +3,11 @@ title: <ARC title>
 last-reviewed: <YYYY-MM-DD>
 # ARC front matter is authoritative for status, sponsor, and implementation-required.
 # Remove reference-implementation entirely when the ARC front matter sets implementation-required to false.
-# If implementation-required is true in ARC front matter, keep only implementation status here.
+# If implementation-required is true in ARC front matter, keep implementation status here and add notes only if useful.
 # The canonical implementation-url and implementation-maintainer belong in ARC front matter.
 reference-implementation:
   status: planned # planned | in_progress | testable | shipped | archived
-  notes: ""
+  notes: "" # optional
 adoption:
   # Add actor entries only after the adopter is listed in adoption/vetted-adopters.yaml.
   # Actor names must be lower-kebab-case and must match the vetted registry exactly.
