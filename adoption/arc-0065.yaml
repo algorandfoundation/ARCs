@@ -4,7 +4,11 @@ last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
-  tooling: []
+  tooling:
+    - name: puya
+      status: shipped
+      evidence: https://github.com/algorandfoundation/puya/pull/657
+      notes: Puya complier supports AVM run time errors in program.
   infra: []
   dapps-protocols: []
 summary:
