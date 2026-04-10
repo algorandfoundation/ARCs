@@ -118,6 +118,64 @@ func TestCLIInitARCRejectsInvalidCategoryMetadata(t *testing.T) {
 	}
 }
 
+func TestCLISummaryRepoWritesDefaultOutput(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "missing-adoption"))
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"summary", "repo", root}, stdout, stderr)
+	assertCommandSucceeded(t, exitCode, stdout, stderr)
+
+	outputPath := filepath.Join(root, "arc-summary.md")
+	if _, err := os.Stat(outputPath); err != nil {
+		t.Fatalf("expected %s to exist, stat err=%v", outputPath, err)
+	}
+	assertContains(t, stdout.String(), outputPath)
+
+	content, err := os.ReadFile(outputPath)
+	if err != nil {
+		t.Fatalf("ReadFile(%s) error = %v", outputPath, err)
+	}
+	assertContains(t, string(content), "# ARC State Summary")
+	assertContains(t, string(content), "## Validation Snapshot")
+	assertContains(t, string(content), "## Adoption Watch")
+}
+
+func TestCLISummaryRepoWritesCustomOutput(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	relativeOut := filepath.Join("editor", "state.md")
+	exitCode := ExecuteArgs([]string{"summary", "repo", "--out", relativeOut, root}, stdout, stderr)
+	assertCommandSucceeded(t, exitCode, stdout, stderr)
+
+	outputPath := filepath.Join(root, relativeOut)
+	if _, err := os.Stat(outputPath); err != nil {
+		t.Fatalf("expected %s to exist, stat err=%v", outputPath, err)
+	}
+	assertContains(t, stdout.String(), outputPath)
+
+	content, err := os.ReadFile(outputPath)
+	if err != nil {
+		t.Fatalf("ReadFile(%s) error = %v", outputPath, err)
+	}
+	assertContains(t, string(content), "## Relationship Watch")
+}
+
+func TestCLISummaryRepoRejectsJSONOutput(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"--format", "json", "summary", "repo", root}, stdout, stderr)
+	if exitCode != 2 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 2, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), `"rule_id": "R:026"`)
+	assertContains(t, stdout.String(), "summary repo only supports text output in v1")
+}
+
 func TestCLIValidateCommandsHonorConfig(t *testing.T) {
 	t.Run("validate-arc", func(t *testing.T) {
 		root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "missing-adoption"))
