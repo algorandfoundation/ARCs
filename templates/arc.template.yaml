@@ -13,7 +13,7 @@ adoption:
   # Actor names must be lower-kebab-case and must match the vetted registry exactly.
   wallets: []
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:

@@ -8,7 +8,7 @@ adoption:
       evidence: https://example.com/wallet-proof
       notes: ""
   explorers: []
-  sdk-libraries: []
+  tooling: []
   infra: []
   dapps-protocols: []
 summary:
