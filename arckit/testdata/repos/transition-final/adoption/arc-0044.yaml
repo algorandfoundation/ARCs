@@ -1,9 +1,6 @@
 arc: 44
 title: Transition Ready ARC
-status: Last Call
 last-reviewed: 2026-03-26
-sponsor: Foundation
-implementation-required: true
 reference-implementation:
   status: testable
   notes: ""

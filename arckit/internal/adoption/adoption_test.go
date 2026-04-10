@@ -15,13 +15,7 @@ func TestValidateMatchingAdoptionSummary(t *testing.T) {
 	arcPath := filepath.Join(root, "ARCs", "arc-0042.md")
 	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
 
-	document, diagnostics, err := arc.Load(arcPath)
-	if err != nil {
-		t.Fatalf("arc.Load() error = %v", err)
-	}
-	if len(diagnostics) != 0 {
-		t.Fatalf("arc.Load() diagnostics = %v", diagnostics)
-	}
+	document := loadValidatedDocument(t, root, arcPath)
 
 	summary, loadDiagnostics, err := Load(adoptionPath)
 	if err != nil {
@@ -63,13 +57,7 @@ dapps-protocols: []
 	arcPath := filepath.Join(root, "ARCs", "arc-0044.md")
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 
-	document, diagnostics, err := arc.Load(arcPath)
-	if err != nil {
-		t.Fatalf("arc.Load() error = %v", err)
-	}
-	if len(diagnostics) != 0 {
-		t.Fatalf("arc.Load() diagnostics = %v", diagnostics)
-	}
+	document := loadValidatedDocument(t, root, arcPath)
 
 	summary, loadDiagnostics, err := Load(adoptionPath)
 	if err != nil {
@@ -87,7 +75,7 @@ dapps-protocols: []
 		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
 	}
 
-	diagnostics = Validate(summary, document, registry)
+	diagnostics := Validate(summary, document, registry)
 	found := false
 	for _, diagnostic := range diagnostics {
 		if diagnostic.RuleID == "R:023" && strings.Contains(diagnostic.Message, `is not present in vetted adopters category "wallets"`) {
@@ -101,13 +89,48 @@ dapps-protocols: []
 
 func TestValidateFinalAdoptionRequiresAtLeastOneAdopter(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	arcPath := filepath.Join(root, "ARCs", "arc-0042.md")
+	if err := os.WriteFile(arcPath, []byte(`---
+arc: 42
+title: Example ARC
+description: Example ARC for testing.
+author:
+  - Example Author (@example)
+discussions-to: https://example.com/discussion
+status: Final
+type: Standards Track
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: false
+adoption-summary: adoption/arc-0042.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
 	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
 title: Example ARC
-status: Final
 last-reviewed: 2026-04-09
-sponsor: Foundation
-implementation-required: false
 adoption:
   wallets: []
   explorers: []
@@ -138,7 +161,8 @@ summary:
 		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
 	}
 
-	diagnostics := Validate(summary, nil, registry)
+	document := loadValidatedDocument(t, root, arcPath)
+	diagnostics := Validate(summary, document, registry)
 	found := false
 	for _, diagnostic := range diagnostics {
 		if diagnostic.RuleID == "R:025" {
@@ -152,13 +176,60 @@ summary:
 
 func TestValidateFinalAdoptionAllowsTrackedAdopter(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	arcPath := filepath.Join(root, "ARCs", "arc-0044.md")
+	if err := os.WriteFile(arcPath, []byte(`---
+arc: 44
+title: Transition Ready ARC
+description: ARC used to validate Final transitions.
+author:
+  - Example Author (@example)
+discussions-to: https://example.com/discussion
+status: Final
+type: Standards Track
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: true
+implementation-url: https://github.com/example/arc44
+implementation-maintainer:
+  - "@maintainer"
+adoption-summary: adoption/arc-0044.yaml
+last-call-deadline: 2026-04-30
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+
+## Reference Implementation
+
+Text
+
+## Test Cases
+
+Text
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
 title: Transition Ready ARC
-status: Final
 last-reviewed: 2026-03-26
-sponsor: Foundation
-implementation-required: true
 reference-implementation:
   status: testable
   notes: ""
@@ -196,7 +267,8 @@ summary:
 		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
 	}
 
-	for _, diagnostic := range Validate(summary, nil, registry) {
+	document := loadValidatedDocument(t, root, arcPath)
+	for _, diagnostic := range Validate(summary, document, registry) {
 		if diagnostic.RuleID == "R:025" {
 			t.Fatalf("unexpected Final ARC empty adoption diagnostic: %+v", diagnostic)
 		}
@@ -205,13 +277,11 @@ summary:
 
 func TestValidateRejectsLegacyReferenceImplementationIdentityFields(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0044.md"))
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
 title: Transition Ready ARC
-status: Last Call
 last-reviewed: 2026-03-26
-sponsor: Foundation
-implementation-required: true
 reference-implementation:
   repository: https://github.com/example/arc-0044
   maintainers:
@@ -252,7 +322,7 @@ summary:
 		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
 	}
 
-	diagnostics := Validate(summary, nil, registry)
+	diagnostics := Validate(summary, document, registry)
 	found := false
 	for _, diagnostic := range diagnostics {
 		if diagnostic.RuleID == "R:016" && strings.Contains(diagnostic.Message, "reference-implementation.repository is not allowed") {
@@ -272,10 +342,7 @@ func TestLoadRejectsScalarActorEntryWithHelpfulMessage(t *testing.T) {
 	}
 	if err := os.WriteFile(path, []byte(`arc: 62
 title: ASA Circulating Supply
-status: Final
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers:
@@ -308,6 +375,125 @@ summary:
 	if !found {
 		t.Fatalf("expected targeted actor schema diagnostic, got %+v", diagnostics)
 	}
+}
+
+func TestValidateRejectsLegacyARCMetadataFields(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0042.md"))
+	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
+	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
+title: Example ARC
+status: Draft
+last-reviewed: 2026-04-09
+sponsor: Foundation
+implementation-required: false
+adoption:
+  wallets: []
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	summary, loadDiagnostics, err := Load(adoptionPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(loadDiagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
+	}
+
+	registry, registryDiagnostics, err := LoadVettedAdopters(RegistryPath(root))
+	if err != nil {
+		t.Fatalf("LoadVettedAdopters() error = %v", err)
+	}
+	if len(registryDiagnostics) != 0 {
+		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
+	}
+
+	diagnostics := Validate(summary, document, registry)
+	for _, field := range []string{"status is not allowed", "sponsor is not allowed", "implementation-required is not allowed"} {
+		if !containsDiagnosticMessage(diagnostics, field) {
+			t.Fatalf("expected diagnostic containing %q, got %+v", field, diagnostics)
+		}
+	}
+}
+
+func TestValidateRequiresReferenceImplementationFromARCFrontMatter(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0044.md"))
+	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
+	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
+title: Transition Ready ARC
+last-reviewed: 2026-03-26
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: medium
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	summary, loadDiagnostics, err := Load(adoptionPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(loadDiagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
+	}
+
+	registry, registryDiagnostics, err := LoadVettedAdopters(RegistryPath(root))
+	if err != nil {
+		t.Fatalf("LoadVettedAdopters() error = %v", err)
+	}
+	if len(registryDiagnostics) != 0 {
+		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
+	}
+
+	diagnostics := Validate(summary, document, registry)
+	if !containsDiagnosticMessage(diagnostics, "reference-implementation is required when the ARC front matter sets implementation-required to true") {
+		t.Fatalf("expected ARC-derived reference-implementation requirement, got %+v", diagnostics)
+	}
+}
+
+func loadValidatedDocument(t *testing.T, root string, path string) *arc.Document {
+	t.Helper()
+	document, diagnostics, err := arc.Load(path)
+	if err != nil {
+		t.Fatalf("arc.Load() error = %v", err)
+	}
+	diagnostics = append(diagnostics, arc.Validate(document, root)...)
+	for _, diagnostic := range diagnostics {
+		if diagnostic.Severity == diag.SeverityError {
+			t.Fatalf("unexpected ARC validation error: %+v", diagnostic)
+		}
+	}
+	return document
+}
+
+func containsDiagnosticMessage(diagnostics []diag.Diagnostic, fragment string) bool {
+	for _, diagnostic := range diagnostics {
+		if strings.Contains(diagnostic.Message, fragment) {
+			return true
+		}
+	}
+	return false
 }
 
 func copyRepoFixture(t *testing.T, src string) string {

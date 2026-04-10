@@ -128,10 +128,18 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 					registry = nil
 				}
 				var document *arc.Document
-				arcPath := filepath.Join(root, "ARCs", fmt.Sprintf("arc-%04d.md", summary.Arc))
-				if loaded, loadDiagnostics, err := arc.Load(arcPath); err == nil {
-					document = loaded
-					diagnostics = append(diagnostics, loadDiagnostics...)
+				if summary.Arc != 0 {
+					arcPath := filepath.Join(root, "ARCs", fmt.Sprintf("arc-%04d.md", summary.Arc))
+					if loaded, loadDiagnostics, err := arc.Load(arcPath); err == nil {
+						document = loaded
+						diagnostics = append(diagnostics, loadDiagnostics...)
+						diagnostics = append(diagnostics, arc.Validate(document, root)...)
+					} else {
+						diagnostics = append(diagnostics, loadDiagnostics...)
+						if errors.Is(err, os.ErrNotExist) {
+							diagnostics = append(diagnostics, diag.NewWithHint("R:018", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("orphaned adoption summary for ARC %d", summary.Arc), "Remove the orphaned adoption summary or add the matching ARC file."))
+						}
+					}
 				}
 				diagnostics = append(diagnostics, adoption.Validate(summary, document, registry)...)
 				return reportForValidation("validate adoption", cfg.FilterDiagnostics(diagnostics)), nil

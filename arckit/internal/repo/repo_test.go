@@ -337,10 +337,7 @@ Text
 	}
 	if err := os.WriteFile(filepath.Join(root, "adoption", "arc-0042.yaml"), []byte(`arc: 42
 title: Example ARC
-status: Final
 last-reviewed: 2026-04-09
-sponsor: Foundation
-implementation-required: false
 adoption:
   wallets: []
   explorers: []
@@ -412,10 +409,7 @@ Text
 	}
 	if err := os.WriteFile(filepath.Join(root, "adoption", "arc-0042.yaml"), []byte(`arc: 42
 title: Example ARC
-status: Final
 last-reviewed: 2026-04-09
-sponsor: Foundation
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

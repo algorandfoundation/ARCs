@@ -1,9 +1,6 @@
 arc: 45
 title: Idle Transition ARC
-status: Final
 last-reviewed: 2026-03-26
-sponsor: Foundation
-implementation-required: false
 adoption:
   wallets:
     - name: example-wallet

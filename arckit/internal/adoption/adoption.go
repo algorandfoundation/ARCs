@@ -46,10 +46,7 @@ type Summary struct {
 	Path                        string                   `json:"path"`
 	Arc                         int                      `yaml:"arc" json:"arc"`
 	Title                       string                   `yaml:"title" json:"title"`
-	Status                      string                   `yaml:"status" json:"status"`
 	LastReviewed                string                   `yaml:"last-reviewed" json:"last-reviewed"`
-	Sponsor                     string                   `yaml:"sponsor" json:"sponsor"`
-	ImplementationRequired      bool                     `yaml:"implementation-required" json:"implementation-required"`
 	ReferenceImplementation     *ReferenceImplementation `yaml:"reference-implementation" json:"reference-implementation,omitempty"`
 	Adoption                    AdoptionSection          `yaml:"adoption" json:"adoption"`
 	Summary                     SummarySection           `yaml:"summary" json:"summary"`
@@ -109,24 +106,44 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 
 func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters) []diag.Diagnostic {
 	diagnostics := make([]diag.Diagnostic, 0)
-	implementationRequired := summary.ImplementationRequired || (document != nil && document.ImplementationRequired)
 
-	for _, key := range []string{"arc", "title", "status", "last-reviewed", "sponsor", "implementation-required", "adoption", "summary"} {
+	for _, key := range []string{"arc", "title", "last-reviewed", "adoption", "summary"} {
 		if _, ok := summary.keys[key]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("missing required field %q", key), "Add the missing top-level field to the adoption summary."))
 		}
 	}
-	if implementationRequired && summary.ReferenceImplementation == nil {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, "reference-implementation is required when implementation-required is true", "Add the reference-implementation block."))
+
+	allowedTopLevelKeys := map[string]struct{}{
+		"arc":                      {},
+		"title":                    {},
+		"last-reviewed":            {},
+		"reference-implementation": {},
+		"adoption":                 {},
+		"summary":                  {},
 	}
-	if summary.Status != "" && !arc.IsValidStatus(summary.Status) {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported ARC status %q", summary.Status), "Use one of the supported ARC status values."))
+	for key := range summary.keys {
+		if _, ok := allowedTopLevelKeys[key]; ok {
+			continue
+		}
+		switch key {
+		case "status":
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "status is not allowed in adoption summaries", "Derive ARC status from the matching ARC front matter and remove status from this YAML file."))
+		case "sponsor":
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "sponsor is not allowed in adoption summaries", "Derive sponsor from the matching ARC front matter and remove sponsor from this YAML file."))
+		case "implementation-required":
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "implementation-required is not allowed in adoption summaries", "Derive implementation-required from the matching ARC front matter and remove implementation-required from this YAML file."))
+		default:
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported top-level adoption field %q", key), "Keep only the supported top-level adoption summary fields defined in the specification."))
+		}
 	}
 	if summary.LastReviewed != "" && !regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`).MatchString(summary.LastReviewed) {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "last-reviewed must use YYYY-MM-DD", "Use an ISO date in YYYY-MM-DD format."))
 	}
-	if summary.Sponsor != "" && !slices.Contains([]string{"Foundation", "Ecosystem"}, summary.Sponsor) {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported sponsor %q", summary.Sponsor), "Use either \"Foundation\" or \"Ecosystem\"."))
+	if document != nil && document.ImplementationRequired && summary.ReferenceImplementation == nil {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, "reference-implementation is required when the ARC front matter sets implementation-required to true", "Add the reference-implementation block or update the ARC front matter if a canonical implementation is not required."))
+	}
+	if document != nil && !document.ImplementationRequired && summary.ReferenceImplementation != nil {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "reference-implementation is only allowed when the ARC front matter sets implementation-required to true", "Remove the reference-implementation block or update the ARC front matter if the ARC requires a canonical implementation."))
 	}
 	if summary.ReferenceImplementation != nil {
 		for _, key := range []string{"status", "notes"} {
@@ -163,7 +180,7 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 		}
 	}
 
-	if summary.hasEffectiveStatus(document, "Final") && !summary.HasAnyActors() {
+	if document != nil && strings.TrimSpace(document.Status) == "Final" && !summary.HasAnyActors() {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:025", diag.OriginNative, summary.Path, 1, 1, "Final ARC adoption summaries must include at least one adopter entry", "Add at least one vetted adopter to an adoption category before marking the ARC Final."))
 	}
 
@@ -173,12 +190,6 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 
 	if summary.Arc != 0 && document.HasNumber && summary.Arc != document.Number {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("arc %d does not match ARC file number %d", summary.Arc, document.Number), "Keep the ARC and adoption summary numbers aligned."))
-	}
-	if summary.Sponsor != "" && document.Sponsor != "" && summary.Sponsor != document.Sponsor {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, "sponsor does not match the ARC file", "Update the ARC or adoption summary so the sponsor matches."))
-	}
-	if summary.ImplementationRequired != document.ImplementationRequired {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, "implementation-required does not match the ARC file", "Update the ARC or adoption summary so implementation-required matches."))
 	}
 	return diagnostics
 }
@@ -205,13 +216,6 @@ func (summary *Summary) HasAnyActors() bool {
 
 func (summary *Summary) HasActorEvidence() bool {
 	return summary.HasAnyEvidence()
-}
-
-func (summary *Summary) hasEffectiveStatus(document *arc.Document, want string) bool {
-	if strings.TrimSpace(summary.Status) == want {
-		return true
-	}
-	return document != nil && strings.TrimSpace(document.Status) == want
 }
 
 func (summary *Summary) actorGroups() map[string][]Actor {

@@ -56,6 +56,9 @@ func TestInitARCCreatesExpectedFiles(t *testing.T) {
 	if !strings.Contains(adoptionText, "reference-implementation:\n  status: planned\n  notes: \"\"\n") {
 		t.Fatalf("expected scaffolded adoption summary to include reference-implementation status only, got:\n%s", adoptionText)
 	}
+	if strings.Contains(adoptionText, "status: Draft") || strings.Contains(adoptionText, "sponsor:") || strings.Contains(adoptionText, "implementation-required:") {
+		t.Fatalf("expected scaffolded adoption summary to omit ARC-owned metadata fields, got:\n%s", adoptionText)
+	}
 	if strings.Contains(adoptionText, "repository:") || strings.Contains(adoptionText, "maintainers:") || strings.Contains(adoptionText, "owner:") {
 		t.Fatalf("expected scaffolded adoption summary to omit legacy implementation identity fields, got:\n%s", adoptionText)
 	}

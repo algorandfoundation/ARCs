@@ -201,13 +201,47 @@ dapps-protocols: []
 
 func TestCLIValidateAdoptionRejectsFinalARCWithoutTrackedAdoption(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0042.md"), []byte(`---
+arc: 42
+title: Example ARC
+description: Example ARC for testing.
+author:
+  - Example Author (@example)
+discussions-to: https://example.com/discussion
+status: Final
+type: Standards Track
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: false
+adoption-summary: adoption/arc-0042.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
 	path := filepath.Join(root, "adoption", "arc-0042.yaml")
 	if err := os.WriteFile(path, []byte(`arc: 42
 title: Example ARC
-status: Final
 last-reviewed: 2026-04-09
-sponsor: Foundation
-implementation-required: false
 adoption:
   wallets: []
   explorers: []
@@ -236,10 +270,7 @@ func TestCLIValidateAdoptionRejectsLegacyReferenceImplementationIdentityFields(t
 	path := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(path, []byte(`arc: 44
 title: Transition Ready ARC
-status: Last Call
 last-reviewed: 2026-03-26
-sponsor: Foundation
-implementation-required: true
 reference-implementation:
   repository: https://github.com/example/arc-0044
   maintainers:
@@ -278,10 +309,7 @@ func TestCLIValidateAdoptionReportsHelpfulActorSchemaError(t *testing.T) {
 	path := filepath.Join(root, "adoption", "arc-0042.yaml")
 	if err := os.WriteFile(path, []byte(`arc: 42
 title: Example ARC
-status: Final
 last-reviewed: 2026-04-09
-sponsor: Foundation
-implementation-required: false
 adoption:
   wallets: []
   explorers:
@@ -307,6 +335,40 @@ summary:
 	if strings.Contains(stdout.String(), "cannot unmarshal") {
 		t.Fatalf("expected targeted schema error, got stdout=%s", stdout.String())
 	}
+}
+
+func TestCLIValidateAdoptionRejectsLegacyARCMetadataFields(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	path := filepath.Join(root, "adoption", "arc-0042.yaml")
+	if err := os.WriteFile(path, []byte(`arc: 42
+title: Example ARC
+status: Draft
+last-reviewed: 2026-04-09
+sponsor: Foundation
+implementation-required: false
+adoption:
+  wallets: []
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "adoption", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "status is not allowed in adoption summaries")
+	assertContains(t, stdout.String(), "sponsor is not allowed in adoption summaries")
+	assertContains(t, stdout.String(), "implementation-required is not allowed in adoption summaries")
 }
 
 func TestCLIValidateArcRequiresImplementationDeclarationForReviewAndLater(t *testing.T) {
@@ -404,10 +466,7 @@ Text
 	}
 	if err := os.WriteFile(filepath.Join(root, "adoption", "arc-0042.yaml"), []byte(`arc: 42
 title: Example ARC
-status: Final
 last-reviewed: 2026-04-09
-sponsor: Foundation
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

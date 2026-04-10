@@ -133,9 +133,9 @@ var rules = []Rule{
 		ID:          "R:017",
 		Severity:    SeverityError,
 		Title:       "Adoption summary mismatch",
-		Description: "The adoption summary conflicts with the corresponding ARC metadata.",
-		Rationale:   "ARC and adoption files must agree on core identity and implementation metadata.",
-		Hint:        "Update the ARC or adoption summary so the shared fields match.",
+		Description: "The adoption summary conflicts with the corresponding ARC identity or file mapping.",
+		Rationale:   "ARC and adoption files must stay aligned on which ARC number the summary belongs to.",
+		Hint:        "Update the ARC number or file mapping so the summary matches the corresponding ARC.",
 	},
 	{
 		ID:          "R:018",

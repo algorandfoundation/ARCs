@@ -1,11 +1,9 @@
 arc: <arc-number>
 title: <ARC title>
-status: Draft
 last-reviewed: <YYYY-MM-DD>
-sponsor: <Foundation or Ecosystem>
-implementation-required: <true or false>
-# Remove reference-implementation entirely when implementation-required is false.
-# If implementation-required is true, keep only implementation status here.
+# ARC front matter is authoritative for status, sponsor, and implementation-required.
+# Remove reference-implementation entirely when the ARC front matter sets implementation-required to false.
+# If implementation-required is true in ARC front matter, keep only implementation status here.
 # The canonical implementation-url and implementation-maintainer belong in ARC front matter.
 reference-implementation:
   status: planned # planned | in_progress | testable | shipped | archived

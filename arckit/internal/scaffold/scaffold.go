@@ -135,11 +135,8 @@ func renderARC(options InitOptions, author string, description string, now strin
 func renderAdoption(options InitOptions, now string) string {
 	base := fmt.Sprintf(`arc: %d
 title: %s
-status: Draft
 last-reviewed: %s
-sponsor: %s
-implementation-required: %t
-`, options.Number, options.Title, now, options.Sponsor, options.ImplementationRequired)
+`, options.Number, options.Title, now)
 	if options.ImplementationRequired {
 		base += `reference-implementation:
   status: planned
