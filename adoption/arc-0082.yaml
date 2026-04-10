@@ -1,9 +1,6 @@
 arc: 82
 title: URI scheme blockchain information
-status: Deprecated
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

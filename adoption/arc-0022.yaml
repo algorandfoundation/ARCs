@@ -1,9 +1,6 @@
 arc: 22
 title: Add `read-only` annotation to ABI methods
-status: Final
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

@@ -1,9 +1,6 @@
 arc: 73
 title: Algorand Interface Detection Spec
-status: Final
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

@@ -1,9 +1,6 @@
 arc: 25
 title: Algorand WalletConnect v1 API
-status: Final
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

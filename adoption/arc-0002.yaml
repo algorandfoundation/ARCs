@@ -1,9 +1,6 @@
 arc: 2
 title: Algorand Transaction Note Field Conventions
-status: Final
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

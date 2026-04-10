@@ -1,9 +1,6 @@
 arc: 36
 title: Convention for declaring filters of an NFT
-status: Final
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

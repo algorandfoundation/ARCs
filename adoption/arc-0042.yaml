@@ -1,9 +1,6 @@
 arc: 42
 title: xGov Pilot - Integration
-status: Deprecated
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

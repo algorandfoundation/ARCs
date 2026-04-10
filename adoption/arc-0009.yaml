@@ -1,9 +1,6 @@
 arc: 9
 title: Algorand Wallet Algodv2 and Indexer API
-status: Deprecated
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []

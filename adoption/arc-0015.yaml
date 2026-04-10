@@ -1,9 +1,6 @@
 arc: 15
 title: Encrypted Short Messages
-status: Deprecated
 last-reviewed: 2026-04-09
-sponsor: ""
-implementation-required: false
 adoption:
   wallets: []
   explorers: []
