@@ -115,7 +115,7 @@ An editor must still manually:
 - keep the gate checklist and decision log meaningful and current when editorial decisions are made;
 - verify that the canonical links in the issue point to the correct discussion, PR, adoption summary, and implementation repository;
 - confirm that any newly named adopters are present in `adoption/vetted-adopters.yaml`;
-- confirm that the ARC front matter, not the adoption summary, carries the canonical implementation URL and maintainers;
+- confirm that the ARC front matter, not the adoption summary, carries the canonical `status`, `sponsor`, `implementation-required`, implementation URL, and implementation maintainers;
 - confirm that any ARC moving to or remaining in `Final` still has at least one tracked adopter in its adoption summary.
 
 The current CI/CD spec treats tracking issue creation as a manual author action after

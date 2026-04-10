@@ -101,6 +101,10 @@ matter as the authoritative source of `implementation-url` and
 `implementation-maintainer`, and it must reject adoption summaries that duplicate
 those identity fields under `reference-implementation`.
 
+That same gate must also treat ARC front matter as authoritative for `status`,
+`sponsor`, and `implementation-required`, and it must reject adoption summaries
+that redundantly declare those ARC-owned fields.
+
 When present, the repository-root `.arckit.jsonc` is applied implicitly by this
 command. Invalid `.arckit.jsonc` content must fail the gate.
 

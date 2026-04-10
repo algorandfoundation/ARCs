@@ -49,9 +49,10 @@ Used for:
 - confirmation that any newly named adopters were added to `adoption/vetted-adopters.yaml`,
 - confirmation that a `Final` ARC still has at least one tracked adopter in its adoption summary.
 
-The ARC front matter is the canonical place for `implementation-url` and
-`implementation-maintainer`. Adoption summaries track implementation status, not
-implementation identity.
+The ARC front matter is the canonical place for `status`, `sponsor`,
+`implementation-required`, `implementation-url`, and
+`implementation-maintainer`. Adoption summaries track implementation status and
+adoption evidence, not ARC-owned identity metadata.
 
 ### 4. Reference implementation
 

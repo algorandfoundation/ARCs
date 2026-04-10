@@ -207,8 +207,10 @@ It must perform:
 1. schema and required field validation;
 1. enum validation;
 1. vetted adopters registry validation;
-1. internal consistency validation, including rejecting `Final` adoption summaries
-   whose adoption categories are all empty.
+1. matching ARC loading and ARC-front-matter-derived validation for `status`,
+   `sponsor`, and `implementation-required` when the companion ARC exists;
+1. internal consistency validation, including rejecting adoption summaries with
+   all-empty categories when the matching ARC is `Final`.
 
 ### 8.3 `validate links`
 
@@ -403,10 +405,7 @@ An adoption summary must support at least this shape:
 ```yaml
 arc: 42
 title: Example ARC
-status: Review
 last-reviewed: 2026-03-26
-sponsor: Foundation
-implementation-required: true
 reference-implementation:
   status: in_progress
   notes: ""
@@ -426,17 +425,22 @@ Required top-level fields are:
 
 1. `arc`
 1. `title`
-1. `status`
 1. `last-reviewed`
-1. `sponsor`
-1. `implementation-required`
 1. `adoption`
 1. `summary`
 
-`reference-implementation` is required when `implementation-required` is `true`.
+`reference-implementation` is required when the matching ARC front matter sets
+`implementation-required` to `true`.
 
-The ARC front matter is authoritative for `implementation-url` and
-`implementation-maintainer`.
+The ARC front matter is authoritative for:
+
+1. `status`
+1. `sponsor`
+1. `implementation-required`
+1. `implementation-url`
+1. `implementation-maintainer`
+
+Adoption summaries must not repeat those ARC-owned fields.
 
 The adoption summary `reference-implementation` block must contain only:
 
@@ -492,9 +496,12 @@ Allowed `summary.adoption-readiness` values are:
 `arckit` must enforce:
 
 1. the filename ARC number matches `arc`;
-1. `status` is a valid ARC status;
-1. `sponsor` matches the ARC file when both are present;
-1. `implementation-required` matches the ARC file when both are present;
+1. adoption-summary logic that depends on `status`, `sponsor`, or `implementation-required`
+   derives those values from the matching ARC front matter;
+1. `status`, `sponsor`, and `implementation-required` are rejected if they appear
+   as top-level adoption-summary fields;
+1. `reference-implementation` is present only when the matching ARC front matter
+   sets `implementation-required: true`;
 1. `reference-implementation` does not repeat canonical implementation identity
    fields such as repository URL or maintainer list.
 
@@ -620,7 +627,8 @@ adoption stub, and must emit canonical YAML-native list fields for author metada
 
 When `--implementation-required` is set, the generated adoption stub should include
 only `reference-implementation.status` and `reference-implementation.notes`, because
-the canonical implementation URL and maintainer list live in ARC front matter.
+the canonical implementation URL, maintainer list, status, sponsor, and
+implementation-required declaration live in ARC front matter.
 
 The generated ARC may omit `implementation-url` and `implementation-maintainer`
 while the ARC remains in `Draft`.

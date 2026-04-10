@@ -68,7 +68,8 @@ are to be interpreted as described in <a href="https://www.ietf.org/rfc/rfc2119.
 > - conformance or example artifacts,
 > - current implementation status.
 
-> The ARC front matter is the canonical location for `implementation-url` and
+> The ARC front matter is the canonical location for `status`, `sponsor`,
+> `implementation-required`, `implementation-url`, and
 > `implementation-maintainer`. The adoption summary tracks only implementation
 > status and notes.
 
