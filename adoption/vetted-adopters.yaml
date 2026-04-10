@@ -8,6 +8,7 @@ explorers:
 tooling:
   - algokit
   - algokit-utils
+  - folks-finance-library
   - puya
   - subscriber
   - use-wallet
@@ -18,4 +19,5 @@ dapps-protocols:
   - enel-ebitts
   - folks-finance
   - nfd
+  - ntt
   - tinyman
