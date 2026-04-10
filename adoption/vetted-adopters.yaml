@@ -6,6 +6,7 @@ explorers:
   - lora
   - pera
 tooling:
+  - algokit
   - algokit-utils
   - puya
   - subscriber
@@ -14,6 +15,7 @@ infra:
   - nodely
 dapps-protocols:
   - alpha-arcade
+  - enel-ebitts
   - folks-finance
   - nfd
   - tinyman
