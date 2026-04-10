@@ -109,6 +109,9 @@ That same gate must also reject implementation-required ARCs whose
 repository path `https://github.com/algorandfoundation/arcN` or
 `https://github.com/algorandecosystem/arcN`, where `N` is the unpadded ARC number.
 
+That same gate must also reject non-canonical ARC `category` and `sub-category`
+values, and it must reject `sub-category` when `category` is not declared.
+
 That same gate must also treat ARC front matter as authoritative for `status`,
 `sponsor`, and `implementation-required`, and it must reject adoption summaries
 that redundantly declare those ARC-owned fields.

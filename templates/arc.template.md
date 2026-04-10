@@ -8,8 +8,8 @@ author:
 discussions-to: <URL to Pre-ARC discussion>
 status: Draft
 type: <Standards Track or Meta>
-category: <Interface, Data, Cryptography, or Governance>
-sub-category: <General, ASA, App, LSig, Event, Library, Identity, Explorer, or Wallet>
+category: <Interface, Data, Cryptography, Protocol, or Governance>
+sub-category: <General, ASA, Application, LSig, Event, Library, Identity, Explorer, or Wallet; remove field if category is omitted>
 created: <yyyy-mm-dd, date of ARC number assignment (after preliminary discussion)>
 updated:
   - <yyyy-mm-dd, optional, remove field if not needed>

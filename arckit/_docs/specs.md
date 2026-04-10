@@ -193,6 +193,7 @@ It must perform:
 1. filename validation;
 1. front matter parsing, blank-line detection, and header order validation;
 1. required field checks;
+1. canonical ARC category and sub-category enum validation;
 1. conditional field checks;
 1. canonical implementation repository URL validation when `implementation-required: true`;
 1. body section presence checks;
@@ -330,6 +331,9 @@ Field requirements:
 1. `created`, `updated`, `last-call-deadline`, and `idle-since` must use `YYYY-MM-DD`.
 1. `status` must be one of `Draft`, `Review`, `Last Call`, `Final`, `Stagnant`, `Withdrawn`, `Idle`, `Deprecated`, or `Living`.
 1. `type` must be one of `Standards Track` or `Meta`.
+1. `category`, when present, must be one of `Interface`, `Data`, `Cryptography`, `Protocol`, or `Governance`.
+1. `sub-category`, when present, must be one of `General`, `ASA`, `Application`, `LSig`, `Event`, `Library`, `Identity`, `Explorer`, or `Wallet`.
+1. `sub-category` must not be present unless `category` is also present.
 1. `sponsor` must be one of `Foundation` or `Ecosystem`.
 1. `implementation-required` must be `true` or `false`.
 1. when `implementation-required` is `true` and `implementation-url` is present, it must be exactly `https://github.com/algorandfoundation/arcN` for `Foundation`-sponsored ARCs or `https://github.com/algorandecosystem/arcN` for `Ecosystem`-sponsored ARCs, where `N` is the unpadded ARC number.
@@ -638,6 +642,10 @@ When `--implementation-required` is set, the generated adoption stub should incl
 `reference-implementation.status` and may also include optional `reference-implementation.notes`, because
 the canonical implementation URL, maintainer list, status, sponsor, and
 implementation-required declaration live in ARC front matter.
+
+When provided, `--category` and `--sub-category` must use the same canonical enum
+values enforced by `validate arc`, and `--sub-category` must not be used without
+`--category`.
 
 The generated ARC may omit `implementation-url` and `implementation-maintainer`
 while the ARC remains in `Draft`.
