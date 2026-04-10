@@ -134,8 +134,7 @@ Validation commands may expose `--ignore-config` to bypass repo-local suppressio
 entirely and `--enforce-rule <RULE_ID>` to unsuppress a specific rule while
 preserving all other config behavior.
 
-`summary repo` is markdown-only in v1. It must reject `--format json` with exit
-code `2`.
+`summary repo` is markdown-only.
 
 ### 6.3 Exit Codes
 
@@ -264,7 +263,7 @@ It must:
    asset directories, and ARC relationship fields only;
 1. keep working and return exit code `0` even when the validation snapshot contains
    repository errors;
-1. write markdown only and reject `--format json`;
+1. write markdown only;
 1. support `--out <path>` for an alternate markdown destination;
 1. write these top-level sections in order:
    - `# ARC State Summary`
