@@ -34,6 +34,50 @@ func TestValidateIdleTransition(t *testing.T) {
 	}
 }
 
+func TestValidateFinalTransitionRequiresShippedReferenceImplementationStatus(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
+	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
+title: Transition Ready ARC
+last-reviewed: 2026-03-26
+reference-implementation:
+  status: wip
+  notes: ""
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	path := filepath.Join(root, "ARCs", "arc-0044.md")
+	diagnostics, err := Validate(path, "Final")
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+
+	found := false
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:019" && diagnostic.Message == "reference-implementation.status must be shipped" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected shipped reference implementation transition diagnostic, got %+v", diagnostics)
+	}
+}
+
 func TestValidateTransitionRequiresVettedAdoptersRegistry(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
 	if err := os.Remove(filepath.Join(root, "adoption", "vetted-adopters.yaml")); err != nil {

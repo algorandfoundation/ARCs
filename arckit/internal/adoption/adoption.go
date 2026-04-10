@@ -16,6 +16,8 @@ import (
 
 var adoptionPathPattern = regexp.MustCompile(`(^|.*/)adoption/arc-(\d{4})\.yaml$`)
 
+var referenceImplementationStatuses = []string{"planned", "wip", "shipped", "archived"}
+
 type Actor struct {
 	Name     string `yaml:"name" json:"name"`
 	Status   string `yaml:"status" json:"status"`
@@ -155,12 +157,24 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 			}
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("reference-implementation.%s is not allowed in adoption summaries", key), "Declare the canonical implementation URL and maintainers in the ARC front matter, and keep only status with optional notes in the adoption summary."))
 		}
-		if !slices.Contains([]string{"planned", "in_progress", "testable", "shipped", "archived"}, summary.ReferenceImplementation.Status) {
-			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported reference-implementation.status %q", summary.ReferenceImplementation.Status), "Use one of planned, in_progress, testable, shipped, or archived."))
+		if !slices.Contains(referenceImplementationStatuses, summary.ReferenceImplementation.Status) {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported reference-implementation.status %q", summary.ReferenceImplementation.Status), "Use one of planned, wip, shipped, or archived."))
 		}
 	}
 	if summary.Summary.AdoptionReadiness != "" && !slices.Contains([]string{"low", "medium", "high"}, summary.Summary.AdoptionReadiness) {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported summary.adoption-readiness %q", summary.Summary.AdoptionReadiness), "Use one of low, medium, or high."))
+	} else {
+		actorCount := summary.ActorCount()
+		switch summary.Summary.AdoptionReadiness {
+		case "medium":
+			if actorCount < 3 {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q requires at least 3 adopters across all categories, found %d", summary.Summary.AdoptionReadiness, actorCount), "Lower adoption-readiness to low or add more adopter entries across the adoption categories."))
+			}
+		case "high":
+			if actorCount < 5 {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q requires at least 5 adopters across all categories, found %d", summary.Summary.AdoptionReadiness, actorCount), "Lower adoption-readiness or add more adopter entries across the adoption categories."))
+			}
+		}
 	}
 
 	for group, actors := range summary.actorGroups() {
@@ -204,16 +218,30 @@ func (summary *Summary) HasAnyEvidence() bool {
 }
 
 func (summary *Summary) HasAnyActors() bool {
-	for _, actors := range summary.actorGroups() {
-		if len(actors) > 0 {
-			return true
-		}
-	}
-	return false
+	return summary.ActorCount() > 0
 }
 
 func (summary *Summary) HasActorEvidence() bool {
 	return summary.HasAnyEvidence()
+}
+
+func (summary *Summary) ActorCount() int {
+	count := 0
+	for _, actors := range summary.actorGroups() {
+		count += len(actors)
+	}
+	return count
+}
+
+func (summary *Summary) NormalizedAdoptionReadiness() string {
+	switch {
+	case summary.ActorCount() >= 5:
+		return "high"
+	case summary.ActorCount() >= 3:
+		return "medium"
+	default:
+		return "low"
+	}
 }
 
 func (summary *Summary) actorGroups() map[string][]Actor {
@@ -224,6 +252,20 @@ func (summary *Summary) actorGroups() map[string][]Actor {
 		"infra":           summary.Adoption.Infra,
 		"dapps-protocols": summary.Adoption.DappsProtocols,
 	}
+}
+
+func (summary *Summary) KeySet() map[string]struct{} {
+	if summary == nil {
+		return map[string]struct{}{}
+	}
+	return summary.keys
+}
+
+func (summary *Summary) ReferenceImplementationKeySet() map[string]struct{} {
+	if summary == nil {
+		return map[string]struct{}{}
+	}
+	return summary.referenceImplementationKeys
 }
 
 func adoptionSchemaDiagnostics(path string, root *yaml.Node) []diag.Diagnostic {

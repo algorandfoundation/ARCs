@@ -44,7 +44,7 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		if document.ImplementationRequired && summary != nil {
 			require(summary.ReferenceImplementation != nil, "reference-implementation status is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
-				require(slices.Contains([]string{"in_progress", "testable", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be in_progress, testable, or shipped")
+				require(slices.Contains([]string{"wip", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be wip or shipped")
 			}
 		}
 	case "Final":
@@ -60,7 +60,7 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 			require(document.ImplementationURL != "" && document.ImplementationMaintainer != "", "reference implementation metadata is required in the ARC file")
 			require(summary.ReferenceImplementation != nil, "reference-implementation status is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
-				require(slices.Contains([]string{"testable", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be testable or shipped")
+				require(summary.ReferenceImplementation.Status == "shipped", "reference-implementation.status must be shipped")
 			}
 			require(summary.HasActorEvidence(), "transition to Final requires at least one adoption actor entry with evidence")
 		}

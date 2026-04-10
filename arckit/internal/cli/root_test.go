@@ -275,7 +275,7 @@ reference-implementation:
   repository: https://github.com/example/arc-0044
   maintainers:
     - "@maintainer"
-  status: testable
+  status: shipped
   notes: ""
 adoption:
   wallets:
@@ -288,7 +288,7 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: medium
+  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -311,7 +311,7 @@ func TestCLIValidateAdoptionAllowsReferenceImplementationWithoutNotes(t *testing
 title: Transition Ready ARC
 last-reviewed: 2026-03-26
 reference-implementation:
-  status: testable
+  status: shipped
 adoption:
   wallets:
     - name: example-wallet
@@ -319,6 +319,49 @@ adoption:
       evidence: https://example.com/wallet-proof
       notes: ""
   explorers: []
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "adoption", path}, stdout, stderr)
+	assertCommandSucceeded(t, exitCode, stdout, stderr)
+	assertContains(t, stdout.String(), "summary: 0 error(s), 0 warning(s), 0 info")
+}
+
+func TestCLIValidateAdoptionRejectsAdoptionReadinessWithoutEnoughAdopters(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	writeVettedAdopters(t, root, `wallets:
+  - example-wallet
+explorers:
+  - example-explorer
+sdk-libraries: []
+infra: []
+dapps-protocols: []
+`)
+	path := filepath.Join(root, "adoption", "arc-0042.yaml")
+	if err := os.WriteFile(path, []byte(`arc: 42
+title: Example ARC
+last-reviewed: 2026-04-09
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers:
+    - name: example-explorer
+      status: shipped
+      evidence: https://example.com/explorer-proof
+      notes: ""
   sdk-libraries: []
   infra: []
   dapps-protocols: []
@@ -333,8 +376,57 @@ summary:
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 	exitCode := ExecuteArgs([]string{"validate", "adoption", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), `summary.adoption-readiness "medium" requires at least 3 adopters`)
+}
+
+func TestCLIFmtCanNormalizeAdoptionReadiness(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(root, "adoption", "arc-0042.yaml")
+	if err := os.WriteFile(path, []byte(`arc: 42
+title: Example ARC
+last-reviewed: 2026-04-09
+adoption:
+  wallets:
+    - name: wallet-one
+      status: shipped
+      evidence: https://example.com/wallet-one
+      notes: ""
+    - name: wallet-two
+      status: shipped
+      evidence: https://example.com/wallet-two
+      notes: ""
+  explorers:
+    - name: explorer-one
+      status: shipped
+      evidence: https://example.com/explorer-one
+      notes: ""
+  sdk-libraries: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"fmt", path}, stdout, stderr)
 	assertCommandSucceeded(t, exitCode, stdout, stderr)
-	assertContains(t, stdout.String(), "summary: 0 error(s), 0 warning(s), 0 info")
+
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	assertContains(t, string(updated), "adoption-readiness: medium")
 }
 
 func TestCLIValidateAdoptionReportsHelpfulActorSchemaError(t *testing.T) {
