@@ -28,7 +28,7 @@ summary is invalid.
 When the matching ARC front matter sets `implementation-required: true`:
 
 - the ARC front matter is authoritative for `implementation-url` and `implementation-maintainer`;
-- the adoption summary tracks only `reference-implementation.status` and `reference-implementation.notes`.
+- the adoption summary tracks `reference-implementation.status` plus optional `reference-implementation.notes`.
 
 ## Example
 

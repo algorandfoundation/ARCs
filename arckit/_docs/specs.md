@@ -449,7 +449,7 @@ Adoption summaries must not repeat those ARC-owned fields.
 The adoption summary `reference-implementation` block must contain only:
 
 1. `status`
-1. `notes`
+1. optional `notes`
 
 ### 10.4 Adoption Enums and Entry Shape
 
@@ -630,7 +630,7 @@ The generated ARC must include an `adoption-summary` field pointing to the gener
 adoption stub, and must emit canonical YAML-native list fields for author metadata.
 
 When `--implementation-required` is set, the generated adoption stub should include
-only `reference-implementation.status` and `reference-implementation.notes`, because
+`reference-implementation.status` and may also include optional `reference-implementation.notes`, because
 the canonical implementation URL, maintainer list, status, sponsor, and
 implementation-required declaration live in ARC front matter.
 
