@@ -330,6 +330,11 @@ Steps:
 
 This workflow may be separately triaged if external network instability causes failures.
 
+Online validation runs only in the monthly maintenance workflow. That job invokes
+the shared `lychee` hook, writes a workflow summary every run, and opens or updates
+the monthly maintenance issue only when broken or unreachable links are found or
+other maintenance findings exist.
+
 ## 10. Release Strategy
 
 Start simple and subdirectory-aware.

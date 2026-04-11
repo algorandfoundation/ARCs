@@ -63,7 +63,9 @@ repos:
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
-        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
+        exclude: ^(assets/|.*/testdata/|.*\.golden\.md$)
+        types:
+          - markdown
 
   - repo: https://github.com/lycheeverse/lychee.git
     rev: lychee-v0.23.0
@@ -72,20 +74,30 @@ repos:
         stages:
           - pre-push
           - manual
+        pass_filenames: false
+        always_run: true
         args:
           - --no-progress
-          - --scheme
-          - https,http
-        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
+          - --hidden
+          - --extensions
+          - md,yml,yaml
+          - --exclude-path
+          - ^(\./)?(_archive/|\.github/ISSUE_TEMPLATE/|arckit/testdata/|templates/)
+          - .
       - id: lychee
         alias: lychee-json
         name: lychee-json
         stages:
           - manual
+        pass_filenames: false
+        always_run: true
         args:
           - --no-progress
-          - --scheme
-          - https,http
+          - --hidden
+          - --extensions
+          - md,yml,yaml
+          - --exclude-path
+          - ^(\./)?(_archive/|\.github/ISSUE_TEMPLATE/|arckit/testdata/|templates/)
           - --format
           - json
-        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
+          - .

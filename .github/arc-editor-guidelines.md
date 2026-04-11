@@ -24,7 +24,6 @@ implementation, GitHub Actions runs:
 - `repo-validate-offline` for the canonical offline repository gate;
 - `arc-process-check` for GitHub-native process enforcement;
 - `arckit-tool` when `arckit/**` or workflow files change;
-- `online-validation` as an assistive, non-canonical `lychee` check from the same `pre-commit` config.
 
 `arckit` is limited to ARC-specific validation. Generic Markdown, YAML, and
 text-file hygiene is intentionally handled outside the CLI.
@@ -73,9 +72,9 @@ There is a `Monthly ARC maintenance` workflow that can:
 - detect inactivity that may suggest `Stagnant` or `Idle`;
 - create or update one rollup GitHub issue for the current month with author and editor actions.
 
-Important: this workflow is currently `workflow_dispatch` only. It does not run on
-a schedule in the repository's current implementation, even though the CI/CD spec
-describes both scheduled and manual-dispatch operation.
+This workflow runs on a monthly cron schedule and can also be started manually.
+It always writes a workflow summary. It creates or updates the monthly rollup issue
+only when the run finds actionable maintenance or online-link findings.
 
 ### Editor reminders from ARC-Kit
 

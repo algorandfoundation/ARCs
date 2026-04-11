@@ -53,10 +53,6 @@ The repository should expose these stable required PR checks:
 1. `arc-process-check`
 1. `arckit-tool`
 
-The repository should expose this stable non-required PR check:
-
-1. `online-validation`
-
 ### 4.3 Labels
 
 The minimum supported labels are:
@@ -197,23 +193,12 @@ The ARC process remains:
 
 Tracking issue creation is a required author action, not an automatic workflow action.
 
-### 5.6 Online PR Validation
+### 5.6 Online Validation Placement
 
-PR validation should also include:
+Pull requests do not run a separate online validation job.
 
-```text
-pre-commit run lychee --hook-stage manual
-```
-
-This check is assistive only.
-
-It may report:
-
-1. external link failures;
-1. network-specific failures;
-1. `pre-commit` or hook-environment failures that reduce online coverage.
-
-It must not be the canonical blocking merge gate.
+Advisory online link checking runs only in the monthly maintenance workflow through
+the shared `lychee` hook from the repository-root `pre-commit` configuration.
 
 ## 6. Monthly Maintenance Audit
 
@@ -436,7 +421,7 @@ following behaviors:
    enforcement, and `arckit` tool validation.
 1. New numbered ARC PRs fail when the matching tracking issue does not exist or is
    not correctly referenced.
-1. Online validation runs on PRs, but does not become the canonical merge gate.
+1. Online validation runs only in monthly maintenance and does not become the canonical merge gate.
 1. A monthly maintenance review produces a workflow summary every month.
 1. Actionable maintenance findings create or update one monthly rollup issue with
    author and editor call to action.

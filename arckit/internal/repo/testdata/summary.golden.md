@@ -16,6 +16,7 @@
 - ARCs with at least one adopter: `4`
 
 ### Counts by Status
+
 | Status | Count |
 | --- | --- |
 | Draft | 1 |
@@ -24,17 +25,20 @@
 | Idle | 1 |
 
 ### Counts by Type
+
 | Type | Count |
 | --- | --- |
 | Standards Track | 5 |
 | Meta | 1 |
 
 ### Adoption Readiness Distribution
+
 | Adoption Readiness | Count |
 | --- | --- |
 | low | 5 |
 
 ### Reference Implementation Status Counts
+
 | Reference Implementation Status | Count |
 | --- | --- |
 | wip | 1 |
@@ -43,19 +47,23 @@
 ## Transition Watch
 
 ### Overdue Last Call
+
 | ARC | Title | Deadline | Days Overdue | Editor Action |
 | --- | --- | --- | --- | --- |
 | 44 | Last Call ARC | 2026-04-01 | 9 | Decide Final, extend Last Call, or move back to Review |
 
 ### Upcoming Last Call (next 14 days)
+
 None
 
 ### Idle ARCs
+
 | ARC | Title | Idle Since | Days Idle | Editor Action |
 | --- | --- | --- | --- | --- |
 | 47 | Idle ARC With WIP Implementation | 2026-02-01 | 68 | Confirm Idle should remain or restart editorial follow-up |
 
 ### Implementation-Required ARCs Not Shipped
+
 | ARC | Title | Status | Ref Impl Status | Editor Action |
 | --- | --- | --- | --- | --- |
 | 47 | Idle ARC With WIP Implementation | Idle | wip | Check canonical implementation readiness before transition |
@@ -63,17 +71,20 @@ None
 ## Adoption Watch
 
 ### Final ARCs With Zero Adopters
+
 | ARC | Title | Adoption Readiness | Last Reviewed | Editor Action |
 | --- | --- | --- | --- | --- |
 | 45 | Final ARC With Placeholder Adoption | low | 2026-03-01 | Backfill at least one tracked adopter or confirm historical exception |
 
 ### Final ARCs With 1-2 Adopters
+
 | ARC | Title | Adoption Readiness | Last Reviewed | Editor Action |
 | --- | --- | --- | --- | --- |
 | 48 | Final ARC With One Adopter | low | 2026-04-05 | Check whether additional adoption evidence exists |
 | 46 | Final ARC With Two Adopters | low | 2026-04-05 | Check whether additional adoption evidence exists |
 
 ### Stale Adoption Reviews (>30 days)
+
 | ARC | Title | Status | Last Reviewed | Age (days) | Editor Action |
 | --- | --- | --- | --- | --- | --- |
 | 44 | Last Call ARC | Last Call | 2026-03-01 | 40 | Refresh adoption summary and evidence |
@@ -83,6 +94,7 @@ None
 ### Adoption Totals
 
 #### Adopter Entries by Category
+
 | Category | Count |
 | --- | --- |
 | wallets | 2 |
@@ -92,6 +104,7 @@ None
 | dapps-protocols | 0 |
 
 #### Adopter Entries by Actor Status
+
 | Actor Status | Count |
 | --- | --- |
 | planned | 0 |
@@ -101,6 +114,7 @@ None
 | unknown | 0 |
 
 #### Top Adopters by Distinct ARC Coverage
+
 | Adopter | Distinct ARCs |
 | --- | --- |
 | tool-one | 2 |
@@ -108,6 +122,7 @@ None
 | explorer-one | 1 |
 
 #### Top ARCs by Adopter Count
+
 | ARC | Title | Status | Adopters |
 | --- | --- | --- | --- |
 | 46 | Final ARC With Two Adopters | Final | 2 |
@@ -118,17 +133,20 @@ None
 ## Relationship Watch
 
 ### Top ARCs Most Referenced by `requires`
+
 | ARC | Title | Requires References |
 | --- | --- | --- |
 | 44 | Last Call ARC | 2 |
 | 46 | Final ARC With Two Adopters | 1 |
 
 ### Top ARCs Most Referenced by `extends`
+
 | ARC | Title | Extends References |
 | --- | --- | --- |
 | 46 | Final ARC With Two Adopters | 2 |
 
 ### Non-Empty `supersedes` / `superseded-by` Pairs
+
 | ARC | Title | Supersedes | Superseded By |
 | --- | --- | --- | --- |
 | 45 | Final ARC With Placeholder Adoption | None | 46 |
