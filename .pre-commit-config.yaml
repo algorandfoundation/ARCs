@@ -63,7 +63,9 @@ repos:
     hooks:
       - id: markdownlint-cli2
         alias: markdownlint
-        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
+        exclude: ^assets/
+        types:
+          - markdown
 
   - repo: https://github.com/lycheeverse/lychee.git
     rev: lychee-v0.23.0
