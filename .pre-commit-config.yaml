@@ -72,20 +72,30 @@ repos:
         stages:
           - pre-push
           - manual
+        pass_filenames: false
+        always_run: true
         args:
           - --no-progress
-          - --scheme
-          - https,http
-        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
+          - --hidden
+          - --extensions
+          - md,yml,yaml
+          - --exclude-path
+          - ^(\./)?_archive/
+          - .
       - id: lychee
         alias: lychee-json
         name: lychee-json
         stages:
           - manual
+        pass_filenames: false
+        always_run: true
         args:
           - --no-progress
-          - --scheme
-          - https,http
+          - --hidden
+          - --extensions
+          - md,yml,yaml
+          - --exclude-path
+          - ^(\./)?_archive/
           - --format
           - json
-        files: ^(README\.md|ARCs/.*\.md|adoption/.*\.md|arckit/.*\.md|\.github/.*\.md|templates/.*\.md|_devportal/scripts/.*\.md)$
+          - .
