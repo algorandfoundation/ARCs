@@ -738,11 +738,9 @@ The repository guidance for v1 is:
    when `arckit/**` changes;
 1. a PR repository-validation workflow builds `arckit` and runs `arckit validate repo .`
    when ARC, adoption, template, or tooling files change;
-1. a PR `online-validation` workflow runs the shared `lychee` hook on the PR diff,
-   publishes an advisory report of broken or unreachable links, and does not block
-   the merge gate because link reachability is network-dependent;
 1. a scheduled or manually triggered online workflow runs the shared `lychee`
-   hook from `pre-commit` for advisory external link checks;
+   hook from `pre-commit` for advisory external link checks and creates or updates
+   a maintenance issue only when findings exist;
 1. CI pins one exact Go patch release and pins all GitHub Actions to full commit SHAs;
 1. releases are produced from tags of the form `arckit/vX.Y.Z` and publish archives plus
    SHA256 checksums.

@@ -170,11 +170,6 @@ go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
 go run ./cmd/arckit validate links ../ARCs/arc-0000.md
 ```
 
-The PR `online-validation` check uses the same shared `lychee` hook on the PR
-diff, but it is advisory only. It publishes a broken-link report in the workflow
-summary and does not block the PR because external link reachability depends on
-network conditions outside repository control.
-
 If your pull request changes `arckit/**`, also run the tool validation checks:
 
 ```sh
