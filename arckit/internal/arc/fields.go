@@ -137,6 +137,8 @@ func intSequenceField(document *Document, key string) []int {
 				out = append(out, int(value))
 			case float64:
 				out = append(out, int(value))
+			default:
+				return nil
 			}
 		}
 		return out

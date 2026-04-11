@@ -62,7 +62,6 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 			if summary.ReferenceImplementation != nil {
 				require(summary.ReferenceImplementation.Status == adoption.ReferenceImplementationStatusShipped, "reference-implementation.status must be shipped")
 			}
-			require(summary.HasAnyEvidence(), "transition to Final requires at least one adoption actor entry with evidence")
 		}
 	case "Idle":
 		require(document.Status == "Final", "transition to Idle requires current status Final")

@@ -3,6 +3,7 @@ package transition
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
@@ -100,5 +101,49 @@ func TestValidateTransitionRequiresVettedAdoptersRegistry(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("expected missing vetted adopters diagnostic, got %+v", diagnostics)
+	}
+}
+
+func TestValidateFinalTransitionReportsMissingEvidenceOnce(t *testing.T) {
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
+	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
+title: Transition Ready ARC
+last-reviewed: 2026-03-26
+reference-implementation:
+  status: shipped
+  notes: ""
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: ""
+      notes: ""
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	path := filepath.Join(root, "ARCs", "arc-0044.md")
+	diagnostics, err := Validate(path, "Final")
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+
+	count := 0
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:019" && strings.Contains(diagnostic.Message, "evidence") {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("expected one evidence-related transition diagnostic, got %d: %+v", count, diagnostics)
 	}
 }
