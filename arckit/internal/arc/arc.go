@@ -460,7 +460,12 @@ func ValidateLinks(document *Document, repoRoot string) []diag.Diagnostic {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:009", diag.OriginNative, document.Path, link.Line, 1, fmt.Sprintf("link target %q does not exist", destination), "Create the target file or update the link."))
 			continue
 		}
-		relative := filepath.ToSlash(strings.TrimPrefix(resolved, root+string(os.PathSeparator)))
+		relative, err := relativeToRoot(root, resolved)
+		if err != nil {
+			diagnostics = append(diagnostics, diag.NewWithHint("R:009", diag.OriginNative, document.Path, link.Line, 1, fmt.Sprintf("link %q resolves outside the repository root", destination), "Keep repo-local links inside the repository."))
+			continue
+		}
+		relative = filepath.ToSlash(relative)
 		if matched, _ := regexp.MatchString(`(^|/)arc-\d{4}\.md$`, filepath.ToSlash(target)); matched && !strings.HasPrefix(relative, "ARCs/arc-") {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:009", diag.OriginNative, document.Path, link.Line, 1, fmt.Sprintf("ARC link %q must resolve under ARCs/", destination), "Target ARC files under ARCs/arc-####.md."))
 		}
@@ -835,12 +840,27 @@ func stringSequenceField(document *Document, key string, allowDates bool) []stri
 }
 
 func withinRoot(root, path string) bool {
-	root = filepath.Clean(root)
-	path = filepath.Clean(path)
-	if path == root {
-		return true
+	_, err := relativeToRoot(root, path)
+	return err == nil
+}
+
+func relativeToRoot(root, path string) (string, error) {
+	rootAbs, err := filepath.Abs(root)
+	if err != nil {
+		return "", err
 	}
-	return strings.HasPrefix(path, root+string(os.PathSeparator))
+	pathAbs, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	relative, err := filepath.Rel(rootAbs, pathAbs)
+	if err != nil {
+		return "", err
+	}
+	if relative == ".." || strings.HasPrefix(relative, ".."+string(os.PathSeparator)) {
+		return "", fmt.Errorf("path resolves outside root")
+	}
+	return relative, nil
 }
 
 func dirExists(path string) bool {
