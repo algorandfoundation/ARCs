@@ -8,6 +8,7 @@ import (
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/arc"
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
+	"github.com/algorandfoundation/ARCs/arckit/internal/testutil"
 )
 
 func TestValidateMatchingAdoptionSummary(t *testing.T) {
@@ -42,7 +43,7 @@ func TestValidateMatchingAdoptionSummary(t *testing.T) {
 }
 
 func TestValidateAdoptionRejectsActorOutsideMatchingRegistryCategory(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
 	registryPath := RegistryPath(root)
 	if err := os.WriteFile(registryPath, []byte(`wallets: []
 explorers:
@@ -88,7 +89,7 @@ dapps-protocols: []
 }
 
 func TestValidateFinalAdoptionRequiresAtLeastOneAdopter(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	arcPath := filepath.Join(root, "ARCs", "arc-0042.md")
 	if err := os.WriteFile(arcPath, []byte(`---
 arc: 42
@@ -175,7 +176,7 @@ summary:
 }
 
 func TestValidateAdoptionReadinessRequiresMinimumAdopterCounts(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0042.md"))
 	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
@@ -235,7 +236,7 @@ dapps-protocols: []
 }
 
 func TestValidateHighAdoptionReadinessAllowsFiveAdoptersAcrossCategories(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0042.md"))
 	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
@@ -311,7 +312,7 @@ dapps-protocols: []
 }
 
 func TestValidateFinalAdoptionAllowsTrackedAdopter(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
 	arcPath := filepath.Join(root, "ARCs", "arc-0044.md")
 	if err := os.WriteFile(arcPath, []byte(`---
 arc: 44
@@ -412,7 +413,7 @@ summary:
 }
 
 func TestValidateRejectsLegacyReferenceImplementationIdentityFields(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
 	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0044.md"))
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
@@ -471,7 +472,7 @@ summary:
 }
 
 func TestValidateAllowsReferenceImplementationWithoutNotes(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
 	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0044.md"))
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
@@ -567,7 +568,7 @@ summary:
 }
 
 func TestValidateRejectsLegacyARCMetadataFields(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0042.md"))
 	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
@@ -615,7 +616,7 @@ summary:
 }
 
 func TestValidateRequiresReferenceImplementationFromARCFrontMatter(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
 	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0044.md"))
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
@@ -683,30 +684,4 @@ func containsDiagnosticMessage(diagnostics []diag.Diagnostic, fragment string) b
 		}
 	}
 	return false
-}
-
-func copyRepoFixture(t *testing.T, src string) string {
-	t.Helper()
-	dst := t.TempDir()
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		relative, err := filepath.Rel(src, path)
-		if err != nil {
-			return err
-		}
-		target := filepath.Join(dst, relative)
-		if info.IsDir() {
-			return os.MkdirAll(target, info.Mode())
-		}
-		content, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(target, content, info.Mode())
-	}); err != nil {
-		t.Fatalf("copyRepoFixture() error = %v", err)
-	}
-	return dst
 }

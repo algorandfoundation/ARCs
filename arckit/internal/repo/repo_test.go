@@ -3,10 +3,10 @@ package repo
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/config"
+	"github.com/algorandfoundation/ARCs/arckit/internal/testutil"
 )
 
 func TestValidateRepoMissingRequiredAdoption(t *testing.T) {
@@ -27,8 +27,8 @@ func TestValidateRepoMissingRequiredAdoption(t *testing.T) {
 }
 
 func TestValidateRepoIgnoresConfiguredARCFootprint(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "missing-adoption"))
-	writeConfig(t, root, `{
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "missing-adoption"))
+	testutil.WriteTrimmedFile(t, filepath.Join(root, config.FileName), `{
   "ignoreArcs": [43]
 }`)
 	if err := os.MkdirAll(filepath.Join(root, "assets", "arc-0043"), 0o755); err != nil {
@@ -60,8 +60,8 @@ func TestValidateRepoIgnoresConfiguredARCFootprint(t *testing.T) {
 }
 
 func TestValidateRepoIgnoresRuleOnConfiguredRange(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "missing-adoption"))
-	writeConfig(t, root, `{
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "missing-adoption"))
+	testutil.WriteTrimmedFile(t, filepath.Join(root, config.FileName), `{
   "ignoreByArc": {
     "40-45": ["R:012", "R:013"]
   }
@@ -90,7 +90,7 @@ func TestValidateRepoDoesNotDeriveRelationshipsFromLegacyScalarLists(t *testing.
 	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
 		t.Fatalf("MkdirAll() error = %v", err)
 	}
-	writeVettedAdopters(t, root, `wallets: []
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "vetted-adopters.yaml"), `wallets: []
 explorers: []
 tooling: []
 infra: []
@@ -192,7 +192,7 @@ func TestValidateRepoIncludesARCZeroInState(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
 		t.Fatalf("MkdirAll() error = %v", err)
 	}
-	writeVettedAdopters(t, root, `wallets: []
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "vetted-adopters.yaml"), `wallets: []
 explorers: []
 tooling: []
 infra: []
@@ -250,7 +250,7 @@ Text
 }
 
 func TestValidateRepoRequiresVettedAdoptersRegistry(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	if err := os.Remove(filepath.Join(root, "adoption", "vetted-adopters.yaml")); err != nil {
 		t.Fatalf("Remove() error = %v", err)
 	}
@@ -272,8 +272,8 @@ func TestValidateRepoRequiresVettedAdoptersRegistry(t *testing.T) {
 }
 
 func TestValidateRepoRejectsUnvettedAdopter(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
-	writeVettedAdopters(t, root, `wallets: []
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "transition-final"))
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "vetted-adopters.yaml"), `wallets: []
 explorers: []
 tooling: []
 infra: []
@@ -297,7 +297,7 @@ dapps-protocols: []
 }
 
 func TestValidateRepoRejectsFinalARCWithoutTrackedAdoption(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0042.md"), []byte(`---
 arc: 42
 title: Example ARC
@@ -369,7 +369,7 @@ summary:
 }
 
 func TestValidateRepoCanSuppressFinalARCWithoutTrackedAdoptionByARC(t *testing.T) {
-	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0042.md"), []byte(`---
 arc: 42
 title: Example ARC
@@ -423,7 +423,7 @@ summary:
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
-	writeConfig(t, root, `{
+	testutil.WriteTrimmedFile(t, filepath.Join(root, config.FileName), `{
   "ignoreByArc": {
     "42": ["R:025"]
   }
@@ -441,50 +441,5 @@ summary:
 		if diagnostic.RuleID == "R:025" {
 			t.Fatalf("expected R:025 to be suppressed by ARC config, got %+v", diagnostics)
 		}
-	}
-}
-
-func copyRepoFixture(t *testing.T, src string) string {
-	t.Helper()
-	dst := t.TempDir()
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		relative, err := filepath.Rel(src, path)
-		if err != nil {
-			return err
-		}
-		target := filepath.Join(dst, relative)
-		if info.IsDir() {
-			return os.MkdirAll(target, info.Mode())
-		}
-		content, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(target, content, info.Mode())
-	}); err != nil {
-		t.Fatalf("copyRepoFixture() error = %v", err)
-	}
-	return dst
-}
-
-func writeVettedAdopters(t *testing.T, root string, content string) {
-	t.Helper()
-	path := filepath.Join(root, "adoption", "vetted-adopters.yaml")
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		t.Fatalf("MkdirAll() error = %v", err)
-	}
-	if err := os.WriteFile(path, []byte(strings.TrimSpace(content)+"\n"), 0o644); err != nil {
-		t.Fatalf("WriteFile(%s) error = %v", path, err)
-	}
-}
-
-func writeConfig(t *testing.T, root string, content string) {
-	t.Helper()
-	path := filepath.Join(root, config.FileName)
-	if err := os.WriteFile(path, []byte(strings.TrimSpace(content)+"\n"), 0o644); err != nil {
-		t.Fatalf("WriteFile(%s) error = %v", path, err)
 	}
 }

@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/adoption"
 	"github.com/algorandfoundation/ARCs/arckit/internal/arc"
@@ -231,48 +230,6 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 	return builder.String(), nil
 }
 
-func normalizeFrontMatterValue(key string, value any) any {
-	if !isScalarDateField(key) {
-		return value
-	}
-	switch typed := value.(type) {
-	case time.Time:
-		return typed.Format("2006-01-02")
-	case string:
-		if parsed, err := time.Parse(time.RFC3339, typed); err == nil {
-			return parsed.Format("2006-01-02")
-		}
-	}
-	return value
-}
-
-func isScalarDateField(key string) bool {
-	switch key {
-	case "created", "last-call-deadline", "idle-since":
-		return true
-	default:
-		return false
-	}
-}
-
-func isStringSequenceField(key string) bool {
-	switch key {
-	case "author", "updated", "implementation-maintainer":
-		return true
-	default:
-		return false
-	}
-}
-
-func isIntSequenceField(key string) bool {
-	switch key {
-	case "requires", "supersedes", "extends", "extended-by":
-		return true
-	default:
-		return false
-	}
-}
-
 type frontMatterEntry struct {
 	key           string
 	lines         []string
@@ -420,10 +377,10 @@ func normalizedEntryLines(document *arc.Document, entry frontMatterEntry) []stri
 }
 
 func normalizeStringSequenceChunk(document *arc.Document, entry frontMatterEntry) []string {
-	if !isStringSequenceField(entry.key) {
+	if !arc.IsStringSequenceField(entry.key) {
 		return nil
 	}
-	values := stringListField(document, entry.key)
+	values := document.StringSequenceField(entry.key, entry.key == "updated")
 	if len(values) == 0 {
 		return nil
 	}
@@ -435,10 +392,10 @@ func normalizeStringSequenceChunk(document *arc.Document, entry frontMatterEntry
 }
 
 func normalizeIntSequenceChunk(document *arc.Document, entry frontMatterEntry) []string {
-	if !isIntSequenceField(entry.key) {
+	if !arc.IsIntSequenceField(entry.key) {
 		return nil
 	}
-	values := intListField(document, entry.key)
+	values := document.IntSequenceField(entry.key)
 	if len(values) == 0 {
 		return nil
 	}
@@ -450,14 +407,14 @@ func normalizeIntSequenceChunk(document *arc.Document, entry frontMatterEntry) [
 }
 
 func normalizeDateChunk(document *arc.Document, entry frontMatterEntry) []string {
-	if !isScalarDateField(entry.key) {
+	if !arc.IsScalarDateField(entry.key) {
 		return entry.lines
 	}
 	value, ok := document.Fields[entry.key]
 	if !ok {
 		return entry.lines
 	}
-	normalized, ok := normalizeFrontMatterValue(entry.key, value).(string)
+	normalized, ok := arc.NormalizeScalarDateValue(value)
 	if !ok || len(entry.lines) != 1 {
 		return entry.lines
 	}
@@ -466,60 +423,6 @@ func normalizeDateChunk(document *arc.Document, entry frontMatterEntry) []string
 		return entry.lines
 	}
 	return []string{entry.key + ": " + normalized}
-}
-
-func stringListField(document *arc.Document, key string) []string {
-	value, ok := document.Fields[key]
-	if !ok {
-		return nil
-	}
-	switch typed := value.(type) {
-	case []any:
-		out := make([]string, 0, len(typed))
-		for _, item := range typed {
-			switch value := item.(type) {
-			case string:
-				trimmed := strings.TrimSpace(value)
-				if trimmed == "" {
-					return nil
-				}
-				out = append(out, trimmed)
-			case time.Time:
-				out = append(out, value.Format("2006-01-02"))
-			default:
-				return nil
-			}
-		}
-		return out
-	default:
-		return nil
-	}
-}
-
-func intListField(document *arc.Document, key string) []int {
-	value, ok := document.Fields[key]
-	if !ok {
-		return nil
-	}
-	switch typed := value.(type) {
-	case []any:
-		out := make([]int, 0, len(typed))
-		for _, item := range typed {
-			switch value := item.(type) {
-			case int:
-				out = append(out, value)
-			case int64:
-				out = append(out, int(value))
-			case float64:
-				out = append(out, int(value))
-			default:
-				return nil
-			}
-		}
-		return out
-	default:
-		return nil
-	}
 }
 
 func filteredFrontMatterLines(lines []string) []string {

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -15,8 +14,7 @@ import (
 )
 
 var adoptionPathPattern = regexp.MustCompile(`(^|.*/)adoption/arc-(\d{4})\.yaml$`)
-
-var referenceImplementationStatuses = []string{"planned", "wip", "shipped", "archived"}
+var reviewDatePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 type Actor struct {
 	Name     string `yaml:"name" json:"name"`
@@ -142,7 +140,7 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported top-level adoption field %q", key), "Keep only the supported top-level adoption summary fields defined in the specification."))
 		}
 	}
-	if summary.LastReviewed != "" && !regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`).MatchString(summary.LastReviewed) {
+	if summary.LastReviewed != "" && !reviewDatePattern.MatchString(summary.LastReviewed) {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "last-reviewed must use YYYY-MM-DD", "Use an ISO date in YYYY-MM-DD format."))
 	}
 	if document != nil && document.ImplementationRequired && summary.ReferenceImplementation == nil {
@@ -161,49 +159,47 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 			}
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("reference-implementation.%s is not allowed in adoption summaries", key), "Declare the canonical implementation URL and maintainers in the ARC front matter, and keep only status with optional notes in the adoption summary."))
 		}
-		if !slices.Contains(referenceImplementationStatuses, summary.ReferenceImplementation.Status) {
+		if !IsKnownReferenceImplementationStatus(summary.ReferenceImplementation.Status) {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported reference-implementation.status %q", summary.ReferenceImplementation.Status), "Use one of planned, wip, shipped, or archived."))
 		}
 	}
-	if summary.Summary.AdoptionReadiness != "" && !slices.Contains([]string{"low", "medium", "high"}, summary.Summary.AdoptionReadiness) {
+	if summary.Summary.AdoptionReadiness != "" && !IsKnownReadiness(summary.Summary.AdoptionReadiness) {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported summary.adoption-readiness %q", summary.Summary.AdoptionReadiness), "Use one of low, medium, or high."))
 	} else {
 		actorCount := summary.ActorCount()
 		switch summary.Summary.AdoptionReadiness {
-		case "medium":
+		case ReadinessMedium:
 			if actorCount < 3 {
 				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q requires at least 3 adopters across all categories, found %d", summary.Summary.AdoptionReadiness, actorCount), "Lower adoption-readiness to low or add more adopter entries across the adoption categories."))
 			}
-		case "high":
+		case ReadinessHigh:
 			if actorCount < 5 {
 				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q requires at least 5 adopters across all categories, found %d", summary.Summary.AdoptionReadiness, actorCount), "Lower adoption-readiness or add more adopter entries across the adoption categories."))
 			}
 		}
 	}
-	for _, key := range []string{"wallets", "explorers", "tooling", "infra", "dapps-protocols"} {
+	for _, key := range CategoryNames() {
 		if _, ok := summary.adoptionKeys[key]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("adoption.%s is required", key), "Define all canonical adoption categories, even when they are empty lists."))
 		}
 	}
 	for key := range summary.adoptionKeys {
-		switch key {
-		case "wallets", "explorers", "tooling", "infra", "dapps-protocols":
-		default:
+		if !IsKnownCategory(key) {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported adoption category %q", key), "Use only wallets, explorers, tooling, infra, and dapps-protocols under adoption."))
 		}
 	}
 
-	for group, actors := range summary.actorGroups() {
-		for index, actor := range actors {
+	for _, group := range summary.ActorCategories() {
+		for index, actor := range group.Actors {
 			if strings.TrimSpace(actor.Name) == "" {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d] is missing name", group, index), "Set a non-empty actor name."))
+				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d] is missing name", group.Name, index), "Set a non-empty actor name."))
 			} else if !isVettedAdopterName(actor.Name) {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:023", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d].name must be lower-kebab-case, got %q", group, index, actor.Name), "Use a lower-kebab adopter name from adoption/vetted-adopters.yaml."))
-			} else if registry != nil && !registry.Contains(group, actor.Name) {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:023", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d].name %q is not present in vetted adopters category %q", group, index, actor.Name, group), "Add the adopter to adoption/vetted-adopters.yaml or use an existing vetted adopter name."))
+				diagnostics = append(diagnostics, diag.NewWithHint("R:023", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d].name must be lower-kebab-case, got %q", group.Name, index, actor.Name), "Use a lower-kebab adopter name from adoption/vetted-adopters.yaml."))
+			} else if registry != nil && !registry.Contains(group.Name, actor.Name) {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:023", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d].name %q is not present in vetted adopters category %q", group.Name, index, actor.Name, group.Name), "Add the adopter to adoption/vetted-adopters.yaml or use an existing vetted adopter name."))
 			}
-			if !slices.Contains([]string{"planned", "in_progress", "shipped", "declined", "unknown"}, actor.Status) {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d] has unsupported status %q", group, index, actor.Status), "Use one of planned, in_progress, shipped, declined, or unknown."))
+			if !IsKnownActorStatus(actor.Status) {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d] has unsupported status %q", group.Name, index, actor.Status), "Use one of planned, in_progress, shipped, declined, or unknown."))
 			}
 		}
 	}
@@ -223,8 +219,8 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 }
 
 func (summary *Summary) HasAnyEvidence() bool {
-	for _, actors := range summary.actorGroups() {
-		for _, actor := range actors {
+	for _, group := range summary.ActorCategories() {
+		for _, actor := range group.Actors {
 			if strings.TrimSpace(actor.Evidence) != "" {
 				return true
 			}
@@ -237,14 +233,10 @@ func (summary *Summary) HasAnyActors() bool {
 	return summary.ActorCount() > 0
 }
 
-func (summary *Summary) HasActorEvidence() bool {
-	return summary.HasAnyEvidence()
-}
-
 func (summary *Summary) ActorCount() int {
 	count := 0
-	for _, actors := range summary.actorGroups() {
-		count += len(actors)
+	for _, group := range summary.ActorCategories() {
+		count += len(group.Actors)
 	}
 	return count
 }
@@ -252,21 +244,11 @@ func (summary *Summary) ActorCount() int {
 func (summary *Summary) NormalizedAdoptionReadiness() string {
 	switch {
 	case summary.ActorCount() >= 5:
-		return "high"
+		return ReadinessHigh
 	case summary.ActorCount() >= 3:
-		return "medium"
+		return ReadinessMedium
 	default:
-		return "low"
-	}
-}
-
-func (summary *Summary) actorGroups() map[string][]Actor {
-	return map[string][]Actor{
-		"wallets":         summary.Adoption.Wallets,
-		"explorers":       summary.Adoption.Explorers,
-		"tooling":         summary.Adoption.Tooling,
-		"infra":           summary.Adoption.Infra,
-		"dapps-protocols": summary.Adoption.DappsProtocols,
+		return ReadinessLow
 	}
 }
 
@@ -314,7 +296,7 @@ func adoptionSchemaDiagnostics(path string, root *yaml.Node) []diag.Diagnostic {
 	}
 
 	diagnostics := make([]diag.Diagnostic, 0)
-	for _, category := range []string{"wallets", "explorers", "tooling", "infra", "dapps-protocols"} {
+	for _, category := range CategoryNames() {
 		categoryNode := mappingValue(adoptionNode, category)
 		if categoryNode == nil {
 			continue
