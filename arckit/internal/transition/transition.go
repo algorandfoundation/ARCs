@@ -44,7 +44,7 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		if document.ImplementationRequired && summary != nil {
 			require(summary.ReferenceImplementation != nil, "reference-implementation status is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
-				require(slices.Contains([]string{"wip", "shipped"}, summary.ReferenceImplementation.Status), "reference-implementation.status must be wip or shipped")
+				require(slices.Contains([]string{adoption.ReferenceImplementationStatusWIP, adoption.ReferenceImplementationStatusShipped}, summary.ReferenceImplementation.Status), "reference-implementation.status must be wip or shipped")
 			}
 		}
 	case "Final":
@@ -60,9 +60,8 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 			require(document.ImplementationURL != "" && document.ImplementationMaintainer != "", "reference implementation metadata is required in the ARC file")
 			require(summary.ReferenceImplementation != nil, "reference-implementation status is required in the adoption summary")
 			if summary.ReferenceImplementation != nil {
-				require(summary.ReferenceImplementation.Status == "shipped", "reference-implementation.status must be shipped")
+				require(summary.ReferenceImplementation.Status == adoption.ReferenceImplementationStatusShipped, "reference-implementation.status must be shipped")
 			}
-			require(summary.HasActorEvidence(), "transition to Final requires at least one adoption actor entry with evidence")
 		}
 	case "Idle":
 		require(document.Status == "Final", "transition to Idle requires current status Final")
@@ -93,21 +92,16 @@ func loadSummary(document *arc.Document, diagnostics *[]diag.Diagnostic) *adopti
 	}
 	root := arc.FindRepoRoot(filepath.Dir(document.Path))
 	path := filepath.Join(root, filepath.FromSlash(document.AdoptionSummary))
-	registry, registryDiagnostics, registryErr := adoption.LoadVettedAdopters(adoption.RegistryPath(root))
+	registry, registryDiagnostics, registryErr := adoption.LoadValidatedRegistry(root)
 	*diagnostics = append(*diagnostics, registryDiagnostics...)
-	if registryErr == nil && len(registryDiagnostics) == 0 {
-		registryDiagnostics = adoption.ValidateVettedAdopters(registry)
-		*diagnostics = append(*diagnostics, registryDiagnostics...)
-	}
 	if registryErr != nil || len(registryDiagnostics) != 0 {
 		registry = nil
 	}
-	summary, loadDiagnostics, err := adoption.Load(path)
+	summary, loadDiagnostics, err := adoption.LoadValidatedSummary(path, document, registry)
 	*diagnostics = append(*diagnostics, loadDiagnostics...)
 	if err != nil {
 		return nil
 	}
-	*diagnostics = append(*diagnostics, adoption.Validate(summary, document, registry)...)
 	return summary
 }
 

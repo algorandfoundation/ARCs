@@ -61,12 +61,8 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 		}
 	}
 
-	registry, registryDiagnostics, registryErr := adoption.LoadVettedAdopters(adoption.RegistryPath(state.Root))
+	registry, registryDiagnostics, registryErr := adoption.LoadValidatedRegistry(state.Root)
 	diagnostics = append(diagnostics, registryDiagnostics...)
-	if registryErr == nil && len(registryDiagnostics) == 0 {
-		registryDiagnostics = adoption.ValidateVettedAdopters(registry)
-		diagnostics = append(diagnostics, registryDiagnostics...)
-	}
 	if registryErr != nil || len(registryDiagnostics) != 0 {
 		registry = nil
 	}

@@ -1,12 +1,12 @@
 package config
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
+	"github.com/algorandfoundation/ARCs/arckit/internal/testutil"
 )
 
 func TestLoadMissingConfig(t *testing.T) {
@@ -22,7 +22,7 @@ func TestLoadMissingConfig(t *testing.T) {
 
 func TestLoadValidJSONCConfig(t *testing.T) {
 	root := t.TempDir()
-	writeConfig(t, root, `{
+	testutil.WriteFile(t, filepath.Join(root, FileName), `{
   // Ignore one ARC completely.
   "ignoreArcs": [0, 42],
   "ignoreRules": ["R:020"],
@@ -89,7 +89,7 @@ func TestLoadInvalidConfig(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			root := t.TempDir()
-			writeConfig(t, root, test.content)
+			testutil.WriteFile(t, filepath.Join(root, FileName), test.content)
 			_, err := Load(root)
 			if err == nil || !strings.Contains(err.Error(), test.wantErr) {
 				t.Fatalf("Load() error = %v, want substring %q", err, test.wantErr)
@@ -186,13 +186,5 @@ func TestWithRuleEnforced(t *testing.T) {
 	}
 	if !cfg.IgnoreRule("R:021") || !cfg.IgnoreRuleForARC("R:021", 0) {
 		t.Fatalf("WithRuleEnforced() should not mutate the original config")
-	}
-}
-
-func writeConfig(t *testing.T, root string, content string) {
-	t.Helper()
-	path := filepath.Join(root, FileName)
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("WriteFile(%s) error = %v", path, err)
 	}
 }

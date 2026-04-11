@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/algorandfoundation/ARCs/arckit/internal/testutil"
 )
 
 func TestCLICommands(t *testing.T) {
@@ -922,49 +924,16 @@ func (failingWriter) Write([]byte) (int, error) {
 	return 0, errors.New("write failed")
 }
 
-func copyRepoFixture(t *testing.T, src string) string {
-	t.Helper()
-	dst := t.TempDir()
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		relative, err := filepath.Rel(src, path)
-		if err != nil {
-			return err
-		}
-		target := filepath.Join(dst, relative)
-		if info.IsDir() {
-			return os.MkdirAll(target, info.Mode())
-		}
-		content, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(target, content, info.Mode())
-	}); err != nil {
-		t.Fatalf("copyRepoFixture() error = %v", err)
-	}
-	return dst
-}
+var copyRepoFixture = testutil.CopyDir
 
 func writeConfig(t *testing.T, root string, content string) {
 	t.Helper()
-	path := filepath.Join(root, ".arckit.jsonc")
-	if err := os.WriteFile(path, []byte(strings.TrimSpace(content)+"\n"), 0o644); err != nil {
-		t.Fatalf("WriteFile(%s) error = %v", path, err)
-	}
+	testutil.WriteTrimmedFile(t, filepath.Join(root, ".arckit.jsonc"), content)
 }
 
 func writeVettedAdopters(t *testing.T, root string, content string) {
 	t.Helper()
-	path := filepath.Join(root, "adoption", "vetted-adopters.yaml")
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		t.Fatalf("MkdirAll() error = %v", err)
-	}
-	if err := os.WriteFile(path, []byte(strings.TrimSpace(content)+"\n"), 0o644); err != nil {
-		t.Fatalf("WriteFile(%s) error = %v", path, err)
-	}
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "vetted-adopters.yaml"), content)
 }
 
 func assertCommandSucceeded(t *testing.T, exitCode int, stdout *bytes.Buffer, stderr *bytes.Buffer) {
