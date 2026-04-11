@@ -74,30 +74,22 @@ repos:
         stages:
           - pre-push
           - manual
-        pass_filenames: false
-        always_run: true
+        files: ^(?!_archive/).+\.(md|ya?ml)$
         args:
           - --no-progress
           - --hidden
           - --extensions
           - md,yml,yaml
-          - --exclude-path
-          - ^(\./)?_archive/
-          - .
       - id: lychee
         alias: lychee-json
         name: lychee-json
         stages:
           - manual
-        pass_filenames: false
-        always_run: true
+        files: ^(?!_archive/).+\.(md|ya?ml)$
         args:
           - --no-progress
           - --hidden
           - --extensions
           - md,yml,yaml
-          - --exclude-path
-          - ^(\./)?_archive/
           - --format
           - json
-          - .

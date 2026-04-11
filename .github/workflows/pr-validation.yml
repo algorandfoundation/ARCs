@@ -149,5 +149,52 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install "pre-commit==${PRE_COMMIT_VERSION}"
       - name: Validate repository online
+        id: online
+        continue-on-error: true
         run: |
-          pre-commit run lychee --hook-stage manual --from-ref "${{ github.event.pull_request.base.sha }}" --to-ref "${{ github.event.pull_request.head.sha }}"
+          set +e
+          node .github/scripts/lychee_report.mjs --from-ref "${{ github.event.pull_request.base.sha }}" --to-ref "${{ github.event.pull_request.head.sha }}" --report "${RUNNER_TEMP}/online.json"
+          echo "exit_code=$?" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Summarize online validation
+        if: always()
+        env:
+          ONLINE_REPORT_PATH: ${{ runner.temp }}/online.json
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          report_path = Path(os.environ["ONLINE_REPORT_PATH"])
+          summary_path = Path(os.environ["GITHUB_STEP_SUMMARY"])
+
+          if not report_path.exists():
+              with summary_path.open("a", encoding="utf-8") as fh:
+                  fh.write("## Online validation\n\n")
+                  fh.write("No online validation report was produced.\n")
+              raise SystemExit(0)
+
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          diagnostics = report.get("diagnostics", [])
+          summary = report.get("summary", {})
+          warnings = summary.get("warnings", 0)
+          errors = summary.get("errors", 0)
+          info = summary.get("info", 0)
+
+          with summary_path.open("a", encoding="utf-8") as fh:
+              fh.write("## Online validation\n\n")
+              fh.write("This check is advisory and does not block the PR because external link availability is network-dependent.\n\n")
+              fh.write(f"- Exit code: `{report.get('exit_code', 0)}`\n")
+              fh.write(f"- Diagnostics: `{errors}` error(s), `{warnings}` warning(s), `{info}` info\n")
+              if diagnostics:
+                  fh.write("\n### Sample findings\n\n")
+                  for diagnostic in diagnostics[:10]:
+                      message = diagnostic.get("message", "lychee reported a link issue")
+                      fh.write(f"- {message}\n")
+                  remaining = len(diagnostics) - min(len(diagnostics), 10)
+                  if remaining > 0:
+                      fh.write(f"- ... and {remaining} more\n")
+              else:
+                  fh.write("\nNo broken-link diagnostics were reported.\n")
+          PY

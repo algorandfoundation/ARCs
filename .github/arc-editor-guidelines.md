@@ -24,7 +24,7 @@ implementation, GitHub Actions runs:
 - `repo-validate-offline` for the canonical offline repository gate;
 - `arc-process-check` for GitHub-native process enforcement;
 - `arckit-tool` when `arckit/**` or workflow files change;
-- `online-validation` as an assistive, non-canonical `lychee` check from the same `pre-commit` config.
+- `online-validation` as an assistive, non-canonical `lychee` check from the same `pre-commit` config. It reports broken or unreachable links in the workflow summary, but it does not block the PR.
 
 `arckit` is limited to ARC-specific validation. Generic Markdown, YAML, and
 text-file hygiene is intentionally handled outside the CLI.

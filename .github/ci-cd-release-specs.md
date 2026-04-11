@@ -202,10 +202,13 @@ Tracking issue creation is a required author action, not an automatic workflow a
 PR validation should also include:
 
 ```text
-pre-commit run lychee --hook-stage manual
+pre-commit run lychee --hook-stage manual --from-ref <base-sha> --to-ref <head-sha>
 ```
 
 This check is assistive only.
+
+It should emit a broken-link report in the workflow summary, but it must not fail
+the PR solely because external link reachability depends on network conditions.
 
 It may report:
 

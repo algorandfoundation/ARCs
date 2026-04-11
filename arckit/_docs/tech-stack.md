@@ -330,6 +330,11 @@ Steps:
 
 This workflow may be separately triaged if external network instability causes failures.
 
+Pull requests also run an `online-validation` job that invokes the same shared
+`lychee` hook on the PR diff. That PR job is advisory: it emits a report of
+broken or unreachable links in the workflow summary, but it does not block the
+merge because external link reachability is network-dependent.
+
 ## 10. Release Strategy
 
 Start simple and subdirectory-aware.
