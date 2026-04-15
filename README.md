@@ -106,7 +106,8 @@ whitespace/newline checks, YAML syntax/formatting, and advisory external link
 reachability checks.
 
 `arckit` owns ARC-specific metadata, section, reference, and body-link rules,
-including the prohibition on absolute links in ARC body content.
+including rejection of absolute links back into repository content such as ARCs
+or assets. External raw HTML anchors are allowed.
 
 The canonical offline repository gate is:
 

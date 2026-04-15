@@ -10,7 +10,8 @@ Generic Markdown/YAML/text hygiene for this repository is handled by the
 repository-root `.pre-commit-config.yaml`, not by `arckit`.
 
 `arckit` owns ARC-specific metadata, section, reference, maturity, and body-link
-policy, including rejecting absolute links in ARC body content.
+policy, including rejecting absolute links back into repository content such as
+ARCs or assets. External raw HTML anchors are allowed.
 
 ## Repo-Local Config
 
@@ -71,7 +72,6 @@ go run ./cmd/arckit validate arc \
   --enforce-rule R:034 \
   --enforce-rule R:035 \
   --enforce-rule R:036 \
-  --enforce-rule R:037 \
   --enforce-rule R:038 \
   ../ARCs/arc-0000.md
 go run ./cmd/arckit validate arc --ignore-config ../ARCs/arc-0000.md

@@ -229,7 +229,7 @@ It must always validate:
 
 1. relative local links;
 1. relative ARC links;
-1. absolute `http` and `https` links in ARC body content;
+1. absolute `http` and `https` links that point back into repository content from ARC body content;
 1. asset links;
 1. missing-file and invalid-path conditions.
 
@@ -463,7 +463,8 @@ requires:
 1. ARC-to-ARC links must target `ARCs/arc-####.md`;
 1. body ARC references must use uppercase unpadded `ARC-N` form;
 1. the first body mention of each ARC must be a relative hyperlink to the target ARC document;
-1. absolute `http` and `https` links are not allowed in ARC body content;
+1. absolute `http` and `https` links to repository-local content are not allowed in ARC body content;
+1. external raw HTML anchors of the form `<a href="...">...</a>` do not trigger the repository-link rule;
 1. asset links inside an ARC must stay under the matching `assets/arc-####/` subtree;
 1. the `adoption-summary` field, when present, must resolve to an existing file when
    the adoption summary is required for that ARC status.

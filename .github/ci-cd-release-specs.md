@@ -121,7 +121,7 @@ inside `arckit`: title and description length limits, standard-like wording bans
 author and `discussions-to` shape, strictly sorted numeric ARC lists, required
 `Copyright`, canonical level-2 section set and order, uppercase unpadded `ARC-N`
 reference spelling, first body ARC mentions as links, and rejection of absolute
-`http` or `https` links in ARC body content.
+`http` or `https` links back into repository content in ARC body content.
 
 That same gate must also reject `requires` entries or direct ARC body links that
 point from a more mature ARC to a less mature ARC.
@@ -154,8 +154,8 @@ Its default hook surface must cover:
 
 This check exists outside the CLI so generic Markdown, YAML, text-file hygiene,
 and external link reachability are version-pinned once in `pre-commit` rather
-than duplicated inside `arckit`. ARC-specific body-link policy remains enforced
-by `arckit`.
+than duplicated inside `arckit`. ARC-specific repository-link policy remains
+enforced by `arckit`.
 
 ### 5.3 arckit Tool Check
 

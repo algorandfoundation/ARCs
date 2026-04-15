@@ -137,7 +137,7 @@ Owns:
 1. ARC-only validation;
 1. title, description, author, discussions-to, and ARC body reference policy;
 1. canonical implementation declaration rules;
-1. local ARC link, absolute-body-link, and asset rules.
+1. local ARC link, absolute repository-link, and asset rules.
 
 ### 5.3 `config`
 
