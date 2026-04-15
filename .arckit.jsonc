@@ -5,10 +5,13 @@
   // Historical Final ARCs still have placeholder adoption summaries. Keep
   // R:025 enforced for new work while those older records are backfilled.
   "ignoreByArc": {
+    // Historical ARC metadata and body-link migrations stay suppressed here, but
+    // the PR workflow explicitly re-enforces these rules for changed ARC files.
+    "0-90": ["R:036", "R:037"],
     "0": ["R:008"],
     "1": ["R:008", "R:025"],
     "2": ["R:008", "R:025"],
-    "3": ["R:008"],
+    "3": ["R:008", "R:031"],
     "4": ["R:008"],
     "5": ["R:008", "R:025"],
     "6": ["R:008"],
@@ -29,19 +32,19 @@
     "27": ["R:025"],
     "28": ["R:008", "R:025"],
     "32": ["R:025"],
-    "33": ["R:008"],
+    "33": ["R:008", "R:032"],
     "34": ["R:008"],
     "35": ["R:008", "R:025"],
     "36": ["R:008", "R:025"],
     "47": ["R:025"],
     "48": ["R:008"],
     "49": ["R:008"],
-    "54": ["R:025"],
+    "54": ["R:025", "R:031"],
     "55": ["R:025"],
     "59": ["R:025"],
     "60": ["R:008"],
     "69": ["R:008", "R:025"],
-    "71": ["R:025"],
+    "71": ["R:025", "R:031"],
     "73": ["R:025"],
     "74": ["R:025"],
     "78": ["R:008"],
@@ -49,6 +52,7 @@
     "82": ["R:008"],
     "83": ["R:008"],
     "86": ["R:008", "R:025"],
-    "90": ["R:025"]
+    "90": ["R:025"],
+    "200": ["R:037"]
   }
 }
