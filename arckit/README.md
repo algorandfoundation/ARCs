@@ -64,15 +64,8 @@ go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
 go run ./cmd/arckit validate arc \
   --enforce-rule R:004 \
   --enforce-rule R:008 \
-  --enforce-rule R:021 \
   --enforce-rule R:025 \
-  --enforce-rule R:031 \
   --enforce-rule R:032 \
-  --enforce-rule R:033 \
-  --enforce-rule R:034 \
-  --enforce-rule R:035 \
-  --enforce-rule R:036 \
-  --enforce-rule R:038 \
   ../ARCs/arc-0000.md
 go run ./cmd/arckit validate arc --ignore-config ../ARCs/arc-0000.md
 go run ./cmd/arckit validate adoption ../adoption/arc-0042.yaml
