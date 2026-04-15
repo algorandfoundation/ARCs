@@ -61,7 +61,10 @@ go run ./cmd/arckit validate repo ..
 go run ./cmd/arckit summary repo ..
 go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
 go run ./cmd/arckit validate arc \
+  --enforce-rule R:004 \
+  --enforce-rule R:008 \
   --enforce-rule R:021 \
+  --enforce-rule R:025 \
   --enforce-rule R:031 \
   --enforce-rule R:032 \
   --enforce-rule R:033 \

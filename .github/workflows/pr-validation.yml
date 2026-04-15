@@ -131,7 +131,10 @@ jobs:
         run: |
           while IFS= read -r path; do
             "${RUNNER_TEMP}/arckit" validate arc \
+              --enforce-rule R:004 \
+              --enforce-rule R:008 \
               --enforce-rule R:021 \
+              --enforce-rule R:025 \
               --enforce-rule R:031 \
               --enforce-rule R:032 \
               --enforce-rule R:033 \
