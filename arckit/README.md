@@ -9,6 +9,10 @@
 Generic Markdown/YAML/text hygiene for this repository is handled by the
 repository-root `.pre-commit-config.yaml`, not by `arckit`.
 
+`arckit` owns ARC-specific metadata, section, reference, maturity, and body-link
+policy, including rejecting absolute links back into repository content such as
+ARCs or assets. External raw HTML anchors are allowed.
+
 ## Repo-Local Config
 
 `arckit` auto-discovers an optional repository-root `.arckit.jsonc` file for all
@@ -21,8 +25,8 @@ Supported keys:
 - `ignoreRules`: ignore a rule everywhere
 - `ignoreByArc`: ignore rules for exact ARC numbers or inclusive ARC ranges like `50-60`
 
-Migration suppressions are allowed temporarily when the repository is moving historical
-ARC files to a new canonical encoding.
+Migration suppressions are allowed temporarily when the repository is moving
+historical ARC files to a new canonical encoding or ARC body/reference policy.
 
 Example:
 
@@ -57,7 +61,12 @@ cd arckit
 go run ./cmd/arckit validate repo ..
 go run ./cmd/arckit summary repo ..
 go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
-go run ./cmd/arckit validate arc --enforce-rule R:021 ../ARCs/arc-0000.md
+go run ./cmd/arckit validate arc \
+  --enforce-rule R:004 \
+  --enforce-rule R:008 \
+  --enforce-rule R:025 \
+  --enforce-rule R:032 \
+  ../ARCs/arc-0000.md
 go run ./cmd/arckit validate arc --ignore-config ../ARCs/arc-0000.md
 go run ./cmd/arckit validate adoption ../adoption/arc-0042.yaml
 go run ./cmd/arckit validate links ../ARCs/arc-0000.md

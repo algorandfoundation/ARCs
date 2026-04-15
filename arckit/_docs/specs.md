@@ -8,8 +8,8 @@ It exists to make repository validation deterministic where it can be determinis
 while keeping human editorial judgment clearly out of the tool.
 
 `arckit` is a single Go CLI that must remain useful with only Go installed.
-Generic Markdown, YAML, whitespace, and external-link hygiene is handled by the
-repository-root `.pre-commit-config.yaml`, not by `arckit`.
+Generic Markdown, YAML, whitespace, and external-link reachability hygiene is handled
+by the repository-root `.pre-commit-config.yaml`, not by `arckit`.
 
 ## 2. Product Boundary
 
@@ -31,7 +31,7 @@ repository-root `.pre-commit-config.yaml`, not by `arckit`.
 1. deciding whether adoption evidence is substantively sufficient;
 1. deciding whether a reference implementation is high quality;
 1. replacing editor judgment or ARC-0 process decisions;
-1. owning generic Markdown, YAML, whitespace, or external-link hygiene;
+1. owning generic Markdown, YAML, whitespace, or external-link reachability hygiene;
 1. owning the devportal workflows in this repository.
 
 ## 3. Design Principles
@@ -71,9 +71,10 @@ It must:
 1. validate local file links and relative ARC links;
 1. auto-discover the optional repo-root `.arckit.jsonc` for `validate` commands only;
 1. avoid network requests and external tool resolution;
-1. keep generic Markdown, YAML, whitespace, and external-link hygiene outside the CLI.
+1. keep generic Markdown, YAML, whitespace, and external-link reachability hygiene outside the CLI.
 
 Native validation remains authoritative for repository semantics.
+That includes ARC-specific metadata wording, reference text, and body-link policy.
 
 ### 5.1 Repo-Local Ignore Configuration
 
@@ -198,8 +199,10 @@ It must perform:
 1. required field checks;
 1. canonical ARC category and sub-category enum validation;
 1. conditional field checks;
+1. title, description, author, discussions-to, and numeric-list semantic validation;
 1. canonical implementation repository URL validation when `implementation-required: true`;
-1. body section presence checks;
+1. required body section, allowed-section, and section-order validation;
+1. ARC reference text and body-link validation;
 1. local link and asset link validation.
 
 ### 8.2 `validate adoption`
@@ -226,6 +229,7 @@ It must always validate:
 
 1. relative local links;
 1. relative ARC links;
+1. absolute `http` and `https` links that point back into repository content from ARC body content;
 1. asset links;
 1. missing-file and invalid-path conditions.
 
@@ -239,6 +243,7 @@ It must perform:
 1. vetted adopters registry validation;
 1. adoption summary validation for all discovered adoption files;
 1. repository-wide mapping and reciprocity checks;
+1. cross-ARC maturity regression checks for `requires` and direct ARC body links;
 1. native local link validation.
 
 This is the single canonical CI gate. Required PR validation jobs should build `arckit`
@@ -380,7 +385,15 @@ Field requirements:
 
 1. `title` must not include the ARC number.
 1. `description` must be a short summary and must not include the ARC number.
+1. `title` must be between 2 and 44 characters.
+1. `description` must be between 2 and 140 characters.
+1. `title` and `description` must not include standard-like wording such as `standard` or `standards`.
+1. ARC references in `title` or `description` must use uppercase unpadded `ARC-N` form.
+1. ARC references in `title` or `description` must also appear in `requires`, except for self-references to the current ARC number.
 1. `created`, `updated`, `last-call-deadline`, and `idle-since` must use `YYYY-MM-DD`.
+1. `author` entries must use one of `Name`, `Name (@github-handle)`, or `Name <email>`.
+1. `author` must include at least one GitHub handle entry.
+1. `discussions-to` must be an `https://github.com/algorandfoundation/ARCs/...` URL pointing to a discussion, issue, or pull request.
 1. `status` must be one of `Draft`, `Review`, `Last Call`, `Final`, `Stagnant`, `Withdrawn`, `Idle`, `Deprecated`, or `Living`.
 1. `type` must be one of `Standards Track` or `Meta`.
 1. `category`, when present, must be one of `Interface`, `Data`, `Cryptography`, `Protocol`, or `Governance`.
@@ -391,6 +404,7 @@ Field requirements:
 1. when `implementation-required` is `true` and `implementation-url` is present, it must be exactly `https://github.com/algorandfoundation/arcN` for `Foundation`-sponsored ARCs or `https://github.com/algorandecosystem/arcN` for `Ecosystem`-sponsored ARCs, where `N` is the unpadded ARC number.
 1. `adoption-summary`, when present, must be a relative path under `adoption/`.
 1. list-valued ARC metadata must use canonical YAML sequences rather than comma-separated scalars.
+1. `requires`, `supersedes`, `extends`, and `extended-by` must be sorted in strictly ascending order.
 
 ### 9.4 Conditional ARC Fields
 
@@ -405,6 +419,8 @@ These conditional rules apply:
 1. `last-call-deadline` is required when `status` is `Last Call` and when validating
    transition to `Final`.
 1. `idle-since` is required when `status` is `Idle`.
+1. `last-call-deadline` must not be present unless `status` is `Last Call`.
+1. `idle-since` must not be present unless `status` is `Idle`.
 
 ### 9.5 Required Body Sections
 
@@ -415,6 +431,22 @@ Every ARC file must contain these level-2 sections:
 1. `Specification`
 1. `Rationale`
 1. `Security Considerations`
+1. `Copyright`
+
+When present, level-2 sections must come only from this canonical set and must
+appear in this order:
+
+1. `Abstract`
+1. `Motivation`
+1. `Specification`
+1. `Rationale`
+1. `Backwards Compatibility`
+1. `Test Cases`
+1. `Reference Implementation`
+1. `Security Considerations`
+1. `Copyright`
+
+Extra or duplicate level-2 sections are invalid.
 
 When `implementation-required: true`, transition validation to `Review` or later also
 requires:
@@ -429,6 +461,11 @@ requires:
 1. repo-local links must be relative, not root-relative;
 1. local link targets must exist;
 1. ARC-to-ARC links must target `ARCs/arc-####.md`;
+1. body ARC references in prose must use uppercase unpadded `ARC-N` form;
+1. the first prose body mention of each ARC must be a relative hyperlink to the target ARC document;
+1. ARC-looking text inside inline code spans and code blocks does not trigger the prose reference rule;
+1. absolute `http` and `https` links to repository-local content are not allowed in ARC body content;
+1. external raw HTML anchors of the form `<a href="...">...</a>` do not trigger the repository-link rule;
 1. asset links inside an ARC must stay under the matching `assets/arc-####/` subtree;
 1. the `adoption-summary` field, when present, must resolve to an existing file when
    the adoption summary is required for that ARC status.
@@ -580,6 +617,8 @@ Readiness thresholds are:
 1. no orphaned asset trees for missing ARC files;
 1. adoption actor names are present in the matching vetted-adopter category;
 1. ARC `adoption-summary` fields, when required, point to the matching adoption file;
+1. `requires` targets must be at least as mature as the ARC that declares them;
+1. direct ARC body links must not point to less mature ARC documents;
 1. reciprocal relationship fields are consistent where both files exist:
    - `supersedes` <-> `superseded-by`
    - `extends` <-> `extended-by`
@@ -750,7 +789,7 @@ The repository guidance for v1 is:
 The following are intentionally out of scope:
 
 1. `.arckit.yaml`, user-local configuration, or an explicit `--config` flag;
-1. generic Markdown, YAML, whitespace, or external-link hygiene inside `arckit`;
+1. generic Markdown, YAML, whitespace, or external-link reachability hygiene inside `arckit`;
 1. GitHub API lookups and repository mutation;
 1. SARIF output;
 1. multi-version required CI matrices;

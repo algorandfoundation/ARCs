@@ -102,8 +102,8 @@ arc: 1
 title: First
 description: First ARC
 author:
-  - Example Author
-discussions-to: https://example.com/discussion
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Draft
 type: Standards Track
 created: 2026-04-09
@@ -131,14 +131,18 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `
 	arc2 := `---
 arc: 2
 title: Second
 description: Second ARC
 author:
-  - Example Author
-discussions-to: https://example.com/discussion
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Draft
 type: Standards Track
 created: 2026-04-09
@@ -165,6 +169,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `
 	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0001.md"), []byte(arc1), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
@@ -204,8 +212,8 @@ arc: 0
 title: ARC Zero
 description: Repository process document.
 author:
-  - Example Author
-discussions-to: https://example.com/discussion
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Living
 type: Meta
 created: 2026-04-09
@@ -232,6 +240,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `
 	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0000.md"), []byte(content), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
@@ -246,6 +258,129 @@ Text
 	}
 	if _, ok := state.ARCs[0]; !ok {
 		t.Fatalf("expected ARC 0 to be included in repo state, got %+v", state.ARCs)
+	}
+}
+
+func TestValidateRepoRejectsMaturityRegression(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "vetted-adopters.yaml"), `wallets: []
+explorers: []
+tooling: []
+infra: []
+dapps-protocols: []
+`)
+
+	source := `---
+arc: 1
+title: Source ARC
+description: Example source ARC.
+author:
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Review
+type: Standards Track
+created: 2026-04-10
+sponsor: Foundation
+implementation-required: false
+requires:
+  - 2
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+See [ARC-2](arc-0002.md).
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
+`
+	target := `---
+arc: 2
+title: Target ARC
+description: Example target ARC.
+author:
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/2
+status: Draft
+type: Standards Track
+created: 2026-04-10
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
+`
+	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0001.md"), []byte(source), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "ARCs", "arc-0002.md"), []byte(target), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	_, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+
+	foundRequires := false
+	foundBodyLink := false
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID != "R:038" {
+			continue
+		}
+		if diagnostic.File == filepath.Join(root, "ARCs", "arc-0001.md") && diagnostic.Line == 12 && diagnostic.Message == "requires target ARC-2 must be at least as mature as ARC-1" {
+			foundRequires = true
+		}
+		if diagnostic.File == filepath.Join(root, "ARCs", "arc-0001.md") && diagnostic.Message == "ARC body link to ARC-2 must not point to a less mature ARC" {
+			foundBodyLink = true
+		}
+	}
+	if !foundRequires || !foundBodyLink {
+		t.Fatalf("expected requires and body-link maturity diagnostics, got %+v", diagnostics)
 	}
 }
 
@@ -304,7 +439,7 @@ title: Example ARC
 description: Example ARC for testing.
 author:
   - Example Author (@example)
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Final
 type: Standards Track
 created: 2026-03-26
@@ -332,6 +467,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -376,7 +515,7 @@ title: Example ARC
 description: Example ARC for testing.
 author:
   - Example Author (@example)
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Final
 type: Standards Track
 created: 2026-03-26
@@ -404,6 +543,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}

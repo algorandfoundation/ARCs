@@ -18,7 +18,7 @@ These choices are fixed for v1:
 
 1. `arckit` is a single Go binary.
 1. Core validation must work with just Go and the repository contents.
-1. Generic Markdown, YAML, whitespace, and external-link hygiene is owned by the
+1. Generic Markdown, YAML, whitespace, and external-link reachability hygiene is owned by the
    repository-root `.pre-commit-config.yaml`, not by `arckit`.
 1. The CLI remains broad, but internal variability is kept small:
    - optional repo-root `.arckit.jsonc` only
@@ -135,8 +135,9 @@ Owns:
 1. front matter parsing;
 1. section discovery;
 1. ARC-only validation;
+1. title, description, author, discussions-to, and ARC body reference policy;
 1. canonical implementation declaration rules;
-1. local ARC link and asset rules.
+1. local ARC link, absolute repository-link, and asset rules.
 
 ### 5.3 `config`
 
@@ -166,7 +167,8 @@ Owns:
 1. repository file discovery;
 1. ARC to adoption mapping;
 1. asset tree checks;
-1. cross-file relationship reciprocity.
+1. cross-file relationship reciprocity;
+1. cross-ARC maturity regression checks.
 
 ### 5.6 `transition`
 
@@ -202,8 +204,9 @@ single version-pinning surface for:
 1. whitespace, newline, and merge-conflict hooks.
 
 Do not move repo-semantic rules into external tools. Relative ARC links,
-adoption-path rules, asset-tree rules, front matter ordering, and transition
-rules stay inside `arckit`.
+adoption-path rules, title/description reference policy, ARC body absolute-link
+policy, asset-tree rules, front matter ordering, and transition rules stay
+inside `arckit`.
 
 ## 7. Developer Workflow
 
@@ -270,6 +273,7 @@ Required fixture coverage:
 1. transition to `Review`, `Last Call`, `Final`, and `Idle`;
 1. `fmt` reordering front matter without rewriting body whitespace;
 1. canonical YAML sequence normalization for list-valued ARC fields;
+1. legacy ARC metadata and body-policy regressions such as author/discussions-to shape, section ordering, ARC reference text, and absolute-link rejection;
 1. `validate links` over ARC files and directories;
 1. online link failures reported separately from semantic failures by the CI-side `lychee` adapter.
 
@@ -311,7 +315,7 @@ Steps:
 1. set up pinned Go `1.26.1`;
 1. build `arckit`;
 1. run `arckit validate repo .`.
-1. run changed-file ARC validation with `--enforce-rule R:021` so canonical YAML front matter is enforced during migration without dropping unrelated suppressions.
+1. run changed-file ARC validation with `--enforce-rule` so canonical YAML front matter and migrated ARC semantic rules are enforced during migration without dropping unrelated suppressions.
 
 This is the canonical required validation gate and implicitly applies the repo-root
 `.arckit.jsonc` when present. The same gate also validates `adoption/vetted-adopters.yaml`

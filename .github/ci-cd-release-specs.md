@@ -116,16 +116,27 @@ That same gate must also reject adoption summaries whose `summary.adoption-readi
 is `medium` with fewer than 3 adopter entries or `high` with fewer than 5 adopter
 entries across all adoption categories.
 
+That same gate must also enforce ARC-owned metadata and structure rules now kept
+inside `arckit`: title and description length limits, standard-like wording bans,
+author and `discussions-to` shape, strictly sorted numeric ARC lists, required
+`Copyright`, canonical level-2 section set and order, uppercase unpadded `ARC-N`
+reference spelling in prose, first prose body ARC mentions as links, and rejection
+of absolute `http` or `https` links back into repository content in ARC body content.
+
+That same gate must also reject `requires` entries or direct ARC body links that
+point from a more mature ARC to a less mature ARC.
+
 When present, the repository-root `.arckit.jsonc` is applied implicitly by this
 command. Invalid `.arckit.jsonc` content must fail the gate.
 
-During staged metadata migrations, repo-local suppressions may temporarily keep
+During staged ARC validation migrations, repo-local suppressions may temporarily keep
 historical ARC files green in this repository-wide gate.
 
 When ARC Markdown files change, the workflow must also run a changed-file
-validation pass that enforces `R:021` even when `.arckit.jsonc` suppresses that
-rule at the repository level. This targeted pass must keep unrelated suppressions
-intact so historical ARC-specific waivers do not become false failures.
+validation pass that enforces `R:021` and `R:031` through `R:038` even when
+`.arckit.jsonc` suppresses those rules at the repository level. This targeted
+pass must keep unrelated suppressions intact so historical ARC-specific waivers
+do not become false failures.
 
 ### 5.2 Hygiene Check
 
@@ -141,9 +152,10 @@ Its default hook surface must cover:
 1. YAML syntax and formatting for `.github/**`, `adoption/**`, and `templates/**`;
 1. generic Markdown linting through `markdownlint-cli2`.
 
-This check exists outside the CLI so generic Markdown, YAML, and text-file
-hygiene is version-pinned once in `pre-commit` rather than duplicated inside
-`arckit`.
+This check exists outside the CLI so generic Markdown, YAML, text-file hygiene,
+and external link reachability are version-pinned once in `pre-commit` rather
+than duplicated inside `arckit`. ARC-specific repository-link policy remains
+enforced by `arckit`.
 
 ### 5.3 arckit Tool Check
 

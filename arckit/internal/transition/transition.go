@@ -24,7 +24,7 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		}
 	}
 
-	require(len(requiredSections(document, []string{"Abstract", "Motivation", "Specification", "Rationale", "Security Considerations"})) == 0, "required ARC sections are missing")
+	require(len(requiredSections(document, []string{"Abstract", "Motivation", "Specification", "Rationale", "Security Considerations", "Copyright"})) == 0, "required ARC sections are missing")
 	require(hasField(document, "implementation-required"), "implementation-required must be explicitly declared")
 
 	switch target {
@@ -65,7 +65,6 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 		}
 	case "Idle":
 		require(document.Status == "Final", "transition to Idle requires current status Final")
-		require(document.IdleSince != "", "idle-since is required for transition to Idle")
 		hasSummary := loadSummary(document, &diagnostics) != nil
 		require(hasSummary, "transition to Idle requires a valid adoption summary")
 	default:

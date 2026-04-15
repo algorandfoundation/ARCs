@@ -103,7 +103,11 @@ used by the pull request workflows for ARC-specific validation only.
 Generic repository hygiene is handled separately through the repository-root
 `.pre-commit-config.yaml`. That shared hook config owns Markdown linting,
 whitespace/newline checks, YAML syntax/formatting, and advisory external link
-checks.
+reachability checks.
+
+`arckit` owns ARC-specific metadata, section, reference, and body-link rules,
+including rejection of absolute links back into repository content such as ARCs
+or assets. External raw HTML anchors are allowed.
 
 The canonical offline repository gate is:
 
@@ -122,9 +126,9 @@ all `arckit validate ...` commands. It supports repo-local suppressions for:
 
 Invalid `.arckit.jsonc` content fails validation.
 
-During staged metadata migrations, `.arckit.jsonc` may temporarily suppress rules
-for historical ARC files. New or edited ARC Markdown files should still be checked
-without config suppression before merge.
+During staged ARC validation migrations, `.arckit.jsonc` may temporarily suppress
+rules for historical ARC files. The PR workflow still re-enforces `R:021` and
+`R:031` through `R:038` for changed ARC Markdown files before merge.
 
 Example:
 

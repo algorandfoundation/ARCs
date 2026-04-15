@@ -59,7 +59,7 @@ func InitARC(options InitOptions) ([]string, []diag.Diagnostic, error) {
 
 	author := strings.TrimSpace(options.Author)
 	if author == "" {
-		author = "TBD"
+		author = "TBD (@todo)"
 	}
 	description := strings.TrimSpace(options.Description)
 	if description == "" {
@@ -96,7 +96,7 @@ func renderARC(options InitOptions, author string, description string, now strin
 		fmt.Sprintf("description: %s", description),
 		"author:",
 		fmt.Sprintf("  - %s", author),
-		"discussions-to:",
+		"discussions-to: https://github.com/algorandfoundation/ARCs/discussions/0",
 		"status: Draft",
 		fmt.Sprintf("type: %s", options.Type),
 	}
@@ -132,6 +132,10 @@ func renderARC(options InitOptions, author string, description string, now strin
 		"## Security Considerations",
 		"",
 		"TODO: document the relevant security considerations.",
+		"",
+		"## Copyright",
+		"",
+		"Copyright and related rights waived via CC0 1.0.",
 		"",
 	)
 	return strings.Join(lines, "\n")

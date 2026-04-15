@@ -44,8 +44,11 @@ func TestInitARCCreatesExpectedFiles(t *testing.T) {
 		t.Fatalf("ReadFile() error = %v", err)
 	}
 	text := string(arcContent)
-	if !strings.Contains(text, "author:\n  - TBD\ndiscussions-to:\nstatus: Draft\ntype: Standards Track\ncategory: Interface\nsub-category: Application\ncreated: ") {
+	if !strings.Contains(text, "author:\n  - TBD (@todo)\ndiscussions-to: https://github.com/algorandfoundation/ARCs/discussions/0\nstatus: Draft\ntype: Standards Track\ncategory: Interface\nsub-category: Application\ncreated: ") {
 		t.Fatalf("expected scaffolded ARC to include category fields, got:\n%s", text)
+	}
+	if !strings.Contains(text, "\n## Copyright\n\nCopyright and related rights waived via CC0 1.0.\n") {
+		t.Fatalf("expected scaffolded ARC to include a Copyright section, got:\n%s", text)
 	}
 
 	adoptionContent, err := os.ReadFile(filepath.Join(root, "adoption", "arc-0099.yaml"))

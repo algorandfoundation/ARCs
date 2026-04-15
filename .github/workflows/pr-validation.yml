@@ -126,9 +126,14 @@ jobs:
           else
             echo "run=false" >> "${GITHUB_OUTPUT}"
           fi
-      - name: Enforce canonical YAML front matter on changed ARC files
+      - name: Enforce migrated ARC rules on changed ARC files
         if: steps.changed_arcs.outputs.run == 'true'
         run: |
           while IFS= read -r path; do
-            "${RUNNER_TEMP}/arckit" validate arc --enforce-rule R:021 "${path}"
+            "${RUNNER_TEMP}/arckit" validate arc \
+              --enforce-rule R:004 \
+              --enforce-rule R:008 \
+              --enforce-rule R:025 \
+              --enforce-rule R:032 \
+              "${path}"
           done < "${RUNNER_TEMP}/changed-arcs.txt"

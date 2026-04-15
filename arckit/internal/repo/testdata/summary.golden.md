@@ -4,7 +4,7 @@
 
 - Generated: `2026-04-10T09:30:00Z`
 - Repository: `/repo`
-- Validation summary: `1 error(s), 0 warning(s), 0 info`
+- Validation summary: `3 error(s), 0 warning(s), 0 info`
 
 ## State Overview
 
