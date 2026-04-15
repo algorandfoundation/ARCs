@@ -7,7 +7,8 @@
 - Go `1.26.1`
 
 Generic Markdown/YAML/text hygiene for this repository is handled by the
-repository-root `.pre-commit-config.yaml`, not by `arckit`.
+repository-root `.pre-commit-config.yaml`, not by `arckit`. That includes
+advisory Markdown/YAML spelling checks and advisory external link checks.
 
 `arckit` owns ARC-specific metadata, section, reference, maturity, and body-link
 policy, including rejecting absolute links back into repository content such as

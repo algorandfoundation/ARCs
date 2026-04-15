@@ -102,8 +102,8 @@ used by the pull request workflows for ARC-specific validation only.
 
 Generic repository hygiene is handled separately through the repository-root
 `.pre-commit-config.yaml`. That shared hook config owns Markdown linting,
-whitespace/newline checks, YAML syntax/formatting, and advisory external link
-reachability checks.
+whitespace/newline checks, YAML syntax/formatting, advisory Markdown/YAML
+spelling checks, and advisory external link reachability checks.
 
 `arckit` owns ARC-specific metadata, section, reference, and body-link rules,
 including rejection of absolute links back into repository content such as ARCs
@@ -152,8 +152,9 @@ go build ./cmd/arckit
 go run ./cmd/arckit validate repo ..
 ```
 
-The default `pre-commit` hooks are fail-only. They report hygiene violations but
-do not rewrite files.
+The default blocking `pre-commit` hooks are fail-only. They report hygiene
+violations but do not rewrite files. Advisory hooks such as `codespell` and
+`lychee` run separately from that required surface.
 
 If you want hook-managed autofix locally, run the manual-stage fixers explicitly
 and then rerun `pre-commit run --all-files`:
@@ -168,6 +169,7 @@ pre-commit run yamlfmt-fix --all-files --hook-stage manual
 Useful related commands:
 
 ```sh
+pre-commit run codespell --all-files --hook-stage manual
 pre-commit run lychee --all-files --hook-stage manual
 cd arckit
 go run ./cmd/arckit validate arc ../ARCs/arc-0000.md

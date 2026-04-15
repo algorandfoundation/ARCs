@@ -29,6 +29,10 @@ jobs:
       - name: Run hygiene checks
         run: |
           pre-commit run --from-ref "${{ github.event.pull_request.base.sha }}" --to-ref "${{ github.event.pull_request.head.sha }}" --show-diff-on-failure
+      - name: Run advisory spell check
+        continue-on-error: true
+        run: |
+          pre-commit run codespell --hook-stage manual --from-ref "${{ github.event.pull_request.base.sha }}" --to-ref "${{ github.event.pull_request.head.sha }}"
   arckit-tool:
     name: arckit-tool
     runs-on: ubuntu-latest

@@ -18,8 +18,9 @@ These choices are fixed for v1:
 
 1. `arckit` is a single Go binary.
 1. Core validation must work with just Go and the repository contents.
-1. Generic Markdown, YAML, whitespace, and external-link reachability hygiene is owned by the
-   repository-root `.pre-commit-config.yaml`, not by `arckit`.
+1. Generic Markdown, YAML, whitespace, spelling, and external-link reachability
+   hygiene is owned by the repository-root `.pre-commit-config.yaml`, not by
+   `arckit`.
 1. The CLI remains broad, but internal variability is kept small:
    - optional repo-root `.arckit.jsonc` only
    - no user-local config
@@ -199,6 +200,7 @@ The repository-root `.pre-commit-config.yaml` owns generic hygiene and is the
 single version-pinning surface for:
 
 1. `markdownlint-cli2`;
+1. `codespell`;
 1. `lychee`;
 1. YAML syntax/formatting hooks;
 1. whitespace, newline, and merge-conflict hooks.
@@ -228,6 +230,9 @@ The default developer command set should be:
 ```make
 hygiene:
 	pre-commit run --all-files
+
+spell:
+	pre-commit run codespell --all-files --hook-stage manual
 
 links:
 	pre-commit run lychee --all-files --hook-stage manual
@@ -304,6 +309,7 @@ Steps:
 1. set up pinned Python for `pre-commit`;
 1. install pinned `pre-commit`;
 1. run `pre-commit` on the PR diff.
+1. run the manual-stage `codespell` hook on the PR diff as a non-blocking advisory step.
 
 ### 9.3 PR Repo Validation Workflow
 

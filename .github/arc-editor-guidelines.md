@@ -21,18 +21,21 @@ The CI/CD spec defines a stable check surface for pull requests. In the current
 implementation, GitHub Actions runs:
 
 - `hygiene` from the repository-root `pre-commit` config for merge markers, line endings, whitespace/newline policy, YAML syntax/formatting, and generic Markdown linting;
+- a non-blocking advisory `codespell` pass for Markdown and YAML files outside `_archive/`;
 - `repo-validate-offline` for the canonical offline repository gate;
 - `arc-process-check` for GitHub-native process enforcement;
 - `arckit-tool` when `arckit/**` or workflow files change;
 
-`arckit` is limited to ARC-specific validation. Generic Markdown, YAML, and
-text-file hygiene is intentionally handled outside the CLI.
+`arckit` is limited to ARC-specific validation. Generic Markdown, YAML, text-file,
+and spelling hygiene is intentionally handled outside the CLI.
 
 The offline validation gate implicitly applies the repository-root `.arckit.jsonc`
 when present. An invalid `.arckit.jsonc` blocks the pull request in the same way as
 any other validation failure.
 
 These checks can block a pull request, but they do not make editorial decisions.
+The advisory spelling pass reports findings without changing the required check
+surface.
 
 ### ARC process checks
 
