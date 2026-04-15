@@ -97,7 +97,7 @@ title: Example ARC
 description: Example ARC for testing.
 author:
   - Example Author (@example)
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Final
 type: Standards Track
 created: 2026-03-26
@@ -125,6 +125,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -320,7 +324,7 @@ title: Transition Ready ARC
 description: ARC used to validate Final transitions.
 author:
   - Example Author (@example)
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Final
 type: Standards Track
 created: 2026-03-26
@@ -330,7 +334,6 @@ implementation-url: https://github.com/algorandfoundation/arc44
 implementation-maintainer:
   - "@maintainer"
 adoption-summary: adoption/arc-0044.yaml
-last-call-deadline: 2026-04-30
 ---
 
 ## Abstract
@@ -349,7 +352,7 @@ Text
 
 Text
 
-## Security Considerations
+## Test Cases
 
 Text
 
@@ -357,9 +360,13 @@ Text
 
 Text
 
-## Test Cases
+## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}

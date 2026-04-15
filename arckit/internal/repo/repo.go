@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -100,6 +101,7 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 	diagnostics = append(diagnostics, validateAssets(state.Root, state.ARCs, cfg)...)
 	diagnostics = append(diagnostics, validateMappings(state)...)
 	diagnostics = append(diagnostics, validateRelationships(state)...)
+	diagnostics = append(diagnostics, validateMaturity(state)...)
 
 	diagnostics = cfg.FilterDiagnostics(diagnostics)
 	diag.SortDiagnostics(diagnostics)
@@ -195,4 +197,76 @@ func validateRelationships(state State) []diag.Diagnostic {
 		checkReciprocal("extended-by", document.ExtendedBy, "extends")
 	}
 	return diagnostics
+}
+
+func validateMaturity(state State) []diag.Diagnostic {
+	diagnostics := make([]diag.Diagnostic, 0)
+	for _, document := range state.ARCs {
+		currentTier, ok := maturityTier(document.Status)
+		if !ok {
+			continue
+		}
+		for _, target := range document.Requires {
+			targetDocument, ok := state.ARCs[target]
+			if !ok {
+				continue
+			}
+			targetTier, ok := maturityTier(targetDocument.Status)
+			if !ok || targetTier >= currentTier {
+				continue
+			}
+			diagnostics = append(diagnostics, diag.NewWithHint("R:038", diag.OriginNative, document.Path, document.FieldLines["requires"], 1, fmt.Sprintf("requires target ARC-%d must be at least as mature as ARC-%d", target, document.Number), "Update requires to reference ARCs at the same or higher maturity tier, or adjust the current ARC status."))
+		}
+		for _, link := range document.Links {
+			target, ok := linkedARCNumber(document, link.Destination)
+			if !ok {
+				continue
+			}
+			targetDocument, ok := state.ARCs[target]
+			if !ok {
+				continue
+			}
+			targetTier, ok := maturityTier(targetDocument.Status)
+			if !ok || currentTier <= targetTier {
+				continue
+			}
+			diagnostics = append(diagnostics, diag.NewWithHint("R:038", diag.OriginNative, document.Path, link.Line, 1, fmt.Sprintf("ARC body link to ARC-%d must not point to a less mature ARC", target), "Only link directly to ARCs at the same or higher maturity tier from body content."))
+		}
+	}
+	return diagnostics
+}
+
+func linkedARCNumber(document *arc.Document, destination string) (int, bool) {
+	destination = strings.TrimSpace(destination)
+	if destination == "" || strings.HasPrefix(destination, "#") {
+		return 0, false
+	}
+	parsed, err := url.Parse(destination)
+	if err == nil && parsed.Scheme != "" {
+		return 0, false
+	}
+	target := destination
+	if hash := strings.Index(target, "#"); hash >= 0 {
+		target = target[:hash]
+	}
+	if target == "" || strings.HasPrefix(target, "/") {
+		return 0, false
+	}
+	resolved := filepath.Clean(filepath.Join(filepath.Dir(document.Path), filepath.FromSlash(target)))
+	return config.ARCNumberForPath(resolved)
+}
+
+func maturityTier(status string) (int, bool) {
+	switch strings.TrimSpace(status) {
+	case "Draft", "Stagnant":
+		return 1, true
+	case "Review":
+		return 2, true
+	case "Last Call":
+		return 3, true
+	case "Final", "Withdrawn", "Living", "Deprecated", "Idle":
+		return 4, true
+	default:
+		return 0, false
+	}
 }

@@ -21,7 +21,7 @@ title: Example
 arc: 1
 description: Example description
 author: Example Author, Another Author
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Draft
 type: Meta
 created: 2026-03-26
@@ -89,8 +89,8 @@ arc: 1
 title: Example
 description: Example description
 author:
-  - Example Author
-discussions-to: https://example.com/discussion
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Last Call
 type: Meta
 created: 2026-03-26
@@ -150,8 +150,8 @@ title: Example
 arc: 1
 description: Example description
 author:
-  - Example Author
-discussions-to: https://example.com/discussion
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Draft
 type: Meta
 created: 2026-03-26
@@ -209,8 +209,8 @@ title: Example
 arc: 1
 description: Example description
 author:
-  - Example Author
-discussions-to: https://example.com/discussion
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 
 status: Draft
 type: Meta
@@ -250,7 +250,7 @@ Text`
 		t.Fatalf("ReadFile() error = %v", err)
 	}
 	text := string(updated)
-	if strings.Contains(text, "title: Example\n\narc: 1") || strings.Contains(text, "discussions-to: https://example.com/discussion\n\nstatus: Draft") {
+	if strings.Contains(text, "title: Example\n\narc: 1") || strings.Contains(text, "discussions-to: https://github.com/algorandfoundation/ARCs/issues/1\n\nstatus: Draft") {
 		t.Fatalf("expected front matter blank lines to be removed, got:\n%s", text)
 	}
 	if !strings.Contains(text, "implementation-required: false\n---\n\n## Abstract\n") {
@@ -363,8 +363,8 @@ arc: 1
 title: Example
 description: Example description
 author:
-  - Example Author
-discussions-to: https://example.com/discussion
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Idle
 idle-since: 2026-04-01
 type: Standards Track
@@ -429,8 +429,8 @@ title: Example
 arc: 1
 description: Example description
 author:
-  - Example Author
-discussions-to: https://example.com/discussion
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Draft
 type: Meta
 created: 2026-03-26

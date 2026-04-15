@@ -24,8 +24,8 @@ func TestBuildSummaryAggregatesEditorState(t *testing.T) {
 
 	summary := BuildSummary(state, diagnostics, fixedSummaryNow)
 
-	if summary.ValidationSummary.Errors != 1 || summary.ValidationSummary.Warnings != 0 || summary.ValidationSummary.Info != 0 {
-		t.Fatalf("ValidationSummary = %+v, want 1 error and no warnings/info", summary.ValidationSummary)
+	if summary.ValidationSummary.Errors != 3 || summary.ValidationSummary.Warnings != 0 || summary.ValidationSummary.Info != 0 {
+		t.Fatalf("ValidationSummary = %+v, want 3 errors and no warnings/info", summary.ValidationSummary)
 	}
 	if summary.TotalARCs != 6 {
 		t.Fatalf("TotalARCs = %d, want 6", summary.TotalARCs)
@@ -465,7 +465,7 @@ func writeSummaryARC(t *testing.T, root string, number int, options summaryARCOp
 	content.WriteString("title: " + options.Title + "\n")
 	content.WriteString("description: Fixture ARC for summary tests.\n")
 	content.WriteString("author:\n  - Example Author (@example)\n")
-	content.WriteString("discussions-to: https://example.com/discussion\n")
+	content.WriteString("discussions-to: https://github.com/algorandfoundation/ARCs/issues/1\n")
 	content.WriteString("status: " + options.Status + "\n")
 	content.WriteString("type: " + options.Type + "\n")
 	content.WriteString("created: 2026-01-01\n")
@@ -518,7 +518,8 @@ func writeSummaryARC(t *testing.T, root string, number int, options summaryARCOp
 	content.WriteString("## Motivation\n\nText\n\n")
 	content.WriteString("## Specification\n\nText\n\n")
 	content.WriteString("## Rationale\n\nText\n\n")
-	content.WriteString("## Security Considerations\n\nText\n")
+	content.WriteString("## Security Considerations\n\nText\n\n")
+	content.WriteString("## Copyright\n\nText\n")
 
 	path := filepath.Join(root, "ARCs", "arc-"+formatPaddedInt(number)+".md")
 	if err := os.WriteFile(path, []byte(content.String()), 0o644); err != nil {

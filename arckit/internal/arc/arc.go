@@ -10,6 +10,7 @@ var (
 	arcPathPattern  = regexp.MustCompile(`(^|.*/)ARCs/arc-(\d{4})\.md$`)
 	datePattern     = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 	assetDirPattern = regexp.MustCompile(`(^|.*/)assets/arc-(\d{4})(/.*)?$`)
+	arcRefPattern   = regexp.MustCompile(`(?i)\barc(?:-| ?)?(\d+)\b`)
 )
 
 var validCategories = []string{"Interface", "Data", "Cryptography", "Protocol", "Governance"}
@@ -82,6 +83,20 @@ type Link struct {
 	Line        int
 }
 
+type Heading struct {
+	Level int
+	Title string
+	Line  int
+}
+
+type ARCReference struct {
+	Raw       string
+	Number    int
+	Line      int
+	InLink    bool
+	Canonical bool
+}
+
 type Document struct {
 	Path                     string
 	Raw                      []byte
@@ -92,7 +107,9 @@ type Document struct {
 	FieldOrder               []string
 	FieldLines               map[string]int
 	Sections                 map[string]int
+	Headings                 []Heading
 	Links                    []Link
+	ARCReferences            []ARCReference
 	ExternalLinks            []string
 	FilenameNumber           int
 	HasFilenameNumber        bool

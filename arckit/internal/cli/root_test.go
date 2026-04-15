@@ -55,6 +55,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -295,7 +299,7 @@ title: Example ARC
 description: Example ARC for testing.
 author:
   - Example Author (@example)
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Final
 type: Standards Track
 created: 2026-03-26
@@ -323,6 +327,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -596,7 +604,7 @@ title: Example
 description: Example description
 author:
   - Example Author (@example)
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Review
 type: Standards Track
 created: 2026-04-09
@@ -624,6 +632,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -650,7 +662,7 @@ title: Example
 description: Example description
 author:
   - Example Author (@example)
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Review
 type: Standards Track
 created: 2026-04-09
@@ -681,6 +693,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -703,7 +719,7 @@ title: Example ARC
 description: Example ARC for testing.
 author:
   - Example Author (@example)
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Final
 type: Standards Track
 created: 2026-03-26
@@ -731,6 +747,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -794,7 +814,7 @@ arc: 1
 title: Example
 description: Example description
 author: Example Author, Other Author
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Draft
 type: Standards Track
 created: 2026-04-09
@@ -822,6 +842,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
@@ -860,7 +884,7 @@ arc: 0
 title: Example
 description: Example description
 author: Example Author, Other Author
-discussions-to: https://example.com/discussion
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
 status: Draft
 type: Meta
 created: 2026-04-09
@@ -883,6 +907,10 @@ Text
 ## Security Considerations
 
 Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
 `
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
