@@ -20,6 +20,8 @@ func parseMarkdown(document *Document) {
 		bodyStartLine = 1
 	}
 	linkDepth := 0
+	codeSpanDepth := 0
+	codeBlockDepth := 0
 	_ = ast.Walk(tree, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		switch typed := node.(type) {
 		case *ast.Link:
@@ -42,6 +44,24 @@ func parseMarkdown(document *Document) {
 					Line:        nodeLine(source, typed, bodyStartLine),
 				})
 			}
+		case *ast.CodeSpan:
+			if entering {
+				codeSpanDepth++
+			} else if codeSpanDepth > 0 {
+				codeSpanDepth--
+			}
+		case *ast.FencedCodeBlock:
+			if entering {
+				codeBlockDepth++
+			} else if codeBlockDepth > 0 {
+				codeBlockDepth--
+			}
+		case *ast.CodeBlock:
+			if entering {
+				codeBlockDepth++
+			} else if codeBlockDepth > 0 {
+				codeBlockDepth--
+			}
 		case *ast.Heading:
 			if !entering {
 				return ast.WalkContinue, nil
@@ -58,11 +78,11 @@ func parseMarkdown(document *Document) {
 			title := strings.TrimSpace(plainText(source, typed))
 			document.Sections[title] = line
 		case *ast.Text:
-			if entering {
+			if entering && codeSpanDepth == 0 && codeBlockDepth == 0 {
 				appendARCReferencesFromText(string(typed.Segment.Value(source)), nodeLine(source, typed, bodyStartLine), linkDepth > 0, &document.ARCReferences)
 			}
 		case *ast.String:
-			if entering {
+			if entering && codeSpanDepth == 0 && codeBlockDepth == 0 {
 				appendARCReferencesFromText(string(typed.Value), nodeLine(source, typed, bodyStartLine), linkDepth > 0, &document.ARCReferences)
 			}
 		}

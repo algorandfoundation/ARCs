@@ -1452,6 +1452,105 @@ Copyright and related rights waived via CC0 1.0.
 	t.Fatalf("expected repository absolute HTML anchor to trigger R:037, got %+v", validationDiagnostics)
 }
 
+func TestValidateIgnoresBodyARCReferencesInsideCode(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	targetPath := filepath.Join(arcDir, "arc-0003.md")
+	targetContent := `---
+arc: 3
+title: Target ARC
+description: Example target ARC.
+author:
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/3
+status: Draft
+type: Meta
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
+`
+	if err := os.WriteFile(targetPath, []byte(targetContent), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := "---\n" +
+		"arc: 1\n" +
+		"title: Example\n" +
+		"description: Example description\n" +
+		"author:\n" +
+		"  - Example Author (@example)\n" +
+		"discussions-to: https://github.com/algorandfoundation/ARCs/issues/1\n" +
+		"status: Draft\n" +
+		"type: Meta\n" +
+		"created: 2026-04-08\n" +
+		"sponsor: Foundation\n" +
+		"implementation-required: false\n" +
+		"---\n\n" +
+		"## Abstract\n\n" +
+		"Inline code like `arc3` and `something#arc3` is allowed.\n\n" +
+		"## Motivation\n\n" +
+		"```text\n" +
+		"arc3\n" +
+		"something#arc3\n" +
+		"```\n\n" +
+		"## Specification\n\n" +
+		"See [ARC-3](./arc-0003.md).\n\n" +
+		"## Rationale\n\n" +
+		"Text\n\n" +
+		"## Security Considerations\n\n" +
+		"Text\n\n" +
+		"## Copyright\n\n" +
+		"Copyright and related rights waived via CC0 1.0.\n"
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %+v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:036" {
+			t.Fatalf("expected code spans and code blocks to be ignored by R:036, got %+v", validationDiagnostics)
+		}
+	}
+}
+
 func TestFindRepoRootUsesConfigFileMarker(t *testing.T) {
 	root := t.TempDir()
 	nested := filepath.Join(root, "docs", "nested")

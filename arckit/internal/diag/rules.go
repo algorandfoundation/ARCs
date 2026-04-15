@@ -285,9 +285,9 @@ var rules = []Rule{
 		ID:          "R:036",
 		Severity:    SeverityError,
 		Title:       "Invalid ARC body reference",
-		Description: "Body ARC references must use uppercase ARC-N spelling and the first mention of each ARC must be a hyperlink.",
+		Description: "Body ARC references in prose must use uppercase ARC-N spelling and the first mention of each ARC must be a hyperlink.",
 		Rationale:   "Canonical ARC references keep cross-document navigation explicit and machine-checkable.",
-		Hint:        "Write ARC-N with uppercase ARC and a dash, and hyperlink the first mention to the target ARC file.",
+		Hint:        "Write ARC-N with uppercase ARC and a dash in prose, and hyperlink the first prose mention to the target ARC file.",
 	},
 	{
 		ID:          "R:037",
