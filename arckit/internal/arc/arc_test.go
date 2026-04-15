@@ -1261,7 +1261,7 @@ Text with arc-2 before the link and [ARC-2](./arc-0002.md) after it.
 
 ## Motivation
 
-See [external](https://example.com/spec).
+See [absolute repo](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md).
 
 ## Security Considerations
 
@@ -1317,6 +1317,139 @@ Text
 	if !foundMissingCopyright || !foundExtraSection || !foundOutOfOrder || !foundBodyCase || !foundFirstMention || !foundAbsolute {
 		t.Fatalf("expected section/body/link diagnostics, got %+v", validationDiagnostics)
 	}
+}
+
+func TestValidateAllowsExternalHTMLAnchorLinks(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Draft
+type: Meta
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+See <a href="https://example.com/spec">external spec</a>.
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %+v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:037" {
+			t.Fatalf("expected external HTML anchor to be allowed, got %+v", validationDiagnostics)
+		}
+	}
+}
+
+func TestValidateRejectsRepositoryAbsoluteHTMLAnchorLinks(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Draft
+type: Meta
+created: 2026-04-08
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+See <a href="https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md">ARC-2</a>.
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	document, diagnostics, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %+v", diagnostics)
+	}
+
+	validationDiagnostics := Validate(document, root)
+	for _, diagnostic := range validationDiagnostics {
+		if diagnostic.RuleID == "R:037" {
+			return
+		}
+	}
+	t.Fatalf("expected repository absolute HTML anchor to trigger R:037, got %+v", validationDiagnostics)
 }
 
 func TestFindRepoRootUsesConfigFileMarker(t *testing.T) {

@@ -181,6 +181,8 @@ var (
 	githubHandlePattern    = regexp.MustCompile(`^.+ \(@[A-Za-z0-9-]+\)$`)
 	emailPattern           = regexp.MustCompile(`^.+ <[^<>\s@]+@[^<>\s@]+\.[^<>\s@]+>$`)
 	rawHTMLLinkPattern     = regexp.MustCompile(`(?i)<a\b[^>]*href=["'](https?://[^"']+)["']`)
+	repoGitHubLinkPattern  = regexp.MustCompile(`^/algorandfoundation/ARCs/(blob|tree)/[^/]+/.+$`)
+	repoRawLinkPattern     = regexp.MustCompile(`^/algorandfoundation/ARCs/[^/]+/.+$`)
 )
 
 var allowedLevel2Sections = []string{
@@ -417,7 +419,9 @@ func ValidateLinks(document *Document, repoRoot string) []diag.Diagnostic {
 		parsed, err := url.Parse(destination)
 		if err == nil && (parsed.Scheme == "http" || parsed.Scheme == "https") {
 			document.ExternalLinks = append(document.ExternalLinks, destination)
-			diagnostics = append(diagnostics, diag.NewWithHint("R:037", diag.OriginNative, document.Path, link.Line, 1, fmt.Sprintf("absolute body link %q is not allowed", destination), "Use a relative repository link in ARC body content."))
+			if isRepositoryAbsoluteURL(parsed) {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:037", diag.OriginNative, document.Path, link.Line, 1, fmt.Sprintf("absolute repository link %q is not allowed", destination), "Use a relative repository link for ARCs, assets, or other repo files."))
+			}
 			continue
 		}
 		if parsed != nil && parsed.Scheme != "" {
@@ -471,7 +475,11 @@ func ValidateLinks(document *Document, repoRoot string) []diag.Diagnostic {
 
 	for _, link := range rawHTMLAbsoluteLinks(document.Body, document.BodyStartLine) {
 		document.ExternalLinks = append(document.ExternalLinks, link.Destination)
-		diagnostics = append(diagnostics, diag.NewWithHint("R:037", diag.OriginNative, document.Path, link.Line, 1, fmt.Sprintf("absolute body link %q is not allowed", link.Destination), "Use a relative repository link in ARC body content."))
+		parsed, err := url.Parse(link.Destination)
+		if err != nil || !isRepositoryAbsoluteURL(parsed) {
+			continue
+		}
+		diagnostics = append(diagnostics, diag.NewWithHint("R:037", diag.OriginNative, document.Path, link.Line, 1, fmt.Sprintf("absolute repository link %q is not allowed", link.Destination), "Use a relative repository link for ARCs, assets, or other repo files."))
 	}
 
 	return diagnostics
@@ -524,6 +532,20 @@ func rawHTMLAbsoluteLinks(body []byte, baseLine int) []Link {
 		})
 	}
 	return links
+}
+
+func isRepositoryAbsoluteURL(parsed *url.URL) bool {
+	if parsed == nil {
+		return false
+	}
+	switch strings.ToLower(parsed.Host) {
+	case "github.com", "www.github.com":
+		return repoGitHubLinkPattern.MatchString(parsed.EscapedPath())
+	case "raw.githubusercontent.com":
+		return repoRawLinkPattern.MatchString(parsed.EscapedPath())
+	default:
+		return false
+	}
 }
 
 func ExpectedImplementationURL(document *Document) (string, bool) {

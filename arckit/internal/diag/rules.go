@@ -292,10 +292,10 @@ var rules = []Rule{
 	{
 		ID:          "R:037",
 		Severity:    SeverityError,
-		Title:       "Invalid ARC body external link",
-		Description: "Absolute links are not allowed in ARC body content.",
-		Rationale:   "ARC documents should use repository-relative links so offline review remains deterministic.",
-		Hint:        "Replace the absolute link with a relative repository link or plain text.",
+		Title:       "Invalid ARC body absolute repository link",
+		Description: "Absolute links back into repository content are not allowed in ARC body content.",
+		Rationale:   "ARC documents should use repository-relative links for ARCs, assets, and other repo-local files so offline review remains deterministic.",
+		Hint:        "Replace the absolute repository URL with a relative repository link.",
 	},
 	{
 		ID:          "R:038",
