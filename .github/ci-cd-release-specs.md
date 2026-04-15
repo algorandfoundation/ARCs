@@ -29,8 +29,8 @@ The pipeline must follow these principles:
 1. **Small and explicit.** Use a small number of clearly named workflows with stable
    responsibilities.
 1. **Offline-first.** The required validation gate uses offline `arckit` validation.
-1. **Assistive online checks.** External link reachability is useful, but must not
-   become the canonical merge gate.
+1. **Assistive advisory checks.** External link reachability and spelling feedback
+   are useful, but must not become the canonical merge gate.
 1. **Process-aware.** GitHub-native ARC process requirements are enforced separately
    from `arckit`, because `arckit` does not own GitHub API lookups or repository mutation.
 1. **Maintenance-oriented.** CI is both an intake gate and a recurring repository
@@ -152,10 +152,14 @@ Its default hook surface must cover:
 1. YAML syntax and formatting for `.github/**`, `adoption/**`, and `templates/**`;
 1. generic Markdown linting through `markdownlint-cli2`.
 
-This check exists outside the CLI so generic Markdown, YAML, text-file hygiene,
-and external link reachability are version-pinned once in `pre-commit` rather
-than duplicated inside `arckit`. ARC-specific repository-link policy remains
-enforced by `arckit`.
+This check exists outside the CLI so generic Markdown, YAML, text-file, spelling,
+and external link reachability hygiene are version-pinned once in `pre-commit`
+rather than duplicated inside `arckit`. ARC-specific repository-link policy
+remains enforced by `arckit`.
+
+The shared configuration may also define advisory manual-stage hooks. In the
+current design, `codespell` checks Markdown and YAML files outside `_archive/`,
+and pull request validation surfaces those findings only as non-blocking advice.
 
 ### 5.3 arckit Tool Check
 
@@ -205,9 +209,13 @@ The ARC process remains:
 
 Tracking issue creation is a required author action, not an automatic workflow action.
 
-### 5.6 Online Validation Placement
+### 5.6 Advisory Validation Placement
 
 Pull requests do not run a separate online validation job.
+
+Pull request validation may surface advisory spelling findings through the shared
+manual-stage `codespell` hook from the repository-root `pre-commit`
+configuration, but those findings must not fail the workflow.
 
 Advisory online link checking runs only in the monthly maintenance workflow through
 the shared `lychee` hook from the repository-root `pre-commit` configuration.

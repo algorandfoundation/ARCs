@@ -24,6 +24,7 @@ Before creating a release:
 
    ```sh
    pre-commit run --all-files
+   pre-commit run codespell --all-files --hook-stage manual
    pre-commit run lychee --all-files --hook-stage manual
    cd arckit
    find . -name '*.go' -print0 | xargs -0 gofmt -w -s

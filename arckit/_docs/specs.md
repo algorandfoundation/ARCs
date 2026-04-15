@@ -8,8 +8,9 @@ It exists to make repository validation deterministic where it can be determinis
 while keeping human editorial judgment clearly out of the tool.
 
 `arckit` is a single Go CLI that must remain useful with only Go installed.
-Generic Markdown, YAML, whitespace, and external-link reachability hygiene is handled
-by the repository-root `.pre-commit-config.yaml`, not by `arckit`.
+Generic Markdown, YAML, whitespace, spelling, and external-link reachability
+hygiene is handled by the repository-root `.pre-commit-config.yaml`, not by
+`arckit`.
 
 ## 2. Product Boundary
 
@@ -31,7 +32,7 @@ by the repository-root `.pre-commit-config.yaml`, not by `arckit`.
 1. deciding whether adoption evidence is substantively sufficient;
 1. deciding whether a reference implementation is high quality;
 1. replacing editor judgment or ARC-0 process decisions;
-1. owning generic Markdown, YAML, whitespace, or external-link reachability hygiene;
+1. owning generic Markdown, YAML, whitespace, spelling, or external-link reachability hygiene;
 1. owning the devportal workflows in this repository.
 
 ## 3. Design Principles
@@ -71,7 +72,7 @@ It must:
 1. validate local file links and relative ARC links;
 1. auto-discover the optional repo-root `.arckit.jsonc` for `validate` commands only;
 1. avoid network requests and external tool resolution;
-1. keep generic Markdown, YAML, whitespace, and external-link reachability hygiene outside the CLI.
+1. keep generic Markdown, YAML, whitespace, spelling, and external-link reachability hygiene outside the CLI.
 
 Native validation remains authoritative for repository semantics.
 That includes ARC-specific metadata wording, reference text, and body-link policy.
@@ -470,8 +471,9 @@ requires:
 1. the `adoption-summary` field, when present, must resolve to an existing file when
    the adoption summary is required for that ARC status.
 
-External link reachability is handled outside `arckit` by the shared `lychee`
-hook in the repository-root `pre-commit` configuration.
+Advisory spelling and external link reachability are handled outside `arckit` by
+the shared `codespell` and `lychee` hooks in the repository-root `pre-commit`
+configuration.
 
 ## 10. Adoption Summary Rules
 
@@ -773,6 +775,8 @@ The repository guidance for v1 is:
 1. a root `pre-commit` configuration defines the canonical generic hygiene surface
    and pins the generic tool versions;
 1. a PR hygiene workflow runs `pre-commit` on the PR diff;
+1. that same PR hygiene workflow may surface advisory manual-stage `codespell`
+   findings without failing the workflow;
 1. a PR tool workflow runs `gofmt -s` checks, `go vet`, `go test`, and `go build`
    when `arckit/**` changes;
 1. a PR repository-validation workflow builds `arckit` and runs `arckit validate repo .`
@@ -789,7 +793,7 @@ The repository guidance for v1 is:
 The following are intentionally out of scope:
 
 1. `.arckit.yaml`, user-local configuration, or an explicit `--config` flag;
-1. generic Markdown, YAML, whitespace, or external-link reachability hygiene inside `arckit`;
+1. generic Markdown, YAML, whitespace, spelling, or external-link reachability hygiene inside `arckit`;
 1. GitHub API lookups and repository mutation;
 1. SARIF output;
 1. multi-version required CI matrices;
