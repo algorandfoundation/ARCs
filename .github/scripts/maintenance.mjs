@@ -8,6 +8,7 @@ const SIX_MONTHS_MS = 180 * 24 * 60 * 60 * 1000;
 const STAGNANT_FOLLOW_UP_MS = 210 * 24 * 60 * 60 * 1000;
 const ISSUE_TITLE_PREFIX = "Monthly ARC maintenance report";
 const ISSUE_LABEL = "maintenance-report";
+const TRACKING_ISSUE_LABEL = "arc-tracking";
 const TEMPLATE_MARKERS = [
   "## ARC",
   "## Canonical Artifacts",
@@ -22,6 +23,7 @@ export async function runMaintenance({ github, context, core }) {
   const repoRoot = process.cwd();
   const arcDir = path.join(repoRoot, "ARCs");
   const arcFiles = (await fs.readdir(arcDir)).filter((entry) => /^arc-\d{4}\.md$/.test(entry)).sort();
+  const repoIndex = await buildRepoIndex(github, context);
 
   const authorsAction = [];
   const editorAction = [];
@@ -33,7 +35,7 @@ export async function runMaintenance({ github, context, core }) {
     if (!metadata.arc) {
       continue;
     }
-    const trackingIssue = await findTrackingIssue(github, context, metadata.arc);
+    const trackingIssue = repoIndex.trackingIssues.get(normalizeArcNumber(metadata.arc)) || null;
     if (!trackingIssue) {
       editorAction.push(`- ARC-${metadata.arc} ${metadata.title || ""}: create the missing tracking issue with the \`arc-tracking\` label.`);
     } else if (!hasTemplateShape(trackingIssue.body || "")) {
@@ -45,6 +47,7 @@ export async function runMaintenance({ github, context, core }) {
       context,
       arcNumber: metadata.arc,
       trackingIssue,
+      latestPrUpdateAt: repoIndex.latestPrUpdates.get(normalizeArcNumber(metadata.arc)) || null,
       arcPath: filePath,
       adoptionPath: metadata.adoptionSummary,
     });
@@ -166,34 +169,18 @@ function listOrScalarField(fields, key) {
   return value || "";
 }
 
-async function findTrackingIssue(github, context, arcNumber) {
-  const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue label:arc-tracking "ARC-${arcNumber.toString().padStart(4, "0")}"`;
-  const result = await github.rest.search.issuesAndPullRequests({
-    q: query,
-    per_page: 20,
-  });
-  return result.data.items.find((item) => !item.pull_request) || null;
-}
-
 function hasTemplateShape(body) {
   return TEMPLATE_MARKERS.every((marker) => body.includes(marker));
 }
 
-async function latestCanonicalActivity({ github, context, arcNumber, trackingIssue, arcPath, adoptionPath }) {
+async function latestCanonicalActivity({ trackingIssue, latestPrUpdateAt, arcPath, adoptionPath }) {
   const timestamps = [];
   if (trackingIssue?.updated_at) {
     timestamps.push(new Date(trackingIssue.updated_at));
   }
 
-  const prSearch = await github.rest.search.issuesAndPullRequests({
-    q: `repo:${context.repo.owner}/${context.repo.repo} is:pr "ARC-${arcNumber.toString().padStart(4, "0")}"`,
-    sort: "updated",
-    order: "desc",
-    per_page: 1,
-  });
-  const pullRequest = prSearch.data.items[0];
-  if (pullRequest?.updated_at) {
-    timestamps.push(new Date(pullRequest.updated_at));
+  if (latestPrUpdateAt) {
+    timestamps.push(new Date(latestPrUpdateAt));
   }
 
   const gitTimestamp = await latestGitTimestamp([arcPath, adoptionPath].filter(Boolean));
@@ -205,6 +192,71 @@ async function latestCanonicalActivity({ github, context, arcNumber, trackingIss
     return null;
   }
   return timestamps.sort((left, right) => right - left)[0];
+}
+
+async function buildRepoIndex(github, context) {
+  const [trackingIssues, pullRequests] = await Promise.all([
+    github.paginate(github.rest.issues.listForRepo, {
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      state: "all",
+      labels: TRACKING_ISSUE_LABEL,
+      per_page: 100,
+    }),
+    github.paginate(github.rest.pulls.list, {
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      state: "all",
+      sort: "updated",
+      direction: "desc",
+      per_page: 100,
+    }),
+  ]);
+
+  return {
+    trackingIssues: indexTrackingIssues(trackingIssues),
+    latestPrUpdates: indexPullRequestUpdates(pullRequests),
+  };
+}
+
+function indexTrackingIssues(issues) {
+  const byArc = new Map();
+  for (const issue of issues) {
+    if (issue.pull_request) {
+      continue;
+    }
+    for (const arcNumber of extractArcNumbersFromText(`${issue.title || ""}\n${issue.body || ""}`)) {
+      if (!byArc.has(arcNumber)) {
+        byArc.set(arcNumber, issue);
+      }
+    }
+  }
+  return byArc;
+}
+
+function indexPullRequestUpdates(pullRequests) {
+  const byArc = new Map();
+  for (const pullRequest of pullRequests) {
+    for (const arcNumber of extractArcNumbersFromText(`${pullRequest.title || ""}\n${pullRequest.body || ""}`)) {
+      const current = byArc.get(arcNumber);
+      if (!current || new Date(pullRequest.updated_at) > new Date(current)) {
+        byArc.set(arcNumber, pullRequest.updated_at);
+      }
+    }
+  }
+  return byArc;
+}
+
+function extractArcNumbersFromText(text) {
+  const arcNumbers = new Set();
+  for (const match of text.matchAll(/\bARC-(\d{4})\b/gi)) {
+    arcNumbers.add(match[1]);
+  }
+  return arcNumbers;
+}
+
+function normalizeArcNumber(value) {
+  return value.toString().padStart(4, "0");
 }
 
 async function latestGitTimestamp(paths) {
