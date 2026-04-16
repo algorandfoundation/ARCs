@@ -1,0 +1,48 @@
+name: PR governance
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+      - ready_for_review
+permissions:
+  contents: read
+jobs:
+  arc-process-check:
+    name: arc-process-check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - name: Checkout trusted base branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+      - name: Run ARC process checks
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const module = await import(`${process.env.GITHUB_WORKSPACE}/.github/scripts/pr-governance.mjs`);
+            await module.runProcessCheck({ github, context, core });
+  auto-label:
+    name: auto-label
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout trusted base branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+      - name: Apply area and kind labels
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const module = await import(`${process.env.GITHUB_WORKSPACE}/.github/scripts/pr-governance.mjs`);
+            await module.runAutoLabel({ github, context, core });

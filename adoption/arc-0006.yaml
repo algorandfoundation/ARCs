@@ -1,0 +1,13 @@
+arc: 6
+title: Algorand Wallet Address Discovery API
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

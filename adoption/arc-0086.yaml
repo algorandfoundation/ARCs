@@ -1,0 +1,17 @@
+arc: 86
+title: xGov status and voting power
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols:
+    - name: af-governance
+      status: shipped
+      evidence: https://docs.xgov.algorand.co/specs/xgov-committee
+      notes: Algorand Foundation xGov makes use of ARC-86 to select committees.
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
