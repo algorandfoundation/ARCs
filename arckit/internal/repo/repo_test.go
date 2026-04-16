@@ -59,7 +59,7 @@ func TestValidateRepoIgnoresConfiguredARCFootprint(t *testing.T) {
 	}
 }
 
-func TestValidateRepoRejectsAdopterWithEmptyEvidence(t *testing.T) {
+func TestValidateRepoAllowsAdopterWithEmptyEvidence(t *testing.T) {
 	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "vetted-adopters.yaml"), `wallets:
   - example-wallet
@@ -91,14 +91,10 @@ summary:
 	if err != nil {
 		t.Fatalf("Validate() error = %v", err)
 	}
-	found := false
 	for _, diagnostic := range diagnostics {
 		if diagnostic.RuleID == "R:016" && diagnostic.Message == `wallets[0].evidence is required` {
-			found = true
+			t.Fatalf("expected empty evidence to be allowed, got %+v", diagnostics)
 		}
-	}
-	if !found {
-		t.Fatalf("expected empty evidence diagnostic, got %+v", diagnostics)
 	}
 }
 

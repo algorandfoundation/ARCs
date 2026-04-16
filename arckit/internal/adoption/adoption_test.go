@@ -132,7 +132,7 @@ summary:
 	}
 }
 
-func TestValidateAdoptionRejectsActorWithEmptyEvidence(t *testing.T) {
+func TestValidateAdoptionAllowsActorWithEmptyEvidence(t *testing.T) {
 	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	arcPath := filepath.Join(root, "ARCs", "arc-0042.md")
 	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
@@ -184,8 +184,8 @@ dapps-protocols: []
 	}
 
 	diagnostics := Validate(summary, document, registry)
-	if !containsDiagnosticMessage(diagnostics, `wallets[0].evidence is required`) {
-		t.Fatalf("expected empty evidence diagnostic, got %+v", diagnostics)
+	if containsDiagnosticMessage(diagnostics, `wallets[0].evidence is required`) {
+		t.Fatalf("expected empty evidence to be allowed, got %+v", diagnostics)
 	}
 }
 

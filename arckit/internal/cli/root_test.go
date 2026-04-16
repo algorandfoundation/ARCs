@@ -528,7 +528,7 @@ summary:
 	assertContains(t, stdout.String(), `summary.adoption-readiness "low" is too low for 3 adopters across all categories; expected "medium"`)
 }
 
-func TestCLIValidateRepoRejectsAdopterWithEmptyEvidence(t *testing.T) {
+func TestCLIValidateRepoAllowsAdopterWithEmptyEvidence(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	writeVettedAdopters(t, root, `wallets:
   - example-wallet
@@ -562,10 +562,10 @@ summary:
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 	exitCode := ExecuteArgs([]string{"validate", "repo", root}, stdout, stderr)
-	if exitCode != 1 {
-		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	if exitCode != 0 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 0, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
 	}
-	assertContains(t, stdout.String(), `wallets[0].evidence is required`)
+	assertContains(t, stdout.String(), "summary: 0 error(s), 0 warning(s), 0 info")
 }
 
 func TestCLIFmtFormatsAdoptionSummaryPaths(t *testing.T) {

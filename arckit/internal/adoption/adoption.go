@@ -167,7 +167,7 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported summary.adoption-readiness %q", summary.Summary.AdoptionReadiness), "Use one of low, medium, or high."))
 	} else {
 		actorCount := summary.ActorCount()
-		expectedReadiness := summary.NormalizedAdoptionReadiness()
+		expectedReadiness := normalizedAdoptionReadinessForActorCount(actorCount)
 		switch summary.Summary.AdoptionReadiness {
 		case ReadinessLow:
 			if actorCount >= 3 {
@@ -207,9 +207,6 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 			}
 			if !IsKnownActorStatus(actor.Status) {
 				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d] has unsupported status %q", group.Name, index, actor.Status), "Use one of planned, in_progress, shipped, declined, or unknown."))
-			}
-			if strings.TrimSpace(actor.Evidence) == "" {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d].evidence is required", group.Name, index), "Set a non-empty evidence value for each adopter entry."))
 			}
 		}
 	}
@@ -255,10 +252,14 @@ func (summary *Summary) ActorCount() int {
 }
 
 func (summary *Summary) NormalizedAdoptionReadiness() string {
+	return normalizedAdoptionReadinessForActorCount(summary.ActorCount())
+}
+
+func normalizedAdoptionReadinessForActorCount(actorCount int) string {
 	switch {
-	case summary.ActorCount() >= 5:
+	case actorCount >= 5:
 		return ReadinessHigh
-	case summary.ActorCount() >= 3:
+	case actorCount >= 3:
 		return ReadinessMedium
 	default:
 		return ReadinessLow
