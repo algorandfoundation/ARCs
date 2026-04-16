@@ -7,13 +7,22 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/algorandfoundation/ARCs/arckit/internal/adoption"
 	"github.com/algorandfoundation/ARCs/arckit/internal/arc"
 	"github.com/algorandfoundation/ARCs/arckit/internal/config"
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
+	"gopkg.in/yaml.v3"
 )
 
 func applyNativeFix(path string) error {
 	return applyNativeFixWithConfig(path, config.Config{})
+}
+
+func applyFixWithConfig(path string, cfg config.Config) error {
+	if adoptionSummaryPattern.MatchString(path) {
+		return applyAdoptionFix(path)
+	}
+	return applyNativeFixWithConfig(path, cfg)
 }
 
 func applyNativeFixWithConfig(path string, cfg config.Config) error {
@@ -431,4 +440,234 @@ func splitLinesPreserveNewlines(content []byte) []string {
 		lines = lines[:len(lines)-1]
 	}
 	return lines
+}
+
+func applyAdoptionFix(path string) error {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	summary, diagnostics, err := adoption.Load(path)
+	if err != nil {
+		return err
+	}
+	if unsafeErr := unsafeAdoptionError(diagnostics); unsafeErr != nil {
+		return unsafeErr
+	}
+
+	normalized, err := normalizeAdoptionContent(content)
+	if err != nil {
+		return err
+	}
+	if bytes.Equal(content, normalized) {
+		return nil
+	}
+	if len(summary.KeySet()) == 0 {
+		return fmt.Errorf("adoption summary could not be safely reformatted")
+	}
+	return os.WriteFile(path, normalized, 0o644)
+}
+
+func unsafeAdoptionError(diagnostics []diag.Diagnostic) error {
+	for _, diagnostic := range diagnostics {
+		switch diagnostic.RuleID {
+		case "R:016":
+			if strings.Contains(diagnostic.Message, "yaml:") || strings.Contains(diagnostic.Message, "must be a mapping") || strings.Contains(diagnostic.Message, "must be a sequence") {
+				return fmt.Errorf("adoption summary is not valid YAML or schema-safe for deterministic reordering (%s); fix the file and rerun fmt", diagnostic.Message)
+			}
+		}
+	}
+	return nil
+}
+
+type mappingChunk struct {
+	key           string
+	known         bool
+	orderIndex    int
+	originalIndex int
+	rank          float64
+	startLine     int
+	endLine       int
+	valueNode     *yaml.Node
+}
+
+func normalizeAdoptionContent(content []byte) ([]byte, error) {
+	var root yaml.Node
+	if err := yaml.Unmarshal(content, &root); err != nil {
+		return nil, err
+	}
+	if len(root.Content) == 0 || root.Content[0].Kind != yaml.MappingNode {
+		return content, nil
+	}
+
+	lines := splitLinesPreserveNewlines(content)
+	if len(lines) == 0 {
+		return content, nil
+	}
+	out, ok := renderOrderedMapping(lines, root.Content[0], 0, len(lines), "top")
+	if !ok {
+		return content, nil
+	}
+	return []byte(strings.Join(out, "")), nil
+}
+
+func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, regionEnd int, context string) ([]string, bool) {
+	if mapping == nil || mapping.Kind != yaml.MappingNode {
+		return append([]string(nil), lines[regionStart:regionEnd]...), true
+	}
+	if len(mapping.Content) == 0 {
+		return append([]string(nil), lines[regionStart:regionEnd]...), true
+	}
+
+	entries, ok := mappingChunks(mapping, regionEnd, orderForAdoptionContext(context))
+	if !ok || len(entries) == 0 {
+		return append([]string(nil), lines[regionStart:regionEnd]...), ok
+	}
+
+	firstStart := entries[0].startLine
+	if firstStart < regionStart || firstStart > regionEnd {
+		return append([]string(nil), lines[regionStart:regionEnd]...), false
+	}
+
+	builder := make([]string, 0, regionEnd-regionStart)
+	builder = append(builder, lines[regionStart:firstStart]...)
+	for _, entry := range reorderedMappingChunks(entries) {
+		if entry.startLine < regionStart || entry.endLine < entry.startLine || entry.endLine > regionEnd {
+			return append([]string(nil), lines[regionStart:regionEnd]...), false
+		}
+		if entry.valueNode != nil && entry.valueNode.Kind == yaml.MappingNode && entry.valueNode.Line-1 > entry.startLine && entry.valueNode.Line-1 <= entry.endLine {
+			nestedStart := entry.valueNode.Line - 1
+			nested, ok := renderOrderedMapping(lines, entry.valueNode, nestedStart, entry.endLine, entry.key)
+			if !ok {
+				return append([]string(nil), lines[regionStart:regionEnd]...), false
+			}
+			builder = append(builder, lines[entry.startLine:nestedStart]...)
+			builder = append(builder, nested...)
+			continue
+		}
+		builder = append(builder, lines[entry.startLine:entry.endLine]...)
+	}
+	return builder, true
+}
+
+func mappingChunks(mapping *yaml.Node, regionEnd int, orderLookup map[string]int) ([]mappingChunk, bool) {
+	entries := make([]mappingChunk, 0, len(mapping.Content)/2)
+	for idx := 0; idx < len(mapping.Content); idx += 2 {
+		keyNode := mapping.Content[idx]
+		valueNode := mapping.Content[idx+1]
+		startLine := keyNode.Line - 1
+		endLine := regionEnd
+		if idx+2 < len(mapping.Content) {
+			endLine = mapping.Content[idx+2].Line - 1
+		}
+		if startLine < 0 || endLine < startLine {
+			return nil, false
+		}
+		orderIndex, known := orderLookup[keyNode.Value]
+		entries = append(entries, mappingChunk{
+			key:           keyNode.Value,
+			known:         known,
+			orderIndex:    orderIndex,
+			originalIndex: len(entries),
+			startLine:     startLine,
+			endLine:       endLine,
+			valueNode:     valueNode,
+		})
+	}
+	return entries, true
+}
+
+func reorderedMappingChunks(entries []mappingChunk) []mappingChunk {
+	assignMappingChunkRanks(entries)
+	out := append([]mappingChunk(nil), entries...)
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].rank == out[j].rank {
+			return out[i].originalIndex < out[j].originalIndex
+		}
+		return out[i].rank < out[j].rank
+	})
+	return out
+}
+
+func assignMappingChunkRanks(entries []mappingChunk) {
+	for idx := range entries {
+		if entries[idx].known {
+			entries[idx].rank = float64(entries[idx].orderIndex * 1000)
+		}
+	}
+
+	for start := 0; start < len(entries); {
+		if entries[start].known {
+			start++
+			continue
+		}
+		end := start
+		for end+1 < len(entries) && !entries[end+1].known {
+			end++
+		}
+
+		prevOrder, hasPrev := nearestKnownMappingOrder(entries, start-1, -1)
+		nextOrder, hasNext := nearestKnownMappingOrder(entries, end+1, 1)
+		count := end - start + 1
+
+		switch {
+		case hasPrev && hasNext:
+			low := float64(prevOrder * 1000)
+			high := float64(nextOrder * 1000)
+			if low > high {
+				low, high = high, low
+			}
+			step := (high - low) / float64(count+1)
+			for i := 0; i < count; i++ {
+				entries[start+i].rank = low + step*float64(i+1)
+			}
+		case hasPrev:
+			base := float64(prevOrder * 1000)
+			for i := 0; i < count; i++ {
+				entries[start+i].rank = base + 500 + float64(i)
+			}
+		case hasNext:
+			base := float64(nextOrder * 1000)
+			for i := 0; i < count; i++ {
+				entries[start+i].rank = base - 500 + float64(i)
+			}
+		default:
+			for i := 0; i < count; i++ {
+				entries[start+i].rank = float64(i)
+			}
+		}
+		start = end + 1
+	}
+}
+
+func nearestKnownMappingOrder(entries []mappingChunk, start int, step int) (int, bool) {
+	for idx := start; idx >= 0 && idx < len(entries); idx += step {
+		if entries[idx].known {
+			return entries[idx].orderIndex, true
+		}
+	}
+	return 0, false
+}
+
+func orderForAdoptionContext(context string) map[string]int {
+	var ordered []string
+	switch context {
+	case "top":
+		ordered = []string{"arc", "title", "last-reviewed", "reference-implementation", "adoption", "summary"}
+	case "reference-implementation":
+		ordered = []string{"status", "notes"}
+	case "adoption":
+		ordered = adoption.CategoryNames()
+	case "summary":
+		ordered = []string{"adoption-readiness", "blockers", "notes"}
+	default:
+		return map[string]int{}
+	}
+
+	orderLookup := make(map[string]int, len(ordered))
+	for idx, key := range ordered {
+		orderLookup[key] = idx
+	}
+	return orderLookup
 }

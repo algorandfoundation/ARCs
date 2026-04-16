@@ -88,6 +88,50 @@ dapps-protocols: []
 	}
 }
 
+func TestValidateAdoptionRejectsTitleMismatchWithARC(t *testing.T) {
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	arcPath := filepath.Join(root, "ARCs", "arc-0042.md")
+	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
+
+	document := loadValidatedDocument(t, root, arcPath)
+	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
+title: Different ARC Title
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	summary, loadDiagnostics, err := Load(adoptionPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(loadDiagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
+	}
+	registry, registryDiagnostics, err := LoadVettedAdopters(RegistryPath(root))
+	if err != nil {
+		t.Fatalf("LoadVettedAdopters() error = %v", err)
+	}
+	if len(registryDiagnostics) != 0 {
+		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
+	}
+
+	diagnostics := Validate(summary, document, registry)
+	if !containsDiagnosticMessage(diagnostics, `adoption title "Different ARC Title" does not match ARC title "Example ARC"`) {
+		t.Fatalf("expected title mismatch diagnostic, got %+v", diagnostics)
+	}
+}
+
 func TestValidateFinalAdoptionRequiresAtLeastOneAdopter(t *testing.T) {
 	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	arcPath := filepath.Join(root, "ARCs", "arc-0042.md")

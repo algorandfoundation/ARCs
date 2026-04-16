@@ -14,8 +14,25 @@ import (
 )
 
 var (
-	arcFilePattern = regexp.MustCompile(`(^|.*/)ARCs/arc-\d{4}\.md$`)
+	arcFilePattern         = regexp.MustCompile(`(^|.*/)ARCs/arc-\d{4}\.md$`)
+	adoptionSummaryPattern = regexp.MustCompile(`(^|.*/)adoption/arc-\d{4}\.yaml$`)
 )
+
+func collectFmtTargets(paths []string) ([]string, error) {
+	return collectMatchingPaths(
+		paths,
+		func(slashPath string, entry os.DirEntry) bool {
+			return !entry.IsDir() && ((strings.HasSuffix(entry.Name(), ".md") && arcFilePattern.MatchString(slashPath)) || adoptionSummaryPattern.MatchString(slashPath))
+		},
+		func(path string) error {
+			if arcFilePattern.MatchString(path) || adoptionSummaryPattern.MatchString(path) {
+				return nil
+			}
+			return fmt.Errorf("%s is not an ARC Markdown file under ARCs/arc-####.md or an adoption summary under adoption/arc-####.yaml", path)
+		},
+		"no ARC Markdown files or adoption summaries found under ARCs/arc-####.md or adoption/arc-####.yaml",
+	)
+}
 
 func collectARCFiles(paths []string) ([]string, error) {
 	return collectMatchingPaths(

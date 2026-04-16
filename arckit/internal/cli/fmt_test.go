@@ -654,3 +654,44 @@ Text`
 		t.Fatalf("expected fmt error to explain ARC/front-matter hook boundary, got: %v", err)
 	}
 }
+
+func TestApplyAdoptionFixReordersCanonicalAdoptionKeys(t *testing.T) {
+	root := t.TempDir()
+	adoptionDir := filepath.Join(root, "adoption")
+	if err := os.MkdirAll(adoptionDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(adoptionDir, "arc-0001.yaml")
+	content := `summary:
+  notes: ""
+  blockers: []
+  adoption-readiness: low
+adoption:
+  tooling: []
+  wallets: []
+  dapps-protocols: []
+  explorers: []
+  infra: []
+reference-implementation:
+  notes: ""
+  status: shipped
+title: Example ARC
+arc: 1
+last-reviewed: 2026-04-09
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyAdoptionFix(path); err != nil {
+		t.Fatalf("applyAdoptionFix() error = %v", err)
+	}
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	text := string(updated)
+	if !strings.HasPrefix(text, "arc: 1\ntitle: Example ARC\nlast-reviewed: 2026-04-09\nreference-implementation:\n  status: shipped\n  notes: \"\"\nadoption:\n  wallets: []\n  explorers: []\n  tooling: []\n  infra: []\n  dapps-protocols: []\nsummary:\n  adoption-readiness: low\n  blockers: []\n  notes: \"\"\n") {
+		t.Fatalf("expected canonical adoption key ordering, got:\n%s", text)
+	}
+}

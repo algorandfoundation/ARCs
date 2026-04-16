@@ -247,10 +247,10 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 	return &cobra.Command{
 		Use:   "fmt <path...>",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "Apply deterministic ARC-specific formatting fixes",
+		Short: "Apply deterministic ARC/adoption formatting fixes",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
-				files, fileErr := collectARCFiles(args)
+				files, fileErr := collectFmtTargets(args)
 				if fileErr != nil {
 					return newInvocationFailureReport("fmt", fileErr), nil
 				}
@@ -271,8 +271,8 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 					if shouldIgnorePath(cfg, path) {
 						continue
 					}
-					if err := applyNativeFixWithConfig(path, cfg); err != nil {
-						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "fmt only operates on YAML-valid ARC front matter. Fix the ARC header and rerun; repository YAML pre-commit hooks do not inspect ARC Markdown front matter."))
+					if err := applyFixWithConfig(path, cfg); err != nil {
+						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "fmt only applies deterministic ARC/adoption structure fixes on YAML-valid files. Use pre-commit for repository YAML hygiene; fix invalid ARC or adoption metadata and rerun fmt."))
 					}
 				}
 				report := reportForValidation("fmt", diagnostics)
