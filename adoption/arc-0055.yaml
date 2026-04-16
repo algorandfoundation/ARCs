@@ -2,7 +2,11 @@ arc: 55
 title: On-Chain storage/transfer for Multisig
 last-reviewed: 2026-04-09
 adoption:
-  wallets: []
+  wallets:
+    - name: lute
+      status: shipped
+      evidence: https://github.com/GalaxyPay/lute/blob/17962fb8f31bdf213a7cb1cb4fe8a7622fd7408d/src/types/index.d.ts#L271
+      notes: Wallet supports ARC-55 Multisig orchestration.
   explorers: []
   tooling: []
   infra: []

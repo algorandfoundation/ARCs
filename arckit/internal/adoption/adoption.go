@@ -167,10 +167,17 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported summary.adoption-readiness %q", summary.Summary.AdoptionReadiness), "Use one of low, medium, or high."))
 	} else {
 		actorCount := summary.ActorCount()
+		expectedReadiness := normalizedAdoptionReadinessForActorCount(actorCount)
 		switch summary.Summary.AdoptionReadiness {
+		case ReadinessLow:
+			if actorCount >= 3 {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q is too low for %d adopters across all categories; expected %q", summary.Summary.AdoptionReadiness, actorCount, expectedReadiness), "Raise adoption-readiness to match the tracked adopter count or remove adopter entries that should not be counted yet."))
+			}
 		case ReadinessMedium:
 			if actorCount < 3 {
 				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q requires at least 3 adopters across all categories, found %d", summary.Summary.AdoptionReadiness, actorCount), "Lower adoption-readiness to low or add more adopter entries across the adoption categories."))
+			} else if actorCount >= 5 {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q is too low for %d adopters across all categories; expected %q", summary.Summary.AdoptionReadiness, actorCount, expectedReadiness), "Raise adoption-readiness to match the tracked adopter count or remove adopter entries that should not be counted yet."))
 			}
 		case ReadinessHigh:
 			if actorCount < 5 {
@@ -245,10 +252,14 @@ func (summary *Summary) ActorCount() int {
 }
 
 func (summary *Summary) NormalizedAdoptionReadiness() string {
+	return normalizedAdoptionReadinessForActorCount(summary.ActorCount())
+}
+
+func normalizedAdoptionReadinessForActorCount(actorCount int) string {
 	switch {
-	case summary.ActorCount() >= 5:
+	case actorCount >= 5:
 		return ReadinessHigh
-	case summary.ActorCount() >= 3:
+	case actorCount >= 3:
 		return ReadinessMedium
 	default:
 		return ReadinessLow

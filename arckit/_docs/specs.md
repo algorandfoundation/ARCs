@@ -591,8 +591,14 @@ Allowed `summary.adoption-readiness` values are:
 
 Readiness thresholds are:
 
+1. `low` is valid only when the tracked adopter count is fewer than 3;
 1. `medium` requires at least 3 adopter entries across all adoption categories;
+   it is valid only for 3-4 adopters;
 1. `high` requires at least 5 adopter entries across all adoption categories.
+
+`validate adoption` and `validate repo` must reject
+`summary.adoption-readiness` values that understate or overstate the tracked
+adopter count.
 
 `arckit fmt` must normalize `summary.adoption-readiness` from those thresholds:
 

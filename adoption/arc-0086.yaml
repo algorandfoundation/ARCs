@@ -6,7 +6,11 @@ adoption:
   explorers: []
   tooling: []
   infra: []
-  dapps-protocols: []
+  dapps-protocols:
+    - name: af-governance
+      status: shipped
+      evidence: https://docs.xgov.algorand.co/specs/xgov-committee
+      notes: Algorand Foundation xGov makes use of ARC-86 to select committees.
 summary:
   adoption-readiness: low
   blockers: []

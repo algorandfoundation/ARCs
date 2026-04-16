@@ -5,7 +5,7 @@ adoption:
   wallets:
     - name: pera
       status: shipped
-      evidence: Check NFTs tab for any account that owns an ARC-3 compliant asset.
+      evidence: https://github.com/perawallet/pera-react-native/blob/d3fbc3f9ef8ac66bba4dfa6d4c48bb1da79fb462/packages/assets/src/utils.ts#L49
       notes: Wallet renders ARC-3 metadata.
   explorers:
     - name: allo
@@ -26,7 +26,11 @@ adoption:
       evidence: https://dev.algorand.co/algokit/cli/tasks/mint/
       notes: Algokit CLI supports minting ARC-3 compliant assets.
   infra: []
-  dapps-protocols: []
+  dapps-protocols:
+    - name: nfd
+      status: shipped
+      evidence: https://api-docs.nf.domains/reference/on-chain-reference/properties
+      notes: NF Domains renders ARC-3 metadata in public UI.
 summary:
   adoption-readiness: high
   blockers: []

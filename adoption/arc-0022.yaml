@@ -3,11 +3,31 @@ title: Add `read-only` annotation to ABI methods
 last-reviewed: 2026-04-09
 adoption:
   wallets: []
-  explorers: []
-  tooling: []
+  explorers:
+    - name: lora
+      status: shipped
+      evidence: https://lora.algokit.io/mainnet/app-lab/
+      notes: Explorer calls ARC-22 getters from public UI.
+  tooling:
+    - name: algokit-utils
+      status: shipped
+      evidence: https://github.com/algorandfoundation/algokit-utils-py
+      notes: AlgoKit Utils (Python and TypeScript) support ARC-22 getter calls.
+    - name: folks-finance-library
+      status: shipped
+      evidence: https://github.com/Folks-Finance/algorand-smart-contract-library
+      notes: Folks Finance Library implements ARC-22 read-only methods.
+    - name: puya
+      status: shipped
+      evidence: https://github.com/algorandfoundation/puya/
+      notes: Puya compiler supports ARC-22 read-only methods.
   infra: []
-  dapps-protocols: []
+  dapps-protocols:
+    - name: ntt
+      status: shipped
+      evidence: https://github.com/Folks-Finance/algorand-ntt-contracts
+      notes: Folks Finance NTT implementation uses ARC-22 read-only methods.
 summary:
-  adoption-readiness: low
+  adoption-readiness: high
   blockers: []
   notes: ""
