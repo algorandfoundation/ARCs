@@ -1,0 +1,81 @@
+name: Monthly ARC maintenance
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  GO_VERSION: "1.26.1"
+  PYTHON_VERSION: "3.12"
+  PRE_COMMIT_VERSION: "4.4.0"
+  GOCACHE: /tmp/arckit-go-cache
+  GOMODCACHE: /tmp/arckit-go-mod-cache
+jobs:
+  monthly-maintenance:
+    name: monthly-maintenance
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install pre-commit
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pre-commit==${PRE_COMMIT_VERSION}"
+      - name: Build arckit
+        run: |
+          cd arckit
+          go build -o "${RUNNER_TEMP}/arckit" ./cmd/arckit
+      - name: Generate ARC state summary
+        run: |
+          "${RUNNER_TEMP}/arckit" summary repo . --out "${RUNNER_TEMP}/arc-summary.md"
+      - name: Run offline validation
+        id: offline
+        continue-on-error: true
+        run: |
+          set +e
+          "${RUNNER_TEMP}/arckit" validate repo . --format json > "${RUNNER_TEMP}/offline.json"
+          echo "exit_code=$?" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Run online validation
+        id: online
+        continue-on-error: true
+        run: |
+          set +e
+          node .github/scripts/lychee_report.mjs --all-files --report "${RUNNER_TEMP}/online.json"
+          echo "exit_code=$?" >> "${GITHUB_OUTPUT}"
+          exit 0
+      - name: Upload ARC state summary artifact
+        id: arc_summary_artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: arc-state-summary
+          path: ${{ runner.temp }}/arc-summary.md
+          if-no-files-found: error
+          overwrite: true
+      - name: Summarize maintenance findings
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          OFFLINE_REPORT_PATH: ${{ runner.temp }}/offline.json
+          ONLINE_REPORT_PATH: ${{ runner.temp }}/online.json
+          SUMMARY_REPORT_PATH: ${{ runner.temp }}/arc-summary.md
+          SUMMARY_ARTIFACT_URL: ${{ steps.arc_summary_artifact.outputs.artifact-url }}
+        with:
+          script: |
+            const module = await import(`${process.env.GITHUB_WORKSPACE}/.github/scripts/maintenance.mjs`);
+            await module.runMaintenance({ github, context, core });

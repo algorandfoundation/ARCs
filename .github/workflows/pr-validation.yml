@@ -1,0 +1,143 @@
+name: PR validation
+on:
+  pull_request:
+permissions:
+  contents: read
+env:
+  GO_VERSION: "1.26.1"
+  PYTHON_VERSION: "3.12"
+  PRE_COMMIT_VERSION: "4.4.0"
+  GOCACHE: /tmp/arckit-go-cache
+  GOMODCACHE: /tmp/arckit-go-mod-cache
+jobs:
+  hygiene:
+    name: hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install pre-commit
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pre-commit==${PRE_COMMIT_VERSION}"
+      - name: Run hygiene checks
+        run: |
+          pre-commit run --from-ref "${{ github.event.pull_request.base.sha }}" --to-ref "${{ github.event.pull_request.head.sha }}" --show-diff-on-failure
+      - name: Run advisory spell check
+        continue-on-error: true
+        run: |
+          pre-commit run codespell --hook-stage manual --from-ref "${{ github.event.pull_request.base.sha }}" --to-ref "${{ github.event.pull_request.head.sha }}"
+  arckit-tool:
+    name: arckit-tool
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Detect relevant changes
+        id: changes
+        run: |
+          if git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- 'arckit/**' '.github/workflows/**' | grep -q .; then
+            echo "run=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "run=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Skip irrelevant changes
+        if: steps.changes.outputs.run != 'true'
+        run: echo "No arckit or workflow changes detected."
+      - name: Verify gofmt
+        if: steps.changes.outputs.run == 'true'
+        run: |
+          cd arckit
+          DIFF="$(find . -name '*.go' -print0 | xargs -0 gofmt -d -s)"
+          if [[ -n "${DIFF}" ]]; then
+            echo "${DIFF}"
+            exit 1
+          fi
+      - name: Run go vet
+        if: steps.changes.outputs.run == 'true'
+        run: |
+          cd arckit
+          go vet ./...
+      - name: Run go test
+        if: steps.changes.outputs.run == 'true'
+        run: |
+          cd arckit
+          go test ./...
+      - name: Run go build
+        if: steps.changes.outputs.run == 'true'
+        run: |
+          cd arckit
+          go build ./cmd/arckit
+      - name: Dry-run release packaging
+        if: steps.changes.outputs.run == 'true'
+        run: |
+          chmod +x .github/scripts/build-arckit-release.sh
+          RELEASE_DIR="$(.github/scripts/build-arckit-release.sh "${RUNNER_TEMP}/arckit-release" "v0.0.0-dev")"
+          test -f "${RELEASE_DIR}/SHA256SUMS"
+  repo-validate-offline:
+    name: repo-validate-offline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Detect relevant changes
+        id: changes
+        run: |
+          if git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- 'ARCs/**' 'adoption/**' 'templates/**' 'arckit/**' | grep -q .; then
+            echo "run=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "run=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Skip irrelevant changes
+        if: steps.changes.outputs.run != 'true'
+        run: echo "No ARC, adoption, template, or arckit changes detected."
+      - name: Build arckit
+        if: steps.changes.outputs.run == 'true'
+        run: |
+          cd arckit
+          go build -o "${RUNNER_TEMP}/arckit" ./cmd/arckit
+      - name: Validate repository offline
+        if: steps.changes.outputs.run == 'true'
+        run: |
+          "${RUNNER_TEMP}/arckit" validate repo .
+      - name: Detect changed ARC files
+        if: steps.changes.outputs.run == 'true'
+        id: changed_arcs
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- 'ARCs/*.md' | grep -E '^ARCs/arc-[0-9]{4}\.md$' > "${RUNNER_TEMP}/changed-arcs.txt" || true
+          if [[ -s "${RUNNER_TEMP}/changed-arcs.txt" ]]; then
+            echo "run=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "run=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Enforce migrated ARC rules on changed ARC files
+        if: steps.changed_arcs.outputs.run == 'true'
+        run: |
+          while IFS= read -r path; do
+            "${RUNNER_TEMP}/arckit" validate arc \
+              --enforce-rule R:004 \
+              --enforce-rule R:008 \
+              --enforce-rule R:025 \
+              --enforce-rule R:032 \
+              "${path}"
+          done < "${RUNNER_TEMP}/changed-arcs.txt"

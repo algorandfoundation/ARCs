@@ -1,0 +1,17 @@
+arc: 45
+title: Idle Transition ARC
+last-reviewed: 2026-03-26
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet-proof
+      notes: ""
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

@@ -43,7 +43,7 @@ echo "Modifying headers and links in markdown files..."
 cd "$DEST_DIR" || { echo "Directory not found: $DEST_DIR"; exit 1; }
 
 for file in arc-*.md; do
-  arc_number=$(echo "$file" | grep -oE '[0-9]+')  
+  arc_number=$(echo "$file" | grep -oE '[0-9]+')
   if [[ -f "$file" ]]; then
     # 1. Remove the first header (and any preceding blank lines)
     sed -i $SED_INLINE '/^---$/,/^---$/!{/^# /d;}' "$file"

@@ -1,5 +1,5 @@
-vendor
-
-.bundle
-_site/*
+.idea
 _devportal/content/*.md
+arckit/arckit
+arckit/arckit.exe
+arc-summary.md

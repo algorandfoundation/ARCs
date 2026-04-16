@@ -1,21 +1,21 @@
 name: Create Dev Portal Content
-
 on:
   push:
     branches:
       - main # Trigger on changes to the main branch
     paths:
       - "ARCs/**" # Only run when files in the ARCs directory are changed
-
+permissions:
+  contents: write
 jobs:
   updateDevportal:
     runs-on: ubuntu-latest
-
     steps:
       # Step 1: Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
       # Step 2: Set execute permission for the scripts and create the content directory if needed
       - name: Make scripts executable
         run: |
@@ -23,30 +23,24 @@ jobs:
           chmod +x _devportal/scripts/update-guideline.sh
           chmod +x _devportal/scripts/update-index.sh
           mkdir -p _devportal/content
-
       # Step 3: Set up Git identity
       - name: Set up Git user
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-
       # Step 4: Run update-arcs.sh script
       - name: Run update-arcs.sh
         run: _devportal/scripts/update-arcs.sh
-
       # Step 5: Run update-guideline.sh script
       - name: Run update-guideline.sh
         run: _devportal/scripts/update-guideline.sh
-
       # Step 6: Run update-index.sh script
       - name: Run update-index.sh
         run: _devportal/scripts/update-index.sh
-
       # Step 7: Force changes to be recognized by Git
       - name: Touch modified files
         run: |
           find _devportal/content -type f -exec touch {} \;
-
       # Step 8: Commit and force push changes to devportal
       - name: Commit and force push changes to devportal
         run: |

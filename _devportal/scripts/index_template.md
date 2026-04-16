@@ -12,6 +12,7 @@ New ideas for ARCs are discussed through <a href="https://github.com/algorandfou
 <ArcsList>
 
 ## ARC Status Terms
+
 <ul>
   <li>
     <strong>Idea</strong> - An idea that is pre-draft. This is not tracked

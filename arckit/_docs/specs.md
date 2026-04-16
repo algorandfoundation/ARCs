@@ -1,0 +1,828 @@
+# arckit Specification
+
+## 1. Purpose
+
+`arckit` is the canonical local and CI validator for the ARC repository.
+
+It exists to make repository validation deterministic where it can be deterministic,
+while keeping human editorial judgment clearly out of the tool.
+
+`arckit` is a single Go CLI that must remain useful with only Go installed.
+Generic Markdown, YAML, whitespace, spelling, and external-link reachability
+hygiene is handled by the repository-root `.pre-commit-config.yaml`, not by
+`arckit`.
+
+## 2. Product Boundary
+
+`arckit` is responsible for:
+
+1. validating ARC Markdown artifacts;
+1. validating adoption summary YAML artifacts;
+1. validating repository-wide consistency across ARC, adoption, and asset files;
+1. validating the machine-verifiable subset of status transitions;
+1. performing conservative ARC front matter formatting fixes;
+1. scaffolding new ARC artifacts;
+1. emitting stable diagnostics for humans and automation;
+1. providing one CLI entrypoint for both local use and CI.
+
+`arckit` is not responsible for:
+
+1. querying or mutating GitHub Discussions, Issues, Pull Requests, or labels;
+1. deciding whether an ARC is technically sound or desirable;
+1. deciding whether adoption evidence is substantively sufficient;
+1. deciding whether a reference implementation is high quality;
+1. replacing editor judgment or ARC-0 process decisions;
+1. owning generic Markdown, YAML, whitespace, spelling, or external-link reachability hygiene;
+1. owning the devportal workflows in this repository.
+
+## 3. Design Principles
+
+The CLI must follow these principles:
+
+1. **Native-first.** Core behavior must work with just Go and the repository contents.
+1. **Repo-local only.** v1 may read an optional repo-root `.arckit.jsonc`, but must not require user-local config, a `--config` flag, or pluggable policy.
+1. **Offline-first.** Native validation must work without network access.
+1. **Deterministic.** The same inputs must produce the same diagnostics and exit codes.
+1. **Explainable.** Each rule failure must include a stable identifier, severity, message, and hint.
+1. **Conservative mutation.** Formatting may normalize safe structure, but must never rewrite semantics.
+1. **Single gate.** `arckit validate repo .` is the canonical CI validation command.
+
+## 4. Repository Model
+
+`arckit` assumes these repository conventions:
+
+1. ARC documents live in `ARCs/arc-####.md`.
+1. Adoption summaries live in `adoption/arc-####.yaml`.
+1. The vetted adopters registry lives in `adoption/vetted-adopters.yaml`.
+1. ARC assets, when present, live in `assets/arc-####/`.
+1. Optional repo-local validation suppressions live in `.arckit.jsonc` at the repository root.
+1. Templates live in `templates/`.
+1. The repository contents, not remote GitHub state, are the source of truth for machine checks.
+
+The tool validates repository artifacts only. It may emit reminders about GitHub-native
+process steps, but it must not depend on GitHub API access in v1.
+
+## 5. Operating Model
+
+`arckit` has one native validation model.
+
+It must:
+
+1. run all ARC, adoption, repository, and transition validations locally;
+1. validate local file links and relative ARC links;
+1. auto-discover the optional repo-root `.arckit.jsonc` for `validate` commands only;
+1. avoid network requests and external tool resolution;
+1. keep generic Markdown, YAML, whitespace, spelling, and external-link reachability hygiene outside the CLI.
+
+Native validation remains authoritative for repository semantics.
+That includes ARC-specific metadata wording, reference text, and body-link policy.
+
+### 5.1 Repo-Local Ignore Configuration
+
+`arckit` may read one optional `.arckit.jsonc` file from the repository root.
+
+Supported keys are:
+
+- `ignoreArcs`
+- `ignoreRules`
+- `ignoreByArc`
+
+`ignoreArcs` suppresses one ARC number across its ARC, adoption, asset, and
+repo-attributed diagnostics.
+
+`ignoreRules` suppresses one rule globally.
+
+`ignoreByArc` suppresses one or more rules for exact ARC selectors like `0` or `43`
+or inclusive ARC ranges like `50-60`.
+
+Migration-specific suppressions are allowed when the repository is moving from one
+canonical ARC encoding to another, as long as the steady-state target remains the
+documented spec.
+
+Invalid `.arckit.jsonc` content must stop validation with exit code `2`.
+
+## 6. Command-Line Interface
+
+The executable name should be `arckit`.
+
+### 6.1 Required Commands
+
+v1 must provide this command surface:
+
+```text
+arckit fmt <path...>
+arckit summary repo [repo-root]
+arckit validate arc <arc-file>
+arckit validate adoption <adoption-file>
+arckit validate links <path...>
+arckit validate repo [repo-root]
+arckit validate transition <arc-file> --to <status>
+arckit init arc --number <n> --title <title> --type <type> [--category <category>] [--sub-category <sub-category>] --sponsor <sponsor>
+arckit rules
+arckit explain <rule-id>
+```
+
+### 6.2 Global Flags
+
+The only global flags required in v1 are:
+
+- `--format <text|json>`
+- `--quiet`
+
+The CLI must not expose `--config`, `--severity`, profile flags, or SARIF output
+in v1. Repo-local `.arckit.jsonc` loading is implicit.
+
+Validation commands may expose `--ignore-config` to bypass repo-local suppressions
+entirely and `--enforce-rule <RULE_ID>` to unsuppress a specific rule while
+preserving all other config behavior.
+
+`summary repo` is markdown-only.
+
+### 6.3 Exit Codes
+
+The CLI must use stable exit codes:
+
+- `0`: command succeeded and no `error` diagnostics were emitted;
+- `1`: validation completed and at least one `error` diagnostic was emitted;
+- `2`: invalid invocation or runtime failure prevented normal validation.
+
+## 7. Diagnostics
+
+Each diagnostic must include:
+
+1. rule identifier;
+1. severity;
+1. short title;
+1. message;
+1. remediation hint;
+1. source origin (`native`);
+1. file path and source position when applicable.
+
+Supported severities are:
+
+- `error`
+- `warning`
+- `info`
+
+### 7.1 Rule Identifiers
+
+Rules use stable identifiers in the form `R:NNN`.
+
+Recommended ranges:
+
+- `R:001-R:099`: ARC front matter structure and formatting
+- `R:100-R:199`: ARC field semantics and section requirements
+- `R:200-R:299`: link and reference rules
+- `R:300-R:399`: adoption summary rules
+- `R:400-R:499`: repository-wide consistency rules
+- `R:500-R:599`: transition rules
+- `R:900-R:999`: invocation and runtime diagnostics
+
+### 7.2 JSON Output
+
+JSON output must include at least:
+
+1. command name;
+1. diagnostics;
+1. summary counts by severity;
+1. exit code.
+
+## 8. Validation Commands
+
+### 8.1 `validate arc`
+
+`arckit validate arc <arc-file>` validates a single ARC Markdown document.
+
+It must perform:
+
+1. filename validation;
+1. front matter parsing, blank-line detection, and header order validation;
+1. required field checks;
+1. canonical ARC category and sub-category enum validation;
+1. conditional field checks;
+1. title, description, author, discussions-to, and numeric-list semantic validation;
+1. canonical implementation repository URL validation when `implementation-required: true`;
+1. required body section, allowed-section, and section-order validation;
+1. ARC reference text and body-link validation;
+1. local link and asset link validation.
+
+### 8.2 `validate adoption`
+
+`arckit validate adoption <adoption-file>` validates one adoption summary YAML file.
+
+It must perform:
+
+1. filename validation;
+1. schema and required field validation;
+1. enum validation;
+1. vetted adopters registry validation;
+1. matching ARC loading and ARC-front-matter-derived validation for `status`,
+   `sponsor`, and `implementation-required` when the companion ARC exists;
+1. internal consistency validation, including rejecting adoption summaries with
+   all-empty categories when the matching ARC is `Final`.
+
+### 8.3 `validate links`
+
+`arckit validate links <path...>` validates links discovered in the provided ARC
+files, or directories containing ARC files.
+
+It must always validate:
+
+1. relative local links;
+1. relative ARC links;
+1. absolute `http` and `https` links that point back into repository content from ARC body content;
+1. asset links;
+1. missing-file and invalid-path conditions.
+
+### 8.4 `validate repo`
+
+`arckit validate repo [repo-root]` is the canonical repository-wide validation command.
+
+It must perform:
+
+1. ARC validation for all discovered ARC files;
+1. vetted adopters registry validation;
+1. adoption summary validation for all discovered adoption files;
+1. repository-wide mapping and reciprocity checks;
+1. cross-ARC maturity regression checks for `requires` and direct ARC body links;
+1. native local link validation.
+
+This is the single canonical CI gate. Required PR validation jobs should build `arckit`
+and run `arckit validate repo .`. When present, the repo-root `.arckit.jsonc` is
+applied implicitly.
+
+The repository-wide gate must reject any ARC in `Final` status whose canonical
+adoption summary has no tracked adopters in any adoption category.
+
+### 8.5 `summary repo`
+
+`arckit summary repo [repo-root]` generates a local ARC Editor report at
+`arc-summary.md` in the repository root by default.
+
+This command is an editor-support report, not a validation gate.
+
+It must:
+
+1. load the repository state through the same repo-local `.arckit.jsonc` handling
+   used by `validate repo`;
+1. build its content from local ARC front matter, adoption YAML, vetted adopters,
+   asset directories, and ARC relationship fields only;
+1. keep working and return exit code `0` even when the validation snapshot contains
+   repository errors;
+1. write markdown only;
+1. support `--out <path>` for an alternate markdown destination;
+1. write these top-level sections in order:
+   - `# ARC State Summary`
+   - `## Validation Snapshot`
+   - `## State Overview`
+   - `## Transition Watch`
+   - `## Adoption Watch`
+   - `## Relationship Watch`
+   - `## Data Notes`
+
+The markdown report must include:
+
+1. generated timestamp, repo root, and current `validate repo` summary counts;
+1. repo-wide totals by ARC status and ARC type;
+1. asset coverage, adoption-summary coverage, adoption file totals, adopter totals,
+   and adoption-readiness totals;
+1. explicit transition watch tables for overdue `Last Call`, upcoming `Last Call`
+   within 14 days, `Idle` ARCs, and implementation-required ARCs whose canonical
+   reference implementation is not `shipped`;
+1. explicit adoption watch tables for `Final` ARCs with zero adopters, `Final`
+   ARCs with 1-2 adopters, and adoption summaries whose `last-reviewed` date is
+   older than 30 days;
+1. adoption totals by category, adopter status, top adopters by distinct ARC
+   coverage, and top ARCs by adopter count;
+1. relationship context for most-referenced `requires` targets, most-referenced
+   `extends` targets, and non-empty `supersedes` / `superseded-by` rows;
+1. a data-notes section stating that the report is local/offline only, that age is
+   only known from explicit dates, and that missing `sponsor`,
+   `implementation-required`, or sparse `updated` usage are migration-state rather
+   than backlog.
+
+Empty watch subsections must render as `None`.
+
+### 8.6 `validate transition`
+
+`arckit validate transition <arc-file> --to <status>` validates the machine-verifiable
+subset of a requested status transition.
+
+Supported target statuses are:
+
+- `Review`
+- `Last Call`
+- `Final`
+- `Idle`
+
+This command must never claim that a transition is fully approved. It validates only
+repository evidence and must emit `info` reminders for required manual checks.
+
+## 9. ARC Markdown Rules
+
+### 9.1 File Naming
+
+ARC files must be named `arc-####.md` and must live in `ARCs/`.
+
+The numeric identifier in the filename must match the `arc` front matter field.
+
+### 9.2 Front Matter
+
+ARC files must begin with a YAML front matter block delimited by `---`.
+
+The front matter must decode to one top-level YAML mapping.
+
+Recognized fields, in required order when present, are:
+
+1. `arc`
+1. `title`
+1. `description`
+1. `author`
+1. `discussions-to`
+1. `status`
+1. `type`
+1. `category`
+1. `sub-category`
+1. `created`
+1. `updated`
+1. `sponsor`
+1. `implementation-required`
+1. `implementation-url`
+1. `implementation-maintainer`
+1. `adoption-summary`
+1. `last-call-deadline`
+1. `idle-since`
+1. `requires`
+1. `supersedes`
+1. `superseded-by`
+1. `extends`
+1. `extended-by`
+
+Unknown top-level front matter fields are not allowed in v1.
+
+Canonical YAML field shapes:
+
+1. `author`, `updated`, `implementation-maintainer`, `requires`, `supersedes`, `extends`, and `extended-by` must use YAML sequences.
+1. `superseded-by` must use a scalar ARC number.
+1. `implementation-required` must use a YAML boolean.
+1. date fields remain scalar values in `YYYY-MM-DD` form.
+
+### 9.3 Required ARC Fields
+
+Each ARC file must include:
+
+1. `arc`
+1. `title`
+1. `description`
+1. `author`
+1. `discussions-to`
+1. `status`
+1. `type`
+1. `created`
+1. `sponsor`
+1. `implementation-required`
+
+Field requirements:
+
+1. `title` must not include the ARC number.
+1. `description` must be a short summary and must not include the ARC number.
+1. `title` must be between 2 and 44 characters.
+1. `description` must be between 2 and 140 characters.
+1. `title` and `description` must not include standard-like wording such as `standard` or `standards`.
+1. ARC references in `title` or `description` must use uppercase unpadded `ARC-N` form.
+1. ARC references in `title` or `description` must also appear in `requires`, except for self-references to the current ARC number.
+1. `created`, `updated`, `last-call-deadline`, and `idle-since` must use `YYYY-MM-DD`.
+1. `author` entries must use one of `Name`, `Name (@github-handle)`, or `Name <email>`.
+1. `author` must include at least one GitHub handle entry.
+1. `discussions-to` must be an `https://github.com/algorandfoundation/ARCs/...` URL pointing to a discussion, issue, or pull request.
+1. `status` must be one of `Draft`, `Review`, `Last Call`, `Final`, `Stagnant`, `Withdrawn`, `Idle`, `Deprecated`, or `Living`.
+1. `type` must be one of `Standards Track` or `Meta`.
+1. `category`, when present, must be one of `Interface`, `Data`, `Cryptography`, `Protocol`, or `Governance`.
+1. `sub-category`, when present, must be one of `General`, `ASA`, `Application`, `LSig`, `Event`, `Library`, `Identity`, `Explorer`, or `Wallet`.
+1. `sub-category` must not be present unless `category` is also present.
+1. `sponsor` must be one of `Foundation` or `Ecosystem`.
+1. `implementation-required` must be `true` or `false`.
+1. when `implementation-required` is `true` and `implementation-url` is present, it must be exactly `https://github.com/algorandfoundation/arcN` for `Foundation`-sponsored ARCs or `https://github.com/algorandecosystem/arcN` for `Ecosystem`-sponsored ARCs, where `N` is the unpadded ARC number.
+1. `adoption-summary`, when present, must be a relative path under `adoption/`.
+1. list-valued ARC metadata must use canonical YAML sequences rather than comma-separated scalars.
+1. `requires`, `supersedes`, `extends`, and `extended-by` must be sorted in strictly ascending order.
+
+### 9.4 Conditional ARC Fields
+
+These conditional rules apply:
+
+1. `implementation-url` and `implementation-maintainer` are required when an ARC
+   with `implementation-required: true` is in `Review`, `Last Call`, `Final`, `Idle`,
+   or `Deprecated`.
+1. when `implementation-required: true` and `implementation-url` is declared, the URL
+   must match the exact sponsor-specific canonical GitHub repository path for the ARC number.
+1. `adoption-summary` is required when `status` is `Last Call`, `Final`, `Idle`, or `Deprecated`.
+1. `last-call-deadline` is required when `status` is `Last Call` and when validating
+   transition to `Final`.
+1. `idle-since` is required when `status` is `Idle`.
+1. `last-call-deadline` must not be present unless `status` is `Last Call`.
+1. `idle-since` must not be present unless `status` is `Idle`.
+
+### 9.5 Required Body Sections
+
+Every ARC file must contain these level-2 sections:
+
+1. `Abstract`
+1. `Motivation`
+1. `Specification`
+1. `Rationale`
+1. `Security Considerations`
+1. `Copyright`
+
+When present, level-2 sections must come only from this canonical set and must
+appear in this order:
+
+1. `Abstract`
+1. `Motivation`
+1. `Specification`
+1. `Rationale`
+1. `Backwards Compatibility`
+1. `Test Cases`
+1. `Reference Implementation`
+1. `Security Considerations`
+1. `Copyright`
+
+Extra or duplicate level-2 sections are invalid.
+
+When `implementation-required: true`, transition validation to `Review` or later also
+requires:
+
+1. `Reference Implementation`
+1. `Test Cases`
+
+### 9.6 Link and Asset Rules
+
+`arckit` must enforce these repository-semantic link rules:
+
+1. repo-local links must be relative, not root-relative;
+1. local link targets must exist;
+1. ARC-to-ARC links must target `ARCs/arc-####.md`;
+1. body ARC references in prose must use uppercase unpadded `ARC-N` form;
+1. the first prose body mention of each ARC must be a relative hyperlink to the target ARC document;
+1. ARC-looking text inside inline code spans and code blocks does not trigger the prose reference rule;
+1. absolute `http` and `https` links to repository-local content are not allowed in ARC body content;
+1. external raw HTML anchors of the form `<a href="...">...</a>` do not trigger the repository-link rule;
+1. asset links inside an ARC must stay under the matching `assets/arc-####/` subtree;
+1. the `adoption-summary` field, when present, must resolve to an existing file when
+   the adoption summary is required for that ARC status.
+
+Advisory spelling and external link reachability are handled outside `arckit` by
+the shared `codespell` and `lychee` hooks in the repository-root `pre-commit`
+configuration.
+
+## 10. Adoption Summary Rules
+
+### 10.1 File Naming
+
+Adoption summary files must be named `arc-####.yaml` and must live in `adoption/`.
+
+The repository must also contain `adoption/vetted-adopters.yaml`.
+
+### 10.2 Requirement Policy
+
+Adoption summaries are not a blanket requirement for every historical ARC in v1.
+
+They are required when:
+
+1. an ARC is in `Last Call`, `Final`, `Idle`, or `Deprecated`; or
+1. transition validation to `Last Call`, `Final`, or `Idle` is being requested.
+
+For all other ARC states, adoption summaries are optional, but if present they must validate.
+
+`arckit init arc` must always generate an adoption summary stub so the repository moves
+toward a consistent model without breaking older content.
+
+### 10.3 Required Schema
+
+An adoption summary must support at least this shape:
+
+```yaml
+arc: 42
+title: Example ARC
+last-reviewed: 2026-03-26
+reference-implementation:
+  status: wip
+  notes: ""
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+```
+
+Required top-level fields are:
+
+1. `arc`
+1. `title`
+1. `last-reviewed`
+1. `adoption`
+1. `summary`
+
+`reference-implementation` is required when the matching ARC front matter sets
+`implementation-required` to `true`.
+
+The ARC front matter is authoritative for:
+
+1. `status`
+1. `sponsor`
+1. `implementation-required`
+1. `implementation-url`
+1. `implementation-maintainer`
+
+Adoption summaries must not repeat those ARC-owned fields.
+
+The adoption summary `reference-implementation` block must contain only:
+
+1. `status`
+1. optional `notes`
+
+### 10.4 Adoption Enums and Entry Shape
+
+Allowed `reference-implementation.status` values are:
+
+- `planned`
+- `wip`
+- `shipped`
+- `archived`
+
+The `adoption` section must support these actor classes:
+
+1. `wallets`
+1. `explorers`
+1. `tooling`
+1. `infra`
+1. `dapps-protocols`
+
+Each actor entry must support:
+
+1. `name`
+1. `status`
+1. `evidence`
+1. `notes`
+
+Each actor `name` must:
+
+1. be lower-kebab-case;
+1. match an entry in the same category of `adoption/vetted-adopters.yaml`.
+
+Allowed actor `status` values are:
+
+- `planned`
+- `in_progress`
+- `shipped`
+- `declined`
+- `unknown`
+
+Allowed `summary.adoption-readiness` values are:
+
+- `low`
+- `medium`
+- `high`
+
+Readiness thresholds are:
+
+1. `low` is valid only when the tracked adopter count is fewer than 3;
+1. `medium` requires at least 3 adopter entries across all adoption categories;
+   it is valid only for 3-4 adopters;
+1. `high` requires at least 5 adopter entries across all adoption categories.
+
+`validate adoption` and `validate repo` must reject
+`summary.adoption-readiness` values that understate or overstate the tracked
+adopter count.
+
+`arckit fmt` must normalize `summary.adoption-readiness` from those thresholds:
+
+1. `low` when the tracked adopter count is fewer than 3;
+1. `medium` when the tracked adopter count is 3-4;
+1. `high` when the tracked adopter count is 5 or more.
+
+### 10.5 Internal Consistency
+
+`arckit` must enforce:
+
+1. the filename ARC number matches `arc`;
+1. `title` matches the title in the corresponding ARC front matter;
+1. adoption-summary logic that depends on `status`, `sponsor`, or `implementation-required`
+   derives those values from the matching ARC front matter;
+1. `status`, `sponsor`, and `implementation-required` are rejected if they appear
+   as top-level adoption-summary fields;
+1. `reference-implementation` is present only when the matching ARC front matter
+   sets `implementation-required: true`;
+1. `reference-implementation` does not repeat canonical implementation identity
+   fields such as repository URL or maintainer list.
+
+## 11. Repository-Wide Rules
+
+`validate repo` must enforce at least:
+
+1. no duplicate ARC numbers across ARC files;
+1. one valid `adoption/vetted-adopters.yaml` file exists;
+1. no duplicate ARC numbers across adoption files;
+1. no orphaned adoption summaries for missing ARC files;
+1. no orphaned asset trees for missing ARC files;
+1. adoption actor names are present in the matching vetted-adopter category;
+1. ARC `adoption-summary` fields, when required, point to the matching adoption file;
+1. `requires` targets must be at least as mature as the ARC that declares them;
+1. direct ARC body links must not point to less mature ARC documents;
+1. reciprocal relationship fields are consistent where both files exist:
+   - `supersedes` <-> `superseded-by`
+   - `extends` <-> `extended-by`
+
+## 12. Transition Rules
+
+### 12.1 Transition to `Review`
+
+The CLI must require:
+
+1. a valid ARC file;
+1. current `status: Draft`;
+1. all required ARC sections;
+1. `Security Considerations` present;
+1. `implementation-required` explicitly declared.
+
+If `implementation-required: true`, the CLI must also require:
+
+1. `implementation-url`;
+1. `implementation-maintainer`;
+1. `Reference Implementation` section;
+1. `Test Cases` section.
+
+### 12.2 Transition to `Last Call`
+
+The CLI must require:
+
+1. all machine checks for `Review`;
+1. current `status: Review`;
+1. a valid adoption summary exists;
+1. the ARC `adoption-summary` field points to that file.
+
+If `implementation-required: true`, the CLI must also require:
+
+1. a `reference-implementation` block in the adoption summary;
+1. `reference-implementation.status` is `wip` or `shipped`.
+
+### 12.3 Transition to `Final`
+
+The CLI must require:
+
+1. all machine checks for `Last Call`;
+1. current `status: Last Call`;
+1. `last-call-deadline` present and valid;
+1. the adoption summary contains at least one non-empty evidence entry.
+
+If `implementation-required: true`, the CLI must also require:
+
+1. `implementation-url` and `implementation-maintainer` in ARC front matter;
+1. a `reference-implementation` block in the adoption summary;
+1. `reference-implementation.status` is `shipped`;
+1. at least one adoption actor entry has non-empty evidence.
+
+### 12.4 Transition to `Idle`
+
+The CLI must require:
+
+1. current `status: Final`;
+1. `idle-since` present and valid;
+1. a valid adoption summary exists.
+
+### 12.5 Manual Checks
+
+For every transition command, `arckit` should emit `info` reminders for checks that
+remain editorial, including:
+
+1. consensus and dissent handling;
+1. adequacy of adoption evidence;
+1. quality and maintenance of the reference implementation;
+1. editor approval.
+
+## 13. Formatting
+
+`arckit fmt <path...>` remains narrow in v1.
+
+It must:
+
+1. normalize front matter spacing;
+1. remove empty lines from the front matter block;
+1. normalize front matter field ordering;
+1. normalize canonical integer sequence fields without coercing invalid scalar-list legacy encodings, including sorting and deduplicating ARC-number lists;
+1. preserve semantic content.
+1. operate only on ARC Markdown files under `ARCs/arc-####.md` and adoption summaries under `adoption/arc-####.yaml`;
+1. preserve existing YAML scalar styling for string sequence items such as quote style;
+1. reorder canonical level-2 ARC sections when the present section set is supported and unambiguous;
+1. reorder canonical adoption-summary mapping keys, including top-level fields plus `reference-implementation`, `adoption`, and `summary`, without taking over generic YAML formatting;
+1. leave adoption YAML formatting, body whitespace, final-newline policy, and generic Markdown hygiene to
+   the repository-root `pre-commit` hooks.
+
+## 14. Scaffolding
+
+`arckit init arc` scaffolds a new ARC locally.
+
+Required inputs:
+
+1. `--number`
+1. `--title`
+1. `--type`
+1. `--sponsor`
+
+The command should also accept optional authoring metadata such as `--author`,
+`--description`, and `--implementation-required`.
+
+Outputs:
+
+1. `ARCs/arc-####.md`
+1. `adoption/arc-####.yaml`
+1. `adoption/vetted-adopters.yaml`, when it does not already exist
+1. `assets/arc-####/`
+
+The generated ARC must include an `adoption-summary` field pointing to the generated
+adoption stub, and must emit canonical YAML-native list fields for author metadata.
+
+When `--implementation-required` is set, the generated adoption stub should include
+`reference-implementation.status` and may also include optional `reference-implementation.notes`, because
+the canonical implementation URL, maintainer list, status, sponsor, and
+implementation-required declaration live in ARC front matter.
+
+When provided, `--category` and `--sub-category` must use the same canonical enum
+values enforced by `validate arc`, and `--sub-category` must not be used without
+`--category`.
+
+The generated ARC may omit `implementation-url` and `implementation-maintainer`
+while the ARC remains in `Draft`.
+
+`init arc` must never create remote GitHub artifacts.
+
+## 15. Auxiliary Commands
+
+### 15.1 `rules`
+
+`arckit rules` must list all known rules, including:
+
+1. rule identifier;
+1. default severity;
+1. title;
+1. whether the rule is auto-fixable.
+
+### 15.2 `explain`
+
+`arckit explain <rule-id>` must display:
+
+1. rule identifier;
+1. title;
+1. severity;
+1. description;
+1. rationale;
+1. remediation guidance;
+1. whether the rule can be auto-fixed.
+
+## 16. CI and Release Contract
+
+The repository guidance for v1 is:
+
+1. a root `pre-commit` configuration defines the canonical generic hygiene surface
+   and pins the generic tool versions;
+1. a PR hygiene workflow runs `pre-commit` on the PR diff;
+1. that same PR hygiene workflow may surface advisory manual-stage `codespell`
+   findings without failing the workflow;
+1. a PR tool workflow runs `gofmt -s` checks, `go vet`, `go test`, and `go build`
+   when `arckit/**` changes;
+1. a PR repository-validation workflow builds `arckit` and runs `arckit validate repo .`
+   when ARC, adoption, template, or tooling files change;
+1. a scheduled or manually triggered online workflow runs the shared `lychee`
+   hook from `pre-commit` for advisory external link checks and creates or updates
+   a maintenance issue only when findings exist;
+1. CI pins one exact Go patch release and pins all GitHub Actions to full commit SHAs;
+1. releases are produced from tags of the form `arckit/vX.Y.Z` and publish archives plus
+   SHA256 checksums.
+
+## 17. Out of Scope for v1
+
+The following are intentionally out of scope:
+
+1. `.arckit.yaml`, user-local configuration, or an explicit `--config` flag;
+1. generic Markdown, YAML, whitespace, spelling, or external-link reachability hygiene inside `arckit`;
+1. GitHub API lookups and repository mutation;
+1. SARIF output;
+1. multi-version required CI matrices;
+1. GoReleaser, Viper, and pluggable rule engines.
+
+## 18. Conformance
+
+An implementation conforms to this specification if it:
+
+1. provides the required command surface or a compatible equivalent;
+1. performs native offline validation of ARC, adoption, repository, and transition rules;
+1. emits stable diagnostics and exit codes;
+1. supports the optional repo-root `.arckit.jsonc` ignore model without adding user-local config;
+1. keeps generic hygiene outside the CLI and ARC semantics inside the CLI;
+1. keeps CI centered on `arckit validate repo .`;
+1. does not require extra local tooling beyond Go for core validation.
