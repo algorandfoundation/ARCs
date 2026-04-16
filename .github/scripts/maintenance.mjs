@@ -17,6 +17,8 @@ const TEMPLATE_MARKERS = [
 export async function runMaintenance({ github, context, core }) {
   const offlineReport = await loadJSON(process.env.OFFLINE_REPORT_PATH);
   const onlineReport = await loadJSON(process.env.ONLINE_REPORT_PATH);
+  const summaryReport = await loadText(process.env.SUMMARY_REPORT_PATH);
+  const summaryArtifactUrl = process.env.SUMMARY_ARTIFACT_URL || "";
   const repoRoot = process.cwd();
   const arcDir = path.join(repoRoot, "ARCs");
   const arcFiles = (await fs.readdir(arcDir)).filter((entry) => /^arc-\d{4}\.md$/.test(entry)).sort();
@@ -76,6 +78,7 @@ export async function runMaintenance({ github, context, core }) {
   await core.summary
     .addHeading(`ARC maintenance report ${month}`)
     .addRaw(body, true)
+    .addRaw(renderRepoStateSummary(summaryReport, summaryArtifactUrl), true)
     .write();
 
   if (authorsAction.length === 0 && editorAction.length === 0 && suggestedTransitions.length === 0) {
@@ -95,6 +98,17 @@ async function loadJSON(filePath) {
     return JSON.parse(content);
   } catch {
     return {};
+  }
+}
+
+async function loadText(filePath) {
+  if (!filePath) {
+    return "";
+  }
+  try {
+    return await fs.readFile(filePath, "utf8");
+  } catch {
+    return "";
   }
 }
 
@@ -230,6 +244,43 @@ function renderSection(items) {
     return "- No action recorded in this category for this run.";
   }
   return items.join("\n");
+}
+
+function renderRepoStateSummary(summaryMarkdown, artifactUrl) {
+  const lines = ["", "## ARC state summary", ""];
+  if (artifactUrl) {
+    lines.push(`- Full markdown report artifact: [arc-summary.md](${artifactUrl})`);
+  } else {
+    lines.push("- Full markdown report artifact: unavailable for this run.");
+  }
+
+  const overview = extractRepoStateSummaryOverview(summaryMarkdown);
+  if (!overview) {
+    lines.push("- ARC state summary markdown was not generated.");
+    return lines.join("\n");
+  }
+
+  lines.push("- Detailed transition, adoption, and relationship tables are available in the artifact.");
+  lines.push("");
+  lines.push(overview);
+
+  return lines.join("\n");
+}
+
+function extractRepoStateSummaryOverview(summaryMarkdown) {
+  if (!summaryMarkdown.trim()) {
+    return "";
+  }
+
+  const lines = summaryMarkdown.replace(/\r\n/g, "\n").split("\n");
+  const start = lines.findIndex((line) => line.trim() === "## Validation Snapshot");
+  if (start === -1) {
+    return "";
+  }
+
+  const end = lines.findIndex((line, index) => index > start && line.trim() === "### Counts by Status");
+  const excerpt = (end === -1 ? lines.slice(start) : lines.slice(start, end)).join("\n").trim();
+  return excerpt.replace(/^## /gm, "### ");
 }
 
 function authorMentions(authorLine) {
