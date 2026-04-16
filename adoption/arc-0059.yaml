@@ -5,8 +5,8 @@ adoption:
   wallets:
     - name: pera
       status: shipped
-      evidence: Sending ASA to an accounts not opted in to that ASA is supported.
-      notes: Wallet implements ASA Inbox Router.
+      evidence: https://github.com/perawallet/pera-react-native/blob/main/packages/asa-inbox/src/specs/arc59-app-spec.json
+      notes: Wallet implements ARC-59 ASA Inbox Router.
   explorers: []
   tooling: []
   infra: []
