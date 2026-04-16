@@ -247,10 +247,10 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 	return &cobra.Command{
 		Use:   "fmt <path...>",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "Apply ARC and adoption formatting fixes",
+		Short: "Apply ARC-specific front matter formatting fixes",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
-				files, fileErr := collectFmtTargets(args)
+				files, fileErr := collectARCFiles(args)
 				if fileErr != nil {
 					return newInvocationFailureReport("fmt", fileErr), nil
 				}
@@ -271,7 +271,7 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 					if shouldIgnorePath(cfg, path) {
 						continue
 					}
-					if err := applyFixWithConfig(path, cfg); err != nil {
+					if err := applyNativeFixWithConfig(path, cfg); err != nil {
 						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "Check the file permissions and content, then retry."))
 					}
 				}

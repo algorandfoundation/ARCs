@@ -478,7 +478,7 @@ summary:
 	assertContains(t, stdout.String(), `summary.adoption-readiness "medium" requires at least 3 adopters`)
 }
 
-func TestCLIFmtCanNormalizeAdoptionReadiness(t *testing.T) {
+func TestCLIFmtRejectsAdoptionSummaryPaths(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
 		t.Fatalf("MkdirAll() error = %v", err)
@@ -516,13 +516,10 @@ summary:
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 	exitCode := ExecuteArgs([]string{"fmt", path}, stdout, stderr)
-	assertCommandSucceeded(t, exitCode, stdout, stderr)
-
-	updated, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("ReadFile() error = %v", err)
+	if exitCode != 2 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 2, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
 	}
-	assertContains(t, string(updated), "adoption-readiness: medium")
+	assertContains(t, stdout.String(), "is not an ARC Markdown file under ARCs/arc-####.md")
 }
 
 func TestCLIValidateAdoptionReportsHelpfulActorSchemaError(t *testing.T) {
