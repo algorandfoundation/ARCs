@@ -19,7 +19,7 @@ func applyNativeFix(path string) error {
 }
 
 func applyFixWithConfig(path string, cfg config.Config) error {
-	if adoptionSummaryPattern.MatchString(path) {
+	if isAdoptionSummaryPath(path) {
 		return applyAdoptionFix(path)
 	}
 	return applyNativeFixWithConfig(path, cfg)
@@ -473,9 +473,7 @@ func unsafeAdoptionError(diagnostics []diag.Diagnostic) error {
 	for _, diagnostic := range diagnostics {
 		switch diagnostic.RuleID {
 		case "R:016":
-			if strings.Contains(diagnostic.Message, "yaml:") || strings.Contains(diagnostic.Message, "must be a mapping") || strings.Contains(diagnostic.Message, "must be a sequence") {
-				return fmt.Errorf("adoption summary is not valid YAML or schema-safe for deterministic reordering (%s); fix the file and rerun fmt", diagnostic.Message)
-			}
+			return fmt.Errorf("adoption summary is not valid YAML or schema-safe for deterministic reordering (%s); fix the file and rerun fmt", diagnostic.Message)
 		}
 	}
 	return nil

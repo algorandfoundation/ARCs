@@ -290,7 +290,7 @@ sponsor: Foundation
 implementation-required: true
 implementation-url: https://github.com/example/arc89
 implementation-maintainer:
-  - @example
+  - [@example
 adoption-summary: adoption/arc-0089.yaml
 last-call-deadline: 2026-05-01
 ---

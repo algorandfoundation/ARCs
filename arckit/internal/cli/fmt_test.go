@@ -655,6 +655,13 @@ Text`
 	}
 }
 
+func TestIsAdoptionSummaryPathNormalizesWindowsSeparators(t *testing.T) {
+	path := `C:\repo\adoption\arc-0001.yaml`
+	if !isAdoptionSummaryPath(path) {
+		t.Fatalf("expected %q to match adoption summary pattern after path normalization", path)
+	}
+}
+
 func TestApplyAdoptionFixReordersCanonicalAdoptionKeys(t *testing.T) {
 	root := t.TempDir()
 	adoptionDir := filepath.Join(root, "adoption")
@@ -791,5 +798,39 @@ summary:
 	}
 	if !strings.Contains(string(updated), "summary:\n  adoption-readiness: low\n") {
 		t.Fatalf("expected adoption-readiness to be demoted to low, got:\n%s", string(updated))
+	}
+}
+
+func TestApplyAdoptionFixRejectsSchemaDecodeFailures(t *testing.T) {
+	root := t.TempDir()
+	adoptionDir := filepath.Join(root, "adoption")
+	if err := os.MkdirAll(adoptionDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(adoptionDir, "arc-0001.yaml")
+	content := `arc: 1
+title: Example ARC
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: high
+  blockers: nope
+  notes: ""
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	err := applyAdoptionFix(path)
+	if err == nil {
+		t.Fatal("expected applyAdoptionFix() to reject schema decode failures")
+	}
+	if !strings.Contains(err.Error(), "schema-safe for deterministic reordering") || !strings.Contains(err.Error(), "cannot unmarshal") {
+		t.Fatalf("expected schema decode failure error, got: %v", err)
 	}
 }
