@@ -250,6 +250,17 @@ build:
 	cd arckit && go build ./cmd/arckit
 ```
 
+`fmt` intentionally targets deterministic repository-semantic normalization, not
+generic text hygiene. It rewrites ARC Markdown front matter under
+`ARCs/arc-####.md` and adoption summary structure under
+`adoption/arc-####.yaml`, including canonical key ordering and safe
+`summary.adoption-readiness` normalization. Generic YAML formatting/linting and
+other repository-wide hygiene remain owned by `pre-commit`. String scalar
+presentation details such as quote style must be preserved rather than
+re-canonicalized by `fmt`. Within ARC Markdown, deterministic canonicalization
+such as sorted numeric ARC lists and safe canonical section reordering belongs
+in `fmt`.
+
 ## 8. Testing Strategy
 
 Use the standard library test stack only.

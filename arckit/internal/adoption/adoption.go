@@ -215,6 +215,9 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 	if summary.Arc != 0 && document.HasNumber && summary.Arc != document.Number {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("arc %d does not match ARC file number %d", summary.Arc, document.Number), "Keep the ARC and adoption summary numbers aligned."))
 	}
+	if strings.TrimSpace(summary.Title) != "" && strings.TrimSpace(document.Title) != "" && strings.TrimSpace(summary.Title) != strings.TrimSpace(document.Title) {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:017", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("adoption title %q does not match ARC title %q", summary.Title, document.Title), "Keep the adoption summary title aligned with the matching ARC title."))
+	}
 	return diagnostics
 }
 

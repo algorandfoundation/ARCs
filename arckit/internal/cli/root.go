@@ -247,7 +247,7 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 	return &cobra.Command{
 		Use:   "fmt <path...>",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "Apply ARC and adoption formatting fixes",
+		Short: "Apply deterministic ARC/adoption formatting fixes",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
 				files, fileErr := collectFmtTargets(args)
@@ -272,7 +272,7 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 						continue
 					}
 					if err := applyFixWithConfig(path, cfg); err != nil {
-						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "Check the file permissions and content, then retry."))
+						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "fmt only applies deterministic ARC/adoption structure fixes on YAML-valid files. Use pre-commit for repository YAML hygiene; fix invalid ARC or adoption metadata and rerun fmt."))
 					}
 				}
 				report := reportForValidation("fmt", diagnostics)

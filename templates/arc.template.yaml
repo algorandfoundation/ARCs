@@ -17,6 +17,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low # low | medium | high; fmt may raise this based on adopter count
+  adoption-readiness: low # low | medium | high; fmt normalizes this from adopter count
   blockers: []
   notes: ""

@@ -197,6 +197,12 @@ var allowedLevel2Sections = []string{
 	"Copyright",
 }
 
+func OrderedLevel2Sections() []string {
+	out := make([]string, len(allowedLevel2Sections))
+	copy(out, allowedLevel2Sections)
+	return out
+}
+
 func validateDiscussionsTo(document *Document) []diag.Diagnostic {
 	value := strings.TrimSpace(document.StringField("discussions-to"))
 	if value == "" {

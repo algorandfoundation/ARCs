@@ -261,6 +261,97 @@ Copyright and related rights waived via CC0 1.0.
 	}
 }
 
+func TestValidateRepoDoesNotReportOrphanedAdoptionWhenMatchingARCFileHasInvalidFrontMatter(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "vetted-adopters.yaml"), `wallets: []
+explorers: []
+tooling: []
+infra: []
+dapps-protocols: []
+`)
+
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "ARCs", "arc-0089.md"), `---
+arc: 89
+title: Example ARC
+description: Example description
+author:
+  - Example Author (@example)
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Last Call
+type: Standards Track
+created: 2026-04-09
+sponsor: Foundation
+implementation-required: true
+implementation-url: https://github.com/example/arc89
+implementation-maintainer:
+  - [@example
+adoption-summary: adoption/arc-0089.yaml
+last-call-deadline: 2026-05-01
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`)
+
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "arc-0089.yaml"), `arc: 89
+title: Example ARC
+last-reviewed: 2026-04-09
+reference-implementation:
+  status: shipped
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`)
+
+	_, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+
+	var sawInvalidFrontMatter bool
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:005" {
+			sawInvalidFrontMatter = true
+		}
+		if diagnostic.RuleID == "R:018" && diagnostic.Message == "orphaned adoption summary for ARC 89" {
+			t.Fatalf("expected no orphaned adoption false positive, got %+v", diagnostics)
+		}
+	}
+	if !sawInvalidFrontMatter {
+		t.Fatalf("expected invalid front matter diagnostic, got %+v", diagnostics)
+	}
+}
+
 func TestValidateRepoRejectsMaturityRegression(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {

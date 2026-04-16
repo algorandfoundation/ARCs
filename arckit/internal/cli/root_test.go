@@ -478,37 +478,25 @@ summary:
 	assertContains(t, stdout.String(), `summary.adoption-readiness "medium" requires at least 3 adopters`)
 }
 
-func TestCLIFmtCanNormalizeAdoptionReadiness(t *testing.T) {
+func TestCLIFmtFormatsAdoptionSummaryPaths(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {
 		t.Fatalf("MkdirAll() error = %v", err)
 	}
 	path := filepath.Join(root, "adoption", "arc-0042.yaml")
-	if err := os.WriteFile(path, []byte(`arc: 42
-title: Example ARC
-last-reviewed: 2026-04-09
-adoption:
-  wallets:
-    - name: wallet-one
-      status: shipped
-      evidence: https://example.com/wallet-one
-      notes: ""
-    - name: wallet-two
-      status: shipped
-      evidence: https://example.com/wallet-two
-      notes: ""
-  explorers:
-    - name: explorer-one
-      status: shipped
-      evidence: https://example.com/explorer-one
-      notes: ""
-  tooling: []
-  infra: []
-  dapps-protocols: []
-summary:
-  adoption-readiness: low
-  blockers: []
+	if err := os.WriteFile(path, []byte(`summary:
   notes: ""
+  blockers: []
+  adoption-readiness: low
+adoption:
+  tooling: []
+  wallets: []
+  dapps-protocols: []
+  explorers: []
+  infra: []
+title: Example ARC
+arc: 42
+last-reviewed: 2026-04-09
 `), 0o644); err != nil {
 		t.Fatalf("WriteFile() error = %v", err)
 	}
@@ -516,13 +504,71 @@ summary:
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 	exitCode := ExecuteArgs([]string{"fmt", path}, stdout, stderr)
-	assertCommandSucceeded(t, exitCode, stdout, stderr)
-
+	if exitCode != 0 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 0, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
 	updated, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("ReadFile() error = %v", err)
 	}
-	assertContains(t, string(updated), "adoption-readiness: medium")
+	assertContains(t, string(updated), "arc: 42\ntitle: Example ARC\nlast-reviewed: 2026-04-09\nadoption:\n  wallets: []\n  explorers: []\n  tooling: []\n  infra: []\n  dapps-protocols: []\nsummary:\n  adoption-readiness: low\n  blockers: []\n  notes: \"\"\n")
+}
+
+func TestCLIFmtExplainsInvalidFrontMatterYAMLBoundary(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(root, "ARCs", "arc-0001.md")
+	if err := os.WriteFile(path, []byte(`---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Final
+type: Meta
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: true
+implementation-url: https://github.com/example/arc1
+implementation-maintainer:
+  - @example
+adoption-summary: adoption/arc-0001.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"fmt", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "pre-commit YAML hooks do not inspect ARC Markdown front matter")
+	assertContains(t, stdout.String(), "fmt only applies deterministic ARC/adoption structure fixes on YAML-valid files")
 }
 
 func TestCLIValidateAdoptionReportsHelpfulActorSchemaError(t *testing.T) {

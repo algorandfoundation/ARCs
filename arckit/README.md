@@ -10,6 +10,20 @@ Generic Markdown/YAML/text hygiene for this repository is handled by the
 repository-root `.pre-commit-config.yaml`, not by `arckit`. That includes
 advisory Markdown/YAML spelling checks and advisory external link checks.
 
+`arckit fmt` is limited to ARC Markdown files under `ARCs/arc-####.md` and
+adoption summaries under `adoption/arc-####.yaml`. It rewrites deterministic
+ARC/adoption-specific structure only and does not overlap with the repository
+`pre-commit` hooks on generic YAML formatting or linting.
+
+If `fmt` reports invalid ARC front matter YAML, that is still an `arckit`
+concern: the repository YAML hooks do not inspect YAML embedded in ARC Markdown
+front matter.
+
+Within that scope, `fmt` can sort numeric ARC relationship lists, reorder
+canonical ARC level-2 sections, and reorder canonical adoption-summary mapping
+keys such as top-level fields plus `reference-implementation`, `adoption`, and
+`summary`.
+
 `arckit` owns ARC-specific metadata, section, reference, maturity, and body-link
 policy, including rejecting absolute links back into repository content such as
 ARCs or assets. External raw HTML anchors are allowed.
@@ -52,6 +66,7 @@ find . -name '*.go' -print0 | xargs -0 gofmt -w -s
 go vet ./...
 go test ./...
 go build ./cmd/arckit
+go run ./cmd/arckit fmt ../ARCs/arc-0000.md
 go run ./cmd/arckit summary repo ..
 ```
 
@@ -71,11 +86,16 @@ go run ./cmd/arckit validate arc \
 go run ./cmd/arckit validate arc --ignore-config ../ARCs/arc-0000.md
 go run ./cmd/arckit validate adoption ../adoption/arc-0042.yaml
 go run ./cmd/arckit validate links ../ARCs/arc-0000.md
+go run ./cmd/arckit fmt ../ARCs/arc-0000.md
 ```
 
 `validate adoption` and `validate repo` both require the canonical vetted adopters
 registry at `../adoption/vetted-adopters.yaml`. Per-ARC adoption actor names must
 be lower-kebab-case identifiers present in the matching registry category.
+
+When formatting adoption summaries, `arckit fmt` normalizes
+`summary.adoption-readiness` from the tracked adopter count: `low` for fewer than
+3 adopters, `medium` for 3-4 adopters, and `high` for 5 or more adopters.
 
 `summary repo` writes a local markdown review artifact at `../arc-summary.md` by
 default for ARC Editor workflow use. It is a report generator, not a validation gate.

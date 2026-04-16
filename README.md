@@ -100,6 +100,11 @@ The repository CI/CD and release policy is defined in
 [`arckit`](./arckit/README.md) is the ARC repository validator and scaffolding CLI
 used by the pull request workflows for ARC-specific validation only.
 
+Its `fmt` command is intentionally narrow: it rewrites deterministic
+ARC/adoption-specific structure in `ARCs/arc-####.md` and
+`adoption/arc-####.yaml` only. It does not replace any shared repository
+hygiene hooks or take over generic YAML formatting and linting.
+
 Generic repository hygiene is handled separately through the repository-root
 `.pre-commit-config.yaml`. That shared hook config owns Markdown linting,
 whitespace/newline checks, YAML syntax/formatting, advisory Markdown/YAML
@@ -174,6 +179,7 @@ pre-commit run lychee --all-files --hook-stage manual
 cd arckit
 go run ./cmd/arckit validate arc ../ARCs/arc-0000.md
 go run ./cmd/arckit validate links ../ARCs/arc-0000.md
+go run ./cmd/arckit fmt ../ARCs/arc-0000.md
 ```
 
 If your pull request changes `arckit/**`, also run the tool validation checks:
