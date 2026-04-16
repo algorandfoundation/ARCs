@@ -10,6 +10,10 @@ Generic Markdown/YAML/text hygiene for this repository is handled by the
 repository-root `.pre-commit-config.yaml`, not by `arckit`. That includes
 advisory Markdown/YAML spelling checks and advisory external link checks.
 
+`arckit fmt` is limited to ARC Markdown files under `ARCs/arc-####.md`. It
+rewrites ARC-specific front matter only and does not format adoption YAML or
+overlap with the repository `pre-commit` hooks.
+
 `arckit` owns ARC-specific metadata, section, reference, maturity, and body-link
 policy, including rejecting absolute links back into repository content such as
 ARCs or assets. External raw HTML anchors are allowed.
@@ -52,6 +56,7 @@ find . -name '*.go' -print0 | xargs -0 gofmt -w -s
 go vet ./...
 go test ./...
 go build ./cmd/arckit
+go run ./cmd/arckit fmt ../ARCs/arc-0000.md
 go run ./cmd/arckit summary repo ..
 ```
 
@@ -71,6 +76,7 @@ go run ./cmd/arckit validate arc \
 go run ./cmd/arckit validate arc --ignore-config ../ARCs/arc-0000.md
 go run ./cmd/arckit validate adoption ../adoption/arc-0042.yaml
 go run ./cmd/arckit validate links ../ARCs/arc-0000.md
+go run ./cmd/arckit fmt ../ARCs/arc-0000.md
 ```
 
 `validate adoption` and `validate repo` both require the canonical vetted adopters

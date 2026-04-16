@@ -250,6 +250,10 @@ build:
 	cd arckit && go build ./cmd/arckit
 ```
 
+`fmt` intentionally targets only ARC Markdown front matter under
+`ARCs/arc-####.md`. Adoption YAML and other generic repository hygiene remain
+owned by `pre-commit`.
+
 ## 8. Testing Strategy
 
 Use the standard library test stack only.
