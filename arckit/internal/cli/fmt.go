@@ -456,7 +456,7 @@ func applyAdoptionFix(path string) error {
 		return unsafeErr
 	}
 
-	normalized, err := normalizeAdoptionContent(content)
+	normalized, err := normalizeAdoptionContent(content, summary.NormalizedAdoptionReadiness())
 	if err != nil {
 		return err
 	}
@@ -492,7 +492,7 @@ type mappingChunk struct {
 	valueNode     *yaml.Node
 }
 
-func normalizeAdoptionContent(content []byte) ([]byte, error) {
+func normalizeAdoptionContent(content []byte, normalizedReadiness string) ([]byte, error) {
 	var root yaml.Node
 	if err := yaml.Unmarshal(content, &root); err != nil {
 		return nil, err
@@ -505,14 +505,14 @@ func normalizeAdoptionContent(content []byte) ([]byte, error) {
 	if len(lines) == 0 {
 		return content, nil
 	}
-	out, ok := renderOrderedMapping(lines, root.Content[0], 0, len(lines), "top")
+	out, ok := renderOrderedMapping(lines, root.Content[0], 0, len(lines), "top", normalizedReadiness)
 	if !ok {
 		return content, nil
 	}
 	return []byte(strings.Join(out, "")), nil
 }
 
-func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, regionEnd int, context string) ([]string, bool) {
+func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, regionEnd int, context string, normalizedReadiness string) ([]string, bool) {
 	if mapping == nil || mapping.Kind != yaml.MappingNode {
 		return append([]string(nil), lines[regionStart:regionEnd]...), true
 	}
@@ -538,7 +538,7 @@ func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, r
 		}
 		if entry.valueNode != nil && entry.valueNode.Kind == yaml.MappingNode && entry.valueNode.Line-1 > entry.startLine && entry.valueNode.Line-1 <= entry.endLine {
 			nestedStart := entry.valueNode.Line - 1
-			nested, ok := renderOrderedMapping(lines, entry.valueNode, nestedStart, entry.endLine, entry.key)
+			nested, ok := renderOrderedMapping(lines, entry.valueNode, nestedStart, entry.endLine, entry.key, normalizedReadiness)
 			if !ok {
 				return append([]string(nil), lines[regionStart:regionEnd]...), false
 			}
@@ -546,9 +546,46 @@ func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, r
 			builder = append(builder, nested...)
 			continue
 		}
+		if context == "summary" && entry.key == "adoption-readiness" {
+			builder = append(builder, renderReadinessChunk(lines[entry.startLine:entry.endLine], normalizedReadiness)...)
+			continue
+		}
 		builder = append(builder, lines[entry.startLine:entry.endLine]...)
 	}
 	return builder, true
+}
+
+func renderReadinessChunk(lines []string, readiness string) []string {
+	if len(lines) == 0 || strings.TrimSpace(readiness) == "" {
+		return lines
+	}
+
+	first := lines[0]
+	colon := strings.Index(first, ":")
+	if colon < 0 {
+		return lines
+	}
+
+	updated := append([]string(nil), lines...)
+	comment := ""
+	lineEnding := ""
+	if strings.HasSuffix(first, "\r\n") {
+		lineEnding = "\r\n"
+		first = strings.TrimSuffix(first, "\r\n")
+	} else if strings.HasSuffix(first, "\n") {
+		lineEnding = "\n"
+		first = strings.TrimSuffix(first, "\n")
+	}
+	if marker := strings.Index(first[colon+1:], "#"); marker >= 0 {
+		comment = strings.TrimSpace(first[colon+1+marker:])
+	}
+
+	updated[0] = first[:colon+1] + " " + readiness
+	if comment != "" {
+		updated[0] += " " + comment
+	}
+	updated[0] += lineEnding
+	return updated
 }
 
 func mappingChunks(mapping *yaml.Node, regionEnd int, orderLookup map[string]int) ([]mappingChunk, bool) {

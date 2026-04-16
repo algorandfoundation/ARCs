@@ -695,3 +695,101 @@ last-reviewed: 2026-04-09
 		t.Fatalf("expected canonical adoption key ordering, got:\n%s", text)
 	}
 }
+
+func TestApplyAdoptionFixPromotesAdoptionReadinessFromAdopterCount(t *testing.T) {
+	root := t.TempDir()
+	adoptionDir := filepath.Join(root, "adoption")
+	if err := os.MkdirAll(adoptionDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(adoptionDir, "arc-0001.yaml")
+	content := `arc: 1
+title: Example ARC
+last-reviewed: 2026-04-09
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet
+      notes: ""
+  explorers:
+    - name: example-explorer
+      status: shipped
+      evidence: https://example.com/explorer
+      notes: ""
+  tooling:
+    - name: example-tool
+      status: shipped
+      evidence: https://example.com/tool
+      notes: ""
+  infra:
+    - name: example-infra
+      status: shipped
+      evidence: https://example.com/infra
+      notes: ""
+  dapps-protocols:
+    - name: example-dapp
+      status: shipped
+      evidence: https://example.com/dapp
+      notes: ""
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyAdoptionFix(path); err != nil {
+		t.Fatalf("applyAdoptionFix() error = %v", err)
+	}
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	if !strings.Contains(string(updated), "summary:\n  adoption-readiness: high\n") {
+		t.Fatalf("expected adoption-readiness to be promoted to high, got:\n%s", string(updated))
+	}
+}
+
+func TestApplyAdoptionFixDemotesAdoptionReadinessFromAdopterCount(t *testing.T) {
+	root := t.TempDir()
+	adoptionDir := filepath.Join(root, "adoption")
+	if err := os.MkdirAll(adoptionDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(adoptionDir, "arc-0001.yaml")
+	content := `arc: 1
+title: Example ARC
+last-reviewed: 2026-04-09
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: https://example.com/wallet
+      notes: ""
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: high
+  blockers: []
+  notes: ""
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyAdoptionFix(path); err != nil {
+		t.Fatalf("applyAdoptionFix() error = %v", err)
+	}
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	if !strings.Contains(string(updated), "summary:\n  adoption-readiness: low\n") {
+		t.Fatalf("expected adoption-readiness to be demoted to low, got:\n%s", string(updated))
+	}
+}
