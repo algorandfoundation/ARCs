@@ -11,8 +11,12 @@ repository-root `.pre-commit-config.yaml`, not by `arckit`. That includes
 advisory Markdown/YAML spelling checks and advisory external link checks.
 
 `arckit fmt` is limited to ARC Markdown files under `ARCs/arc-####.md`. It
-rewrites ARC-specific front matter only and does not format adoption YAML or
-overlap with the repository `pre-commit` hooks.
+rewrites deterministic ARC-specific structure only and does not format adoption
+YAML or overlap with the repository `pre-commit` hooks.
+
+If `fmt` reports invalid ARC front matter YAML, that is still an `arckit`
+concern: the repository YAML hooks do not inspect YAML embedded in ARC Markdown
+front matter.
 
 `arckit` owns ARC-specific metadata, section, reference, maturity, and body-link
 policy, including rejecting absolute links back into repository content such as

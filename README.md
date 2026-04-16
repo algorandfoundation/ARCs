@@ -100,9 +100,9 @@ The repository CI/CD and release policy is defined in
 [`arckit`](./arckit/README.md) is the ARC repository validator and scaffolding CLI
 used by the pull request workflows for ARC-specific validation only.
 
-Its `fmt` command is intentionally narrow: it rewrites ARC front matter in
-`ARCs/arc-####.md` only. It does not format adoption YAML or replace any shared
-repository hygiene hooks.
+Its `fmt` command is intentionally narrow: it rewrites deterministic
+ARC-specific structure in `ARCs/arc-####.md` only. It does not format adoption
+YAML or replace any shared repository hygiene hooks.
 
 Generic repository hygiene is handled separately through the repository-root
 `.pre-commit-config.yaml`. That shared hook config owns Markdown linting,

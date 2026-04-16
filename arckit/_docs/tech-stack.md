@@ -252,7 +252,10 @@ build:
 
 `fmt` intentionally targets only ARC Markdown front matter under
 `ARCs/arc-####.md`. Adoption YAML and other generic repository hygiene remain
-owned by `pre-commit`.
+owned by `pre-commit`. String scalar presentation details such as quote style
+must be preserved rather than re-canonicalized by `fmt`. Within ARC Markdown,
+deterministic canonicalization such as sorted numeric ARC lists and safe
+canonical section reordering belongs in `fmt`.
 
 ## 8. Testing Strategy
 

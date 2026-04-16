@@ -701,9 +701,11 @@ It must:
 1. normalize front matter spacing;
 1. remove empty lines from the front matter block;
 1. normalize front matter field ordering;
-1. normalize canonical YAML sequence fields without coercing invalid scalar-list legacy encodings;
+1. normalize canonical integer sequence fields without coercing invalid scalar-list legacy encodings, including sorting and deduplicating ARC-number lists;
 1. preserve semantic content.
 1. operate only on ARC Markdown files under `ARCs/arc-####.md`;
+1. preserve existing YAML scalar styling for string sequence items such as quote style;
+1. reorder canonical level-2 ARC sections when the present section set is supported and unambiguous;
 1. leave adoption YAML formatting, body whitespace, final-newline policy, and generic Markdown hygiene to
    the repository-root `pre-commit` hooks.
 
