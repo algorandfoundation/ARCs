@@ -271,6 +271,7 @@ must not, by themselves, imply a required status transition.
 ### 6.5 Monthly Report Output
 
 Each monthly run must always produce a workflow summary report.
+It should also upload the full ARC state summary markdown as a workflow artifact.
 
 When action is required, the pipeline must create or update one rollup issue for the
 current calendar month, named in the form:

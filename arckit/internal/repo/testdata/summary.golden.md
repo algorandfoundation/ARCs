@@ -121,7 +121,7 @@ None
 | wallet-one | 2 |
 | explorer-one | 1 |
 
-#### Top ARCs by Adopter Count
+#### Top 10 ARCs by Adopter Count
 
 | ARC | Title | Status | Adopters |
 | --- | --- | --- | --- |
@@ -129,6 +129,8 @@ None
 | 44 | Last Call ARC | Last Call | 1 |
 | 47 | Idle ARC With WIP Implementation | Idle | 1 |
 | 48 | Final ARC With One Adopter | Final | 1 |
+
+_Note: This table is limited to 10 rows. Ties are broken by lower ARC number after sorting by adopter count._
 
 ## Relationship Watch
 

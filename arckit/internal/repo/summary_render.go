@@ -101,9 +101,11 @@ func (summary RepoSummary) Markdown() string {
 	writeBlank()
 	writeNamedCountTable(&out, "Adopter", summary.TopAdoptersByCoverage)
 	writeBlank()
-	writeLine("#### Top ARCs by Adopter Count")
+	writeLine("#### Top 10 ARCs by Adopter Count")
 	writeBlank()
 	writeARCCountTable(&out, summary.TopARCsByAdopters)
+	writeBlank()
+	writeLine("_Note: This table is limited to 10 rows. Ties are broken by lower ARC number after sorting by adopter count._")
 	writeBlank()
 
 	writeLine("## Relationship Watch")
