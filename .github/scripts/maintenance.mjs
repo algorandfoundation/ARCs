@@ -318,7 +318,7 @@ function extractCanonicalArcNumberFromPullRequest(pullRequest) {
 
 function extractArcNumbersFromText(text) {
   const arcNumbers = new Set();
-  for (const match of text.matchAll(/\bARC-(\d{4})\b/gi)) {
+  for (const match of text.matchAll(/\barc[-_](\d{4})\b/gi)) {
     arcNumbers.add(match[1]);
   }
   return arcNumbers;
@@ -404,11 +404,8 @@ function extractArcNumbersFromDiagnostic(diagnostic) {
     if (!candidate) {
       continue;
     }
-    for (const match of candidate.matchAll(/\barc[-_](\d{4})\b/gi)) {
-      arcNumbers.add(match[1]);
-    }
-    for (const match of candidate.matchAll(/\bARC-(\d{4})\b/g)) {
-      arcNumbers.add(match[1]);
+    for (const arcNumber of extractArcNumbersFromText(candidate)) {
+      arcNumbers.add(arcNumber);
     }
   }
 
