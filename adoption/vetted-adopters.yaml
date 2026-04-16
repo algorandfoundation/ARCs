@@ -15,6 +15,7 @@ tooling:
 infra:
   - nodely
 dapps-protocols:
+  - af-governance
   - alpha-arcade
   - enel-ebitts
   - folks-finance
