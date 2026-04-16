@@ -2,12 +2,24 @@ arc: 19
 title: Templating of NFT ASA URLs for mutability
 last-reviewed: 2026-04-09
 adoption:
-  wallets: []
-  explorers: []
+  wallets:
+    - name: pera
+      status: shipped
+      evidence: Check NFTs tab for any account that owns an ARC-19 compliant asset.
+      notes: Wallet renders ARC-19 metadata.
+  explorers:
+    - name: lora
+      status: shipped
+      evidence: https://lora.algokit.io/testnet/asset/738880658
+      notes: Explorer renders ARC-19 metadata in public UI.
+    - name: pera
+      status: shipped
+      evidence: https://testnet.explorer.perawallet.app/asset/738880658/
+      notes: Explorer renders ARC-19 metadata in public UI.
   tooling: []
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
+  adoption-readiness: medium
   blockers: []
   notes: ""

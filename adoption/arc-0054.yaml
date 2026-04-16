@@ -3,7 +3,15 @@ title: ASA Burning App
 last-reviewed: 2026-04-09
 adoption:
   wallets: []
-  explorers: []
+  explorers:
+    - name: lora
+      status: in_progress
+      evidence: https://feat-arc-89.algokit-lora.pages.dev/testnet/asset/753979002
+      notes: Explorer renders ARC-54 burned supply in public UI.
+    - name: pera
+      status: shipped
+      evidence: https://explorer.perawallet.app/asset/31566704/
+      notes: Explorer renders ARC-54 burned supply in public UI.
   tooling: []
   infra: []
   dapps-protocols: []

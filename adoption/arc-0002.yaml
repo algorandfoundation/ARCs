@@ -3,10 +3,18 @@ title: Algorand Transaction Note Field Conventions
 last-reviewed: 2026-04-09
 adoption:
   wallets: []
-  explorers: []
+  explorers:
+    - name: lora
+      status: shipped
+      evidence: https://lora.algokit.io/testnet/transaction/K5JKXKU43KFGCWIXI4ADIXK7ASOE2VYA5OV2EUFCR5KJVDZ5IOBQ
+      notes: Explorer renders ARC-2 notes in public UI.
   tooling: []
   infra: []
-  dapps-protocols: []
+  dapps-protocols:
+    - name: af-governance
+      status: shipped
+      evidence: https://lora.algokit.io/mainnet/transaction/GDV5UTATNBEVVMXUVUS3ASXXVCVFVXU7CB2P54C55O647FJJY7OA
+      notes: Algorand Foundation Governance dApp makes use of ARC-2 messages.
 summary:
   adoption-readiness: low
   blockers: []

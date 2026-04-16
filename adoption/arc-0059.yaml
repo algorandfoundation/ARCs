@@ -2,7 +2,11 @@ arc: 59
 title: ASA Inbox Router
 last-reviewed: 2026-04-09
 adoption:
-  wallets: []
+  wallets:
+    - name: pera
+      status: shipped
+      evidence: Sending ASA to an accounts not opted in to that ASA is supported.
+      notes: Wallet implements ASA Inbox Router.
   explorers: []
   tooling: []
   infra: []
