@@ -37,15 +37,12 @@ export async function runMaintenance({ github, context, core }) {
     }
     const trackingIssue = repoIndex.trackingIssues.get(normalizeArcNumber(metadata.arc)) || null;
     if (!trackingIssue) {
-      editorAction.push(`- ARC-${metadata.arc} ${metadata.title || ""}: create the missing tracking issue with the \`arc-tracking\` label.`);
+      editorAction.push(`- ARC-${metadata.arc} ${metadata.title || ""}: create the missing tracking issue with the \`${TRACKING_ISSUE_LABEL}\` label.`);
     } else if (!hasTemplateShape(trackingIssue.body || "")) {
       editorAction.push(`- ARC-${metadata.arc} ${metadata.title || ""}: tracking issue #${trackingIssue.number} does not match the expected template shape.`);
     }
 
     const latestActivity = await latestCanonicalActivity({
-      github,
-      context,
-      arcNumber: metadata.arc,
       trackingIssue,
       latestPrUpdateAt: repoIndex.latestPrUpdates.get(normalizeArcNumber(metadata.arc)) || null,
       arcPath: filePath,
@@ -203,14 +200,7 @@ async function buildRepoIndex(github, context) {
       labels: TRACKING_ISSUE_LABEL,
       per_page: 100,
     }),
-    github.paginate(github.rest.pulls.list, {
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      state: "all",
-      sort: "updated",
-      direction: "desc",
-      per_page: 100,
-    }),
+    listRelevantPullRequests(github, context),
   ]);
 
   return {
@@ -219,32 +209,90 @@ async function buildRepoIndex(github, context) {
   };
 }
 
+async function listRelevantPullRequests(github, context) {
+  const cutoff = Date.now() - STAGNANT_FOLLOW_UP_MS;
+  const pullRequests = [];
+
+  for await (const response of github.paginate.iterator(github.rest.pulls.list, {
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    state: "all",
+    sort: "updated",
+    direction: "desc",
+    per_page: 100,
+  })) {
+    let reachedCutoff = false;
+
+    for (const pullRequest of response.data) {
+      if (new Date(pullRequest.updated_at).getTime() < cutoff) {
+        reachedCutoff = true;
+        break;
+      }
+      pullRequests.push(pullRequest);
+    }
+
+    if (reachedCutoff) {
+      break;
+    }
+  }
+
+  return pullRequests;
+}
+
 function indexTrackingIssues(issues) {
   const byArc = new Map();
   for (const issue of issues) {
     if (issue.pull_request) {
       continue;
     }
-    for (const arcNumber of extractArcNumbersFromText(`${issue.title || ""}\n${issue.body || ""}`)) {
-      if (!byArc.has(arcNumber)) {
-        byArc.set(arcNumber, issue);
-      }
+    const arcNumber = extractCanonicalArcNumberFromTrackingIssue(issue);
+    if (!arcNumber) {
+      continue;
+    }
+    if (!byArc.has(arcNumber)) {
+      byArc.set(arcNumber, issue);
     }
   }
   return byArc;
 }
 
+function extractCanonicalArcNumberFromTrackingIssue(issue) {
+  const titleMatches = [...extractArcNumbersFromText(issue.title || "")];
+  if (titleMatches.length === 1) {
+    return titleMatches[0];
+  }
+  return "";
+}
+
 function indexPullRequestUpdates(pullRequests) {
   const byArc = new Map();
   for (const pullRequest of pullRequests) {
-    for (const arcNumber of extractArcNumbersFromText(`${pullRequest.title || ""}\n${pullRequest.body || ""}`)) {
-      const current = byArc.get(arcNumber);
-      if (!current || new Date(pullRequest.updated_at) > new Date(current)) {
-        byArc.set(arcNumber, pullRequest.updated_at);
-      }
+    const arcNumber = extractCanonicalArcNumberFromPullRequest(pullRequest);
+    if (!arcNumber) {
+      continue;
+    }
+    const current = byArc.get(arcNumber);
+    if (!current || new Date(pullRequest.updated_at) > new Date(current)) {
+      byArc.set(arcNumber, pullRequest.updated_at);
     }
   }
   return byArc;
+}
+
+function extractCanonicalArcNumberFromPullRequest(pullRequest) {
+  const titleMatches = [...extractArcNumbersFromText(pullRequest.title || "")];
+  if (titleMatches.length === 1) {
+    return titleMatches[0];
+  }
+  if (titleMatches.length > 1) {
+    return "";
+  }
+
+  const bodyMatches = [...extractArcNumbersFromText(pullRequest.body || "")];
+  if (bodyMatches.length === 1) {
+    return bodyMatches[0];
+  }
+  return "";
 }
 
 function extractArcNumbersFromText(text) {
