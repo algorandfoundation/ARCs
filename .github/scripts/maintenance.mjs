@@ -73,19 +73,20 @@ export async function runMaintenance({ github, context, core }) {
   }
 
   for (const diagnostic of (offlineReport.diagnostics || []).filter((item) => item.severity === "error")) {
-    authorsAction.push(`- ${formatDiagnostic(diagnostic)}.`);
+    authorsAction.push(`- ${formatAuthorDiagnostic(diagnostic)}.`);
   }
 
   for (const diagnostic of (onlineReport.diagnostics || []).filter((item) => item.severity !== "info")) {
-    authorsAction.push(`- Advisory online finding: ${formatDiagnostic(diagnostic)}.`);
+    authorsAction.push(`- Advisory online finding: ${formatAuthorDiagnostic(diagnostic)}.`);
   }
 
   const month = new Date().toISOString().slice(0, 7);
-  const body = renderReport(month, authorsAction, editorAction, suggestedTransitions);
+  const reportBody = renderReport(month, authorsAction, editorAction, suggestedTransitions);
+  const issueBody = renderIssueBody(reportBody, summaryReport, summaryArtifactUrl);
 
   await core.summary
     .addHeading(`ARC maintenance report ${month}`)
-    .addRaw(body, true)
+    .addRaw(reportBody, true)
     .addRaw(renderRepoStateSummary(summaryReport, summaryArtifactUrl), true)
     .write();
 
@@ -94,7 +95,7 @@ export async function runMaintenance({ github, context, core }) {
     return;
   }
 
-  await upsertMonthlyIssue(github, context, month, body);
+  await upsertMonthlyIssue(github, context, month, issueBody);
 }
 
 async function loadJSON(filePath) {
@@ -386,6 +387,34 @@ function formatDiagnostic(diagnostic) {
   return `${location}${diagnostic.rule_id} ${diagnostic.message}`;
 }
 
+function formatAuthorDiagnostic(diagnostic) {
+  const arcNumbers = extractArcNumbersFromDiagnostic(diagnostic);
+  const detail = formatDiagnostic(diagnostic);
+  if (arcNumbers.length === 0) {
+    return detail;
+  }
+  return `${arcNumbers.map((arcNumber) => `ARC-${arcNumber}`).join(", ")}: ${detail}`;
+}
+
+function extractArcNumbersFromDiagnostic(diagnostic) {
+  const arcNumbers = new Set();
+  const candidates = [diagnostic.file, diagnostic.message, diagnostic.hint];
+
+  for (const candidate of candidates) {
+    if (!candidate) {
+      continue;
+    }
+    for (const match of candidate.matchAll(/\barc[-_](\d{4})\b/gi)) {
+      arcNumbers.add(match[1]);
+    }
+    for (const match of candidate.matchAll(/\bARC-(\d{4})\b/g)) {
+      arcNumbers.add(match[1]);
+    }
+  }
+
+  return [...arcNumbers].sort();
+}
+
 function renderReport(month, authorsAction, editorAction, suggestedTransitions) {
   return `# ${ISSUE_TITLE_PREFIX} ${month}
 
@@ -400,6 +429,12 @@ ${renderSection(editorAction)}
 ## Suggested status transitions
 
 ${renderSection(suggestedTransitions)}
+`;
+}
+
+function renderIssueBody(reportBody, summaryMarkdown, artifactUrl) {
+  return `${reportBody}
+${renderRepoStateSummary(summaryMarkdown, artifactUrl)}
 `;
 }
 
