@@ -247,7 +247,7 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 	return &cobra.Command{
 		Use:   "fmt <path...>",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "Apply ARC-specific front matter formatting fixes",
+		Short: "Apply deterministic ARC-specific formatting fixes",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCommand(opts, exitCode, stdout, func() (diag.Report, error) {
 				files, fileErr := collectARCFiles(args)
@@ -272,7 +272,7 @@ func newFmtCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.Comman
 						continue
 					}
 					if err := applyNativeFixWithConfig(path, cfg); err != nil {
-						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "Check the file permissions and content, then retry."))
+						diagnostics = append(diagnostics, diag.NewWithHint("R:027", diag.OriginNative, path, 0, 0, err.Error(), "fmt only operates on YAML-valid ARC front matter. Fix the ARC header and rerun; repository YAML pre-commit hooks do not inspect ARC Markdown front matter."))
 					}
 				}
 				report := reportForValidation("fmt", diagnostics)

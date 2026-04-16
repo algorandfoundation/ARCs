@@ -27,11 +27,11 @@ func applyNativeFixWithConfig(path string, cfg config.Config) error {
 		return err
 	}
 	diagnostics = cfg.FilterDiagnostics(diagnostics)
-	if hasUnsafeFrontMatterDiagnostics(diagnostics) {
-		return fmt.Errorf("front matter could not be safely reformatted")
+	if unsafeErr := unsafeFrontMatterError(diagnostics); unsafeErr != nil {
+		return unsafeErr
 	}
 
-	reordered, err := reorderFrontMatter(document)
+	reordered, err := normalizeDocument(document)
 	if err != nil {
 		return err
 	}
@@ -43,21 +43,24 @@ func applyNativeFixWithConfig(path string, cfg config.Config) error {
 	return os.WriteFile(path, fixed, 0o644)
 }
 
-func hasUnsafeFrontMatterDiagnostics(diagnostics []diag.Diagnostic) bool {
+func unsafeFrontMatterError(diagnostics []diag.Diagnostic) error {
 	for _, diagnostic := range diagnostics {
 		switch diagnostic.RuleID {
-		case "R:001", "R:005", "R:006":
-			return true
+		case "R:005":
+			return fmt.Errorf("ARC front matter is not valid YAML (%s); pre-commit YAML hooks do not inspect ARC Markdown front matter, so fix the header and rerun fmt", diagnostic.Message)
+		case "R:001", "R:006":
+			return fmt.Errorf("ARC front matter could not be safely reformatted because of %s", diagnostic.Message)
 		}
 	}
-	return false
+	return nil
 }
 
-func reorderFrontMatter(document *arc.Document) (string, error) {
+func normalizeDocument(document *arc.Document) (string, error) {
 	entries, preamble, suffix, err := frontMatterEntries(document)
 	if err != nil {
 		return "", err
 	}
+	body := normalizeBody(document)
 
 	builder := strings.Builder{}
 	builder.WriteString("---\n")
@@ -86,8 +89,8 @@ func reorderFrontMatter(document *arc.Document) (string, error) {
 	}
 
 	builder.WriteString("---\n")
-	if len(document.Body) > 0 {
-		builder.Write(document.Body)
+	if len(body) > 0 {
+		builder.Write(body)
 	}
 	return builder.String(), nil
 }
@@ -242,15 +245,10 @@ func normalizeStringSequenceChunk(document *arc.Document, entry frontMatterEntry
 	if !arc.IsStringSequenceField(entry.key) {
 		return nil
 	}
-	values := document.StringSequenceField(entry.key, entry.key == "updated")
-	if len(values) == 0 {
+	if len(document.StringSequenceField(entry.key, entry.key == "updated")) == 0 {
 		return nil
 	}
-	lines := []string{entry.key + ":"}
-	for _, value := range values {
-		lines = append(lines, "  - "+value)
-	}
-	return lines
+	return entry.lines
 }
 
 func normalizeIntSequenceChunk(document *arc.Document, entry frontMatterEntry) []string {
@@ -261,6 +259,7 @@ func normalizeIntSequenceChunk(document *arc.Document, entry frontMatterEntry) [
 	if len(values) == 0 {
 		return nil
 	}
+	values = sortedUniqueInts(values)
 	lines := []string{entry.key + ":"}
 	for _, value := range values {
 		lines = append(lines, fmt.Sprintf("  - %d", value))
@@ -296,4 +295,140 @@ func filteredFrontMatterLines(lines []string) []string {
 		filtered = append(filtered, line)
 	}
 	return filtered
+}
+
+func sortedUniqueInts(values []int) []int {
+	out := append([]int(nil), values...)
+	sort.Ints(out)
+	write := 0
+	for _, value := range out {
+		if write > 0 && out[write-1] == value {
+			continue
+		}
+		out[write] = value
+		write++
+	}
+	return out[:write]
+}
+
+type bodySection struct {
+	title      string
+	orderIndex int
+	startLine  int
+	endLine    int
+}
+
+func normalizeBody(document *arc.Document) []byte {
+	if len(document.Body) == 0 {
+		return document.Body
+	}
+
+	sections, ok := reorderableBodySections(document)
+	if !ok || len(sections) <= 1 {
+		return document.Body
+	}
+
+	alreadyOrdered := true
+	for idx := 1; idx < len(sections); idx++ {
+		if sections[idx-1].orderIndex > sections[idx].orderIndex {
+			alreadyOrdered = false
+			break
+		}
+	}
+	if alreadyOrdered {
+		return document.Body
+	}
+
+	lines := splitLinesPreserveNewlines(document.Body)
+	if len(lines) == 0 {
+		return document.Body
+	}
+	if sections[0].startLine < 0 || sections[0].startLine > len(lines) {
+		return document.Body
+	}
+
+	preamble := append([]string(nil), lines[:sections[0].startLine]...)
+	ordered := append([]bodySection(nil), sections...)
+	sort.SliceStable(ordered, func(i, j int) bool {
+		return ordered[i].orderIndex < ordered[j].orderIndex
+	})
+
+	builder := strings.Builder{}
+	for _, line := range preamble {
+		builder.WriteString(line)
+	}
+	for _, section := range ordered {
+		if section.startLine < 0 || section.endLine < section.startLine || section.endLine > len(lines) {
+			return document.Body
+		}
+		for _, line := range lines[section.startLine:section.endLine] {
+			builder.WriteString(line)
+		}
+	}
+	return []byte(builder.String())
+}
+
+func reorderableBodySections(document *arc.Document) ([]bodySection, bool) {
+	bodyStartLine := document.BodyStartLine
+	if bodyStartLine == 0 {
+		bodyStartLine = 1
+	}
+
+	allowedOrder := map[string]int{}
+	for idx, title := range arc.OrderedLevel2Sections() {
+		allowedOrder[title] = idx
+	}
+
+	sections := make([]bodySection, 0)
+	seen := map[string]struct{}{}
+	for _, heading := range document.Headings {
+		if heading.Level != 2 {
+			continue
+		}
+		orderIndex, ok := allowedOrder[heading.Title]
+		if !ok {
+			return nil, false
+		}
+		if _, exists := seen[heading.Title]; exists {
+			return nil, false
+		}
+		seen[heading.Title] = struct{}{}
+		startLine := heading.Line - bodyStartLine
+		if startLine < 0 {
+			return nil, false
+		}
+		sections = append(sections, bodySection{
+			title:      heading.Title,
+			orderIndex: orderIndex,
+			startLine:  startLine,
+		})
+	}
+
+	if len(sections) == 0 {
+		return nil, false
+	}
+
+	lines := splitLinesPreserveNewlines(document.Body)
+	for idx := range sections {
+		endLine := len(lines)
+		if idx+1 < len(sections) {
+			endLine = sections[idx+1].startLine
+		}
+		if endLine < sections[idx].startLine {
+			return nil, false
+		}
+		sections[idx].endLine = endLine
+	}
+	return sections, true
+}
+
+func splitLinesPreserveNewlines(content []byte) []string {
+	if len(content) == 0 {
+		return nil
+	}
+	lines := strings.SplitAfter(string(content), "\n")
+	if len(lines) > 0 && lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
+	}
+	return lines
 }

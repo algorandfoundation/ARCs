@@ -31,6 +31,7 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 		Adoptions: map[int]*adoption.Summary{},
 	}
 	diagnostics := make([]diag.Diagnostic, 0)
+	arcFileNumbers := map[int]struct{}{}
 
 	arcFiles, err := filepath.Glob(filepath.Join(state.Root, "ARCs", "arc-*.md"))
 	if err != nil {
@@ -40,8 +41,11 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 	}
 	numberToPaths := map[int][]string{}
 	for _, path := range arcFiles {
-		if number, ok := config.ARCNumberForPath(path); ok && cfg.IgnoreARC(number) {
-			continue
+		if number, ok := config.ARCNumberForPath(path); ok {
+			if cfg.IgnoreARC(number) {
+				continue
+			}
+			arcFileNumbers[number] = struct{}{}
 		}
 		document, loadDiagnostics, loadErr := arc.Load(path)
 		diagnostics = append(diagnostics, loadDiagnostics...)
@@ -98,8 +102,8 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 		}
 	}
 
-	diagnostics = append(diagnostics, validateAssets(state.Root, state.ARCs, cfg)...)
-	diagnostics = append(diagnostics, validateMappings(state)...)
+	diagnostics = append(diagnostics, validateAssets(state.Root, arcFileNumbers, cfg)...)
+	diagnostics = append(diagnostics, validateMappings(state, arcFileNumbers)...)
 	diagnostics = append(diagnostics, validateRelationships(state)...)
 	diagnostics = append(diagnostics, validateMaturity(state)...)
 
@@ -108,7 +112,7 @@ func Validate(root string, cfg config.Config) (State, []diag.Diagnostic, error) 
 	return state, diagnostics, nil
 }
 
-func validateAssets(root string, documents map[int]*arc.Document, cfg config.Config) []diag.Diagnostic {
+func validateAssets(root string, arcFileNumbers map[int]struct{}, cfg config.Config) []diag.Diagnostic {
 	diagnostics := make([]diag.Diagnostic, 0)
 	entries, err := os.ReadDir(filepath.Join(root, "assets"))
 	if err != nil {
@@ -134,17 +138,17 @@ func validateAssets(root string, documents map[int]*arc.Document, cfg config.Con
 		if cfg.IgnoreARC(number) {
 			continue
 		}
-		if _, ok := documents[number]; !ok {
+		if _, ok := arcFileNumbers[number]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:018", diag.OriginNative, filepath.Join(root, "assets", entry.Name()), 1, 1, fmt.Sprintf("orphaned asset directory %q has no matching ARC", entry.Name()), "Remove the orphaned asset tree or add the matching ARC file."))
 		}
 	}
 	return diagnostics
 }
 
-func validateMappings(state State) []diag.Diagnostic {
+func validateMappings(state State, arcFileNumbers map[int]struct{}) []diag.Diagnostic {
 	diagnostics := make([]diag.Diagnostic, 0)
 	for number, summary := range state.Adoptions {
-		if _, ok := state.ARCs[number]; !ok {
+		if _, ok := arcFileNumbers[number]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:018", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("orphaned adoption summary for ARC %d", number), "Remove the orphaned adoption summary or add the matching ARC file."))
 		}
 	}

@@ -392,3 +392,265 @@ Text`
 		t.Fatalf("expected mixed int sequence to be preserved verbatim, got:\n%s", text)
 	}
 }
+
+func TestApplyNativeFixSortsAndDeduplicatesNumericARCLists(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+title: Example
+arc: 1
+description: Example description
+author:
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Draft
+type: Meta
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: false
+requires:
+  - 22
+  - 4
+  - 22
+extended-by:
+  - 89
+  - 62
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyNativeFix(path); err != nil {
+		t.Fatalf("applyNativeFix() error = %v", err)
+	}
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	text := string(updated)
+	if !strings.Contains(text, "requires:\n  - 4\n  - 22\n") {
+		t.Fatalf("expected requires to be sorted and deduplicated, got:\n%s", text)
+	}
+	if !strings.Contains(text, "extended-by:\n  - 62\n  - 89\n") {
+		t.Fatalf("expected extended-by to be sorted, got:\n%s", text)
+	}
+}
+
+func TestApplyNativeFixReordersCanonicalLevel2Sections(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Draft
+type: Meta
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: false
+---
+
+## Abstract
+
+Abstract text.
+
+## Specification
+
+Specification text.
+
+## Motivation
+
+Motivation text.
+
+## Security Considerations
+
+Security text.
+
+## Rationale
+
+Rationale text.
+
+## Copyright
+
+Copyright and related rights waived via CC0 1.0.
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyNativeFix(path); err != nil {
+		t.Fatalf("applyNativeFix() error = %v", err)
+	}
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	text := string(updated)
+
+	motivationIndex := strings.Index(text, "## Motivation")
+	specificationIndex := strings.Index(text, "## Specification")
+	rationaleIndex := strings.Index(text, "## Rationale")
+	securityIndex := strings.Index(text, "## Security Considerations")
+	copyrightIndex := strings.Index(text, "## Copyright")
+	if !(motivationIndex < specificationIndex && specificationIndex < rationaleIndex && rationaleIndex < securityIndex && securityIndex < copyrightIndex) {
+		t.Fatalf("expected canonical level-2 section order, got:\n%s", text)
+	}
+}
+
+func TestApplyNativeFixKeepsImplementationMaintainerYAMLSafe(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+title: Example
+arc: 1
+description: Example description
+author:
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Final
+type: Meta
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: true
+implementation-url: https://github.com/example/arc1
+implementation-maintainer:
+  - "@example"
+adoption-summary: adoption/arc-0001.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := applyNativeFix(path); err != nil {
+		t.Fatalf("first applyNativeFix() error = %v", err)
+	}
+	if err := applyNativeFix(path); err != nil {
+		t.Fatalf("second applyNativeFix() error = %v", err)
+	}
+
+	updated, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	text := string(updated)
+	if !strings.Contains(text, "implementation-maintainer:\n  - \"@example\"\n") {
+		t.Fatalf("expected implementation-maintainer quote style to be preserved, got:\n%s", text)
+	}
+}
+
+func TestApplyNativeFixReportsInvalidFrontMatterYAMLClearly(t *testing.T) {
+	root := t.TempDir()
+	arcDir := filepath.Join(root, "ARCs")
+	if err := os.MkdirAll(arcDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(arcDir, "arc-0001.md")
+	content := `---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Final
+type: Meta
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: true
+implementation-url: https://github.com/example/arc1
+implementation-maintainer:
+  - @example
+adoption-summary: adoption/arc-0001.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	err := applyNativeFix(path)
+	if err == nil {
+		t.Fatal("expected applyNativeFix() to reject invalid front matter YAML")
+	}
+	if !strings.Contains(err.Error(), "pre-commit YAML hooks do not inspect ARC Markdown front matter") {
+		t.Fatalf("expected fmt error to explain ARC/front-matter hook boundary, got: %v", err)
+	}
+}

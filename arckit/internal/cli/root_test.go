@@ -522,6 +522,63 @@ summary:
 	assertContains(t, stdout.String(), "is not an ARC Markdown file under ARCs/arc-####.md")
 }
 
+func TestCLIFmtExplainsInvalidFrontMatterYAMLBoundary(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "ARCs"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	path := filepath.Join(root, "ARCs", "arc-0001.md")
+	if err := os.WriteFile(path, []byte(`---
+arc: 1
+title: Example
+description: Example description
+author:
+  - Example Author ()
+discussions-to: https://github.com/algorandfoundation/ARCs/issues/1
+status: Final
+type: Meta
+created: 2026-03-26
+sponsor: Foundation
+implementation-required: true
+implementation-url: https://github.com/example/arc1
+implementation-maintainer:
+  - @example
+adoption-summary: adoption/arc-0001.yaml
+---
+
+## Abstract
+
+Text
+
+## Motivation
+
+Text
+
+## Specification
+
+Text
+
+## Rationale
+
+Text
+
+## Security Considerations
+
+Text
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"fmt", path}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), "pre-commit YAML hooks do not inspect ARC Markdown front matter")
+	assertContains(t, stdout.String(), "fmt only operates on YAML-valid ARC front matter")
+}
+
 func TestCLIValidateAdoptionReportsHelpfulActorSchemaError(t *testing.T) {
 	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	path := filepath.Join(root, "adoption", "arc-0042.yaml")
