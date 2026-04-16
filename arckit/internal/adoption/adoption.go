@@ -208,6 +208,9 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 			if !IsKnownActorStatus(actor.Status) {
 				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d] has unsupported status %q", group.Name, index, actor.Status), "Use one of planned, in_progress, shipped, declined, or unknown."))
 			}
+			if strings.TrimSpace(actor.Evidence) == "" {
+				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("%s[%d].evidence is required", group.Name, index), "Set a non-empty evidence value for each adopter entry."))
+			}
 		}
 	}
 

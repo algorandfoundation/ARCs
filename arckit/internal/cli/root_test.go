@@ -528,6 +528,46 @@ summary:
 	assertContains(t, stdout.String(), `summary.adoption-readiness "low" is too low for 3 adopters across all categories; expected "medium"`)
 }
 
+func TestCLIValidateRepoRejectsAdopterWithEmptyEvidence(t *testing.T) {
+	root := copyRepoFixture(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	writeVettedAdopters(t, root, `wallets:
+  - example-wallet
+explorers: []
+tooling: []
+infra: []
+dapps-protocols: []
+`)
+	path := filepath.Join(root, "adoption", "arc-0042.yaml")
+	if err := os.WriteFile(path, []byte(`arc: 42
+title: Example ARC
+last-reviewed: 2026-04-09
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: ""
+      notes: ""
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	exitCode := ExecuteArgs([]string{"validate", "repo", root}, stdout, stderr)
+	if exitCode != 1 {
+		t.Fatalf("ExecuteArgs() exit code = %d, want 1, stdout=%s stderr=%s", exitCode, stdout.String(), stderr.String())
+	}
+	assertContains(t, stdout.String(), `wallets[0].evidence is required`)
+}
+
 func TestCLIFmtFormatsAdoptionSummaryPaths(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, "adoption"), 0o755); err != nil {

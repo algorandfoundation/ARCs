@@ -59,6 +59,49 @@ func TestValidateRepoIgnoresConfiguredARCFootprint(t *testing.T) {
 	}
 }
 
+func TestValidateRepoRejectsAdopterWithEmptyEvidence(t *testing.T) {
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "vetted-adopters.yaml"), `wallets:
+  - example-wallet
+explorers: []
+tooling: []
+infra: []
+dapps-protocols: []
+`)
+	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "arc-0042.yaml"), `arc: 42
+title: Example ARC
+last-reviewed: 2026-04-09
+adoption:
+  wallets:
+    - name: example-wallet
+      status: shipped
+      evidence: ""
+      notes: ""
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`)
+
+	_, diagnostics, err := Validate(root, config.Config{})
+	if err != nil {
+		t.Fatalf("Validate() error = %v", err)
+	}
+	found := false
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:016" && diagnostic.Message == `wallets[0].evidence is required` {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected empty evidence diagnostic, got %+v", diagnostics)
+	}
+}
+
 func TestValidateRepoIgnoresRuleOnConfiguredRange(t *testing.T) {
 	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "missing-adoption"))
 	testutil.WriteTrimmedFile(t, filepath.Join(root, config.FileName), `{
