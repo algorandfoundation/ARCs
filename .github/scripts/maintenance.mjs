@@ -42,14 +42,22 @@ export async function runMaintenance({ github, context, core }) {
       editorAction.push(`- ARC-${metadata.arc} ${metadata.title || ""}: tracking issue #${trackingIssue.number} does not match the expected template shape.`);
     }
 
-    const latestActivity = await latestCanonicalActivity({
+    const latestPrUpdateAt = repoIndex.latestPrUpdates.get(normalizeArcNumber(metadata.arc)) || null;
+    let latestActivity = await latestCanonicalActivity({
       trackingIssue,
-      latestPrUpdateAt: repoIndex.latestPrUpdates.get(normalizeArcNumber(metadata.arc)) || null,
+      latestPrUpdateAt,
       arcPath: filePath,
       adoptionPath: metadata.adoptionSummary,
     });
     if (!latestActivity) {
       continue;
+    }
+
+    if (shouldBackfillPullRequestActivity(metadata.status, latestActivity, latestPrUpdateAt)) {
+      const historicalPrUpdateAt = await findLatestHistoricalPullRequestUpdate(github, context, metadata.arc);
+      if (historicalPrUpdateAt) {
+        latestActivity = maxDate(latestActivity, new Date(historicalPrUpdateAt));
+      }
     }
 
     const age = Date.now() - latestActivity.getTime();
@@ -198,6 +206,8 @@ async function buildRepoIndex(github, context) {
       repo: context.repo.repo,
       state: "all",
       labels: TRACKING_ISSUE_LABEL,
+      sort: "updated",
+      direction: "desc",
       per_page: 100,
     }),
     listRelevantPullRequests(github, context),
@@ -249,7 +259,8 @@ function indexTrackingIssues(issues) {
     if (!arcNumber) {
       continue;
     }
-    if (!byArc.has(arcNumber)) {
+    const current = byArc.get(arcNumber);
+    if (!current || isNewerIssue(issue, current)) {
       byArc.set(arcNumber, issue);
     }
   }
@@ -262,6 +273,15 @@ function extractCanonicalArcNumberFromTrackingIssue(issue) {
     return titleMatches[0];
   }
   return "";
+}
+
+function isNewerIssue(left, right) {
+  const leftUpdatedAt = new Date(left.updated_at || 0).getTime();
+  const rightUpdatedAt = new Date(right.updated_at || 0).getTime();
+  if (leftUpdatedAt !== rightUpdatedAt) {
+    return leftUpdatedAt > rightUpdatedAt;
+  }
+  return (left.number || 0) > (right.number || 0);
 }
 
 function indexPullRequestUpdates(pullRequests) {
@@ -305,6 +325,36 @@ function extractArcNumbersFromText(text) {
 
 function normalizeArcNumber(value) {
   return value.toString().padStart(4, "0");
+}
+
+function shouldBackfillPullRequestActivity(status, latestActivity, latestPrUpdateAt) {
+  if (latestPrUpdateAt) {
+    return false;
+  }
+
+  const age = Date.now() - latestActivity.getTime();
+  if (["Draft", "Review", "Last Call", "Final"].includes(status)) {
+    return age >= SIX_MONTHS_MS;
+  }
+  if (status === "Stagnant") {
+    return age >= STAGNANT_FOLLOW_UP_MS;
+  }
+  return false;
+}
+
+async function findLatestHistoricalPullRequestUpdate(github, context, arcNumber) {
+  const normalizedArcNumber = normalizeArcNumber(arcNumber);
+  const result = await github.rest.search.issuesAndPullRequests({
+    q: `repo:${context.repo.owner}/${context.repo.repo} is:pr in:title "ARC-${normalizedArcNumber}"`,
+    sort: "updated",
+    order: "desc",
+    per_page: 1,
+  });
+  return result.data.items[0]?.updated_at || "";
+}
+
+function maxDate(left, right) {
+  return left > right ? left : right;
 }
 
 async function latestGitTimestamp(paths) {
