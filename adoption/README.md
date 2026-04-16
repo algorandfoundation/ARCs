@@ -42,8 +42,8 @@ Canonical implementation status values are:
 - `medium` requires at least 3 adopter entries across all adoption categories;
 - `high` requires at least 5 adopter entries across all adoption categories.
 
-`arckit fmt` may automatically raise `summary.adoption-readiness` when the tracked
-adopter count already justifies `medium` or `high`.
+`arckit fmt` automatically normalizes `summary.adoption-readiness` from the tracked
+adopter count, promoting or demoting it to match these thresholds.
 
 ## Example
 

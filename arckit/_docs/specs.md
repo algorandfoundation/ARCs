@@ -594,6 +594,12 @@ Readiness thresholds are:
 1. `medium` requires at least 3 adopter entries across all adoption categories;
 1. `high` requires at least 5 adopter entries across all adoption categories.
 
+`arckit fmt` must normalize `summary.adoption-readiness` from those thresholds:
+
+1. `low` when the tracked adopter count is fewer than 3;
+1. `medium` when the tracked adopter count is 3-4;
+1. `high` when the tracked adopter count is 5 or more.
+
 ### 10.5 Internal Consistency
 
 `arckit` must enforce:

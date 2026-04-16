@@ -93,5 +93,9 @@ go run ./cmd/arckit fmt ../ARCs/arc-0000.md
 registry at `../adoption/vetted-adopters.yaml`. Per-ARC adoption actor names must
 be lower-kebab-case identifiers present in the matching registry category.
 
+When formatting adoption summaries, `arckit fmt` normalizes
+`summary.adoption-readiness` from the tracked adopter count: `low` for fewer than
+3 adopters, `medium` for 3-4 adopters, and `high` for 5 or more adopters.
+
 `summary repo` writes a local markdown review artifact at `../arc-summary.md` by
 default for ARC Editor workflow use. It is a report generator, not a validation gate.
