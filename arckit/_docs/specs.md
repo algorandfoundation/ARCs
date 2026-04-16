@@ -599,6 +599,7 @@ Readiness thresholds are:
 `arckit` must enforce:
 
 1. the filename ARC number matches `arc`;
+1. `title` matches the title in the corresponding ARC front matter;
 1. adoption-summary logic that depends on `status`, `sponsor`, or `implementation-required`
    derives those values from the matching ARC front matter;
 1. `status`, `sponsor`, and `implementation-required` are rejected if they appear
@@ -703,9 +704,10 @@ It must:
 1. normalize front matter field ordering;
 1. normalize canonical integer sequence fields without coercing invalid scalar-list legacy encodings, including sorting and deduplicating ARC-number lists;
 1. preserve semantic content.
-1. operate only on ARC Markdown files under `ARCs/arc-####.md`;
+1. operate only on ARC Markdown files under `ARCs/arc-####.md` and adoption summaries under `adoption/arc-####.yaml`;
 1. preserve existing YAML scalar styling for string sequence items such as quote style;
 1. reorder canonical level-2 ARC sections when the present section set is supported and unambiguous;
+1. reorder canonical adoption-summary mapping keys, including top-level fields plus `reference-implementation`, `adoption`, and `summary`, without taking over generic YAML formatting;
 1. leave adoption YAML formatting, body whitespace, final-newline policy, and generic Markdown hygiene to
    the repository-root `pre-commit` hooks.
 

@@ -10,13 +10,19 @@ Generic Markdown/YAML/text hygiene for this repository is handled by the
 repository-root `.pre-commit-config.yaml`, not by `arckit`. That includes
 advisory Markdown/YAML spelling checks and advisory external link checks.
 
-`arckit fmt` is limited to ARC Markdown files under `ARCs/arc-####.md`. It
-rewrites deterministic ARC-specific structure only and does not format adoption
-YAML or overlap with the repository `pre-commit` hooks.
+`arckit fmt` is limited to ARC Markdown files under `ARCs/arc-####.md` and
+adoption summaries under `adoption/arc-####.yaml`. It rewrites deterministic
+ARC/adoption-specific structure only and does not overlap with the repository
+`pre-commit` hooks on generic YAML formatting or linting.
 
 If `fmt` reports invalid ARC front matter YAML, that is still an `arckit`
 concern: the repository YAML hooks do not inspect YAML embedded in ARC Markdown
 front matter.
+
+Within that scope, `fmt` can sort numeric ARC relationship lists, reorder
+canonical ARC level-2 sections, and reorder canonical adoption-summary mapping
+keys such as top-level fields plus `reference-implementation`, `adoption`, and
+`summary`.
 
 `arckit` owns ARC-specific metadata, section, reference, maturity, and body-link
 policy, including rejecting absolute links back into repository content such as
