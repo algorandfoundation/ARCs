@@ -16,6 +16,7 @@ infra:
   - nodely
 dapps-protocols:
   - af-governance
+  - af-randomness-beacon
   - alpha-arcade
   - enel-ebitts
   - folks-finance
