@@ -1,0 +1,17 @@
+arc: 59
+title: ASA Inbox Router
+last-reviewed: 2026-04-09
+adoption:
+  wallets:
+    - name: pera
+      status: shipped
+      evidence: https://github.com/perawallet/pera-react-native/blob/main/packages/asa-inbox/src/specs/arc59-app-spec.json
+      notes: Wallet implements ARC-59 ASA Inbox Router.
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

@@ -1,0 +1,37 @@
+arc: 3
+title: Conventions Fungible/Non-Fungible Tokens
+last-reviewed: 2026-04-09
+adoption:
+  wallets:
+    - name: pera
+      status: shipped
+      evidence: https://github.com/perawallet/pera-react-native/blob/d3fbc3f9ef8ac66bba4dfa6d4c48bb1da79fb462/packages/assets/src/utils.ts#L49
+      notes: Wallet renders ARC-3 metadata.
+  explorers:
+    - name: allo
+      status: shipped
+      evidence: https://allo.info/asset/420645394/nft/
+      notes: Explorer renders ARC-3 metadata in public UI.
+    - name: lora
+      status: shipped
+      evidence: https://lora.algokit.io/mainnet/asset/420645394/
+      notes: Explorer renders ARC-3 metadata in public UI.
+    - name: pera
+      status: shipped
+      evidence: https://explorer.perawallet.app/asset/420645394/
+      notes: Explorer renders ARC-3 metadata in public UI.
+  tooling:
+    - name: algokit
+      status: shipped
+      evidence: https://dev.algorand.co/algokit/cli/tasks/mint/
+      notes: Algokit CLI supports minting ARC-3 compliant assets.
+  infra: []
+  dapps-protocols:
+    - name: nfd
+      status: shipped
+      evidence: https://api-docs.nf.domains/reference/on-chain-reference/properties
+      notes: NF Domains renders ARC-3 metadata in public UI.
+summary:
+  adoption-readiness: high
+  blockers: []
+  notes: ""
