@@ -30,6 +30,6 @@
   },
   "dependencies": {
     "@algorandfoundation/algokit-utils": "^9.1.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.18.1"
   }
 }
