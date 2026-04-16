@@ -344,15 +344,24 @@ function shouldBackfillPullRequestActivity(status, latestActivity, latestPrUpdat
 
 async function findLatestHistoricalPullRequestUpdate(github, context, arcNumber) {
   const normalizedArcNumber = normalizeArcNumber(arcNumber);
-  const result = await github.rest.search.issuesAndPullRequests({
-    q: `repo:${context.repo.owner}/${context.repo.repo} is:pr "ARC-${normalizedArcNumber}"`,
-    sort: "updated",
-    order: "desc",
-    per_page: 20,
-  });
-  for (const item of result.data.items) {
-    if (extractCanonicalArcNumberFromPullRequest(item) === normalizedArcNumber) {
-      return item.updated_at || "";
+  const maxPages = 5;
+
+  for (let page = 1; page <= maxPages; page += 1) {
+    const result = await github.rest.search.issuesAndPullRequests({
+      q: `repo:${context.repo.owner}/${context.repo.repo} is:pr "ARC-${normalizedArcNumber}"`,
+      sort: "updated",
+      order: "desc",
+      per_page: 20,
+      page,
+    });
+    for (const item of result.data.items) {
+      if (extractCanonicalArcNumberFromPullRequest(item) === normalizedArcNumber) {
+        return item.updated_at || "";
+      }
+    }
+
+    if (result.data.items.length < 20) {
+      break;
     }
   }
   return "";
