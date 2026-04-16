@@ -81,11 +81,12 @@ export async function runMaintenance({ github, context, core }) {
   }
 
   const month = new Date().toISOString().slice(0, 7);
-  const body = renderReport(month, authorsAction, editorAction, suggestedTransitions);
+  const actionSummary = renderActionSummary(month, authorsAction, editorAction, suggestedTransitions);
+  const issueBody = renderIssueBody(month, authorsAction, suggestedTransitions, summaryArtifactUrl);
 
   await core.summary
     .addHeading(`ARC maintenance report ${month}`)
-    .addRaw(body, true)
+    .addRaw(actionSummary, true)
     .addRaw(renderRepoStateSummary(summaryReport, summaryArtifactUrl), true)
     .write();
 
@@ -94,7 +95,12 @@ export async function runMaintenance({ github, context, core }) {
     return;
   }
 
-  await upsertMonthlyIssue(github, context, month, body);
+  if (authorsAction.length === 0 && suggestedTransitions.length === 0) {
+    core.info("No author-facing monthly maintenance issue required for this run.");
+    return;
+  }
+
+  await upsertMonthlyIssue(github, context, month, issueBody);
 }
 
 async function loadJSON(filePath) {
@@ -382,11 +388,24 @@ async function latestGitTimestamp(paths) {
 }
 
 function formatDiagnostic(diagnostic) {
+  const arcNumber = extractArcNumberFromDiagnostic(diagnostic);
+  const arcPrefix = arcNumber ? `ARC-${arcNumber}: ` : "";
   const location = diagnostic.file ? `${diagnostic.file}: ` : "";
-  return `${location}${diagnostic.rule_id} ${diagnostic.message}`;
+  return `${arcPrefix}${location}${diagnostic.rule_id} ${diagnostic.message}`;
 }
 
-function renderReport(month, authorsAction, editorAction, suggestedTransitions) {
+function extractArcNumberFromDiagnostic(diagnostic) {
+  const sources = [diagnostic.file || "", diagnostic.message || ""];
+  for (const source of sources) {
+    const match = source.match(/\barc-(\d{4})\b/i);
+    if (match) {
+      return match[1];
+    }
+  }
+  return "";
+}
+
+function renderActionSummary(month, authorsAction, editorAction, suggestedTransitions) {
   return `# ${ISSUE_TITLE_PREFIX} ${month}
 
 ## Action required from ARC authors
@@ -403,6 +422,23 @@ ${renderSection(suggestedTransitions)}
 `;
 }
 
+function renderIssueBody(month, authorsAction, suggestedTransitions, summaryArtifactUrl) {
+  return `# ${ISSUE_TITLE_PREFIX} ${month}
+
+## Action required from ARC authors
+
+${renderSection(authorsAction)}
+
+## Suggested status transitions
+
+${renderSection(suggestedTransitions)}
+
+## Full ARC summary report
+
+${renderSummaryArtifactLink(summaryArtifactUrl)}
+`;
+}
+
 function renderSection(items) {
   if (items.length === 0) {
     return "- No action recorded in this category for this run.";
@@ -410,13 +446,16 @@ function renderSection(items) {
   return items.join("\n");
 }
 
+function renderSummaryArtifactLink(artifactUrl) {
+  if (!artifactUrl) {
+    return "- Full markdown report artifact: unavailable for this run.";
+  }
+  return `- Full markdown report artifact: [arc-summary.md](${artifactUrl})`;
+}
+
 function renderRepoStateSummary(summaryMarkdown, artifactUrl) {
   const lines = ["", "## ARC state summary", ""];
-  if (artifactUrl) {
-    lines.push(`- Full markdown report artifact: [arc-summary.md](${artifactUrl})`);
-  } else {
-    lines.push("- Full markdown report artifact: unavailable for this run.");
-  }
+  lines.push(renderSummaryArtifactLink(artifactUrl));
 
   const overview = extractRepoStateSummaryOverview(summaryMarkdown);
   if (!overview) {
