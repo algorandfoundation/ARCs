@@ -9,7 +9,6 @@ updates:
         update-types:
           - minor
           - patch
-
   - package-ecosystem: gomod
     directory: "/arckit"
     schedule:
