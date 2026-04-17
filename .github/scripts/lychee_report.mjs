@@ -94,6 +94,10 @@ function buildDiagnostics(output, exitCode) {
   if (exitCode === 0) {
     return [];
   }
+  const structuredDiagnostics = extractStructuredDiagnostics(output);
+  if (structuredDiagnostics.length > 0) {
+    return structuredDiagnostics;
+  }
   const diagnostics = [];
   for (const url of extractURLs(output)) {
     diagnostics.push({
@@ -118,6 +122,107 @@ function buildDiagnostics(output, exitCode) {
       origin: "pre-commit",
     },
   ];
+}
+
+function extractStructuredDiagnostics(output) {
+  const diagnostics = [];
+  for (const payload of extractJSONPayloads(output)) {
+    const created = diagnosticsFromLycheeJSON(payload);
+    if (created.length > 0) {
+      diagnostics.push(...created);
+    }
+  }
+  return dedupeDiagnostics(diagnostics);
+}
+
+function extractJSONPayloads(output) {
+  const payloads = [];
+  const lines = output.split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!(trimmed.startsWith("{") || trimmed.startsWith("["))) {
+      continue;
+    }
+    try {
+      payloads.push(JSON.parse(trimmed));
+    } catch {
+      // Ignore non-JSON lines and fall back to URL extraction below.
+    }
+  }
+  return payloads;
+}
+
+function diagnosticsFromLycheeJSON(payload) {
+  const diagnostics = [];
+  visitLycheeFailures(payload, ({ file, url }) => {
+    diagnostics.push({
+      rule_id: RULE_ID,
+      severity: "warning",
+      title: TITLE,
+      message: `external link failed: ${url}`,
+      hint: HINT,
+      origin: "pre-commit",
+      file,
+    });
+  });
+  return diagnostics;
+}
+
+function visitLycheeFailures(value, visitor, currentFile = "") {
+  if (!value || typeof value !== "object") {
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      visitLycheeFailures(entry, visitor, currentFile);
+    }
+    return;
+  }
+
+  const nextFile = pickSourceFile(value) || currentFile;
+  const url = pickFailedURL(value);
+  if (url) {
+    visitor({ file: nextFile, url });
+  }
+
+  for (const nested of Object.values(value)) {
+    visitLycheeFailures(nested, visitor, nextFile);
+  }
+}
+
+function pickSourceFile(value) {
+  for (const key of ["input", "file", "filename", "path", "source"]) {
+    const candidate = value[key];
+    if (typeof candidate === "string" && /\.[A-Za-z0-9]+$/.test(candidate)) {
+      return candidate.replace(/^\.\//, "");
+    }
+  }
+  return "";
+}
+
+function pickFailedURL(value) {
+  const status = typeof value.status === "string" ? value.status.toLowerCase() : "";
+  const urlKeys = ["uri", "url", "link"];
+  const url = urlKeys
+    .map((key) => value[key])
+    .find((candidate) => typeof candidate === "string" && candidate.startsWith("http"));
+
+  if (status && status !== "fail" && status !== "failed" && status !== "error") {
+    return "";
+  }
+  return url || "";
+}
+
+function dedupeDiagnostics(diagnostics) {
+  const byKey = new Map();
+  for (const diagnostic of diagnostics) {
+    const key = JSON.stringify([diagnostic.file || "", diagnostic.message]);
+    if (!byKey.has(key)) {
+      byKey.set(key, diagnostic);
+    }
+  }
+  return [...byKey.values()];
 }
 
 function extractURLs(output) {
