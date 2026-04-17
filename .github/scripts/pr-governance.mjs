@@ -1,3 +1,5 @@
+import { hasTemplateShape } from "./lib/arc-governance.mjs";
+
 const AREA_LABELS = [
   { prefix: "ARCs/", label: "area:arc" },
   { prefix: "adoption/", label: "area:adoption" },
@@ -21,12 +23,6 @@ const KIND_SIGNALS = [
   { marker: "## ARC Transition to Final", label: "kind:final" },
   { marker: "## ARC Adoption / Implementation Update", label: "kind:adoption" },
   { marker: "## Editorial / Non-Normative ARC Update", label: "kind:editorial" },
-];
-
-const TEMPLATE_MARKERS = [
-  "## ARC",
-  "## Canonical Artifacts",
-  "## Gate Checklist",
 ];
 
 const GATE_KEYWORDS = [
@@ -156,10 +152,6 @@ async function findTrackingIssue(github, context, arcNumber) {
     per_page: 20,
   });
   return result.data.items.find((item) => !item.pull_request) || null;
-}
-
-function hasTemplateShape(body) {
-  return TEMPLATE_MARKERS.every((marker) => body.includes(marker));
 }
 
 function prBodyReferencesIssue(body, issue) {
