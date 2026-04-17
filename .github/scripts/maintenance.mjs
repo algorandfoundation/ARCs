@@ -2,18 +2,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { parseArcMetadataFile } from "./lib/arc-metadata.mjs";
+import { TRACKING_ISSUE_LABEL, hasTemplateShape } from "./lib/arc-governance.mjs";
 
 const execFileAsync = promisify(execFile);
 const SIX_MONTHS_MS = 180 * 24 * 60 * 60 * 1000;
 const STAGNANT_FOLLOW_UP_MS = 210 * 24 * 60 * 60 * 1000;
 const ISSUE_TITLE_PREFIX = "Monthly ARC maintenance report";
 const ISSUE_LABEL = "maintenance-report";
-const TRACKING_ISSUE_LABEL = "arc-tracking";
-const TEMPLATE_MARKERS = [
-  "## ARC",
-  "## Canonical Artifacts",
-  "## Gate Checklist",
-];
 
 export async function runMaintenance({ github, context, core }) {
   const offlineReport = await loadJSON(process.env.OFFLINE_REPORT_PATH);
@@ -31,7 +27,7 @@ export async function runMaintenance({ github, context, core }) {
 
   for (const fileName of arcFiles) {
     const filePath = path.join("ARCs", fileName);
-    const metadata = await parseArcMetadata(path.join(repoRoot, filePath));
+    const metadata = await parseArcMetadataFile(path.join(repoRoot, filePath));
     if (!metadata.arc) {
       continue;
     }
@@ -119,64 +115,6 @@ async function loadText(filePath) {
   } catch {
     return "";
   }
-}
-
-async function parseArcMetadata(filePath) {
-  const content = await fs.readFile(filePath, "utf8");
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  const frontMatter = match ? match[1] : "";
-  const fields = parseTopLevelFrontMatter(frontMatter);
-  return {
-    arc: scalarField(fields, "arc"),
-    title: scalarField(fields, "title"),
-    status: scalarField(fields, "status"),
-    author: listOrScalarField(fields, "author"),
-    adoptionSummary: scalarField(fields, "adoption-summary"),
-  };
-}
-
-function parseTopLevelFrontMatter(frontMatter) {
-  const fields = {};
-  let currentKey = "";
-
-  for (const line of frontMatter.split(/\r?\n/)) {
-    if (!line.trim()) {
-      continue;
-    }
-    const keyMatch = line.match(/^([A-Za-z0-9-]+):(?:\s*(.*))?$/);
-    if (keyMatch) {
-      currentKey = keyMatch[1];
-      const value = (keyMatch[2] || "").trim();
-      fields[currentKey] = value ? value : [];
-      continue;
-    }
-    const sequenceMatch = line.match(/^\s*-\s*(.+)$/);
-    if (sequenceMatch && currentKey && Array.isArray(fields[currentKey])) {
-      fields[currentKey].push(sequenceMatch[1].trim());
-    }
-  }
-
-  return fields;
-}
-
-function scalarField(fields, key) {
-  const value = fields[key];
-  if (Array.isArray(value)) {
-    return value[0] || "";
-  }
-  return value || "";
-}
-
-function listOrScalarField(fields, key) {
-  const value = fields[key];
-  if (Array.isArray(value)) {
-    return value.join(", ");
-  }
-  return value || "";
-}
-
-function hasTemplateShape(body) {
-  return TEMPLATE_MARKERS.every((marker) => body.includes(marker));
 }
 
 async function latestCanonicalActivity({ trackingIssue, latestPrUpdateAt, arcPath, adoptionPath }) {

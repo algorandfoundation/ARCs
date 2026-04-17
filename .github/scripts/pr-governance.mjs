@@ -1,3 +1,5 @@
+import { TRACKING_ISSUE_LABEL, hasTemplateShape } from "./lib/arc-governance.mjs";
+
 const AREA_LABELS = [
   { prefix: "ARCs/", label: "area:arc" },
   { prefix: "adoption/", label: "area:adoption" },
@@ -23,12 +25,6 @@ const KIND_SIGNALS = [
   { marker: "## Editorial / Non-Normative ARC Update", label: "kind:editorial" },
 ];
 
-const TEMPLATE_MARKERS = [
-  "## ARC",
-  "## Canonical Artifacts",
-  "## Gate Checklist",
-];
-
 const GATE_KEYWORDS = [
   "status:",
   "last-call-deadline:",
@@ -51,7 +47,7 @@ export async function runProcessCheck({ github, context, core }) {
   for (const arcNumber of arcNumbers) {
     const issue = await findTrackingIssue(github, context, arcNumber);
     if (!issue) {
-      failures.push(`ARC-${arcNumber} is missing a tracking issue with the arc-tracking label.`);
+      failures.push(`ARC-${arcNumber} is missing a tracking issue with the ${TRACKING_ISSUE_LABEL} label.`);
       continue;
     }
     if (!hasTemplateShape(issue.body || "")) {
@@ -150,16 +146,12 @@ function gateRelevantPatch(patch) {
 }
 
 async function findTrackingIssue(github, context, arcNumber) {
-  const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue label:arc-tracking "ARC-${arcNumber}"`;
+  const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue label:${TRACKING_ISSUE_LABEL} "ARC-${arcNumber}"`;
   const result = await github.rest.search.issuesAndPullRequests({
     q: query,
     per_page: 20,
   });
   return result.data.items.find((item) => !item.pull_request) || null;
-}
-
-function hasTemplateShape(body) {
-  return TEMPLATE_MARKERS.every((marker) => body.includes(marker));
 }
 
 function prBodyReferencesIssue(body, issue) {
