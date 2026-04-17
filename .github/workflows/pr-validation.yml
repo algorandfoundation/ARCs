@@ -5,11 +5,25 @@ permissions:
   contents: read
 env:
   GO_VERSION: "1.26.1"
+  NODE_VERSION: "22"
   PYTHON_VERSION: "3.12"
   PRE_COMMIT_VERSION: "4.4.0"
   GOCACHE: /tmp/arckit-go-cache
   GOMODCACHE: /tmp/arckit-go-mod-cache
 jobs:
+  ci-scripts:
+    name: ci-scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Run CI script tests
+        run: |
+          node --test .github/scripts/tests/*.test.mjs
   hygiene:
     name: hygiene
     runs-on: ubuntu-latest
