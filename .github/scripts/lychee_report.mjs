@@ -199,7 +199,7 @@ function extractBalancedJSONBlocks(output) {
       continue;
     }
 
-    if (char === "\"" || char === "'") {
+    if (char === "\"") {
       quote = char;
       continue;
     }
