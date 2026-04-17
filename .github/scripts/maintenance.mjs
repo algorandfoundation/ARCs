@@ -69,11 +69,11 @@ export async function runMaintenance({ github, context, core }) {
   }
 
   for (const diagnostic of (offlineReport.diagnostics || []).filter((item) => item.severity === "error")) {
-    authorsAction.push(`- ${formatAuthorDiagnostic(diagnostic)}.`);
+    authorsAction.push(`- ${formatDiagnostic(diagnostic)}.`);
   }
 
   for (const diagnostic of (onlineReport.diagnostics || []).filter((item) => item.severity !== "info")) {
-    authorsAction.push(`- Advisory online finding: ${formatAuthorDiagnostic(diagnostic)}.`);
+    authorsAction.push(`- Advisory online finding: ${formatDiagnostic(diagnostic)}.`);
   }
 
   const month = new Date().toISOString().slice(0, 7);
@@ -323,31 +323,6 @@ async function latestGitTimestamp(paths) {
 function formatDiagnostic(diagnostic) {
   const location = diagnostic.file ? `${diagnostic.file}: ` : "";
   return `${location}${diagnostic.rule_id} ${diagnostic.message}`;
-}
-
-function formatAuthorDiagnostic(diagnostic) {
-  const arcNumbers = extractArcNumbersFromDiagnostic(diagnostic);
-  const detail = formatDiagnostic(diagnostic);
-  if (arcNumbers.length === 0) {
-    return detail;
-  }
-  return `${arcNumbers.map((arcNumber) => `ARC-${arcNumber}`).join(", ")}: ${detail}`;
-}
-
-function extractArcNumbersFromDiagnostic(diagnostic) {
-  const arcNumbers = new Set();
-  const candidates = [diagnostic.file, diagnostic.message, diagnostic.hint];
-
-  for (const candidate of candidates) {
-    if (!candidate) {
-      continue;
-    }
-    for (const arcNumber of extractArcNumbersFromText(candidate)) {
-      arcNumbers.add(arcNumber);
-    }
-  }
-
-  return [...arcNumbers].sort();
 }
 
 function renderReport(month, authorsAction, editorAction, suggestedTransitions) {
