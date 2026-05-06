@@ -1,0 +1,1 @@
+export const ERR_INVALID_PAYMENT = 'invalid payment';
