@@ -1,0 +1,9 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 0.3.2
+_src_path: gh:algorandfoundation/algokit-typescript-template
+author_email: kyle.breeding@algorand.foundation
+author_name: Kyle Breeding
+contract_name: abstracted_account
+preset_name: production
+project_name: arc-0058
+

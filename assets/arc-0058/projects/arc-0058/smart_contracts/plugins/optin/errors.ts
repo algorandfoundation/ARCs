@@ -1,0 +1,1 @@
+export const ERR_ALREADY_OPTED_IN = 'already opted in'
