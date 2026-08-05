@@ -1,0 +1,18 @@
+{
+  "files.eol": "\n",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "jest.enable": false,
+  "files.associations": {
+    ".github/**/*.yml": "github-actions-workflow"
+  },
+  "eslint.enable": true,
+  "eslint.validate": ["typescript"],
+  "eslint.options": {
+    "extensions": [".ts"]
+  },
+  "eslint.workingDirectories": ["./smart_contracts"]
+  }

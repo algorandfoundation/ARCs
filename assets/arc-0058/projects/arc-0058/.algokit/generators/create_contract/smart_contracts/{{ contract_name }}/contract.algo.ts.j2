@@ -1,0 +1,7 @@
+import { Contract } from '@algorandfoundation/algorand-typescript'
+
+export class {{ contract_name.split('_')|map('capitalize')|join }} extends Contract {
+  {% if preset_name != 'starter' %}public {% endif %}hello(name: string): string {
+    return `Hello, ${name}`
+  }
+}
