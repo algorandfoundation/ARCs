@@ -1,0 +1,18 @@
+arc: 402
+title: HTTP 402 Machine Payment Standard
+last-reviewed: 2026-10-06
+adoption:
+  wallets: []
+  explorers:
+    - Pera Explorer
+    - AlgoScan
+  tooling:
+    - "@ashlar-blue/x402-algorand"
+  infra:
+    - GoPlausible Facilitator
+  dapps-protocols:
+    - Ashlar Blue Trust & Settlement Platform
+summary:
+  adoption-readiness: high
+  blockers: []
+  notes: "Production TypeScript reference implementation published (@ashlar-blue/x402-algorand) with confirmed MainNet settlement (Tx: TZEJXAJH7TQ3XLESNR2QGJR3Z7ODWU3NB4N3IHAJ3Y7M6A5NWKRA)."
