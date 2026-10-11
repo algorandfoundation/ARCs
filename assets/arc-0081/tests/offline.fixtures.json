@@ -1,0 +1,16 @@
+{
+  "empty": {
+    "params": {
+      "genesisHashB64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "account": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"
+    },
+    "expected": "J5UPK3SPRM2PY"
+  },
+  "fixture2": {
+    "params": {
+      "genesisHashB64": "kUt08LxeVAAGHnh4JoAoAMM9ql/hBwSoiFtlnKNeOxA=",
+      "account": "OHQTAISSIGRGIGVN6TVJ6WYLBHFTUC437T4E2LRRXGWVNJ4GSZOXKPH7N4"
+    },
+    "expected": "W5TM4AVRNRJIC"
+  }
+}
