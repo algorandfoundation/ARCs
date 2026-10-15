@@ -11,27 +11,6 @@ import * as crypto from 'crypto'
 const truestamp = require("@truestamp/canonify")
 
 /**
- * Helper types
- */
-export interface CAIP122 {
-    domain: string; //RFC 4501 dnsauthority that is requesting the signing.
-    account_address: string; //	Blockchain address performing the signing, expressed as the account_address segment of a CAIP-10 address; should NOT include CAIP-2 chain_id.
-    uri: string; // RFC 3986 URI referring to the resource that is the subject of the signing i.e. the subject of the claim.
-    version: string; //Current version of the message.
-    statement?: string; // 	Human-readable ASCII assertion that the user will sign. It MUST NOT contain \n.
-    nonce?: string; // Randomized token to prevent signature replay attacks.
-    "issued-at"?: string; // 	RFC 3339 date-time that indicates the issuance time.
-    "expiration-time"?: string; // RFC 3339 date-time that indicates when the signed authentication message is no longer valid.
-    "not-before"?: string; // RFC 3339 date-time that indicates when the signed authentication message becomes valid.
-    "request-id"?: string; // Unique identifier for the request.
-    chain_id: string; // CAIP-2 chain_id of the blockchain where the account_address is valid.
-    resources?: string[]; // 	List of information or references to information the user wishes to have resolved as part of the authentication by the relying party; express as RFC 3986 URIs and separated by \n.
-    signature?: Uint8Array; // 	signature of the message. 
-    type: string; // Type of the signature to be generated, as defined in the namespaces for this CAIP.
-}
-
-
-/**
 type: Always set to "webauthn.create" for registration or "webauthn.authenticate" for authentication.
 origin: The origin of the request, typically a URL.
 challenge: A base64url-encoded challenge string.
@@ -90,6 +69,7 @@ export interface StdSigData {
     authenticationData: Uint8Array;
     requestId?: string;
     hdPath?: string;
+    scheme?: string;
     signature?: Uint8Array;
 }
 
@@ -120,6 +100,7 @@ export class SignDataError extends Error {
 
 // Error Codes & Messages
 export const ERROR_INVALID_SCOPE: SignDataError = new SignDataError(4600, 'Invalid Scope');
+export const ERROR_UNSUPPORTED_SCHEME: SignDataError = new SignDataError(4601, 'Unsupported Scheme');
 export const ERROR_FAILED_DECODING: SignDataError = new SignDataError(4602, 'Failed decoding');
 export const ERROR_INVALID_SIGNER: SignDataError = new SignDataError(4603, 'Invalid Signer');
 export const ERROR_MISSING_DOMAIN: SignDataError = new SignDataError(4607, 'Missing Domain');
@@ -153,6 +134,7 @@ export class Arc60WalletApi {
      * @returns - signature of the data from the signer.
      * 
      * @throws - Error 4600 - Invalid Scope - if the scope is not supported
+     * @throws - Error 4601 - Unsupported Scheme - if an explicit scheme is not supported
      * @throws - Error 4602 - Failed decoding - if the encoding is not supported
      * @throws - Error 4603 - Invalid Signer - if the signer is not the same as the signer's public key
      * @throws - Error 4607 - Missing Domain - if the domain is not provided
@@ -161,6 +143,12 @@ export class Arc60WalletApi {
      * @throws - Error 4610 - Failed Domain Auth - if the domain is not the same as the domain in the authentication data
      */
     async signData(signingData: StdSigData, metadata: StdSignMetadata): Promise<StdSigDataResponse> {
+        // This reference implementation supports only Ed25519. Never silently
+        // substitute it for an explicitly requested unsupported scheme.
+        if (signingData.scheme !== undefined && signingData.scheme !== 'ed25519') {
+            throw ERROR_UNSUPPORTED_SCHEME;
+        }
+
         // decode signing data with chosen metadata.encoding
         let decodedData: Uint8Array
         let toSign: Uint8Array

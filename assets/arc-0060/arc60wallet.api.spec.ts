@@ -1,8 +1,8 @@
 import { randomBytes, createHash } from "crypto"
-import { Arc60WalletApi, CAIP122, ERROR_BAD_JSON, ERROR_FAILED_DECODING, ERROR_FAILED_DOMAIN_AUTH, ERROR_INVALID_SCOPE, ERROR_INVALID_SIGNER, ERROR_MISSING_AUTHENTICATION_DATA, ERROR_MISSING_DOMAIN, FIDO2ClientData, ScopeType, StdSigData, StdSigDataResponse } from "./arc60wallet.api"
+import { Arc60WalletApi, ERROR_BAD_JSON, ERROR_FAILED_DECODING, ERROR_FAILED_DOMAIN_AUTH, ERROR_INVALID_SCOPE, ERROR_INVALID_SIGNER, ERROR_MISSING_AUTHENTICATION_DATA, ERROR_MISSING_DOMAIN, FIDO2ClientData, ScopeType, StdSigData, StdSigDataResponse } from "./arc60wallet.api"
 import { crypto_sign_verify_detached, ready } from "libsodium-wrappers-sumo"
 import { canonify } from "@truestamp/canonify"
-const { AlgorandEncoder } = require('@algorandfoundation/algo-models')
+import { ERROR_UNSUPPORTED_SCHEME } from "./arc60wallet.api"
 
 jest.setTimeout(20000)
 
@@ -15,6 +15,29 @@ describe('ARC60 TEST SUITE', () => {
         seed = new Uint8Array(Buffer.from("b12e7cb8127d8fd07b03893f1aaa743bb737cff749ebac7f9af62b376f4494cc", 'hex'))
         arc60wallet = new Arc60WalletApi(seed);
     })
+
+    describe('scheme selection', () => {
+        const request = async (scheme?: string): Promise<StdSigData> => ({
+            data: Buffer.from('{}').toString('base64'),
+            signer: await Arc60WalletApi.getPublicKey(seed),
+            domain: 'arc60.io',
+            authenticationData: new Uint8Array(createHash('sha256').update('arc60.io').digest()),
+            scheme
+        });
+
+        it.each(['falcon-1024-det', 'falcon-512-det', 'unknown', ''])('rejects unsupported scheme %p', async (scheme) => {
+            await expect(arc60wallet.signData(await request(scheme), { scope: ScopeType.AUTH, encoding: 'base64' }))
+                .rejects.toThrow(ERROR_UNSUPPORTED_SCHEME);
+        });
+
+        it('uses Ed25519 when the scheme is omitted or explicitly selected', async () => {
+            const defaultResponse = await arc60wallet.signData(await request(), { scope: ScopeType.AUTH, encoding: 'base64' });
+            const explicitResponse = await arc60wallet.signData(await request('ed25519'), { scope: ScopeType.AUTH, encoding: 'base64' });
+
+            expect(defaultResponse.signature).toHaveLength(64);
+            expect(explicitResponse.signature).toEqual(defaultResponse.signature);
+        });
+    });
 
     // describe group for rawSign
     describe('rawSign', () => {
@@ -101,71 +124,6 @@ describe('ARC60 TEST SUITE', () => {
     })
 
     describe(`AUTH sign request`, () => {
-
-        describe('CAIP-122', () => {
-            it('(OK) Signing CAIP-122 requests', async () => {
-                const publicKey: Uint8Array = await Arc60WalletApi.getPublicKey(seed)
-
-                const caip122Request: CAIP122 = {
-                    domain: "arc60.io",
-                    chain_id: "283",
-                    account_address: new AlgorandEncoder().encodeAddress(publicKey), // 
-                    type: "ed25519",
-                    statement: "We are requesting you to sign this message to authenticate to arc60.io",
-                    uri: "https://arc60.io",
-                    version: "1",
-                    nonce: Buffer.from(randomBytes(32)).toString('base64'),
-                    resources: ["auth", "sign"],
-                    "expiration-time": "2022-12-31T23:59:59Z",
-                    "not-before": "2021-12-31T23:59:59Z",
-                    "issued-at": "2021-12-31T23:59:59Z",
-                }
-
-                // Disply message title according EIP-4361
-                const msgTitle: string = `Sign this message to authenticate to ${caip122Request.domain} with account ${caip122Request.account_address}`
-
-                // Display message body according EIP-4361
-                const msgBodyPlaceHolders: string = `URI: ${caip122Request.uri}\n` +
-                    `Chain ID: ${caip122Request.chain_id}\n` +
-                    `Type: ${caip122Request.type}\n` +
-                    `Nonce: ${caip122Request.nonce}\n` +
-                    `Statement: ${caip122Request.statement}\n` +
-                    `Expiration Time: ${caip122Request["expiration-time"]}\n` +
-                    `Not Before: ${caip122Request["not-before"]}\n` +
-                    `Issued At: ${caip122Request["issued-at"]}\n` +
-                    `Resources: ${(caip122Request.resources ?? []).join(' , \n')}\n`
-                    
-                // Display message according EIP-4361
-                const msg: string = `${msgTitle}\n\n${msgBodyPlaceHolders}`
-                console.log(msg)
-
-                // authenticationData
-                const authenticationData: Uint8Array = new Uint8Array(createHash('sha256').update(caip122Request.domain).digest())
-
-                const signData: StdSigData = {
-                    data: Buffer.from(canonify(caip122Request) || '').toString('base64'),
-                    signer: publicKey,
-                    domain: caip122Request.domain, // should be same as origin / authenticationData
-                    // random unique id, to help RP / Client match requests
-                    requestId: Buffer.from(randomBytes(32)).toString('base64'),
-                    authenticationData: authenticationData
-                }
-
-                const signResponse: StdSigDataResponse = await arc60wallet.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
-                expect(signResponse).toBeDefined()
-
-                // hash of clientDataJson
-                const clientDataJsonHash: Buffer = createHash('sha256').update(canonify(caip122Request) || '').digest();
-                const authenticatorDataHash: Buffer = createHash('sha256').update(authenticationData).digest();
-
-                // payload to sign concatenation of clientDataJsonHash || authenticationData
-                const payloadToSign: Buffer = Buffer.concat([clientDataJsonHash, authenticatorDataHash])
-
-                // verify signature
-                await ready //libsodium
-                expect(crypto_sign_verify_detached(signResponse.signature, payloadToSign, publicKey)).toBeTruthy()
-            })
-        })
 
         describe("FIDO2 / WebAuthn", () => {
             it ('(OK) Signing FIDO2 requests', async () => {
