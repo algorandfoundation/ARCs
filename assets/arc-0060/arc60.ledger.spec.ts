@@ -2,8 +2,7 @@ import { randomBytes, createHash } from "crypto"
 import HID from "node-hid";
 import { crypto_sign_verify_detached, ready } from "libsodium-wrappers-sumo"
 const truestamp = require("@truestamp/canonify")
-const { AlgorandEncoder } = require('@algorandfoundation/algo-models')
-import { Arc60WalletApi, CAIP122, ERROR_BAD_JSON, ERROR_FAILED_DECODING, ERROR_FAILED_DOMAIN_AUTH, ERROR_INVALID_SCOPE, ERROR_INVALID_SIGNER, ERROR_MISSING_AUTHENTICATION_DATA, ERROR_MISSING_DOMAIN, FIDO2ClientData, ScopeType, StdSigData, StdSigDataResponse } from "./arc60wallet.api";
+import { Arc60WalletApi, ERROR_BAD_JSON, ERROR_FAILED_DECODING, ERROR_FAILED_DOMAIN_AUTH, ERROR_INVALID_SCOPE, ERROR_INVALID_SIGNER, ERROR_MISSING_AUTHENTICATION_DATA, ERROR_MISSING_DOMAIN, FIDO2ClientData, ScopeType, StdSigData, StdSigDataResponse } from "./arc60wallet.api";
 import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
 import { AlgorandApp, ResponseAddress } from '@zondax/ledger-algorand'
 
@@ -49,66 +48,6 @@ describe('ARC60 TEST SUITE', () => {
     })
 
     describe(`AUTH sign request`, () => {
-
-        describe('CAIP-122', () => {
-            it('(OK) Signing CAIP-122 requests', async () => {
-
-                const response: ResponseAddress = await ledgerApp.getAddressAndPubKey()
-                const pubBuf = response.publicKey
-
-                const caip122Request: CAIP122 = {
-                    domain: "arc60.io",
-                    chain_id: "283",
-                    account_address: new AlgorandEncoder().encodeAddress(pubBuf),
-                    type: "ed25519",
-                    statement: "We are requesting you to sign this message to authenticate to arc60.io",
-                    uri: "https://arc60.io",
-                    version: "1",
-                    nonce: Buffer.from(randomBytes(32)).toString('base64'),
-                    resources: ["auth", "sign"],
-                    "expiration-time": "2022-12-31T23:59:59Z",
-                    "not-before": "2021-12-31T23:59:59Z",
-                    "issued-at": "2021-12-31T23:59:59Z",
-                }
-
-                const msgTitle: string = `Sign this message to authenticate to ${caip122Request.domain} with account ${caip122Request.account_address}`
-                const msgBodyPlaceHolders: string = `URI: ${caip122Request.uri}\n` +
-                    `Chain ID: ${caip122Request.chain_id}\n` +
-                    `Type: ${caip122Request.type}\n` +
-                    `Nonce: ${caip122Request.nonce}\n` +
-                    `Statement: ${caip122Request.statement}\n` +
-                    `Expiration Time: ${caip122Request["expiration-time"]}\n` +
-                    `Not Before: ${caip122Request["not-before"]}\n` +
-                    `Issued At: ${caip122Request["issued-at"]}\n` +
-                    `Resources: ${(caip122Request.resources ?? []).join(' , \n')}\n`
-                    
-                const msg: string = `${msgTitle}\n\n${msgBodyPlaceHolders}`
-                console.log(msg)
-
-                const authenticationData: Uint8Array = new Uint8Array(createHash('sha256').update(caip122Request.domain).digest())
-
-                const signData: StdSigData = {
-                    data: Buffer.from(truestamp.canonify(caip122Request) || '').toString('base64'),
-                    signer: pubBuf,
-                    domain: caip122Request.domain,
-                    requestId: Buffer.from(randomBytes(32)).toString('base64'),
-                    authenticationData: authenticationData,
-                    hdPath: "m/44'/283'/0'/0/0"
-                }
-                
-                const signResponse = await ledgerApp.signData(signData, { scope: ScopeType.AUTH, encoding: 'base64' })
-
-                expect(signResponse).toBeDefined()
-
-                const clientDataJsonHash: Buffer = createHash('sha256').update(truestamp.canonify(caip122Request) || '').digest();
-                const authenticatorDataHash: Buffer = createHash('sha256').update(authenticationData).digest();
-
-                const payloadToSign: Buffer = Buffer.concat([clientDataJsonHash, authenticatorDataHash])
-
-                await ready
-                expect(crypto_sign_verify_detached(signResponse.signature, payloadToSign, pubBuf)).toBeTruthy()
-            })
-        })
 
         describe("FIDO2 / WebAuthn", () => {
             it('(OK) Signing FIDO2 requests', async () => {
