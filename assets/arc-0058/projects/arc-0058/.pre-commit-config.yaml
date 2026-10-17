@@ -1,0 +1,26 @@
+repos:
+  - repo: local
+    hooks:
+      - repo: local
+        hooks:
+          - id: prettier
+            name: Prettier
+            entry: npm run format
+            language: system
+      - repo: local
+        hooks:
+          - id: vitest
+            name: Vitest
+            entry: npm run test
+            language: system
+      # # Uncomment to enable TEAL static analysis using Tealer package
+      # - id: tealer
+      #   name: tealer
+      #   description: "Run AlgoKit `Tealer` for TEAL static analysis"
+      #   entry: algokit
+      #   language: system
+      #   args: [project, run, "audit-teal"]
+      #   require_serial: false
+      #   additional_dependencies: []
+      #   minimum_pre_commit_version: "0"
+      #   files: '^.*\.teal$'
