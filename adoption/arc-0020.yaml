@@ -1,0 +1,20 @@
+arc: 20
+title: Smart ASA
+last-reviewed: 2026-04-09
+reference-implementation:
+  status: shipped
+  notes: Deployed on MainNet
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols:
+    - name: enel-ebitts
+      status: shipped
+      evidence: https://lora.algokit.io/mainnet/asset/2543151056/
+      notes: The Smart ASA conforms to the ARC-20 interface.
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

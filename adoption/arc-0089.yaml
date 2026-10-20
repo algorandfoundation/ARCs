@@ -1,0 +1,20 @@
+arc: 89
+title: ASA Metadata Registry
+last-reviewed: 2026-04-09
+reference-implementation:
+  status: shipped
+  notes: Deployed on TestNet, pending MainNet deployment after preliminary feedback.
+adoption:
+  wallets: []
+  explorers:
+    - name: lora
+      status: in_progress
+      evidence: https://feat-arc-89.algokit-lora.pages.dev/testnet/asset/753979002
+      notes: TestNet integration supports ARC-89 metadata fetch and migration.
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: A (beta) TypeScript SDK is available on npm as asa-metadata-registry-sdk

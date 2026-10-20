@@ -1,0 +1,20 @@
+arc: 62
+title: ASA Circulating Supply
+last-reviewed: 2026-04-09
+reference-implementation:
+  status: shipped
+  notes: Deployed on MainNet
+adoption:
+  wallets: []
+  explorers:
+    - name: pera
+      status: shipped
+      evidence: https://explorer.perawallet.app/asset/2849506951/
+      notes: Explorer renders ARC-62 circulating supply in public UI.
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

@@ -33,7 +33,7 @@ $ yarn test
       ✓ (FAILS) Tries to sign with bad json schema (1 ms)
       ✓ (FAILS) Is missing domain (1 ms)
       ✓ (FAILS) Is missing authenticationData (1 ms)
-    Invalid or Unkown Signer
+    Invalid or Unknown Signer
       ✓ (FAILS) Tries to sign with bad signer (1 ms)
     Unknown Encoding
       ✓ (FAILS) Tries to sign with unknown encoding (1 ms)

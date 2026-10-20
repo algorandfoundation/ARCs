@@ -1,0 +1,17 @@
+arc: 65
+title: AVM Run Time Errors In Program
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling:
+    - name: puya
+      status: shipped
+      evidence: https://github.com/algorandfoundation/puya/pull/657
+      notes: Puya compiler supports AVM run time errors in program.
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

@@ -1,0 +1,13 @@
+arc: 25
+title: Algorand WalletConnect v1 API
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

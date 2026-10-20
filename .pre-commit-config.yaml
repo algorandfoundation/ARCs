@@ -1,0 +1,114 @@
+minimum_pre_commit_version: 4.4.0
+exclude: ^_archive/
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+
+repos:
+  - repo: local
+    hooks:
+      - id: check-text-hygiene
+        name: check-text-hygiene
+        entry: bash .github/scripts/check-text-hygiene.sh
+        language: system
+        exclude: ^assets/
+        types:
+          - text
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        alias: mixed-line-ending-fix
+        name: mixed-line-ending-fix
+        stages:
+          - manual
+        exclude: ^assets/
+        args:
+          - --fix=lf
+      - id: end-of-file-fixer
+        alias: end-of-file-fix
+        name: end-of-file-fix
+        stages:
+          - manual
+        exclude: ^assets/
+      - id: trailing-whitespace
+        alias: trailing-whitespace-fix
+        name: trailing-whitespace-fix
+        stages:
+          - manual
+        exclude: ^assets/
+        args:
+          - --markdown-linebreak-ext=md
+      - id: check-yaml
+        files: ^(\.github/|adoption/|templates/).+\.ya?ml$
+
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt
+        args:
+          - -lint
+        files: ^(\.github/|adoption/|templates/).+\.ya?ml$
+      - id: yamlfmt
+        alias: yamlfmt-fix
+        name: yamlfmt-fix
+        stages:
+          - manual
+        files: ^(\.github/|adoption/|templates/).+\.ya?ml$
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.22.0
+    hooks:
+      - id: markdownlint-cli2
+        alias: markdownlint
+        exclude: ^(assets/|.*/testdata/|.*\.golden\.md$)
+        types:
+          - markdown
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.2
+    hooks:
+      - id: codespell
+        stages:
+          - manual
+        files: \.(md|ya?ml)$
+        exclude: ^_archive/
+        args:
+          - --ignore-words-list=OptIn,allo,AER
+
+  - repo: https://github.com/lycheeverse/lychee.git
+    rev: lychee-v0.23.0
+    hooks:
+      - id: lychee
+        stages:
+          - pre-push
+          - manual
+        pass_filenames: false
+        always_run: true
+        args:
+          - --no-progress
+          - --hidden
+          - --extensions
+          - md,yml,yaml
+          - --exclude-path
+          - ^(\./)?(_archive/|\.github/ISSUE_TEMPLATE/|arckit/testdata/|templates/)
+          - .
+      - id: lychee
+        alias: lychee-json
+        name: lychee-json
+        stages:
+          - manual
+        pass_filenames: false
+        always_run: true
+        args:
+          - --no-progress
+          - --hidden
+          - --extensions
+          - md,yml,yaml
+          - --exclude-path
+          - ^(\./)?(_archive/|\.github/ISSUE_TEMPLATE/|arckit/testdata/|templates/)
+          - --format
+          - json
+          - .

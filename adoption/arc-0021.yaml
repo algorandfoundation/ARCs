@@ -1,0 +1,17 @@
+arc: 21
+title: Round based datafeed oracles on Algorand
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols:
+    - name: af-randomness-beacon
+      status: shipped
+      evidence: https://github.com/algorandfoundation/randomness-beacon/blob/574a41a5c4c285d3dae90cdfbca1e91befc534ac/pyteal/main.py#L482-L521
+      notes: Algorand Foundation Randomness Beacon implements ARC-21 interface.
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

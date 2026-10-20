@@ -1,0 +1,13 @@
+arc: 78
+title: URI scheme, keyreg Transactions extension
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""

@@ -1,0 +1,29 @@
+arc: 28
+title: Algorand Event Log Spec
+last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling:
+    - name: folks-finance-library
+      status: shipped
+      evidence: https://github.com/Folks-Finance/algorand-smart-contract-library
+      notes: Folks Finance Library implements ARC-28 events.
+    - name: puya
+      status: shipped
+      evidence: https://github.com/algorandfoundation/puya/
+      notes: Puya compiler supports ARC-28 events.
+    - name: subscriber
+      status: shipped
+      evidence: https://github.com/algorandfoundation/algokit-subscriber-py
+      notes: Subscribers (Python and TypeScript) support ARC-28 events.
+  infra: []
+  dapps-protocols:
+    - name: ntt
+      status: shipped
+      evidence: https://github.com/Folks-Finance/algorand-ntt-contracts
+      notes: Folks Finance NTT implementation uses ARC-28 events.
+summary:
+  adoption-readiness: medium
+  blockers: []
+  notes: ""
