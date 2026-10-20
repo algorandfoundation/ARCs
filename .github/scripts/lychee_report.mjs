@@ -94,6 +94,10 @@ function buildDiagnostics(output, exitCode) {
   if (exitCode === 0) {
     return [];
   }
+  const structuredDiagnostics = extractStructuredDiagnostics(output);
+  if (structuredDiagnostics.length > 0) {
+    return structuredDiagnostics;
+  }
   const diagnostics = [];
   for (const url of extractURLs(output)) {
     diagnostics.push({
@@ -118,6 +122,120 @@ function buildDiagnostics(output, exitCode) {
       origin: "pre-commit",
     },
   ];
+}
+
+function extractStructuredDiagnostics(output) {
+  const diagnostics = [];
+  for (const payload of extractJSONPayloads(output)) {
+    const created = diagnosticsFromLycheeJSON(payload);
+    if (created.length > 0) {
+      diagnostics.push(...created);
+    }
+  }
+  return dedupeDiagnostics(diagnostics);
+}
+
+function extractJSONPayloads(output) {
+  const payloads = [];
+  for (const candidate of extractBalancedJSONBlocks(output)) {
+    try {
+      payloads.push(JSON.parse(candidate));
+    } catch {
+      // Ignore non-JSON blocks and fall back to URL extraction below.
+    }
+  }
+  return payloads;
+}
+
+function diagnosticsFromLycheeJSON(payload) {
+  const diagnostics = [];
+  const errorMap = payload?.error_map;
+  if (!errorMap || typeof errorMap !== "object") {
+    return diagnostics;
+  }
+
+  for (const [file, failures] of Object.entries(errorMap)) {
+    if (!Array.isArray(failures)) {
+      continue;
+    }
+    for (const failure of failures) {
+      const url = typeof failure?.url === "string" ? failure.url : "";
+      if (!url) {
+        continue;
+      }
+      diagnostics.push({
+        rule_id: RULE_ID,
+        severity: "warning",
+        title: TITLE,
+        message: `external link failed: ${url}`,
+        hint: HINT,
+        origin: "pre-commit",
+        file: file.replace(/^\.\//, ""),
+      });
+    }
+  }
+
+  return diagnostics;
+}
+
+function extractBalancedJSONBlocks(output) {
+  const blocks = [];
+  let start = -1;
+  let depth = 0;
+  let quote = "";
+  let escaped = false;
+
+  for (let index = 0; index < output.length; index++) {
+    const char = output[index];
+
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = "";
+      }
+      continue;
+    }
+
+    if (char === "\"") {
+      quote = char;
+      continue;
+    }
+
+    if (char === "{" || char === "[") {
+      if (depth === 0) {
+        start = index;
+      }
+      depth++;
+      continue;
+    }
+
+    if (char === "}" || char === "]") {
+      if (depth === 0) {
+        continue;
+      }
+      depth--;
+      if (depth === 0 && start !== -1) {
+        blocks.push(output.slice(start, index + 1));
+        start = -1;
+      }
+    }
+  }
+
+  return blocks;
+}
+
+function dedupeDiagnostics(diagnostics) {
+  const byKey = new Map();
+  for (const diagnostic of diagnostics) {
+    const key = JSON.stringify([diagnostic.file || "", diagnostic.message]);
+    if (!byKey.has(key)) {
+      byKey.set(key, diagnostic);
+    }
+  }
+  return [...byKey.values()];
 }
 
 function extractURLs(output) {
