@@ -1,0 +1,121 @@
+title: "[Pre-ARC] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to validate whether a proposal should become an ARC at all.
+
+        Before submitting, review `ARCs/arc-0000.md` and confirm that this proposal
+        is not better handled as an application-specific feature, SDK or library
+        change, implementation detail, or amendment to an existing ARC.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Provide a short summary of the proposed standard or process change.
+      placeholder: Summarize the proposal in 2-4 sentences.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What concrete ecosystem problem exists today?
+      placeholder: Describe the problem, who encounters it, and why it matters.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why-this-needs-an-arc
+    attributes:
+      label: Why This Needs an ARC
+      description: Explain why this should be standardized rather than handled in a narrower way.
+      value: |
+        Explain why this should be standardized instead of being handled as:
+
+        - an application-specific feature,
+        - an SDK or library change,
+        - an implementation detail,
+        - an amendment to an existing ARC.
+    validations:
+      required: true
+
+  - type: textarea
+    id: existing-arcs-and-related-work
+    attributes:
+      label: Existing ARCs and Related Work
+      description: List the ARCs and external work reviewed before proposing this one.
+      placeholder: Include links or identifiers for related ARCs, standards, repos, or prior discussions.
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-stakeholders
+    attributes:
+      label: Affected Stakeholders
+      description: Who would need to implement, support, or understand this proposal?
+      value: |
+        Examples:
+
+        - wallets
+        - explorers
+        - SDKs
+        - indexers
+        - dApps
+        - tooling vendors
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sponsor-classification
+    attributes:
+      label: Sponsor Classification
+      description: Choose the proposed sponsor classification for this ARC.
+      options:
+        - Foundation
+        - Ecosystem
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reference-implementation-required
+    attributes:
+      label: Reference Implementation Requirement
+      description: Does this proposal require a canonical reference implementation?
+      options:
+        - "true"
+        - "false"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reference-implementation-details
+    attributes:
+      label: Reference Implementation Details
+      description: If a reference implementation is required, describe the expected owner, maintainer, and likely implementation location.
+      placeholder: Optional when the answer above is false.
+
+  - type: textarea
+    id: adoption-hypothesis
+    attributes:
+      label: Adoption Hypothesis
+      description: Who is likely to adopt this proposal?
+      placeholder: Name likely implementer classes or concrete projects where possible.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Outcome
+
+        This section is for ARC editors to complete after discussion:
+
+        - `accepted-for-draft`
+        - `rejected-no-arc-needed`
+        - `redirected-to-existing-arc`
+        - `recast-as-meta`
+
+        If accepted, the ARC editor will assign the ARC number during the draft PR stage.
