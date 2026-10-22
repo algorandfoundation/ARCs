@@ -20,6 +20,7 @@ dapps-protocols:
   - alpha-arcade
   - enel-ebitts
   - folks-finance
+  - haystack
   - nfd
   - ntt
   - tinyman
