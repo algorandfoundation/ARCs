@@ -1,0 +1,49 @@
+_tasks:
+  - "echo '==== Successfully generated new .env file 🚀 ===='"
+
+target_network:
+  type: str
+  help: Name of your target network.
+  choices:
+    - mainnet
+    - testnet
+    - localnet
+    - custom
+  default: "localnet"
+  when: "{{ not use_generic_env }}"
+
+custom_network_name:
+  type: str
+  help: Name of your custom Algorand network.
+  placeholder: "custom"
+  when: "{{ not use_generic_env and target_network == 'custom' }}"
+
+is_localnet:
+  type: bool
+  help: Whether to deploy on localnet.
+  placeholder: "true"
+  default: "{{ target_network == 'localnet' and not use_generic_env }}"
+  when: 'false'
+
+is_testnet:
+  type: bool
+  help: Whether to deploy on testnet.
+  placeholder: "true"
+  default: "{{ target_network == 'testnet' and not use_generic_env }}"
+  when: 'false'
+
+is_mainnet:
+  type: bool
+  help: Whether to deploy on mainnet.
+  placeholder: "true"
+  default: "{{ target_network == 'mainnet' and not use_generic_env }}"
+  when: 'false'
+
+is_customnet:
+  type: bool
+  help: Whether to deploy on custom network.
+  placeholder: "true"
+  default: "{{ target_network == 'custom' and not use_generic_env }}"
+  when: 'false'
+
+_templates_suffix: ".j2"
