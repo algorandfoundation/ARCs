@@ -1,28 +1,10 @@
-import { TRACKING_ISSUE_LABEL, hasTemplateShape } from "./lib/arc-governance.mjs";
+import { KIND_LABELS, TRACKING_ISSUE_LABEL, detectKindLabel, hasTemplateShape } from "./lib/arc-governance.mjs";
 
 const AREA_LABELS = [
   { prefix: "ARCs/", label: "area:arc" },
   { prefix: "adoption/", label: "area:adoption" },
   { prefix: "arckit/", label: "area:arckit" },
   { prefix: ".github/", label: "area:github" },
-];
-
-const KIND_LABELS = [
-  "kind:draft",
-  "kind:review",
-  "kind:last-call",
-  "kind:final",
-  "kind:adoption",
-  "kind:editorial",
-];
-
-const KIND_SIGNALS = [
-  { marker: "## ARC Draft Submission", label: "kind:draft" },
-  { marker: "## ARC Transition to Review", label: "kind:review" },
-  { marker: "## ARC Transition to Last Call", label: "kind:last-call" },
-  { marker: "## ARC Transition to Final", label: "kind:final" },
-  { marker: "## ARC Adoption / Implementation Update", label: "kind:adoption" },
-  { marker: "## Editorial / Non-Normative ARC Update", label: "kind:editorial" },
 ];
 
 const GATE_KEYWORDS = [
@@ -73,7 +55,7 @@ export async function runAutoLabel({ github, context, core }) {
     }
   }
 
-  const kindLabel = detectKindLabel(context.payload.pull_request?.body || "");
+  const kindLabel = detectKindLabel(files);
   if (kindLabel) {
     desiredLabels.add(kindLabel);
   }
@@ -110,7 +92,7 @@ export async function runAutoLabel({ github, context, core }) {
       }
     }
   } else {
-    core.info("No PR template signal found for a kind:* label.");
+    core.info("No kind:* label could be derived from the changed files.");
   }
 }
 
@@ -149,13 +131,4 @@ async function findTrackingIssue(github, context, arcNumber) {
     per_page: 20,
   });
   return result.data.items.find((item) => !item.pull_request) || null;
-}
-
-function detectKindLabel(body) {
-  for (const signal of KIND_SIGNALS) {
-    if (body.includes(signal.marker)) {
-      return signal.label;
-    }
-  }
-  return "";
 }

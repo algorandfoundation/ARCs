@@ -87,13 +87,6 @@ func TestBuildSummaryAggregatesEditorState(t *testing.T) {
 		t.Fatalf("FinalLowAdopters = %+v, want ARC 48 before ARC 46", summary.FinalLowAdopters)
 	}
 
-	if len(summary.StaleAdoptionReviews) != 3 {
-		t.Fatalf("len(StaleAdoptionReviews) = %d, want 3", len(summary.StaleAdoptionReviews))
-	}
-	if summary.StaleAdoptionReviews[0].ARC != 44 || summary.StaleAdoptionReviews[1].ARC != 45 || summary.StaleAdoptionReviews[2].ARC != 47 {
-		t.Fatalf("StaleAdoptionReviews = %+v, want ARCs 44, 45, 47 in order", summary.StaleAdoptionReviews)
-	}
-
 	if len(summary.TopAdoptersByCoverage) < 2 {
 		t.Fatalf("TopAdoptersByCoverage = %+v, want at least 2 rows", summary.TopAdoptersByCoverage)
 	}
@@ -200,7 +193,6 @@ dapps-protocols: []
 	})
 	writeSummaryAdoption(t, root, 42, `arc: 42
 title: Invalid Status ARC
-last-reviewed: 2026-04-05
 adoption:
   wallets:
     - name: wallet-one
@@ -215,7 +207,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `)
@@ -292,7 +283,6 @@ dapps-protocols: []
 	})
 	writeSummaryAdoption(t, root, 44, `arc: 44
 title: Last Call ARC
-last-reviewed: 2026-03-01
 reference-implementation:
   status: shipped
   notes: ""
@@ -307,7 +297,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `)
@@ -321,7 +310,6 @@ summary:
 	})
 	writeSummaryAdoption(t, root, 45, `arc: 45
 title: Final ARC With Placeholder Adoption
-last-reviewed: 2026-03-01
 adoption:
   wallets: []
   explorers: []
@@ -329,7 +317,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `)
@@ -346,7 +333,6 @@ summary:
 	})
 	writeSummaryAdoption(t, root, 46, `arc: 46
 title: Final ARC With Two Adopters
-last-reviewed: 2026-04-05
 adoption:
   wallets:
     - name: wallet-one
@@ -362,7 +348,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `)
@@ -380,7 +365,6 @@ summary:
 	})
 	writeSummaryAdoption(t, root, 47, `arc: 47
 title: Idle ARC With WIP Implementation
-last-reviewed: 2026-03-05
 reference-implementation:
   status: wip
   notes: ""
@@ -395,7 +379,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `)
@@ -408,7 +391,6 @@ summary:
 	})
 	writeSummaryAdoption(t, root, 48, `arc: 48
 title: Final ARC With One Adopter
-last-reviewed: 2026-04-05
 adoption:
   wallets: []
   explorers:
@@ -420,7 +402,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `)

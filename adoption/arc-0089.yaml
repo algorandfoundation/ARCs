@@ -1,6 +1,5 @@
 arc: 89
 title: ASA Metadata Registry
-last-reviewed: 2026-04-09
 reference-implementation:
   status: shipped
   notes: Deployed on TestNet, pending MainNet deployment after preliminary feedback.
@@ -15,6 +14,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: A (beta) TypeScript SDK is available on npm as asa-metadata-registry-sdk

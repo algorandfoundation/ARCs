@@ -1,6 +1,5 @@
 arc: <arc-number>
 title: <ARC title>
-last-reviewed: <YYYY-MM-DD>
 # ARC front matter is authoritative for status, sponsor, and implementation-required.
 # Remove reference-implementation entirely when the ARC front matter sets implementation-required to false.
 # If implementation-required is true in ARC front matter, keep implementation status here and add notes only if useful.
@@ -17,6 +16,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low # low | medium | high; fmt normalizes this from adopter count
   blockers: []
   notes: ""

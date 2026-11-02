@@ -1,6 +1,5 @@
 arc: 56
 title: Extended App Description
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers:
@@ -20,6 +19,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: medium
   blockers: []
   notes: ""

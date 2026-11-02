@@ -53,10 +53,15 @@ Automation fails the PR if any of those repository-process requirements are miss
 The `PR governance` workflow currently applies labels automatically:
 
 - `area:*` labels from changed paths;
-- one `kind:*` label from the selected PR template body markers.
+- one `kind:*` label derived from the changed files:
+  - `kind:draft` when the PR adds a new ARC file;
+  - `kind:review`, `kind:last-call`, or `kind:final` when an ARC `status` changes to
+    that status;
+  - `kind:adoption` when adoption files change without such a status change;
+  - `kind:editorial` for other ARC file changes.
 
-If the PR body does not contain a recognized template marker, no `kind:*` label is
-inferred automatically.
+Status changes to other statuses (for example `Stagnant` or `Deprecated`) get no
+`kind:*` label from the status itself.
 
 The CI/CD spec also defines the supported label vocabulary for editor workflows,
 including `arc-tracking` and `maintenance-report`. The automation applies `area:*`,
@@ -160,7 +165,6 @@ ARC status on its own.
 
 An editor must still manually correct labels when:
 
-- the PR body does not match a supported template marker;
 - the inferred `kind:*` label is wrong for the actual review stage;
 - exceptional repository maintenance requires a deliberate manual label choice.
 

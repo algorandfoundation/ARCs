@@ -70,7 +70,6 @@ dapps-protocols: []
 `)
 	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "arc-0042.yaml"), `arc: 42
 title: Example ARC
-last-reviewed: 2026-04-09
 adoption:
   wallets:
     - name: example-wallet
@@ -82,7 +81,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `)
@@ -357,7 +355,6 @@ Text
 
 	testutil.WriteTrimmedFile(t, filepath.Join(root, "adoption", "arc-0089.yaml"), `arc: 89
 title: Example ARC
-last-reviewed: 2026-04-09
 reference-implementation:
   status: shipped
 adoption:
@@ -367,7 +364,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `)
@@ -606,7 +602,6 @@ Copyright and related rights waived via CC0 1.0.
 	}
 	if err := os.WriteFile(filepath.Join(root, "adoption", "arc-0042.yaml"), []byte(`arc: 42
 title: Example ARC
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
@@ -614,7 +609,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -682,7 +676,6 @@ Copyright and related rights waived via CC0 1.0.
 	}
 	if err := os.WriteFile(filepath.Join(root, "adoption", "arc-0042.yaml"), []byte(`arc: 42
 title: Example ARC
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
@@ -690,7 +683,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {

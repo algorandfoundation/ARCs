@@ -14,7 +14,6 @@ import (
 )
 
 var adoptionPathPattern = regexp.MustCompile(`(^|.*/)adoption/arc-(\d{4})\.yaml$`)
-var reviewDatePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 type Actor struct {
 	Name     string `yaml:"name" json:"name"`
@@ -37,21 +36,20 @@ type AdoptionSection struct {
 }
 
 type SummarySection struct {
-	AdoptionReadiness string   `yaml:"adoption-readiness" json:"adoption-readiness"`
-	Blockers          []string `yaml:"blockers" json:"blockers"`
-	Notes             string   `yaml:"notes" json:"notes"`
+	Blockers []string `yaml:"blockers" json:"blockers"`
+	Notes    string   `yaml:"notes" json:"notes"`
 }
 
 type Summary struct {
 	Path                        string                   `json:"path"`
 	Arc                         int                      `yaml:"arc" json:"arc"`
 	Title                       string                   `yaml:"title" json:"title"`
-	LastReviewed                string                   `yaml:"last-reviewed" json:"last-reviewed"`
 	ReferenceImplementation     *ReferenceImplementation `yaml:"reference-implementation" json:"reference-implementation,omitempty"`
 	Adoption                    AdoptionSection          `yaml:"adoption" json:"adoption"`
 	Summary                     SummarySection           `yaml:"summary" json:"summary"`
 	keys                        map[string]struct{}
 	adoptionKeys                map[string]struct{}
+	summaryKeys                 map[string]struct{}
 	referenceImplementationKeys map[string]struct{}
 }
 
@@ -63,7 +61,7 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 		}, err
 	}
 
-	summary := &Summary{Path: filepath.Clean(path), keys: map[string]struct{}{}, adoptionKeys: map[string]struct{}{}, referenceImplementationKeys: map[string]struct{}{}}
+	summary := &Summary{Path: filepath.Clean(path), keys: map[string]struct{}{}, adoptionKeys: map[string]struct{}{}, summaryKeys: map[string]struct{}{}, referenceImplementationKeys: map[string]struct{}{}}
 	diagnostics := make([]diag.Diagnostic, 0)
 
 	matches := adoptionPathPattern.FindStringSubmatch(filepath.ToSlash(summary.Path))
@@ -89,6 +87,9 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 		if adoptionNode := mappingValue(mapping, "adoption"); adoptionNode != nil && adoptionNode.Kind == yaml.MappingNode {
 			summary.adoptionKeys = mappingKeys(adoptionNode)
 		}
+		if summaryNode := mappingValue(mapping, "summary"); summaryNode != nil && summaryNode.Kind == yaml.MappingNode {
+			summary.summaryKeys = mappingKeys(summaryNode)
+		}
 		if referenceImplementationNode := mappingValue(mapping, "reference-implementation"); referenceImplementationNode != nil && referenceImplementationNode.Kind == yaml.MappingNode {
 			summary.referenceImplementationKeys = mappingKeys(referenceImplementationNode)
 		}
@@ -111,7 +112,7 @@ func Load(path string) (*Summary, []diag.Diagnostic, error) {
 func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters) []diag.Diagnostic {
 	diagnostics := make([]diag.Diagnostic, 0)
 
-	for _, key := range []string{"arc", "title", "last-reviewed", "adoption", "summary"} {
+	for _, key := range []string{"arc", "title", "adoption", "summary"} {
 		if _, ok := summary.keys[key]; !ok {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("missing required field %q", key), "Add the missing top-level field to the adoption summary."))
 		}
@@ -120,7 +121,6 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 	allowedTopLevelKeys := map[string]struct{}{
 		"arc":                      {},
 		"title":                    {},
-		"last-reviewed":            {},
 		"reference-implementation": {},
 		"adoption":                 {},
 		"summary":                  {},
@@ -130,6 +130,8 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 			continue
 		}
 		switch key {
+		case "last-reviewed":
+			diagnostics = append(diagnostics, diag.NewWithHint("R:039", diag.OriginNative, summary.Path, 1, 1, "last-reviewed is no longer part of adoption summaries", "Run arckit fmt to remove it; git history records when the summary changed."))
 		case "status":
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "status is not allowed in adoption summaries", "Derive ARC status from the matching ARC front matter and remove status from this YAML file."))
 		case "sponsor":
@@ -140,8 +142,8 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported top-level adoption field %q", key), "Keep only the supported top-level adoption summary fields defined in the specification."))
 		}
 	}
-	if summary.LastReviewed != "" && !reviewDatePattern.MatchString(summary.LastReviewed) {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, "last-reviewed must use YYYY-MM-DD", "Use an ISO date in YYYY-MM-DD format."))
+	if _, ok := summary.summaryKeys["adoption-readiness"]; ok {
+		diagnostics = append(diagnostics, diag.NewWithHint("R:039", diag.OriginNative, summary.Path, 1, 1, "summary.adoption-readiness is no longer part of adoption summaries", "Run arckit fmt to remove it; adoption maturity is derived from the tracked adopter count."))
 	}
 	if document != nil && document.ImplementationRequired && summary.ReferenceImplementation == nil {
 		diagnostics = append(diagnostics, diag.NewWithHint("R:015", diag.OriginNative, summary.Path, 1, 1, "reference-implementation is required when the ARC front matter sets implementation-required to true", "Add the reference-implementation block or update the ARC front matter if a canonical implementation is not required."))
@@ -161,28 +163,6 @@ func Validate(summary *Summary, document *arc.Document, registry *VettedAdopters
 		}
 		if !IsKnownReferenceImplementationStatus(summary.ReferenceImplementation.Status) {
 			diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported reference-implementation.status %q", summary.ReferenceImplementation.Status), "Use one of planned, wip, shipped, or archived."))
-		}
-	}
-	if summary.Summary.AdoptionReadiness != "" && !IsKnownReadiness(summary.Summary.AdoptionReadiness) {
-		diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("unsupported summary.adoption-readiness %q", summary.Summary.AdoptionReadiness), "Use one of low, medium, or high."))
-	} else {
-		actorCount := summary.ActorCount()
-		expectedReadiness := normalizedAdoptionReadinessForActorCount(actorCount)
-		switch summary.Summary.AdoptionReadiness {
-		case ReadinessLow:
-			if actorCount >= 3 {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q is too low for %d adopters across all categories; expected %q", summary.Summary.AdoptionReadiness, actorCount, expectedReadiness), "Raise adoption-readiness to match the tracked adopter count or remove adopter entries that should not be counted yet."))
-			}
-		case ReadinessMedium:
-			if actorCount < 3 {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q requires at least 3 adopters across all categories, found %d", summary.Summary.AdoptionReadiness, actorCount), "Lower adoption-readiness to low or add more adopter entries across the adoption categories."))
-			} else if actorCount >= 5 {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q is too low for %d adopters across all categories; expected %q", summary.Summary.AdoptionReadiness, actorCount, expectedReadiness), "Raise adoption-readiness to match the tracked adopter count or remove adopter entries that should not be counted yet."))
-			}
-		case ReadinessHigh:
-			if actorCount < 5 {
-				diagnostics = append(diagnostics, diag.NewWithHint("R:016", diag.OriginNative, summary.Path, 1, 1, fmt.Sprintf("summary.adoption-readiness %q requires at least 5 adopters across all categories, found %d", summary.Summary.AdoptionReadiness, actorCount), "Lower adoption-readiness or add more adopter entries across the adoption categories."))
-			}
 		}
 	}
 	for _, key := range CategoryNames() {
@@ -249,21 +229,6 @@ func (summary *Summary) ActorCount() int {
 		count += len(group.Actors)
 	}
 	return count
-}
-
-func (summary *Summary) NormalizedAdoptionReadiness() string {
-	return normalizedAdoptionReadinessForActorCount(summary.ActorCount())
-}
-
-func normalizedAdoptionReadinessForActorCount(actorCount int) string {
-	switch {
-	case actorCount >= 5:
-		return ReadinessHigh
-	case actorCount >= 3:
-		return ReadinessMedium
-	default:
-		return ReadinessLow
-	}
 }
 
 func (summary *Summary) KeySet() map[string]struct{} {

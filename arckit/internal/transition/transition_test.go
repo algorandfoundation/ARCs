@@ -41,7 +41,6 @@ func TestValidateFinalTransitionRequiresShippedReferenceImplementationStatus(t *
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
 title: Transition Ready ARC
-last-reviewed: 2026-03-26
 reference-implementation:
   status: wip
   notes: ""
@@ -56,7 +55,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -109,7 +107,6 @@ func TestValidateFinalTransitionReportsMissingEvidenceOnce(t *testing.T) {
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
 title: Transition Ready ARC
-last-reviewed: 2026-03-26
 reference-implementation:
   status: shipped
   notes: ""
@@ -124,7 +121,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {

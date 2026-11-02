@@ -1,6 +1,5 @@
 arc: 36
 title: Convention for declaring filters of an NFT
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
@@ -8,6 +7,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

@@ -1,6 +1,5 @@
 arc: 54
 title: ASA Burning App
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers:
@@ -16,6 +15,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

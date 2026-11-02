@@ -1,6 +1,5 @@
 arc: 45
 title: Idle Transition ARC
-last-reviewed: 2026-03-26
 adoption:
   wallets:
     - name: example-wallet
@@ -12,6 +11,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

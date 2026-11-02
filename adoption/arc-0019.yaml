@@ -1,6 +1,5 @@
 arc: 19
 title: Templating of NFT ASA URLs for mutability
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers:
@@ -20,6 +19,5 @@ adoption:
       evidence: https://api-docs.nf.domains/reference/on-chain-reference/properties
       notes: NF Domains renders ARC-19 metadata in public UI.
 summary:
-  adoption-readiness: medium
   blockers: []
   notes: ""

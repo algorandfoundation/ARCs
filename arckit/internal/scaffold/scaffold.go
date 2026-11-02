@@ -68,7 +68,7 @@ func InitARC(options InitOptions) ([]string, []diag.Diagnostic, error) {
 	now := time.Now().UTC().Format("2006-01-02")
 
 	arcContent := renderARC(options, author, description, now)
-	adoptionContent := renderAdoption(options, now)
+	adoptionContent := renderAdoption(options)
 
 	if err := os.WriteFile(arcPath, []byte(arcContent), 0o644); err != nil {
 		return nil, []diag.Diagnostic{diag.NewWithHint("R:027", diag.OriginNative, arcPath, 0, 0, err.Error(), "Check filesystem permissions and retry.")}, err
@@ -141,11 +141,10 @@ func renderARC(options InitOptions, author string, description string, now strin
 	return strings.Join(lines, "\n")
 }
 
-func renderAdoption(options InitOptions, now string) string {
+func renderAdoption(options InitOptions) string {
 	base := fmt.Sprintf(`arc: %d
 title: %s
-last-reviewed: %s
-`, options.Number, options.Title, now)
+`, options.Number, options.Title)
 	if options.ImplementationRequired {
 		base += `reference-implementation:
   status: planned
@@ -159,7 +158,6 @@ last-reviewed: %s
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `

@@ -27,7 +27,7 @@ implementation-required: <true or false>
 implementation-url: <https://github.com/algorandfoundation/arcN or https://github.com/algorandecosystem/arcN, remove field until Review if not yet created>
 implementation-maintainer:
   - <GitHub username or GitHub organization, remove field until Review if not yet assigned>
-adoption-summary: adoption/arc-####.yaml
+adoption-summary: <adoption/arc-####.yaml, required from Last Call, remove field until then if not yet created>
 ---
 
 ## Abstract

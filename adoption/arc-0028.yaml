@@ -1,6 +1,5 @@
 arc: 28
 title: Algorand Event Log Spec
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
@@ -24,6 +23,5 @@ adoption:
       evidence: https://github.com/Folks-Finance/algorand-ntt-contracts
       notes: Folks Finance NTT implementation uses ARC-28 events.
 summary:
-  adoption-readiness: medium
   blockers: []
   notes: ""

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/algorandfoundation/ARCs/arckit/internal/adoption"
 )
 
 func (summary RepoSummary) Markdown() string {
@@ -46,6 +48,8 @@ func (summary RepoSummary) Markdown() string {
 	writeBlank()
 	writeLine("### Adoption Readiness Distribution")
 	writeBlank()
+	writeLine("_Derived from tracked adopters: low < 3, medium 3-4, high >= 5._")
+	writeBlank()
 	writeCountTable(&out, "Adoption Readiness", summary.AdoptionReadinessCounts)
 	writeBlank()
 	writeLine("### Reference Implementation Status Counts")
@@ -81,10 +85,6 @@ func (summary RepoSummary) Markdown() string {
 	writeLine("### Final ARCs With 1-2 Adopters")
 	writeBlank()
 	writeAdoptionActionTable(&out, summary.FinalLowAdopters)
-	writeBlank()
-	writeLine("### Stale Adoption Reviews (>%d days)", staleAdoptionThresholdDays)
-	writeBlank()
-	writeStaleAdoptionTable(&out, summary.StaleAdoptionReviews)
 	writeBlank()
 	writeLine("### Adoption Totals")
 	writeBlank()
@@ -126,7 +126,7 @@ func (summary RepoSummary) Markdown() string {
 	writeBlank()
 	writeLine("- This report is local and offline-only.")
 	writeLine("- It uses ARC front matter, adoption YAML, vetted adopters, asset directories, and ARC relationship fields.")
-	writeLine("- State age is only known where explicit dates exist: `last-call-deadline`, `idle-since`, and `last-reviewed`.")
+	writeLine("- State age is only known where explicit dates exist: `last-call-deadline` and `idle-since`.")
 	writeLine("- Missing `sponsor`, missing `implementation-required`, and sparse `updated` usage are migration-state and are not treated as backlog in this report.")
 
 	return out.String()
@@ -185,21 +185,9 @@ func writeAdoptionActionTable(out *bytes.Buffer, rows []AdoptionSummaryRow) {
 		_, _ = out.WriteString("None\n")
 		return
 	}
-	writeTable(out, []string{"ARC", "Title", "Adoption Readiness", "Last Reviewed", "Editor Action"}, func(writeRow func(...string)) {
+	writeTable(out, []string{"ARC", "Title", "Adopters", "Editor Action"}, func(writeRow func(...string)) {
 		for _, row := range rows {
-			writeRow(fmt.Sprintf("%d", row.ARC), row.Title, row.AdoptionReadiness, row.LastReviewed, row.Action)
-		}
-	})
-}
-
-func writeStaleAdoptionTable(out *bytes.Buffer, rows []StaleAdoptionSummaryRow) {
-	if len(rows) == 0 {
-		_, _ = out.WriteString("None\n")
-		return
-	}
-	writeTable(out, []string{"ARC", "Title", "Status", "Last Reviewed", "Age (days)", "Editor Action"}, func(writeRow func(...string)) {
-		for _, row := range rows {
-			writeRow(fmt.Sprintf("%d", row.ARC), row.Title, row.Status, row.LastReviewed, fmt.Sprintf("%d", row.AgeDays), row.Action)
+			writeRow(fmt.Sprintf("%d", row.ARC), row.Title, fmt.Sprintf("%d", row.AdopterCount), row.Action)
 		}
 	})
 }
@@ -221,9 +209,9 @@ func writeARCCountTable(out *bytes.Buffer, rows []ARCCount) {
 		_, _ = out.WriteString("None\n")
 		return
 	}
-	writeTable(out, []string{"ARC", "Title", "Status", "Adopters"}, func(writeRow func(...string)) {
+	writeTable(out, []string{"ARC", "Title", "Status", "Adopters", "Adoption Readiness"}, func(writeRow func(...string)) {
 		for _, row := range rows {
-			writeRow(fmt.Sprintf("%d", row.ARC), row.Title, row.Status, fmt.Sprintf("%d", row.Count))
+			writeRow(fmt.Sprintf("%d", row.ARC), row.Title, row.Status, fmt.Sprintf("%d", row.Count), adoption.ReadinessForAdopterCount(row.Count))
 		}
 	})
 }

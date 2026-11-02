@@ -284,14 +284,13 @@ The markdown report must include:
 
 1. generated timestamp, repo root, and current `validate repo` summary counts;
 1. repo-wide totals by ARC status and ARC type;
-1. asset coverage, adoption-summary coverage, adopter totals,
-   and adoption-readiness totals;
+1. asset coverage, adoption-summary coverage, adopter totals, and derived
+   adoption-readiness totals;
 1. explicit transition watch tables for overdue `Last Call`, upcoming `Last Call`
    within 14 days, `Idle` ARCs, and implementation-required ARCs whose canonical
    reference implementation is not `shipped`;
-1. explicit adoption watch tables for `Final` ARCs with zero adopters, `Final`
-   ARCs with 1-2 adopters, and adoption summaries whose `last-reviewed` date is
-   older than 30 days;
+1. explicit adoption watch tables for `Final` ARCs with zero adopters and `Final`
+   ARCs with 1-2 adopters;
 1. adoption totals by category, adopter status, top adopters by distinct ARC
    coverage, and top ARCs by adopter count;
 1. relationship context for most-referenced `requires` targets, most-referenced
@@ -510,7 +509,6 @@ An adoption summary must support at least this shape:
 ```yaml
 arc: 42
 title: Example ARC
-last-reviewed: 2026-03-26
 reference-implementation:
   status: wip
   notes: ""
@@ -521,7 +519,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 ```
@@ -530,7 +527,6 @@ Required top-level fields are:
 
 1. `arc`
 1. `title`
-1. `last-reviewed`
 1. `adoption`
 1. `summary`
 
@@ -589,28 +585,10 @@ Allowed actor `status` values are:
 - `declined`
 - `unknown`
 
-Allowed `summary.adoption-readiness` values are:
-
-- `low`
-- `medium`
-- `high`
-
-Readiness thresholds are:
-
-1. `low` is valid only when the tracked adopter count is fewer than 3;
-1. `medium` requires at least 3 adopter entries across all adoption categories;
-   it is valid only for 3-4 adopters;
-1. `high` requires at least 5 adopter entries across all adoption categories.
-
-`validate adoption` and `validate repo` must reject
-`summary.adoption-readiness` values that understate or overstate the tracked
-adopter count.
-
-`arckit fmt` must normalize `summary.adoption-readiness` from those thresholds:
-
-1. `low` when the tracked adopter count is fewer than 3;
-1. `medium` when the tracked adopter count is 3-4;
-1. `high` when the tracked adopter count is 5 or more.
+The removed `last-reviewed` and `summary.adoption-readiness` fields must be
+rejected with `R:039`, and `arckit fmt` must delete them. Review dates come from
+git history. Adoption readiness is derived from the tracked adopter count (`low`
+below 3, `medium` for 3-4, `high` for 5 or more) and reported by `summary repo`.
 
 ### 10.5 Internal Consistency
 

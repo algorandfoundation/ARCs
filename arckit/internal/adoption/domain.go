@@ -75,6 +75,19 @@ func ReadinessLevels() []string {
 	return slices.Clone(readinessLevels)
 }
 
+// ReadinessForAdopterCount derives adoption readiness from the tracked adopter count;
+// it is reported by summaries and never stored in adoption files.
+func ReadinessForAdopterCount(count int) string {
+	switch {
+	case count >= 5:
+		return ReadinessHigh
+	case count >= 3:
+		return ReadinessMedium
+	default:
+		return ReadinessLow
+	}
+}
+
 func ReferenceImplementationStatuses() []string {
 	return slices.Clone(referenceImplementationStatuses)
 }
@@ -85,10 +98,6 @@ func IsKnownCategory(name string) bool {
 
 func IsKnownActorStatus(status string) bool {
 	return slices.Contains(actorStatuses, status)
-}
-
-func IsKnownReadiness(readiness string) bool {
-	return slices.Contains(readinessLevels, readiness)
 }
 
 func IsKnownReferenceImplementationStatus(status string) bool {

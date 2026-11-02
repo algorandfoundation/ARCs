@@ -110,9 +110,8 @@ That same gate must also treat ARC front matter as authoritative for `status`,
 `sponsor`, and `implementation-required`, and it must reject adoption summaries
 that redundantly declare those ARC-owned fields.
 
-That same gate must also reject adoption summaries whose `summary.adoption-readiness`
-is `medium` with fewer than 3 adopter entries or `high` with fewer than 5 adopter
-entries across all adoption categories.
+That same gate must also reject adoption summaries that still declare the removed
+`last-reviewed` or `summary.adoption-readiness` fields; `arckit fmt` removes them.
 
 That same gate must also enforce ARC-owned metadata and structure rules now kept
 inside `arckit`: title and description length limits, standard-like wording bans,
@@ -144,6 +143,9 @@ gates such as `Draft` to `Final`. Moves that ARC-0000 allows without a forward g
 (`Last Call` to `Review`, `Idle` to `Final`, and any move to `Draft`, `Stagnant`,
 `Withdrawn`, `Deprecated`, or `Living`) are not validated. New ARC files are not
 validated, since they have no prior status.
+
+For `Last Call` to `Final`, the workflow must also fail when the base branch
+`last-call-deadline` is missing or later than the current UTC date.
 
 ### 5.2 Hygiene Check
 
@@ -256,7 +258,6 @@ Deterministic maintenance findings include:
 1. missing canonical `implementation-url` or `implementation-maintainer` declarations for implementation-required ARCs;
 1. non-canonical sponsor-specific implementation repository URLs for implementation-required ARCs;
 1. non-canonical reference implementation statuses in adoption summaries;
-1. `medium` or `high` adoption readiness declared without enough tracked adopters;
 1. `Final` ARCs whose adoption summaries have no tracked adopters;
 1. missing local links or asset targets;
 1. missing required PR references;
@@ -400,8 +401,8 @@ PR auto-labeling should be path-based first:
 1. `arckit/**` -> `area:arckit`
 1. `.github/**` -> `area:github`
 
-PR stage labels should be derived from the selected PR template or equivalent PR body
-signal, and add exactly one of:
+PR stage labels must be derived from the changed files, not from the PR body, and add
+at most one of:
 
 1. `kind:draft`
 1. `kind:review`
@@ -409,6 +410,10 @@ signal, and add exactly one of:
 1. `kind:final`
 1. `kind:adoption`
 1. `kind:editorial`
+
+A new ARC file maps to `kind:draft`; an ARC `status` change to `Review`, `Last Call`,
+or `Final` maps to the matching label; other adoption file changes map to
+`kind:adoption`; other ARC file changes map to `kind:editorial`.
 
 ### 9.2 Issue Routing
 
