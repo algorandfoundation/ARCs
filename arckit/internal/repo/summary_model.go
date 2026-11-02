@@ -26,7 +26,6 @@ type RepoSummary struct {
 	TypeCounts                          []SummaryCount
 	ARCsWithAssets                      int
 	AdoptionSummaryCoverage             int
-	TotalAdoptionFiles                  int
 	TotalAdopterEntries                 int
 	ARCsWithTrackedAdopters             int
 	AdoptionReadinessCounts             []SummaryCount

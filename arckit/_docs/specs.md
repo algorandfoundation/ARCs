@@ -284,7 +284,7 @@ The markdown report must include:
 
 1. generated timestamp, repo root, and current `validate repo` summary counts;
 1. repo-wide totals by ARC status and ARC type;
-1. asset coverage, adoption-summary coverage, adoption file totals, adopter totals,
+1. asset coverage, adoption-summary coverage, adopter totals,
    and adoption-readiness totals;
 1. explicit transition watch tables for overdue `Last Call`, upcoming `Last Call`
    within 14 days, `Idle` ARCs, and implementation-required ARCs whose canonical

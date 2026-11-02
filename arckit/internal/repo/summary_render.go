@@ -32,7 +32,6 @@ func (summary RepoSummary) Markdown() string {
 	writeLine("- Total ARCs: `%d`", summary.TotalARCs)
 	writeLine("- ARCs with assets: `%d`", summary.ARCsWithAssets)
 	writeLine("- Adoption summary coverage: `%d/%d`", summary.AdoptionSummaryCoverage, summary.TotalARCs)
-	writeLine("- Total adoption files: `%d`", summary.TotalAdoptionFiles)
 	writeLine("- Total adopter entries: `%d`", summary.TotalAdopterEntries)
 	writeLine("- ARCs with at least one adopter: `%d`", summary.ARCsWithTrackedAdopters)
 	writeBlank()
