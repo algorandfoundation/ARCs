@@ -84,11 +84,8 @@ Pre-ARC discussion or ARC tracking issue.
 Use the appropriate PR template for the type of change:
 
 - New ARC draft: [`arc-draft.md`](./.github/PULL_REQUEST_TEMPLATE/arc-draft.md)
-- Transition to Review: [`arc-review.md`](./.github/PULL_REQUEST_TEMPLATE/arc-review.md)
-- Transition to Last Call: [`arc-last-call.md`](./.github/PULL_REQUEST_TEMPLATE/arc-last-call.md)
-- Transition to Final: [`arc-final.md`](./.github/PULL_REQUEST_TEMPLATE/arc-final.md)
-- Adoption or implementation update: [`arc-adoption-or-implementation.md`](./.github/PULL_REQUEST_TEMPLATE/arc-adoption-or-implementation.md)
-- Editorial-only change: [`arc-edit.md`](./.github/PULL_REQUEST_TEMPLATE/arc-edit.md)
+- ARC status change: [`arc-status-change.md`](./.github/PULL_REQUEST_TEMPLATE/arc-status-change.md)
+- Any other ARC or adoption update: [`arc-update.md`](./.github/PULL_REQUEST_TEMPLATE/arc-update.md)
 
 ## Pull Request Validation
 

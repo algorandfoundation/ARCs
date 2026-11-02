@@ -13,7 +13,7 @@ Provide a concise summary of the proposed ARC.
 - Pre-ARC Discussion:
 - Tracking Issue:
 - ARC File:
-- Adoption Summary File:
+- Adoption Summary File (optional before `Last Call`):
 - Related Issues / PRs:
 
 ## Checklist
