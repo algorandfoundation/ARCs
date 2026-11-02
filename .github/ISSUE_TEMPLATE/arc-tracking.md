@@ -10,9 +10,6 @@ labels: ["arc-tracking"]
 - ARC: [ARC-####](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-####.md)
 - Pre-ARC Discussion:
 
-> Status, sponsor, and implementation maintainers are canonical in the ARC front
-> matter and are not duplicated here.
-
 ## Canonical Artifacts
 
 - ARC PR:
