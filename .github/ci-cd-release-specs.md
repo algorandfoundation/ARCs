@@ -133,7 +133,8 @@ When ARC Markdown files change, the workflow must also run a changed-file
 validation pass that enforces `R:021` and `R:031` through `R:038` even when
 `.arckit.jsonc` suppresses those rules at the repository level. This targeted
 pass must keep unrelated suppressions intact so historical ARC-specific waivers
-do not become false failures.
+do not become false failures. The pass skips ARCs in `Deprecated` status, so
+editorial fixes (such as broken links) to deprecated ARCs do not force a migration.
 
 When a changed ARC Markdown file changes `status` relative to the base branch, the
 workflow must also run `arckit validate transition --from <base status> --to <new status>`

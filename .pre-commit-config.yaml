@@ -76,7 +76,7 @@ repos:
         files: \.(md|ya?ml)$
         exclude: ^_archive/
         args:
-          - --ignore-words-list=OptIn,allo,AER
+          - --ignore-words-list=OptIn,allo,AER,espace
 
   - repo: https://github.com/lycheeverse/lychee.git
     rev: lychee-v0.23.0
@@ -94,6 +94,9 @@ repos:
           - md,yml,yaml
           - --exclude-path
           - ^(\./)?(_archive/|\.github/ISSUE_TEMPLATE/|arckit/testdata/|templates/)
+          # Pera Explorer answers automated requests with 403 (bot protection).
+          - --exclude
+          - ^https://([a-z]+\.)?explorer\.perawallet\.app/
           - .
       - id: lychee
         alias: lychee-json
@@ -109,6 +112,9 @@ repos:
           - md,yml,yaml
           - --exclude-path
           - ^(\./)?(_archive/|\.github/ISSUE_TEMPLATE/|arckit/testdata/|templates/)
+          # Pera Explorer answers automated requests with 403 (bot protection).
+          - --exclude
+          - ^https://([a-z]+\.)?explorer\.perawallet\.app/
           - --format
           - json
           - .

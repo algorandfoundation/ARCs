@@ -22,7 +22,7 @@ adoption:
   tooling:
     - name: algokit
       status: shipped
-      evidence: https://dev.algorand.co/algokit/cli/tasks/mint/
+      evidence: https://dev.algorand.co/docs/algokit-cli/python/latest/features/tasks/mint/
       notes: Algokit CLI supports minting ARC-3 compliant assets.
   infra: []
   dapps-protocols:
