@@ -44,8 +44,7 @@ metadata, automation currently checks that:
 
 - a matching tracking issue exists;
 - the tracking issue matches the repository tracking issue template shape;
-- the tracking issue carries the `arc-tracking` label;
-- the PR body explicitly references the tracking issue.
+- the tracking issue carries the `arc-tracking` label.
 
 Automation fails the PR if any of those repository-process requirements are missing.
 

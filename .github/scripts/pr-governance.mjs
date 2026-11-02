@@ -53,9 +53,6 @@ export async function runProcessCheck({ github, context, core }) {
     if (!hasTemplateShape(issue.body || "")) {
       failures.push(`Tracking issue #${issue.number} for ARC-${arcNumber} does not match the tracking issue template shape.`);
     }
-    if (!prBodyReferencesIssue(context.payload.pull_request?.body || "", issue)) {
-      failures.push(`Pull request body must explicitly reference tracking issue #${issue.number} for ARC-${arcNumber}.`);
-    }
   }
 
   if (failures.length > 0) {
@@ -152,10 +149,6 @@ async function findTrackingIssue(github, context, arcNumber) {
     per_page: 20,
   });
   return result.data.items.find((item) => !item.pull_request) || null;
-}
-
-function prBodyReferencesIssue(body, issue) {
-  return body.includes(`#${issue.number}`) || body.includes(issue.html_url);
 }
 
 function detectKindLabel(body) {

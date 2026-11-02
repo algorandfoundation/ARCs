@@ -196,15 +196,14 @@ the process check must:
 1. extract the ARC number from the filename;
 1. require an existing tracking issue in this repository for that ARC number;
 1. require that the tracking issue was opened from the ARC tracking issue template;
-1. require that the tracking issue carries the `arc-tracking` label;
-1. require that the PR body explicitly references the tracking issue.
+1. require that the tracking issue carries the `arc-tracking` label.
 
 For pull requests that materially change ARC status or gate readiness, the process
-check must also verify that the corresponding tracking issue still exists and is
-referenced.
+check must also verify that the corresponding tracking issue still exists.
 
-The process check must fail when the tracking issue is missing, malformed, unlabeled,
-or unreferenced.
+The process check must fail when the tracking issue is missing, malformed, or unlabeled.
+It must not require the PR body to reference the tracking issue: the check locates the
+issue by ARC number and label.
 
 ### 5.5 Tracking Issue Policy
 
@@ -450,7 +449,7 @@ following behaviors:
 1. PRs receive stable required checks for hygiene, offline validation, ARC process
    enforcement, and `arckit` tool validation.
 1. New numbered ARC PRs fail when the matching tracking issue does not exist or is
-   not correctly referenced.
+   malformed.
 1. Online validation runs only in monthly maintenance and does not become the canonical merge gate.
 1. A monthly maintenance review produces a workflow summary every month.
 1. Actionable maintenance findings create or update one monthly rollup issue with
