@@ -8,6 +8,9 @@ They are operational artifacts used to record:
 - ecosystem adoption signals,
 - evidence used for status transitions.
 
+An adoption summary is required from `Last Call` on; ARCs in `Draft` or `Review`
+may add one earlier.
+
 This directory also contains the canonical vetted adopters registry:
 
 - `vetted-adopters.yaml`
@@ -37,20 +40,17 @@ Canonical implementation status values are:
 - `shipped`
 - `archived`
 
-`summary.adoption-readiness` must be one of `low`, `medium`, or `high`.
-
-- `medium` requires at least 3 adopter entries across all adoption categories;
-- `high` requires at least 5 adopter entries across all adoption categories.
-
-`arckit fmt` automatically normalizes `summary.adoption-readiness` from the tracked
-adopter count, promoting or demoting it to match these thresholds.
+Adoption summaries do not declare a review date or an adoption readiness level:
+git history records changes, and `arckit summary repo` derives adoption readiness
+from the tracked adopter entries (`low` below 3, `medium` for 3-4, `high` for 5 or
+more). `arckit fmt` removes the legacy `last-reviewed` and
+`summary.adoption-readiness` fields.
 
 ## Example
 
 ```yaml
 arc: 44
 title: Transition Ready ARC
-last-reviewed: 2026-04-09
 reference-implementation:
   status: shipped
   notes: Canonical implementation status used for conformance tracking.
@@ -81,7 +81,6 @@ adoption:
       evidence: https://example.com/dapp-proof
       notes: Integration is scheduled for the next product milestone.
 summary:
-  adoption-readiness: high
   blockers:
     - Need one more independent SDK implementation.
   notes: Adoption is strong enough for Final, with ongoing follow-up in SDK tooling.

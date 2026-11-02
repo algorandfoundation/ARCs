@@ -110,9 +110,8 @@ That same gate must also treat ARC front matter as authoritative for `status`,
 `sponsor`, and `implementation-required`, and it must reject adoption summaries
 that redundantly declare those ARC-owned fields.
 
-That same gate must also reject adoption summaries whose `summary.adoption-readiness`
-is `medium` with fewer than 3 adopter entries or `high` with fewer than 5 adopter
-entries across all adoption categories.
+That same gate must also reject adoption summaries that still declare the removed
+`last-reviewed` or `summary.adoption-readiness` fields; `arckit fmt` removes them.
 
 That same gate must also enforce ARC-owned metadata and structure rules now kept
 inside `arckit`: title and description length limits, standard-like wording bans,
@@ -256,7 +255,6 @@ Deterministic maintenance findings include:
 1. missing canonical `implementation-url` or `implementation-maintainer` declarations for implementation-required ARCs;
 1. non-canonical sponsor-specific implementation repository URLs for implementation-required ARCs;
 1. non-canonical reference implementation statuses in adoption summaries;
-1. `medium` or `high` adoption readiness declared without enough tracked adopters;
 1. `Final` ARCs whose adoption summaries have no tracked adopters;
 1. missing local links or asset targets;
 1. missing required PR references;
