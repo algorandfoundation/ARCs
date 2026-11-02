@@ -138,6 +138,15 @@ validation pass that enforces `R:021` and `R:031` through `R:038` even when
 pass must keep unrelated suppressions intact so historical ARC-specific waivers
 do not become false failures.
 
+When a changed ARC Markdown file changes `status` relative to the base branch, the
+workflow must also run `arckit validate transition --from <base status> --to <new status>`
+on it. This enforces the machine-checkable transition gates (for example, required
+sections and a `wip` or `shipped` reference implementation) and rejects skipped
+gates such as `Draft` to `Final`. Moves that ARC-0000 allows without a forward gate
+(`Last Call` to `Review`, `Idle` to `Final`, and any move to `Draft`, `Stagnant`,
+`Withdrawn`, `Deprecated`, or `Living`) are not validated. New ARC files are not
+validated, since they have no prior status.
+
 ### 5.2 Hygiene Check
 
 The pipeline must include a hygiene check driven by the repository-root

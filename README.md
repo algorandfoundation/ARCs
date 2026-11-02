@@ -133,7 +133,8 @@ Invalid `.arckit.jsonc` content fails validation.
 
 During staged ARC validation migrations, `.arckit.jsonc` may temporarily suppress
 rules for historical ARC files. The PR workflow still re-enforces `R:021` and
-`R:031` through `R:038` for changed ARC Markdown files before merge.
+`R:031` through `R:038` for changed ARC Markdown files before merge, and runs
+`arckit validate transition` on any changed ARC whose `status` changes.
 
 Example:
 

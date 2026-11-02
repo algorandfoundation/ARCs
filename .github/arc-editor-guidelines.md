@@ -83,8 +83,9 @@ maintenance or online-link findings.
 
 ### Editor reminders from ARC-Kit
 
-`arckit` can validate machine-checkable transition requirements, but it only emits
-informational reminders for editorial checks such as:
+`arckit` validates machine-checkable transition requirements, and PR validation runs it
+on every ARC whose `status` changes. It only emits informational reminders for
+editorial checks such as:
 
 - consensus and dissent handling;
 - adequacy of adoption evidence;
