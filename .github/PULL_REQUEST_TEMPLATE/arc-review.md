@@ -16,26 +16,9 @@ Describe what changed since `Draft` and why the ARC is ready for review.
 - Reference Implementation Repository:
 - Related Issues / PRs:
 
-## Requested Status Change
+## Checklist
 
-- [ ] Change ARC status to `Review`
-
-## Review Gate Checklist
-
-- [ ] The ARC specification is complete enough for peer review.
-
-### If `implementation-required: true`
-
-- [ ] `implementation-url` is set to the exact canonical sponsor-specific URL (`https://github.com/algorandfoundation/arcN` or `https://github.com/algorandecosystem/arcN`).
-- [ ] `implementation-maintainer` is set.
-- [ ] The reference implementation repository exists.
-- [ ] The repository location is consistent with `sponsor`.
-- [ ] The ARC front matter is treated as the canonical implementation declaration.
-- [ ] The tracking issue links the implementation repository.
-
-## Requested Maintainer Action
-
-- [ ] Set status to `Review`
+- [ ] If `implementation-required: true`, the reference implementation repository exists.
 
 ## Notes for Reviewers
 
