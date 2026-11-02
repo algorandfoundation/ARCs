@@ -1,0 +1,45 @@
+name: Release arc-0058
+
+on:
+  workflow_call:
+
+jobs:
+  deploy-testnet:
+    runs-on: "ubuntu-latest"
+    
+    environment: contract-testnet
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install algokit
+        run: pipx install algokit
+
+      - name: Bootstrap dependencies
+        run: algokit project bootstrap all --project-name 'arc-0058'
+
+      - name: Configure git
+        shell: bash
+        run: |
+          # set git user and email as test invoke git
+          git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
+
+      - name: Deploy to testnet
+        run: algokit project deploy testnet --project-name 'arc-0058'
+        env:
+          # This is the account that becomes the creator of the contract
+          DEPLOYER_MNEMONIC: ${{ secrets.DEPLOYER_MNEMONIC }}
+          # The dispenser account is used to ensure the deployer account is funded
+          DISPENSER_MNEMONIC: ${{ secrets.DISPENSER_MNEMONIC }}

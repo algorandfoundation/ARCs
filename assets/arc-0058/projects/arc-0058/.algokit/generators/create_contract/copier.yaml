@@ -1,0 +1,15 @@
+_tasks:
+  - "echo '==== Successfully initialized new smart contract 🚀 ===='"
+
+contract_name:
+  type: str
+  help: Name of your new contract.
+  placeholder: "my-new-contract"
+  default: "my-new-contract"
+
+include_tests:
+  type: bool
+  help: Should we include testing files?
+  default: 'yes'
+
+_templates_suffix: ".j2"

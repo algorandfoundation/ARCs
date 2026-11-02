@@ -1,0 +1,30 @@
+import { uint64 } from "@algorandfoundation/algorand-typescript"
+
+export const AbstractAccountGlobalStateKeysAdmin = 'admin'
+export const AbstractAccountGlobalStateKeysControlledAddress = 'controlled_address'
+export const AbstractAccountGlobalStateKeysLastUserInteraction = 'last_user_interaction'
+export const AbstractAccountGlobalStateKeysLastChange = 'last_change'
+export const AbstractAccountGlobalStateKeysEscrowFactory = 'escrow_factory'
+export const AbstractAccountGlobalStateKeysSpendingAddress = 'spending_address'
+export const AbstractAccountGlobalStateKeysCurrentPlugin = 'current_plugin'
+export const AbstractAccountGlobalStateKeysRekeyIndex = 'rekey_index'
+
+export const AbstractAccountBoxPrefixPlugins = 'p'
+export const AbstractAccountBoxPrefixNamedPlugins = 'n'
+export const AbstractAccountBoxPrefixEscrows = 'e'
+export const AbstractAccountBoxPrefixAllowances = 'a'
+export const AbstractAccountBoxPrefixExecutions = 'x'
+
+export const BoxCostPerBox: uint64 = 2_500
+export const BoxCostPerByte: uint64 = 400
+
+export const MethodRestrictionByteLength: uint64 = 20
+export const DynamicOffsetAndLength: uint64 = 4
+export const DynamicOffset: uint64 = 2
+export const DynamicLength: uint64 = 2
+
+export const MinPluginMBR: uint64 = 38_900
+export const MinNamedPluginMBR: uint64 = 21_700
+export const MinEscrowsMBR: uint64 = 6_500
+export const MinAllowanceMBR: uint64 = 27_700
+export const MinExecutionsMBR: uint64 = 20_500
