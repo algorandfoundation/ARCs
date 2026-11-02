@@ -23,8 +23,8 @@ func BuildSummary(state State, diagnostics []diag.Diagnostic, now time.Time) Rep
 
 	statusCounts := map[string]int{}
 	typeCounts := map[string]int{}
-	readinessCounts := map[string]int{}
 	refImplCounts := map[string]int{}
+	readinessCounts := map[string]int{}
 	adopterCategoryCounts := map[string]int{}
 	for _, category := range adoption.CategoryNames() {
 		adopterCategoryCounts[category] = 0
@@ -102,19 +102,8 @@ func BuildSummary(state State, diagnostics []diag.Diagnostic, now time.Time) Rep
 		adoptionSummary := state.Adoptions[number]
 		refImplStatus := "missing"
 		adopterCount := 0
-		adoptionReadiness := "missing"
-		lastReviewed := "missing"
 
 		if adoptionSummary != nil {
-			readiness := strings.TrimSpace(adoptionSummary.Summary.AdoptionReadiness)
-			if readiness != "" {
-				readinessCounts[readiness]++
-				adoptionReadiness = readiness
-			}
-			lastReviewedValue := strings.TrimSpace(adoptionSummary.LastReviewed)
-			if lastReviewedValue != "" {
-				lastReviewed = lastReviewedValue
-			}
 			if adoptionSummary.ReferenceImplementation != nil {
 				status := strings.TrimSpace(adoptionSummary.ReferenceImplementation.Status)
 				if status != "" {
@@ -142,6 +131,10 @@ func BuildSummary(state State, diagnostics []diag.Diagnostic, now time.Time) Rep
 			}
 		}
 
+		if adoptionSummary != nil {
+			readinessCounts[adoption.ReadinessForAdopterCount(adopterCount)]++
+		}
+
 		summary.TotalAdopterEntries += adopterCount
 		if adopterCount > 0 {
 			summary.ARCsWithTrackedAdopters++
@@ -165,35 +158,17 @@ func BuildSummary(state State, diagnostics []diag.Diagnostic, now time.Time) Rep
 
 		if document.Status == "Final" {
 			row := AdoptionSummaryRow{
-				ARC:               number,
-				Title:             document.Title,
-				AdoptionReadiness: adoptionReadiness,
-				LastReviewed:      lastReviewed,
+				ARC:          number,
+				Title:        document.Title,
+				AdopterCount: adopterCount,
 			}
 			switch {
 			case adopterCount == 0:
 				row.Action = "Backfill at least one tracked adopter or confirm historical exception"
 				summary.FinalZeroAdopters = append(summary.FinalZeroAdopters, row)
 			case adopterCount <= 2:
-				row.AdopterCount = adopterCount
 				row.Action = "Check whether additional adoption evidence exists"
 				summary.FinalLowAdopters = append(summary.FinalLowAdopters, row)
-			}
-		}
-
-		if adoptionSummary != nil {
-			if reviewedAt, ok := parseDate(adoptionSummary.LastReviewed); ok {
-				ageDays := int(currentDate.Sub(reviewedAt).Hours() / 24)
-				if ageDays > staleAdoptionThresholdDays {
-					summary.StaleAdoptionReviews = append(summary.StaleAdoptionReviews, StaleAdoptionSummaryRow{
-						ARC:          number,
-						Title:        document.Title,
-						Status:       document.Status,
-						LastReviewed: adoptionSummary.LastReviewed,
-						AgeDays:      ageDays,
-						Action:       "Refresh adoption summary and evidence",
-					})
-				}
 			}
 		}
 	}
@@ -238,12 +213,6 @@ func BuildSummary(state State, diagnostics []diag.Diagnostic, now time.Time) Rep
 			return summary.FinalLowAdopters[i].AdopterCount < summary.FinalLowAdopters[j].AdopterCount
 		}
 		return summary.FinalLowAdopters[i].ARC < summary.FinalLowAdopters[j].ARC
-	})
-	sort.Slice(summary.StaleAdoptionReviews, func(i, j int) bool {
-		if summary.StaleAdoptionReviews[i].AgeDays != summary.StaleAdoptionReviews[j].AgeDays {
-			return summary.StaleAdoptionReviews[i].AgeDays > summary.StaleAdoptionReviews[j].AgeDays
-		}
-		return summary.StaleAdoptionReviews[i].ARC < summary.StaleAdoptionReviews[j].ARC
 	})
 	sort.Slice(summary.SupersessionRows, func(i, j int) bool {
 		return summary.SupersessionRows[i].ARC < summary.SupersessionRows[j].ARC

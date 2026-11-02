@@ -1,6 +1,5 @@
 arc: 44
 title: Transition Ready ARC
-last-reviewed: 2026-03-26
 reference-implementation:
   status: shipped
   notes: ""
@@ -15,6 +14,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

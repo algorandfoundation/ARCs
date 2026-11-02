@@ -456,7 +456,7 @@ func applyAdoptionFix(path string) error {
 		return unsafeErr
 	}
 
-	normalized, err := normalizeAdoptionContent(content, summary.NormalizedAdoptionReadiness())
+	normalized, err := normalizeAdoptionContent(content)
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ type mappingChunk struct {
 	valueNode     *yaml.Node
 }
 
-func normalizeAdoptionContent(content []byte, normalizedReadiness string) ([]byte, error) {
+func normalizeAdoptionContent(content []byte) ([]byte, error) {
 	var root yaml.Node
 	if err := yaml.Unmarshal(content, &root); err != nil {
 		return nil, err
@@ -503,14 +503,14 @@ func normalizeAdoptionContent(content []byte, normalizedReadiness string) ([]byt
 	if len(lines) == 0 {
 		return content, nil
 	}
-	out, ok := renderOrderedMapping(lines, root.Content[0], 0, len(lines), "top", normalizedReadiness)
+	out, ok := renderOrderedMapping(lines, root.Content[0], 0, len(lines), "top")
 	if !ok {
 		return content, nil
 	}
 	return []byte(strings.Join(out, "")), nil
 }
 
-func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, regionEnd int, context string, normalizedReadiness string) ([]string, bool) {
+func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, regionEnd int, context string) ([]string, bool) {
 	if mapping == nil || mapping.Kind != yaml.MappingNode {
 		return append([]string(nil), lines[regionStart:regionEnd]...), true
 	}
@@ -534,9 +534,12 @@ func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, r
 		if entry.startLine < regionStart || entry.endLine < entry.startLine || entry.endLine > regionEnd {
 			return append([]string(nil), lines[regionStart:regionEnd]...), false
 		}
+		if _, removed := removedAdoptionKeys[context][entry.key]; removed {
+			continue
+		}
 		if entry.valueNode != nil && entry.valueNode.Kind == yaml.MappingNode && entry.valueNode.Line-1 > entry.startLine && entry.valueNode.Line-1 <= entry.endLine {
 			nestedStart := entry.valueNode.Line - 1
-			nested, ok := renderOrderedMapping(lines, entry.valueNode, nestedStart, entry.endLine, entry.key, normalizedReadiness)
+			nested, ok := renderOrderedMapping(lines, entry.valueNode, nestedStart, entry.endLine, entry.key)
 			if !ok {
 				return append([]string(nil), lines[regionStart:regionEnd]...), false
 			}
@@ -544,46 +547,15 @@ func renderOrderedMapping(lines []string, mapping *yaml.Node, regionStart int, r
 			builder = append(builder, nested...)
 			continue
 		}
-		if context == "summary" && entry.key == "adoption-readiness" {
-			builder = append(builder, renderReadinessChunk(lines[entry.startLine:entry.endLine], normalizedReadiness)...)
-			continue
-		}
 		builder = append(builder, lines[entry.startLine:entry.endLine]...)
 	}
 	return builder, true
 }
 
-func renderReadinessChunk(lines []string, readiness string) []string {
-	if len(lines) == 0 || strings.TrimSpace(readiness) == "" {
-		return lines
-	}
-
-	first := lines[0]
-	colon := strings.Index(first, ":")
-	if colon < 0 {
-		return lines
-	}
-
-	updated := append([]string(nil), lines...)
-	comment := ""
-	lineEnding := ""
-	if strings.HasSuffix(first, "\r\n") {
-		lineEnding = "\r\n"
-		first = strings.TrimSuffix(first, "\r\n")
-	} else if strings.HasSuffix(first, "\n") {
-		lineEnding = "\n"
-		first = strings.TrimSuffix(first, "\n")
-	}
-	if marker := strings.Index(first[colon+1:], "#"); marker >= 0 {
-		comment = strings.TrimSpace(first[colon+1+marker:])
-	}
-
-	updated[0] = first[:colon+1] + " " + readiness
-	if comment != "" {
-		updated[0] += " " + comment
-	}
-	updated[0] += lineEnding
-	return updated
+// removedAdoptionKeys lists adoption summary fields dropped from the schema (R:039); fmt deletes them.
+var removedAdoptionKeys = map[string]map[string]struct{}{
+	"top":     {"last-reviewed": {}},
+	"summary": {"adoption-readiness": {}},
 }
 
 func mappingChunks(mapping *yaml.Node, regionEnd int, orderLookup map[string]int) ([]mappingChunk, bool) {
@@ -689,13 +661,13 @@ func orderForAdoptionContext(context string) map[string]int {
 	var ordered []string
 	switch context {
 	case "top":
-		ordered = []string{"arc", "title", "last-reviewed", "reference-implementation", "adoption", "summary"}
+		ordered = []string{"arc", "title", "reference-implementation", "adoption", "summary"}
 	case "reference-implementation":
 		ordered = []string{"status", "notes"}
 	case "adoption":
 		ordered = adoption.CategoryNames()
 	case "summary":
-		ordered = []string{"adoption-readiness", "blockers", "notes"}
+		ordered = []string{"blockers", "notes"}
 	default:
 		return map[string]int{}
 	}

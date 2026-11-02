@@ -8,7 +8,6 @@ import (
 
 const (
 	upcomingLastCallWindowDays = 14
-	staleAdoptionThresholdDays = 30
 	dateLayout                 = "2006-01-02"
 )
 
@@ -36,7 +35,6 @@ type RepoSummary struct {
 	ImplementationRequiredNotShipped    []ImplementationSummaryRow
 	FinalZeroAdopters                   []AdoptionSummaryRow
 	FinalLowAdopters                    []AdoptionSummaryRow
-	StaleAdoptionReviews                []StaleAdoptionSummaryRow
 	AdopterEntriesByCategory            []SummaryCount
 	AdopterEntriesByStatus              []SummaryCount
 	TopAdoptersByCoverage               []NamedCount
@@ -94,20 +92,9 @@ type ImplementationSummaryRow struct {
 }
 
 type AdoptionSummaryRow struct {
-	ARC               int
-	Title             string
-	AdoptionReadiness string
-	LastReviewed      string
-	AdopterCount      int
-	Action            string
-}
-
-type StaleAdoptionSummaryRow struct {
 	ARC          int
 	Title        string
-	Status       string
-	LastReviewed string
-	AgeDays      int
+	AdopterCount int
 	Action       string
 }
 

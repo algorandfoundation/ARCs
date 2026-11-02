@@ -32,6 +32,8 @@
 
 ### Adoption Readiness Distribution
 
+_Derived from tracked adopters: low < 3, medium 3-4, high >= 5._
+
 | Adoption Readiness | Count |
 | --- | --- |
 | low | 5 |
@@ -71,24 +73,16 @@ None
 
 ### Final ARCs With Zero Adopters
 
-| ARC | Title | Adoption Readiness | Last Reviewed | Editor Action |
-| --- | --- | --- | --- | --- |
-| 45 | Final ARC With Placeholder Adoption | low | 2026-03-01 | Backfill at least one tracked adopter or confirm historical exception |
+| ARC | Title | Adopters | Editor Action |
+| --- | --- | --- | --- |
+| 45 | Final ARC With Placeholder Adoption | 0 | Backfill at least one tracked adopter or confirm historical exception |
 
 ### Final ARCs With 1-2 Adopters
 
-| ARC | Title | Adoption Readiness | Last Reviewed | Editor Action |
-| --- | --- | --- | --- | --- |
-| 48 | Final ARC With One Adopter | low | 2026-04-05 | Check whether additional adoption evidence exists |
-| 46 | Final ARC With Two Adopters | low | 2026-04-05 | Check whether additional adoption evidence exists |
-
-### Stale Adoption Reviews (>30 days)
-
-| ARC | Title | Status | Last Reviewed | Age (days) | Editor Action |
-| --- | --- | --- | --- | --- | --- |
-| 44 | Last Call ARC | Last Call | 2026-03-01 | 40 | Refresh adoption summary and evidence |
-| 45 | Final ARC With Placeholder Adoption | Final | 2026-03-01 | 40 | Refresh adoption summary and evidence |
-| 47 | Idle ARC With WIP Implementation | Idle | 2026-03-05 | 36 | Refresh adoption summary and evidence |
+| ARC | Title | Adopters | Editor Action |
+| --- | --- | --- | --- |
+| 48 | Final ARC With One Adopter | 1 | Check whether additional adoption evidence exists |
+| 46 | Final ARC With Two Adopters | 2 | Check whether additional adoption evidence exists |
 
 ### Adoption Totals
 
@@ -122,12 +116,12 @@ None
 
 #### Top 10 ARCs by Adopter Count
 
-| ARC | Title | Status | Adopters |
-| --- | --- | --- | --- |
-| 46 | Final ARC With Two Adopters | Final | 2 |
-| 44 | Last Call ARC | Last Call | 1 |
-| 47 | Idle ARC With WIP Implementation | Idle | 1 |
-| 48 | Final ARC With One Adopter | Final | 1 |
+| ARC | Title | Status | Adopters | Adoption Readiness |
+| --- | --- | --- | --- | --- |
+| 46 | Final ARC With Two Adopters | Final | 2 | low |
+| 44 | Last Call ARC | Last Call | 1 | low |
+| 47 | Idle ARC With WIP Implementation | Idle | 1 | low |
+| 48 | Final ARC With One Adopter | Final | 1 | low |
 
 _Note: This table is limited to 10 rows. Ties are broken by lower ARC number after sorting by adopter count._
 
@@ -157,5 +151,5 @@ _Note: This table is limited to 10 rows. Ties are broken by lower ARC number aft
 
 - This report is local and offline-only.
 - It uses ARC front matter, adoption YAML, vetted adopters, asset directories, and ARC relationship fields.
-- State age is only known where explicit dates exist: `last-call-deadline`, `idle-since`, and `last-reviewed`.
+- State age is only known where explicit dates exist: `last-call-deadline` and `idle-since`.
 - Missing `sponsor`, missing `implementation-required`, and sparse `updated` usage are migration-state and are not treated as backlog in this report.

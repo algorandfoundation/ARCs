@@ -1,6 +1,5 @@
 arc: 42
 title: Example ARC
-last-reviewed: 2026-03-26
 adoption:
   wallets: []
   explorers: []
@@ -8,6 +7,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

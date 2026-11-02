@@ -94,12 +94,8 @@ go run ./cmd/arckit fmt ../ARCs/arc-0000.md
 `validate adoption` and `validate repo` both require the canonical vetted adopters
 registry at `../adoption/vetted-adopters.yaml`. Per-ARC adoption actor names must
 be lower-kebab-case identifiers present in the matching registry category.
-They also enforce that `summary.adoption-readiness` matches the tracked adopter
-count thresholds.
-
-When formatting adoption summaries, `arckit fmt` normalizes
-`summary.adoption-readiness` from the tracked adopter count: `low` for fewer than
-3 adopters, `medium` for 3-4 adopters, and `high` for 5 or more adopters.
+They reject the removed `last-reviewed` and `summary.adoption-readiness` fields
+(`R:039`), which `arckit fmt` deletes when formatting adoption summaries.
 
 `summary repo` writes a local markdown review artifact at `../arc-summary.md` by
 default for ARC Editor workflow use. It is a report generator, not a validation gate.

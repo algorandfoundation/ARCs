@@ -96,7 +96,6 @@ func TestValidateAdoptionRejectsTitleMismatchWithARC(t *testing.T) {
 	document := loadValidatedDocument(t, root, arcPath)
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
 title: Different ARC Title
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
@@ -104,7 +103,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -132,7 +130,7 @@ summary:
 	}
 }
 
-func TestValidateAdoptionAllowsActorWithEmptyEvidence(t *testing.T) {
+func TestValidateAdoptionRejectsDroppedFields(t *testing.T) {
 	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
 	arcPath := filepath.Join(root, "ARCs", "arc-0042.md")
 	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
@@ -141,6 +139,48 @@ func TestValidateAdoptionAllowsActorWithEmptyEvidence(t *testing.T) {
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
 title: Example ARC
 last-reviewed: 2026-04-09
+adoption:
+  wallets: []
+  explorers: []
+  tooling: []
+  infra: []
+  dapps-protocols: []
+summary:
+  adoption-readiness: low
+  blockers: []
+  notes: ""
+`), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	summary, loadDiagnostics, err := Load(adoptionPath)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if len(loadDiagnostics) != 0 {
+		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
+	}
+
+	diagnostics := Validate(summary, document, nil)
+	count := 0
+	for _, diagnostic := range diagnostics {
+		if diagnostic.RuleID == "R:039" {
+			count++
+		}
+	}
+	if count != 2 {
+		t.Fatalf("expected two R:039 diagnostics, got %+v", diagnostics)
+	}
+}
+
+func TestValidateAdoptionAllowsActorWithEmptyEvidence(t *testing.T) {
+	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
+	arcPath := filepath.Join(root, "ARCs", "arc-0042.md")
+	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
+
+	document := loadValidatedDocument(t, root, arcPath)
+	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
+title: Example ARC
 adoption:
   wallets:
     - name: example-wallet
@@ -152,7 +192,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -236,7 +275,6 @@ Copyright and related rights waived via CC0 1.0.
 	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
 title: Example ARC
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
@@ -244,7 +282,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -277,207 +314,6 @@ summary:
 	}
 	if !found {
 		t.Fatalf("expected Final ARC empty adoption diagnostic, got %+v", diagnostics)
-	}
-}
-
-func TestValidateAdoptionReadinessRequiresMinimumAdopterCounts(t *testing.T) {
-	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
-	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0042.md"))
-	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
-	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
-title: Example ARC
-last-reviewed: 2026-04-09
-adoption:
-  wallets:
-    - name: example-wallet
-      status: shipped
-      evidence: https://example.com/wallet-proof
-      notes: ""
-  explorers:
-    - name: example-explorer
-      status: shipped
-      evidence: https://example.com/explorer-proof
-      notes: ""
-  tooling: []
-  infra: []
-  dapps-protocols: []
-summary:
-  adoption-readiness: medium
-  blockers: []
-  notes: ""
-`), 0o644); err != nil {
-		t.Fatalf("WriteFile() error = %v", err)
-	}
-	if err := os.WriteFile(RegistryPath(root), []byte(`wallets:
-  - example-wallet
-explorers:
-  - example-explorer
-tooling: []
-infra: []
-dapps-protocols: []
-`), 0o644); err != nil {
-		t.Fatalf("WriteFile() error = %v", err)
-	}
-
-	summary, loadDiagnostics, err := Load(adoptionPath)
-	if err != nil {
-		t.Fatalf("Load() error = %v", err)
-	}
-	if len(loadDiagnostics) != 0 {
-		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
-	}
-	registry, registryDiagnostics, err := LoadVettedAdopters(RegistryPath(root))
-	if err != nil {
-		t.Fatalf("LoadVettedAdopters() error = %v", err)
-	}
-	if len(registryDiagnostics) != 0 {
-		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
-	}
-
-	diagnostics := Validate(summary, document, registry)
-	if !containsDiagnosticMessage(diagnostics, `summary.adoption-readiness "medium" requires at least 3 adopters`) {
-		t.Fatalf("expected medium readiness threshold diagnostic, got %+v", diagnostics)
-	}
-}
-
-func TestValidateHighAdoptionReadinessAllowsFiveAdoptersAcrossCategories(t *testing.T) {
-	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
-	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0042.md"))
-	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
-	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
-title: Example ARC
-last-reviewed: 2026-04-09
-adoption:
-  wallets:
-    - name: wallet-one
-      status: shipped
-      evidence: https://example.com/wallet-one
-      notes: ""
-    - name: wallet-two
-      status: shipped
-      evidence: https://example.com/wallet-two
-      notes: ""
-  explorers:
-    - name: explorer-one
-      status: shipped
-      evidence: https://example.com/explorer-one
-      notes: ""
-  tooling:
-    - name: sdk-one
-      status: shipped
-      evidence: https://example.com/sdk-one
-      notes: ""
-  infra:
-    - name: infra-one
-      status: shipped
-      evidence: https://example.com/infra-one
-      notes: ""
-  dapps-protocols: []
-summary:
-  adoption-readiness: high
-  blockers: []
-  notes: ""
-`), 0o644); err != nil {
-		t.Fatalf("WriteFile() error = %v", err)
-	}
-	if err := os.WriteFile(RegistryPath(root), []byte(`wallets:
-  - wallet-one
-  - wallet-two
-explorers:
-  - explorer-one
-tooling:
-  - sdk-one
-infra:
-  - infra-one
-dapps-protocols: []
-`), 0o644); err != nil {
-		t.Fatalf("WriteFile() error = %v", err)
-	}
-
-	summary, loadDiagnostics, err := Load(adoptionPath)
-	if err != nil {
-		t.Fatalf("Load() error = %v", err)
-	}
-	if len(loadDiagnostics) != 0 {
-		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
-	}
-	registry, registryDiagnostics, err := LoadVettedAdopters(RegistryPath(root))
-	if err != nil {
-		t.Fatalf("LoadVettedAdopters() error = %v", err)
-	}
-	if len(registryDiagnostics) != 0 {
-		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
-	}
-
-	for _, diagnostic := range Validate(summary, document, registry) {
-		if diagnostic.RuleID == "R:016" && strings.Contains(diagnostic.Message, "summary.adoption-readiness") {
-			t.Fatalf("unexpected adoption-readiness diagnostic: %+v", diagnostic)
-		}
-	}
-}
-
-func TestValidateLowAdoptionReadinessRejectsUnderstatedReadiness(t *testing.T) {
-	root := testutil.CopyDir(t, filepath.Join("..", "..", "testdata", "repos", "valid-draft"))
-	document := loadValidatedDocument(t, root, filepath.Join(root, "ARCs", "arc-0042.md"))
-	adoptionPath := filepath.Join(root, "adoption", "arc-0042.yaml")
-	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
-title: Example ARC
-last-reviewed: 2026-04-09
-adoption:
-  wallets:
-    - name: wallet-one
-      status: shipped
-      evidence: https://example.com/wallet-one
-      notes: ""
-  explorers:
-    - name: explorer-one
-      status: shipped
-      evidence: https://example.com/explorer-one
-      notes: ""
-  tooling:
-    - name: sdk-one
-      status: shipped
-      evidence: https://example.com/sdk-one
-      notes: ""
-  infra: []
-  dapps-protocols: []
-summary:
-  adoption-readiness: low
-  blockers: []
-  notes: ""
-`), 0o644); err != nil {
-		t.Fatalf("WriteFile() error = %v", err)
-	}
-	if err := os.WriteFile(RegistryPath(root), []byte(`wallets:
-  - wallet-one
-explorers:
-  - explorer-one
-tooling:
-  - sdk-one
-infra: []
-dapps-protocols: []
-`), 0o644); err != nil {
-		t.Fatalf("WriteFile() error = %v", err)
-	}
-
-	summary, loadDiagnostics, err := Load(adoptionPath)
-	if err != nil {
-		t.Fatalf("Load() error = %v", err)
-	}
-	if len(loadDiagnostics) != 0 {
-		t.Fatalf("Load() diagnostics = %v", loadDiagnostics)
-	}
-	registry, registryDiagnostics, err := LoadVettedAdopters(RegistryPath(root))
-	if err != nil {
-		t.Fatalf("LoadVettedAdopters() error = %v", err)
-	}
-	if len(registryDiagnostics) != 0 {
-		t.Fatalf("LoadVettedAdopters() diagnostics = %v", registryDiagnostics)
-	}
-
-	diagnostics := Validate(summary, document, registry)
-	if !containsDiagnosticMessage(diagnostics, `summary.adoption-readiness "low" is too low for 3 adopters across all categories; expected "medium"`) {
-		t.Fatalf("expected low readiness understatement diagnostic, got %+v", diagnostics)
 	}
 }
 
@@ -539,7 +375,6 @@ Copyright and related rights waived via CC0 1.0.
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
 title: Transition Ready ARC
-last-reviewed: 2026-03-26
 reference-implementation:
   status: shipped
   notes: ""
@@ -554,7 +389,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -591,7 +425,6 @@ func TestValidateRejectsLegacyReferenceImplementationIdentityFields(t *testing.T
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
 title: Transition Ready ARC
-last-reviewed: 2026-03-26
 reference-implementation:
   repository: https://github.com/example/arc-0044
   maintainers:
@@ -609,7 +442,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -650,7 +482,6 @@ func TestValidateAllowsReferenceImplementationWithoutNotes(t *testing.T) {
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
 title: Transition Ready ARC
-last-reviewed: 2026-03-26
 reference-implementation:
   status: shipped
 adoption:
@@ -664,7 +495,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -705,7 +535,6 @@ func TestLoadRejectsScalarActorEntryWithHelpfulMessage(t *testing.T) {
 	}
 	if err := os.WriteFile(path, []byte(`arc: 62
 title: ASA Circulating Supply
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers:
@@ -714,7 +543,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -747,7 +575,6 @@ func TestValidateRejectsLegacyARCMetadataFields(t *testing.T) {
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 42
 title: Example ARC
 status: Draft
-last-reviewed: 2026-04-09
 sponsor: Foundation
 implementation-required: false
 adoption:
@@ -757,7 +584,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -794,7 +620,6 @@ func TestValidateRequiresReferenceImplementationFromARCFrontMatter(t *testing.T)
 	adoptionPath := filepath.Join(root, "adoption", "arc-0044.yaml")
 	if err := os.WriteFile(adoptionPath, []byte(`arc: 44
 title: Transition Ready ARC
-last-reviewed: 2026-03-26
 adoption:
   wallets:
     - name: example-wallet
@@ -806,7 +631,6 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: medium
   blockers: []
   notes: ""
 `), 0o644); err != nil {
@@ -857,4 +681,12 @@ func containsDiagnosticMessage(diagnostics []diag.Diagnostic, fragment string) b
 		}
 	}
 	return false
+}
+
+func TestReadinessForAdopterCount(t *testing.T) {
+	for count, want := range map[int]string{0: ReadinessLow, 2: ReadinessLow, 3: ReadinessMedium, 4: ReadinessMedium, 5: ReadinessHigh, 9: ReadinessHigh} {
+		if got := ReadinessForAdopterCount(count); got != want {
+			t.Fatalf("ReadinessForAdopterCount(%d) = %q, want %q", count, got, want)
+		}
+	}
 }

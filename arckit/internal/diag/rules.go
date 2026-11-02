@@ -305,6 +305,15 @@ var rules = []Rule{
 		Rationale:   "ARC dependency and reference relationships should not imply maturity regressions.",
 		Hint:        "Reference only ARCs at the same or higher maturity tier, or adjust the current ARC status.",
 	},
+	{
+		ID:          "R:039",
+		Severity:    SeverityError,
+		Title:       "Removed adoption field",
+		Description: "Adoption summaries must not declare fields that were removed from the schema: last-reviewed and summary.adoption-readiness.",
+		Rationale:   "Review dates live in git history and adoption maturity is derived from the tracked adopter count, so storing them only creates drift.",
+		Hint:        "Run arckit fmt to remove the field.",
+		AutoFixable: true,
+	},
 }
 
 var ruleIndex = func() map[string]Rule {
