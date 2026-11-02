@@ -398,8 +398,8 @@ PR auto-labeling should be path-based first:
 1. `arckit/**` -> `area:arckit`
 1. `.github/**` -> `area:github`
 
-PR stage labels should be derived from the selected PR template or equivalent PR body
-signal, and add exactly one of:
+PR stage labels must be derived from the changed files, not from the PR body, and add
+at most one of:
 
 1. `kind:draft`
 1. `kind:review`
@@ -407,6 +407,10 @@ signal, and add exactly one of:
 1. `kind:final`
 1. `kind:adoption`
 1. `kind:editorial`
+
+A new ARC file maps to `kind:draft`; an ARC `status` change to `Review`, `Last Call`,
+or `Final` maps to the matching label; other adoption file changes map to
+`kind:adoption`; other ARC file changes map to `kind:editorial`.
 
 ### 9.2 Issue Routing
 
