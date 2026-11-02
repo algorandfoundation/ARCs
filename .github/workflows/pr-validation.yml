@@ -148,6 +148,11 @@ jobs:
         if: steps.changed_arcs.outputs.run == 'true'
         run: |
           while IFS= read -r path; do
+            # Deprecated ARCs keep their legacy exemptions.
+            if awk 'NR == 1 && $0 == "---" { inside = 1; next } inside && $0 == "---" { exit } inside && $0 == "status: Deprecated" { found = 1 } END { exit !found }' "${path}"; then
+              echo "Skipping ${path}: Deprecated ARC."
+              continue
+            fi
             "${RUNNER_TEMP}/arckit" validate arc \
               --enforce-rule R:004 \
               --enforce-rule R:008 \
