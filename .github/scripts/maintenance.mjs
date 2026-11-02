@@ -3,7 +3,7 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { parseArcMetadataFile } from "./lib/arc-metadata.mjs";
-import { TRACKING_ISSUE_LABEL, hasTemplateShape } from "./lib/arc-governance.mjs";
+import { TRACKING_ISSUE_LABEL } from "./lib/arc-governance.mjs";
 
 const execFileAsync = promisify(execFile);
 const SIX_MONTHS_MS = 180 * 24 * 60 * 60 * 1000;
@@ -32,11 +32,6 @@ export async function runMaintenance({ github, context, core }) {
       continue;
     }
     const trackingIssue = repoIndex.trackingIssues.get(normalizeArcNumber(metadata.arc)) || null;
-    if (!trackingIssue) {
-      editorAction.push(`- ARC-${metadata.arc} ${metadata.title || ""}: create the missing tracking issue with the \`${TRACKING_ISSUE_LABEL}\` label.`);
-    } else if (!hasTemplateShape(trackingIssue.body || "")) {
-      editorAction.push(`- ARC-${metadata.arc} ${metadata.title || ""}: tracking issue #${trackingIssue.number} does not match the expected template shape.`);
-    }
 
     const latestPrUpdateAt = repoIndex.latestPrUpdates.get(normalizeArcNumber(metadata.arc)) || null;
     let latestActivity = await latestCanonicalActivity({
@@ -58,10 +53,7 @@ export async function runMaintenance({ github, context, core }) {
 
     const age = Date.now() - latestActivity.getTime();
     if (["Draft", "Review", "Last Call"].includes(metadata.status) && age >= SIX_MONTHS_MS) {
-      suggestedTransitions.push(`- ARC-${metadata.arc} ${metadata.title || ""}: suggest \`Stagnant\` due to no canonical activity since ${latestActivity.toISOString().slice(0, 10)}.${authorMentions(metadata.author)}`);
-    }
-    if (metadata.status === "Final" && age >= SIX_MONTHS_MS) {
-      suggestedTransitions.push(`- ARC-${metadata.arc} ${metadata.title || ""}: suggest editor review for \`Idle\` due to no canonical activity since ${latestActivity.toISOString().slice(0, 10)}.${authorMentions(metadata.author)}`);
+      suggestedTransitions.push(`- ARC-${metadata.arc} ${metadata.title || ""}: suggest \`Stagnant\` due to no canonical activity since ${latestActivity.toISOString().slice(0, 10)}.`);
     }
     if (metadata.status === "Stagnant" && age >= STAGNANT_FOLLOW_UP_MS) {
       editorAction.push(`- ARC-${metadata.arc} ${metadata.title || ""}: follow up on existing \`Stagnant\` ARC with no new activity since ${latestActivity.toISOString().slice(0, 10)}.`);
@@ -72,17 +64,18 @@ export async function runMaintenance({ github, context, core }) {
     authorsAction.push(`- ${formatDiagnostic(diagnostic)}.`);
   }
 
-  for (const diagnostic of (onlineReport.diagnostics || []).filter((item) => item.severity !== "info")) {
-    authorsAction.push(`- Advisory online finding: ${formatDiagnostic(diagnostic)}.`);
-  }
+  // Online link findings are advisory and flaky, so they only go to the workflow summary.
+  const onlineFindings = (onlineReport.diagnostics || [])
+    .filter((item) => item.severity !== "info")
+    .map((diagnostic) => `- ${formatDiagnostic(diagnostic)}.`);
 
   const month = new Date().toISOString().slice(0, 7);
   const reportBody = renderReport(month, authorsAction, editorAction, suggestedTransitions);
-  const issueBody = renderIssueBody(reportBody, summaryReport, summaryArtifactUrl);
 
   await core.summary
     .addHeading(`ARC maintenance report ${month}`)
     .addRaw(reportBody, true)
+    .addRaw(renderOnlineFindings(onlineFindings), true)
     .addRaw(renderRepoStateSummary(summaryReport, summaryArtifactUrl), true)
     .write();
 
@@ -91,7 +84,7 @@ export async function runMaintenance({ github, context, core }) {
     return;
   }
 
-  await upsertMonthlyIssue(github, context, month, issueBody);
+  await createMonthlyIssue(github, context, month, reportBody, core);
 }
 
 async function loadJSON(filePath) {
@@ -272,7 +265,7 @@ function shouldBackfillPullRequestActivity(status, latestActivity, latestPrUpdat
   }
 
   const age = Date.now() - latestActivity.getTime();
-  if (["Draft", "Review", "Last Call", "Final"].includes(status)) {
+  if (["Draft", "Review", "Last Call"].includes(status)) {
     return age >= SIX_MONTHS_MS;
   }
   if (status === "Stagnant") {
@@ -326,33 +319,31 @@ function formatDiagnostic(diagnostic) {
 }
 
 function renderReport(month, authorsAction, editorAction, suggestedTransitions) {
+  const sections = [
+    renderSection("Action required from ARC authors", authorsAction),
+    renderSection("Action required from ARC editor", editorAction),
+    renderSection("Suggested status transitions", suggestedTransitions),
+  ].filter(Boolean);
+  if (sections.length === 0) {
+    sections.push("No actionable findings.\n");
+  }
   return `# ${ISSUE_TITLE_PREFIX} ${month}
 
-## Action required from ARC authors
-
-${renderSection(authorsAction)}
-
-## Action required from ARC editor
-
-${renderSection(editorAction)}
-
-## Suggested status transitions
-
-${renderSection(suggestedTransitions)}
-`;
+${sections.join("\n")}`;
 }
 
-function renderIssueBody(reportBody, summaryMarkdown, artifactUrl) {
-  return `${reportBody}
-${renderRepoStateSummary(summaryMarkdown, artifactUrl)}
-`;
+function renderOnlineFindings(items) {
+  return renderSection("Advisory online findings", items);
 }
 
-function renderSection(items) {
+function renderSection(heading, items) {
   if (items.length === 0) {
-    return "- No action recorded in this category for this run.";
+    return "";
   }
-  return items.join("\n");
+  return `## ${heading}
+
+${items.join("\n")}
+`;
 }
 
 function renderRepoStateSummary(summaryMarkdown, artifactUrl) {
@@ -392,15 +383,7 @@ function extractRepoStateSummaryOverview(summaryMarkdown) {
   return excerpt.replace(/^## /gm, "### ");
 }
 
-function authorMentions(authorLine) {
-  const mentions = [...authorLine.matchAll(/@[A-Za-z0-9_-]+/g)].map((match) => match[0]);
-  if (mentions.length === 0) {
-    return "";
-  }
-  return ` Mention: ${mentions.join(" ")}.`;
-}
-
-async function upsertMonthlyIssue(github, context, month, body) {
+async function createMonthlyIssue(github, context, month, body, core) {
   const title = `${ISSUE_TITLE_PREFIX} ${month}`;
   const issues = await github.paginate(github.rest.issues.listForRepo, {
     owner: context.repo.owner,
@@ -411,13 +394,8 @@ async function upsertMonthlyIssue(github, context, month, body) {
   });
   const existing = issues.find((issue) => issue.title === title);
   if (existing) {
-    await github.rest.issues.update({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      issue_number: existing.number,
-      title,
-      body,
-    });
+    // Never rewrite an issue editors may already be working from; re-runs only refresh the workflow summary.
+    core.info(`Monthly issue #${existing.number} already exists; leaving it unchanged.`);
     return;
   }
   await github.rest.issues.create({

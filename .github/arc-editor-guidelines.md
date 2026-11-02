@@ -70,15 +70,15 @@ There is a `Monthly ARC maintenance` workflow that can:
 
 - run offline validation;
 - run online validation;
-- detect missing or malformed tracking issues;
-- detect inactivity that may suggest `Stagnant` or `Idle`;
+- detect inactivity that may suggest `Stagnant`;
 - generate and upload the ARC state summary markdown artifact;
-- create or update one rollup GitHub issue for the current month with author and editor actions.
+- create one rollup GitHub issue for the current month with author and editor actions.
 
 This workflow runs on a monthly cron schedule and can also be started manually.
 It always writes a workflow summary and uploads the full ARC state summary artifact.
-It creates or updates the monthly rollup issue only when the run finds actionable
-maintenance or online-link findings.
+It creates the monthly rollup issue only when the run finds actionable maintenance
+findings; online link findings appear only in the workflow summary, and re-runs never
+rewrite an existing monthly issue.
 
 ### Editor reminders from ARC-Kit
 

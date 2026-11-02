@@ -246,7 +246,6 @@ The monthly audit must review:
 
 1. offline repository validation;
 1. online repository validation;
-1. ARC-to-tracking-issue process consistency;
 1. inactivity across canonical ARC records.
 
 ### 6.3 Deterministic Findings
@@ -262,8 +261,6 @@ Deterministic maintenance findings include:
 1. `medium` or `high` adoption readiness declared without enough tracked adopters;
 1. `Final` ARCs whose adoption summaries have no tracked adopters;
 1. missing local links or asset targets;
-1. ARC and tracking issue mismatches that are machine-checkable;
-1. missing required tracking issues;
 1. missing required PR references;
 1. missing required transition metadata that is deterministically enforceable.
 
@@ -273,28 +270,33 @@ These findings require a concrete call to action in the monthly report.
 
 Online maintenance findings include external link failures discovered by online validation.
 
-These findings must be reported separately from deterministic repository failures and
-must not, by themselves, imply a required status transition.
+These findings must be reported only in the workflow summary, never in the monthly
+rollup issue, and must not, by themselves, cause the issue to be created or imply a
+required status transition.
 
 ### 6.5 Monthly Report Output
 
 Each monthly run must always produce a workflow summary report.
 It should also upload the full ARC state summary markdown as a workflow artifact.
 
-When action is required, the pipeline must create or update one rollup issue for the
-current calendar month, named in the form:
+When action is required, the pipeline must create one rollup issue for the current
+calendar month, named in the form:
 
 ```text
 Monthly ARC maintenance report YYYY-MM
 ```
 
-Re-runs within the same month must update that issue rather than open duplicates.
+Re-runs within the same month must neither open duplicates nor rewrite the existing
+issue; they only refresh the workflow summary.
 
-The rollup issue must contain these sections:
+The rollup issue may contain these sections, and must omit any that are empty:
 
 1. `Action required from ARC authors`
 1. `Action required from ARC editor`
 1. `Suggested status transitions`
+
+The rollup issue must not repeat the ARC state summary; that belongs in the workflow
+summary and artifact.
 
 Each ARC entry should include:
 
@@ -303,8 +305,11 @@ Each ARC entry should include:
 1. the deterministic evidence or advisory signal;
 1. a concrete next step.
 
-When author handles can be parsed from ARC front matter, including YAML sequence-valued
-author fields, the report should mention them.
+The report must not mention (`@`-tag) ARC authors or any other GitHub user, to avoid
+notification spam.
+
+Missing or malformed tracking issues are enforced by the PR process check (§5.4) and
+must not be reported in the monthly report.
 
 ## 7. Inactivity and Status Suggestions
 
@@ -322,11 +327,11 @@ If an ARC is in `Draft`, `Review`, or `Last Call` and shows no canonical activit
 for six months or more, the monthly maintenance report should suggest moving it to
 `Stagnant`.
 
-### 7.3 Suggested `Idle`
+### 7.3 No Automatic `Idle` Suggestion
 
-If an ARC is in `Final` and shows no canonical maintenance activity for six months
-or more, the monthly maintenance report should suggest editor review for moving it
-to `Idle`.
+Inactivity is not a useful signal for `Final` ARCs: a stable, widely adopted ARC
+naturally sees no changes. The monthly maintenance report must not suggest moving
+`Final` ARCs to `Idle`; that review stays an editor decision.
 
 ### 7.4 Existing `Stagnant`
 
@@ -452,9 +457,9 @@ following behaviors:
    malformed.
 1. Online validation runs only in monthly maintenance and does not become the canonical merge gate.
 1. A monthly maintenance review produces a workflow summary every month.
-1. Actionable maintenance findings create or update one monthly rollup issue with
-   author and editor call to action.
-1. Six-month inactivity causes a suggested `Stagnant` or `Idle` outcome in the monthly
-   report according to ARC status.
+1. Actionable maintenance findings create one monthly rollup issue with author and
+   editor call to action.
+1. Six-month inactivity of a `Draft`, `Review`, or `Last Call` ARC causes a suggested
+   `Stagnant` outcome in the monthly report.
 1. `arckit` binary releases are defined from `arckit/vX.Y.Z` tags with multi-platform
    archives and checksums.
