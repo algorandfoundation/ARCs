@@ -84,6 +84,8 @@ go run ./cmd/arckit validate arc \
   --enforce-rule R:032 \
   ../ARCs/arc-0000.md
 go run ./cmd/arckit validate arc --ignore-config ../ARCs/arc-0000.md
+go run ./cmd/arckit validate transition --to Final ../ARCs/arc-0042.md
+go run ./cmd/arckit validate transition --from "Last Call" --to Final ../ARCs/arc-0042.md
 go run ./cmd/arckit validate adoption ../adoption/arc-0042.yaml
 go run ./cmd/arckit validate links ../ARCs/arc-0000.md
 go run ./cmd/arckit fmt ../ARCs/arc-0000.md

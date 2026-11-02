@@ -10,13 +10,29 @@ import (
 	"github.com/algorandfoundation/ARCs/arckit/internal/diag"
 )
 
+// Validate checks an ARC file that is still in its pre-transition status.
 func Validate(path string, target string) ([]diag.Diagnostic, error) {
+	return validate(path, "", target)
+}
+
+// ValidateApplied checks an ARC file whose status has already been changed to target,
+// as in a pull request, with from as the status before the change.
+func ValidateApplied(path string, from string, target string) ([]diag.Diagnostic, error) {
+	return validate(path, from, target)
+}
+
+func validate(path string, from string, target string) ([]diag.Diagnostic, error) {
 	document, diagnostics, err := arc.Load(path)
 	if err != nil {
 		return diagnostics, err
 	}
 	repoRoot := arc.FindRepoRoot(filepath.Dir(path))
 	diagnostics = append(diagnostics, arc.Validate(document, repoRoot)...)
+	applied := from != ""
+	current := document.Status
+	if applied {
+		current = from
+	}
 
 	require := func(condition bool, message string) {
 		if !condition {
@@ -26,10 +42,13 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 
 	require(len(requiredSections(document, []string{"Abstract", "Motivation", "Specification", "Rationale", "Security Considerations", "Copyright"})) == 0, "required ARC sections are missing")
 	require(hasField(document, "implementation-required"), "implementation-required must be explicitly declared")
+	if applied {
+		require(document.Status == target, fmt.Sprintf("status must be %s after the transition", target))
+	}
 
 	switch target {
 	case "Review":
-		require(document.Status == "Draft", "transition to Review requires current status Draft")
+		require(current == "Draft", "transition to Review requires current status Draft")
 		if document.ImplementationRequired {
 			require(document.ImplementationURL != "", "implementation-url is required when implementation-required is true")
 			require(document.ImplementationMaintainer != "", "implementation-maintainer is required when implementation-required is true")
@@ -37,7 +56,7 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 			require(hasSection(document, "Test Cases"), "Test Cases section is required when implementation-required is true")
 		}
 	case "Last Call":
-		require(document.Status == "Review", "transition to Last Call requires current status Review")
+		require(current == "Review", "transition to Last Call requires current status Review")
 		summary := loadSummary(document, &diagnostics)
 		require(summary != nil, "transition to Last Call requires a valid adoption summary")
 		require(document.AdoptionSummary == fmt.Sprintf("adoption/arc-%04d.yaml", document.Number), "adoption-summary must point to the matching adoption file")
@@ -48,8 +67,11 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 			}
 		}
 	case "Final":
-		require(document.Status == "Last Call", "transition to Final requires current status Last Call")
-		require(document.LastCallDeadline != "", "last-call-deadline is required for transition to Final")
+		require(current == "Last Call", "transition to Final requires current status Last Call")
+		// A Final ARC must drop last-call-deadline (R:033), so only the pre-transition file carries it.
+		if !applied {
+			require(document.LastCallDeadline != "", "last-call-deadline is required for transition to Final")
+		}
 		summary := loadSummary(document, &diagnostics)
 		if summary == nil {
 			require(false, "transition to Final requires a valid adoption summary")
@@ -64,7 +86,7 @@ func Validate(path string, target string) ([]diag.Diagnostic, error) {
 			}
 		}
 	case "Idle":
-		require(document.Status == "Final", "transition to Idle requires current status Final")
+		require(current == "Final", "transition to Idle requires current status Final")
 		hasSummary := loadSummary(document, &diagnostics) != nil
 		require(hasSummary, "transition to Idle requires a valid adoption summary")
 	default:
