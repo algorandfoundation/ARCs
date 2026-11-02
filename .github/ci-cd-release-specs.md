@@ -69,8 +69,6 @@ The minimum supported labels are:
 1. `kind:editorial`
 1. `arc-tracking`
 1. `maintenance-report`
-1. `maintenance:authors-action`
-1. `maintenance:editor-action`
 
 ## 5. Pull Request Validation
 

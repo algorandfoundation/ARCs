@@ -59,10 +59,8 @@ If the PR body does not contain a recognized template marker, no `kind:*` label 
 inferred automatically.
 
 The CI/CD spec also defines the supported label vocabulary for editor workflows,
-including `arc-tracking`, `maintenance-report`, `maintenance:authors-action`, and
-`maintenance:editor-action`. Of those, the current automation actively applies
-`area:*`, `kind:*`, and `maintenance-report`; the `maintenance:*` action labels are
-policy vocabulary, but are not currently applied by the monthly workflow.
+including `arc-tracking` and `maintenance-report`. The automation applies `area:*`,
+`kind:*`, and `maintenance-report`.
 
 ### Monthly maintenance report
 
