@@ -158,16 +158,17 @@ jobs:
       - name: Validate ARC status transitions
         if: steps.changed_arcs.outputs.run == 'true'
         run: |
-          front_matter_status() {
-            awk 'NR == 1 && $0 == "---" { inside = 1; next } inside && $0 == "---" { exit } inside && sub(/^status:[[:space:]]*/, "") { print; exit }'
+          front_matter_field() {
+            awk -v field="$1" 'NR == 1 && $0 == "---" { inside = 1; next } inside && $0 == "---" { exit } inside && sub("^" field ":[[:space:]]*", "") { print; exit }'
           }
+          today="$(date -u +%F)"
           failed=0
           while IFS= read -r path; do
             if ! git cat-file -e "${{ github.event.pull_request.base.sha }}:${path}" 2>/dev/null; then
               continue
             fi
-            from="$(git show "${{ github.event.pull_request.base.sha }}:${path}" | front_matter_status)"
-            to="$(front_matter_status < "${path}")"
+            from="$(git show "${{ github.event.pull_request.base.sha }}:${path}" | front_matter_field status)"
+            to="$(front_matter_field status < "${path}")"
             if [[ "${from}" == "${to}" ]]; then
               continue
             fi
@@ -180,6 +181,14 @@ jobs:
               *)
                 echo "Validating ${path}: ${from} -> ${to}"
                 "${RUNNER_TEMP}/arckit" validate transition --from "${from}" --to "${to}" "${path}" || failed=1
+                if [[ "${from} -> ${to}" == "Last Call -> Final" ]]; then
+                  # The deadline is removed on Final (R:033), so read it from the base branch.
+                  deadline="$(git show "${{ github.event.pull_request.base.sha }}:${path}" | front_matter_field last-call-deadline)"
+                  if [[ -z "${deadline}" || "${today}" < "${deadline}" ]]; then
+                    echo "ERROR ${path}: last-call-deadline ${deadline:-<missing>} has not been reached (today is ${today})"
+                    failed=1
+                  fi
+                fi
                 ;;
             esac
           done < "${RUNNER_TEMP}/changed-arcs.txt"

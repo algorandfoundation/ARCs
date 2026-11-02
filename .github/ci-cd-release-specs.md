@@ -144,6 +144,9 @@ gates such as `Draft` to `Final`. Moves that ARC-0000 allows without a forward g
 `Withdrawn`, `Deprecated`, or `Living`) are not validated. New ARC files are not
 validated, since they have no prior status.
 
+For `Last Call` to `Final`, the workflow must also fail when the base branch
+`last-call-deadline` is missing or later than the current UTC date.
+
 ### 5.2 Hygiene Check
 
 The pipeline must include a hygiene check driven by the repository-root
