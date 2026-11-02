@@ -1,6 +1,5 @@
 arc: 4
 title: Application Binary Interface (ABI)
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers:
@@ -32,6 +31,5 @@ adoption:
       evidence: https://github.com/Folks-Finance/algorand-ntt-contracts
       notes: Folks Finance NTT implementation uses ARC-4 interfaces.
 summary:
-  adoption-readiness: high
   blockers: []
   notes: ""

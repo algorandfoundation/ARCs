@@ -1,6 +1,5 @@
 arc: 65
 title: AVM Run Time Errors In Program
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers: []
@@ -12,6 +11,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

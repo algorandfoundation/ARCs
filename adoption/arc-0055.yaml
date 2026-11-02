@@ -1,6 +1,5 @@
 arc: 55
 title: On-Chain storage/transfer for Multisig
-last-reviewed: 2026-04-09
 adoption:
   wallets:
     - name: lute
@@ -12,6 +11,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

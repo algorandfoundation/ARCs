@@ -1,6 +1,5 @@
 arc: 59
 title: ASA Inbox Router
-last-reviewed: 2026-04-09
 adoption:
   wallets:
     - name: pera
@@ -12,6 +11,5 @@ adoption:
   infra: []
   dapps-protocols: []
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

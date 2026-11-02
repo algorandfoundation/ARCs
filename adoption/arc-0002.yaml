@@ -1,6 +1,5 @@
 arc: 2
 title: Algorand Transaction Note Field Conventions
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers:
@@ -16,6 +15,5 @@ adoption:
       evidence: https://lora.algokit.io/mainnet/transaction/GDV5UTATNBEVVMXUVUS3ASXXVCVFVXU7CB2P54C55O647FJJY7OA
       notes: Algorand Foundation Governance dApp makes use of ARC-2 messages.
 summary:
-  adoption-readiness: low
   blockers: []
   notes: ""

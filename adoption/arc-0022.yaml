@@ -1,6 +1,5 @@
 arc: 22
 title: Add `read-only` annotation to ABI methods
-last-reviewed: 2026-04-09
 adoption:
   wallets: []
   explorers:
@@ -28,6 +27,5 @@ adoption:
       evidence: https://github.com/Folks-Finance/algorand-ntt-contracts
       notes: Folks Finance NTT implementation uses ARC-22 read-only methods.
 summary:
-  adoption-readiness: high
   blockers: []
   notes: ""
