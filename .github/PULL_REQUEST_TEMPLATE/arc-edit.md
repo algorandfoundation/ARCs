@@ -15,12 +15,9 @@ Describe the editorial change.
 - ARC File(s):
 - Related Issues / PRs:
 
-## Editorial Checklist
+## Checklist
 
-- [ ] This PR does not introduce a normative change.
-- [ ] This PR does not change ARC intent or requirements.
-- [ ] Links were checked.
-- [ ] Metadata remains consistent.
+- [ ] This PR introduces no normative change and does not change ARC intent or requirements.
 
 ## Notes for Reviewers
 

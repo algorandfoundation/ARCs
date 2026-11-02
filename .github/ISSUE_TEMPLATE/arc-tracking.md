@@ -7,18 +7,13 @@ labels: ["arc-tracking"]
 
 ## ARC
 
-- ARC: [ARC-####](../ARCs/arc-####.md)
-- Sponsor:
-- Status:
+- ARC: [ARC-####](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-####.md)
 - Pre-ARC Discussion:
-- ARC PR:
-- Adoption Summary:
 
 ## Canonical Artifacts
 
-- Spec PR:
-- Adoption summary file:
-- Tracking issue:
+- ARC PR:
+- Adoption summary: [adoption/arc-####.yaml](https://github.com/algorandfoundation/ARCs/blob/main/adoption/arc-####.yaml)
 - Reference implementation repo:
 
 ## Gate Checklist

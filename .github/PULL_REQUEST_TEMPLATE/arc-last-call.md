@@ -16,29 +16,9 @@ Describe why the ARC is stable enough for final ecosystem review.
 - Reference Implementation Repository:
 - Related Issues / PRs:
 
-## Requested Status Change
+## Checklist
 
-- [ ] Change ARC status to `Last Call`
-
-## Last Call Gate Checklist
-
-- [ ] All `Review` requirements are satisfied.
-- [ ] There are no unresolved normative design questions.
-- [ ] The ARC text is stable enough for final review.
-- [ ] The tracking issue is current.
-- [ ] The adoption summary exists and is up to date.
-
-### If `implementation-required: true`
-
-- [ ] The reference implementation repository is active.
-- [ ] Runnable code, tests, examples, or conformance artifacts exist.
-- [ ] The ARC front matter still declares the canonical implementation URL and maintainers.
-- [ ] The adoption summary reflects the current implementation status.
-
-## Requested Maintainer Action
-
-- [ ] Set `last-call-deadline`
-- [ ] Set status to `Last Call`
+- [ ] If `implementation-required: true`, runnable code, tests, examples, or conformance artifacts exist.
 
 ## Notes for Reviewers
 

@@ -36,9 +36,6 @@ func TestBuildSummaryAggregatesEditorState(t *testing.T) {
 	if summary.AdoptionSummaryCoverage != 5 {
 		t.Fatalf("AdoptionSummaryCoverage = %d, want 5", summary.AdoptionSummaryCoverage)
 	}
-	if summary.TotalAdoptionFiles != 5 {
-		t.Fatalf("TotalAdoptionFiles = %d, want 5", summary.TotalAdoptionFiles)
-	}
 	if summary.TotalAdopterEntries != 5 {
 		t.Fatalf("TotalAdopterEntries = %d, want 5", summary.TotalAdopterEntries)
 	}
@@ -174,8 +171,8 @@ func TestBuildSummaryUsesValidatedStateWithIgnoredARCs(t *testing.T) {
 	if len(summary.ImplementationRequiredNotShipped) != 0 {
 		t.Fatalf("ImplementationRequiredNotShipped = %+v, want empty after ignoring ARC 47", summary.ImplementationRequiredNotShipped)
 	}
-	if summary.TotalAdoptionFiles != 4 {
-		t.Fatalf("TotalAdoptionFiles = %d, want 4 after ignoring ARC 47", summary.TotalAdoptionFiles)
+	if summary.AdoptionSummaryCoverage != 4 {
+		t.Fatalf("AdoptionSummaryCoverage = %d, want 4 after ignoring ARC 47", summary.AdoptionSummaryCoverage)
 	}
 }
 

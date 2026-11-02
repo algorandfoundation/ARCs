@@ -15,11 +15,10 @@ import (
 
 func BuildSummary(state State, diagnostics []diag.Diagnostic, now time.Time) RepoSummary {
 	summary := RepoSummary{
-		Root:               filepath.Clean(state.Root),
-		GeneratedAt:        now.UTC(),
-		ValidationSummary:  diag.Summarize(diagnostics),
-		TotalARCs:          len(state.ARCs),
-		TotalAdoptionFiles: len(state.Adoptions),
+		Root:              filepath.Clean(state.Root),
+		GeneratedAt:       now.UTC(),
+		ValidationSummary: diag.Summarize(diagnostics),
+		TotalARCs:         len(state.ARCs),
 	}
 
 	statusCounts := map[string]int{}

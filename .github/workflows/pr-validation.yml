@@ -155,3 +155,32 @@ jobs:
               --enforce-rule R:032 \
               "${path}"
           done < "${RUNNER_TEMP}/changed-arcs.txt"
+      - name: Validate ARC status transitions
+        if: steps.changed_arcs.outputs.run == 'true'
+        run: |
+          front_matter_status() {
+            awk 'NR == 1 && $0 == "---" { inside = 1; next } inside && $0 == "---" { exit } inside && sub(/^status:[[:space:]]*/, "") { print; exit }'
+          }
+          failed=0
+          while IFS= read -r path; do
+            if ! git cat-file -e "${{ github.event.pull_request.base.sha }}:${path}" 2>/dev/null; then
+              continue
+            fi
+            from="$(git show "${{ github.event.pull_request.base.sha }}:${path}" | front_matter_status)"
+            to="$(front_matter_status < "${path}")"
+            if [[ "${from}" == "${to}" ]]; then
+              continue
+            fi
+            # ARC-0000 allows these moves without a forward gate; any other move into a gated
+            # status is validated, so skipped gates (e.g. Draft -> Final) fail.
+            case "${from} -> ${to}" in
+              "Last Call -> Review" | "Idle -> Final" | *" -> Draft" | *" -> Stagnant" | *" -> Withdrawn" | *" -> Deprecated" | *" -> Living")
+                echo "No machine-checkable gate for ${path}: ${from} -> ${to}"
+                ;;
+              *)
+                echo "Validating ${path}: ${from} -> ${to}"
+                "${RUNNER_TEMP}/arckit" validate transition --from "${from}" --to "${to}" "${path}" || failed=1
+                ;;
+            esac
+          done < "${RUNNER_TEMP}/changed-arcs.txt"
+          exit "${failed}"

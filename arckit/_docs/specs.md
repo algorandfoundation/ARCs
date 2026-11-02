@@ -116,7 +116,7 @@ arckit validate arc <arc-file>
 arckit validate adoption <adoption-file>
 arckit validate links <path...>
 arckit validate repo [repo-root]
-arckit validate transition <arc-file> --to <status>
+arckit validate transition <arc-file> --to <status> [--from <status>]
 arckit init arc --number <n> --title <title> --type <type> [--category <category>] [--sub-category <sub-category>] --sponsor <sponsor>
 arckit rules
 arckit explain <rule-id>
@@ -284,7 +284,7 @@ The markdown report must include:
 
 1. generated timestamp, repo root, and current `validate repo` summary counts;
 1. repo-wide totals by ARC status and ARC type;
-1. asset coverage, adoption-summary coverage, adoption file totals, adopter totals,
+1. asset coverage, adoption-summary coverage, adopter totals,
    and adoption-readiness totals;
 1. explicit transition watch tables for overdue `Last Call`, upcoming `Last Call`
    within 14 days, `Idle` ARCs, and implementation-required ARCs whose canonical
@@ -314,6 +314,12 @@ Supported target statuses are:
 - `Last Call`
 - `Final`
 - `Idle`
+
+Without `--from`, the file is expected to still carry its pre-transition status.
+With `--from <status>`, the file is expected to already carry the target status, as in
+a pull request that applies the transition; the command then checks `--from` as the
+previous status and does not require `last-call-deadline` for `Final`, since a `Final`
+ARC must not declare it.
 
 This command must never claim that a transition is fully approved. It validates only
 repository evidence and must emit `info` reminders for required manual checks.

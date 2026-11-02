@@ -200,8 +200,9 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 		Args:  cobra.ExactArgs(1),
 		Short: "Validate a machine-verifiable status transition",
 	}
-	var targetStatus string
+	var targetStatus, fromStatus string
 	transitionCmd.Flags().StringVar(&targetStatus, "to", "", "target ARC status")
+	transitionCmd.Flags().StringVar(&fromStatus, "from", "", "previous ARC status, for a file whose status is already the target")
 	if err := transitionCmd.MarkFlagRequired("to"); err != nil {
 		panic(err)
 	}
@@ -218,7 +219,12 @@ func newValidateCommand(opts *options, exitCode *int, stdout io.Writer) *cobra.C
 			if shouldIgnorePath(cfg, args[0]) {
 				return reportForValidation("validate transition", nil), nil
 			}
-			diagnostics, _ := transition.Validate(args[0], targetStatus)
+			var diagnostics []diag.Diagnostic
+			if strings.TrimSpace(fromStatus) != "" {
+				diagnostics, _ = transition.ValidateApplied(args[0], fromStatus, targetStatus)
+			} else {
+				diagnostics, _ = transition.Validate(args[0], targetStatus)
+			}
 			return reportForValidation("validate transition", cfg.FilterDiagnostics(diagnostics)), nil
 		})
 	}

@@ -11,7 +11,6 @@
 - Total ARCs: `6`
 - ARCs with assets: `1`
 - Adoption summary coverage: `5/6`
-- Total adoption files: `5`
 - Total adopter entries: `5`
 - ARCs with at least one adopter: `4`
 

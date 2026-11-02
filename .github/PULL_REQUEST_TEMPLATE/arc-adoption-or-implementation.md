@@ -17,20 +17,9 @@ Describe what changed in the adoption summary.
 - Reference Implementation Repository:
 - Related Issues / PRs:
 
-## Type of Adoption Update
+## Checklist
 
-- [ ] New adopter
-- [ ] Implementation status update
-- [ ] Canonical implementation declaration update
-
-## Adoption Update Checklist
-
-- [ ] Wallet / explorer / SDK / infra / dApp sections were updated where relevant.
-- [ ] Any new adopter name was added to `adoption/vetted-adopters.yaml` in the matching category.
-- [ ] If the ARC is `Final`, at least one adoption category remains non-empty.
-- [ ] If the implementation repository URL or maintainer list changed, the ARC front matter was updated.
-- [ ] The adoption summary reflects current implementation status.
-- [ ] The tracking issue was updated if this changes gate readiness.
+- [ ] Every new adoption entry links public, verifiable evidence.
 
 ## Notes for Reviewers
 

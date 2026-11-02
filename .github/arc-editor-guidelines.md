@@ -44,8 +44,7 @@ metadata, automation currently checks that:
 
 - a matching tracking issue exists;
 - the tracking issue matches the repository tracking issue template shape;
-- the tracking issue carries the `arc-tracking` label;
-- the PR body explicitly references the tracking issue.
+- the tracking issue carries the `arc-tracking` label.
 
 Automation fails the PR if any of those repository-process requirements are missing.
 
@@ -60,10 +59,8 @@ If the PR body does not contain a recognized template marker, no `kind:*` label 
 inferred automatically.
 
 The CI/CD spec also defines the supported label vocabulary for editor workflows,
-including `arc-tracking`, `maintenance-report`, `maintenance:authors-action`, and
-`maintenance:editor-action`. Of those, the current automation actively applies
-`area:*`, `kind:*`, and `maintenance-report`; the `maintenance:*` action labels are
-policy vocabulary, but are not currently applied by the monthly workflow.
+including `arc-tracking` and `maintenance-report`. The automation applies `area:*`,
+`kind:*`, and `maintenance-report`.
 
 ### Monthly maintenance report
 
@@ -71,20 +68,21 @@ There is a `Monthly ARC maintenance` workflow that can:
 
 - run offline validation;
 - run online validation;
-- detect missing or malformed tracking issues;
-- detect inactivity that may suggest `Stagnant` or `Idle`;
+- detect inactivity that may suggest `Stagnant`;
 - generate and upload the ARC state summary markdown artifact;
-- create or update one rollup GitHub issue for the current month with author and editor actions.
+- create one rollup GitHub issue for the current month with author and editor actions.
 
 This workflow runs on a monthly cron schedule and can also be started manually.
 It always writes a workflow summary and uploads the full ARC state summary artifact.
-It creates or updates the monthly rollup issue only when the run finds actionable
-maintenance or online-link findings.
+It creates the monthly rollup issue only when the run finds actionable maintenance
+findings; online link findings appear only in the workflow summary, and re-runs never
+rewrite an existing monthly issue.
 
 ### Editor reminders from ARC-Kit
 
-`arckit` can validate machine-checkable transition requirements, but it only emits
-informational reminders for editorial checks such as:
+`arckit` validates machine-checkable transition requirements, and PR validation runs it
+on every ARC whose `status` changes. It only emits informational reminders for
+editorial checks such as:
 
 - consensus and dissent handling;
 - adequacy of adoption evidence;
